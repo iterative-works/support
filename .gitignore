@@ -1,0 +1,89 @@
+# use glob syntax.
+syntax: glob
+*.ser
+*.class
+*~
+*.bak
+*.off
+*.old
+.DS_Store
+/.direnv/
+
+# eclipse conf file
+.settings
+.classpath
+.project
+.manager
+
+# building
+target
+null
+tmp*
+dist
+test-output
+
+# other scm
+.svn
+.CVS
+.hg*
+
+# switch to regexp syntax.
+#  syntax: regexp
+#  ^\.pc/
+
+# IntelliJ
+*.iws
+*.ids
+.idea
+#.idea/workspace.xml
+#.idea/tasks.xml
+#.idea/datasources.xml
+#.idea/libraries
+#.idea/dictionaries
+
+# vim files
+Session.vim
+tags
+.tags
+
+# Python compiled files
+*.pyc
+
+# Vagrant files
+.vagrant
+
+#Cache files
+.cache
+
+#scripts
+bin
+
+#is modules
+node_modules
+ext-lib
+
+#netbeans project
+nbproject
+
+.idea_modules
+logs
+
+# ensime project files
+.ensime
+.ensime_cache/
+
+#local ensime config
+ensime.sbt
+
+#visual code
+.vscode
+
+# bloop
+.bloop/
+.bsp/
+.metals/
+metals.sbt
+out/
+
+# semanticdb
+*.semanticdb

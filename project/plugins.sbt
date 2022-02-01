@@ -1,0 +1,3 @@
+addIWProjects
+
+addScalaJSSupport
