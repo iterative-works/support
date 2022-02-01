@@ -3,7 +3,7 @@ package cz.e_bs.cmi.mdr.pdb
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
-import com.raquo.laminar.api.L._
+import com.raquo.laminar.api.L.{*, given}
 
 @JSExportTopLevel("app")
 object Main {
