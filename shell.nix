@@ -8,4 +8,6 @@
 } }:
 
 with pkgs;
-mkShell { buildInputs = [ jre ammonite coursier bloop sbt scalafmt ]; }
+mkShell {
+  buildInputs = [ jre ammonite coursier bloop sbt scalafmt nodejs-16_x ];
+}

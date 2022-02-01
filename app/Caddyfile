@@ -1,0 +1,30 @@
+:80 {
+    root * /srv
+
+    @app {
+      path /mdr/app /mdr/app/ /mdr/app/*
+    }
+
+    @static {
+      path /mdr/assets/* /mdr/css/* /mdr/images/* /mdr/doc/*
+    }
+
+    handle @app {
+      rewrite * /mdr/index.html
+      file_server
+    }
+
+    handle @static {
+      file_server
+    }
+
+    handle {
+        reverse_proxy {env.BACKEND} {
+            # This is for Play, it expects to have the same number of
+            # comma-separated values in X-Forwarded-For as in X-Forwarded-Proto.
+            # TODO: make the comma conditional when not behind another proxy
+            # This works for production and staging, might break https in dev
+            header_up X-Forwarded-Proto "{http.request.header.X-Forwarded-Proto}, http"
+        }
+    }
+}
