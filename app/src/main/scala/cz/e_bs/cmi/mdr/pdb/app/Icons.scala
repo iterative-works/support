@@ -6,14 +6,12 @@ import com.raquo.laminar.keys.ReactiveSvgAttr
 import com.raquo.laminar.builders.SvgBuilders
 import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
 
-object Icons {
-  object aria {
+object Icons:
+  object aria:
     val hidden = customSvgAttr("aria-hidden", BooleanAsTrueFalseStringCodec)
-  }
 
-  object outline {
+  object outline:
     val bell =
-      // <!-- Heroicon name: outline/bell -->
       svg(
         cls := "h-6 w-6",
         xmlns := "http://www.w3.org/2000/svg",
@@ -43,6 +41,7 @@ object Icons {
         d := "M4 6h16M4 12h16M4 18h16"
       )
     )
+
     val x =
       svg(
         cls := "hidden h-6 w-6",
@@ -58,5 +57,3 @@ object Icons {
           d := "M6 18L18 6M6 6l12 12"
         )
       )
-  }
-}

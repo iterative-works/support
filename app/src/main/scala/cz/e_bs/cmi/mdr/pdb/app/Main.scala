@@ -13,7 +13,7 @@ import scala.scalajs.js.Date
 object Css extends js.Any
 
 @JSExportTopLevel("app")
-object Main {
+object Main:
 
   // Pull in the stylesheet
   val css: Css.type = Css
@@ -29,4 +29,3 @@ object Main {
     )
     val root: RootNode = render(appContainer, Layout.layout(appElement))
   }
-}

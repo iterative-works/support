@@ -3,7 +3,7 @@ package cz.e_bs.cmi.mdr.pdb.app
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 
-object Layout {
+object Layout:
   val ariaCurrent = customProp("aria-current", StringAsIsCodec)
 
   def layout(content: HtmlElement): HtmlElement =
@@ -256,4 +256,3 @@ object Layout {
         )
       )
     )
-}
