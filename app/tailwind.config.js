@@ -6,7 +6,7 @@ const path = require('path')
 
 module.exports = {
     mode: 'jit',
-    purge: [
+    content: [
         path.resolve(__dirname, `./${appInfo.bundlePath(process.env.NODE_ENV)}/*.js`),
         path.resolve(__dirname, './*.html'),
     ],
@@ -16,7 +16,7 @@ module.exports = {
                 serif: ['Inter', 'ui-serif', 'Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
             },
             colors: {
-                gray: colors.coolGray,
+                gray: colors.gray,
             },
         },
     },

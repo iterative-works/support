@@ -1,5 +1,5 @@
 import path from 'path'
-import {minifyHtml, injectHtml} from 'vite-plugin-html'
+import { createHtmlPlugin } from 'vite-plugin-html'
 import appInfo from './app-info.js'
 
 //const moduleUrl = new URL(import.meta.url)
@@ -14,12 +14,12 @@ export default ({mode}) => {
     return {
         publicDir: './src/main/static/public',
         plugins: [
-            ...(process.env.NODE_ENV === 'production' ? [
-                minifyHtml(),
-            ] : []),
-            injectHtml({
-                injectData: {
-                    script
+            createHtmlPlugin({
+                minify: process.env.NODE_ENV === 'production',
+                inject: {
+                    data: {
+                        script
+                    }
                 }
             })
         ],
