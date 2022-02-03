@@ -1,4 +1,6 @@
 {
+  "name": "mdr-personnel-db-app",
+  "packageManager": "yarn@3.1.1",
   "private": true,
   "devDependencies": {
     "@tailwindcss/forms": "^0.4.0",
@@ -22,6 +24,5 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"
-  },
-  "dependencies": {}
+  }
 }
