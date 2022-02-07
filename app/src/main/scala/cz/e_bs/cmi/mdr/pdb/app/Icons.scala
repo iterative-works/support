@@ -11,7 +11,7 @@ object Icons:
     val hidden = customSvgAttr("aria-hidden", BooleanAsTrueFalseStringCodec)
 
   object outline:
-    val bell =
+    def bell =
       svg(
         cls := "h-6 w-6",
         xmlns := "http://www.w3.org/2000/svg",
@@ -27,8 +27,8 @@ object Icons:
         )
       )
 
-    val menu = svg(
-      cls := "block h-6 w-6",
+    def menu = svg(
+      cls := "h-6 w-6",
       xmlns := "http://www.w3.org/2000/svg",
       fill := "none",
       viewBox := "0 0 24 24",
@@ -42,9 +42,9 @@ object Icons:
       )
     )
 
-    val x =
+    def x =
       svg(
-        cls := "hidden h-6 w-6",
+        cls := "h-6 w-6",
         xmlns := "http://www.w3.org/2000/svg",
         fill := "none",
         viewBox := "0 0 24 24",

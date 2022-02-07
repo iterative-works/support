@@ -27,5 +27,8 @@ object Main:
       "Current time is: ",
       b(child.text <-- $time)
     )
-    val root: RootNode = render(appContainer, Layout.layout(appElement))
+    val pages = Var(List(Dashboard, Detail))
+    val currentPage = Var(Dashboard)
+    val root: RootNode =
+      render(appContainer, Layout(pages.signal, currentPage.signal, appElement))
   }
