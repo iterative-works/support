@@ -3,6 +3,7 @@ package cz.e_bs.cmi.mdr.pdb.app.components
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.{Page, UserProfile}
+import com.raquo.waypoint.Router
 
 def PageHeader(currentPage: Signal[Page]): HtmlElement =
   header(
@@ -36,19 +37,17 @@ def Layout(
     logo: Navigation.Logo,
     profile: Signal[UserProfile],
     pages: Signal[List[Page]],
-    currentPage: Signal[Page],
     userMenu: Signal[List[Navigation.MenuItem]],
     content: HtmlElement
-): HtmlElement =
+)(using router: Router[Page]): HtmlElement =
   div(
     cls := "min-h-full",
     Navigation(
       logo,
       profile,
       pages,
-      currentPage,
       userMenu
     ),
-    PageHeader(currentPage),
+    PageHeader(router.$currentPage),
     MainSection(content)
   )

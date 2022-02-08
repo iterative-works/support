@@ -9,6 +9,7 @@ lazy val app = (project in file("app"))
   .settings(
     IWDeps.useZIO(Test),
     IWDeps.laminar,
+    IWDeps.zioJson,
     libraryDependencies ++= Seq(
       "com.raquo" %%% "waypoint" % "0.5.0",
       "be.doeraene" %%% "url-dsl" % "0.4.0",

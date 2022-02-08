@@ -6,7 +6,9 @@ import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js
 import org.scalajs.dom
 import com.raquo.laminar.api.L.{*, given}
+import com.raquo.waypoint.*
 import cz.e_bs.cmi.mdr.pdb.app.components.{Navigation, Layout}
+import zio.json.{*, given}
 
 import scala.scalajs.js.Date
 
@@ -27,13 +29,33 @@ object Main:
           logo,
           userProfile.signal,
           pages.signal,
-          currentPage.signal,
           userMenu.signal,
           appElement
-        )
+        )(using router)
       )
     }(unsafeWindowOwner)
   }
+
+  given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
+  given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
+
+  val base = "/mdr"
+
+  val router = Router[Page](
+    routes = List(
+      Route.static(Page.Dashboard, root / "dashboard", basePath = base),
+      Route.static(Page.Detail, root / "detail", basePath = base)
+    ),
+    serializePage = _.toJson,
+    deserializePage = _.fromJson[Page]
+      .fold(s => throw IllegalStateException(s), identity),
+    getPageTitle = _.title,
+    routeFallback = _ => Page.Dashboard,
+    deserializeFallback = _ => Page.Dashboard
+  )(
+    $popStateEvent = windowEvents.onPopState,
+    owner = unsafeWindowOwner
+  )
 
   val $time = EventStream.periodic(1000).mapTo(new Date().toTimeString)
 
