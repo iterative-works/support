@@ -29,7 +29,6 @@ case class Navigation(
   val desktopOnly = cls("hidden md:block")
   val mobileOnly = cls("md:hidden")
 
-  // TODO: implicitly render to HtmlElement
   def render: HtmlElement =
     nav(cls := "bg-indigo-600", navBar, mobileMenu)
 
@@ -51,11 +50,9 @@ case class Navigation(
     Icons.outline.bell
   )
 
-  // TODO: try inlining with dynamic size instead of adding cls w-x h-x
-  private def avatar(mods: Modifier[Image]*) =
+  private inline def avatar(size: Int = 8) =
     img(
-      mods,
-      cls := s"rounded-full",
+      cls := s"w-$size h-$size rounded-full",
       src <-- profile.map(_.img),
       alt := ""
     )
@@ -83,7 +80,7 @@ case class Navigation(
           aria.expanded <-- menuOpen.signal,
           aria.hasPopup := true,
           span(cls := "sr-only", "Open user menu"),
-          avatar(cls := "h-8 w-8"),
+          avatar(),
           onClick.preventDefault.mapTo(
             !menuOpen.now()
           ) --> menuOpen.writer
@@ -127,7 +124,7 @@ case class Navigation(
         cls := "flex items-center px-5",
         div(
           cls := "flex-shrink-0",
-          avatar(cls := "h-10 w-10")
+          avatar(10)
         ),
         div(
           cls := "ml-3",
