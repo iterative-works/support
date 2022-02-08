@@ -29,13 +29,16 @@ object Main:
       "Current time is: ",
       b(child.text <-- $time)
     )
-    val pages = Var(List(Dashboard, Detail))
-    val currentPage = Var(Dashboard)
+    // TODO: pages by logged in user
+    val pages = Var(List(Page.Dashboard, Page.Detail))
+    // TODO: page routing
+    val currentPage = Var(Page.Dashboard)
     val logo = Navigation.Logo(
       "Workflow",
       "https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg"
     )
 
+    // TODO: load user profile
     val userProfile = Var(
       UserProfile(
         "Tom Cook",
@@ -44,6 +47,7 @@ object Main:
       )
     )
 
+    // TODO: menu items by user profile
     val userMenu = Var(
       List(
         Navigation.MenuItem("Your Profile"),
