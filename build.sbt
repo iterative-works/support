@@ -6,7 +6,18 @@ ThisBuild / scalaVersion := scala3Version
 
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin)
-  .settings(IWDeps.useZIO(Test), IWDeps.laminar)
+  .settings(
+    IWDeps.useZIO(Test),
+    IWDeps.laminar,
+    libraryDependencies ++= Seq(
+      "com.raquo" %%% "waypoint" % "0.5.0",
+      "be.doeraene" %%% "url-dsl" % "0.4.0",
+      "io.laminext" %%% "core" % IWVersions.laminar,
+      "io.laminext" %%% "ui" % IWVersions.laminar,
+      "io.laminext" %%% "tailwind" % IWVersions.laminar,
+      "io.laminext" %%% "validation-core" % IWVersions.laminar
+    )
+  )
   .settings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
     scalaJSLinkerConfig ~= {

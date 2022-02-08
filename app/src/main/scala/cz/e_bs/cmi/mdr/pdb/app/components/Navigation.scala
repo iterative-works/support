@@ -105,7 +105,7 @@ case class Navigation(
         aria.orientation := "vertical",
         aria.labelledBy := "user-menu-button",
         tabIndex := -1,
-        // SOMEDAY: keyboard navigation
+        // : keyboard navigation
         children <-- userMenu.map(_.zipWithIndex.map(menuItem))
       )
     )
