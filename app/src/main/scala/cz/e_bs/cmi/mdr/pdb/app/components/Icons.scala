@@ -1,10 +1,10 @@
-package cz.e_bs.cmi.mdr.pdb.app
+package cz.e_bs.cmi.mdr.pdb.app.components
 
-import com.raquo.laminar.api.L.svg.{*, given}
-import com.raquo.domtypes.generic.defs.attrs.AriaAttrs
-import com.raquo.laminar.keys.ReactiveSvgAttr
-import com.raquo.laminar.builders.SvgBuilders
 import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
+import com.raquo.domtypes.generic.defs.attrs.AriaAttrs
+import com.raquo.laminar.api.L.svg.{*, given}
+import com.raquo.laminar.builders.SvgBuilders
+import com.raquo.laminar.keys.ReactiveSvgAttr
 
 object Icons:
   object aria:
