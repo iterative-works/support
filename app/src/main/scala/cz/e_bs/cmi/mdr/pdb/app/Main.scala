@@ -28,9 +28,11 @@ object Main:
         Layout(
           logo,
           userProfile.signal,
-          pages.signal,
+          // TODO: make static, use user profile to filter
+          allPages.signal,
+          // TODO: make static, use user profile to filter
           userMenu.signal,
-          appElement
+          renderPage(router.$currentPage)
         )(using router)
       )
     }(unsafeWindowOwner)
@@ -39,7 +41,7 @@ object Main:
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
 
-  val base = "/mdr"
+  val base = "/mdr/pdb"
 
   val router = Router[Page](
     routes = List(
@@ -57,6 +59,12 @@ object Main:
     owner = unsafeWindowOwner
   )
 
+  def renderPage($currentPage: Signal[Page]): HtmlElement =
+    val pageSplitter = SplitRender[Page, HtmlElement]($currentPage)
+      .collectStatic(Page.Detail)(pages.DetailPage)
+      .collectStatic(Page.Dashboard)(pages.DashboardPage)
+    components.MainSection(child <-- pageSplitter.$view)
+
   val $time = EventStream.periodic(1000).mapTo(new Date().toTimeString)
 
   def appElement: Div = div(
@@ -66,7 +74,7 @@ object Main:
   )
 
   // TODO: pages by logged in user
-  val pages = Var(List(Page.Dashboard, Page.Detail))
+  val allPages = Var(List(Page.Dashboard, Page.Detail))
   // TODO: page routing
   val currentPage = Var(Page.Dashboard)
 

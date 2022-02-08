@@ -16,6 +16,7 @@ export default ({mode}) => {
         plugins: [
             createHtmlPlugin({
                 minify: process.env.NODE_ENV === 'production',
+                template: 'index.html',
                 inject: {
                     data: {
                         script
@@ -33,7 +34,7 @@ export default ({mode}) => {
                 */
             }
         },
-        base: '/mdr/',
+        base: '/mdr/pdb/',
         build: {
             outDir: 'target/vite'
         }
