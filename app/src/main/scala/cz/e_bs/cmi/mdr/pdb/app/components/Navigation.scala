@@ -73,11 +73,19 @@ case class Navigation(
   )
 
   private inline def avatar(size: Int = 8) =
-    img(
-      cls := s"w-$size h-$size rounded-full",
-      src <-- profile.map(_.img),
-      alt := ""
-    )
+    profile.map(_.userInfo.img match {
+      case Some(url) =>
+        img(
+          cls := s"w-$size h-$size rounded-full",
+          src := url,
+          alt := ""
+        )
+      case None =>
+        div(
+          cls := s"rounded-full text-indigo-200 bg-indigo-500 h-${size} w-${size} flex items-center justify-center",
+          Icons.outline.user(size - 2)
+        )
+    })
 
   private def userProfile: HtmlElement =
     val menuOpen = Var(false)
@@ -102,7 +110,7 @@ case class Navigation(
           aria.expanded <-- menuOpen.signal,
           aria.hasPopup := true,
           span(cls := "sr-only", "Open user menu"),
-          avatar(),
+          child <-- avatar(),
           onClick.preventDefault.mapTo(
             !menuOpen.now()
           ) --> menuOpen.writer
@@ -146,17 +154,17 @@ case class Navigation(
         cls := "flex items-center px-5",
         div(
           cls := "flex-shrink-0",
-          avatar(10)
+          child <-- avatar(10)
         ),
         div(
           cls := "ml-3",
           div(
             cls := "text-base font-medium text-white",
-            child.text <-- profile.map(_.name)
+            child.text <-- profile.map(_.userInfo.name)
           ),
           div(
             cls := "text-sm font-medium text-indigo-300",
-            child.text <-- profile.map(_.email)
+            child.text <-- profile.map(_.userInfo.email)
           )
         ),
         notificationButton.amend(cls := List("flex-shrink-0", "ml-auto"))

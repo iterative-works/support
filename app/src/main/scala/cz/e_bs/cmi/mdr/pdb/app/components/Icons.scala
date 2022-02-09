@@ -7,6 +7,8 @@ import com.raquo.laminar.builders.SvgBuilders
 import com.raquo.laminar.keys.ReactiveSvgAttr
 
 object Icons:
+  val defaultSize: Int = 6
+
   object aria:
     val hidden = customSvgAttr("aria-hidden", BooleanAsTrueFalseStringCodec)
 
@@ -57,3 +59,21 @@ object Icons:
           d := "M6 18L18 6M6 6l12 12"
         )
       )
+
+    inline def user(size: Int = Icons.defaultSize) =
+      svg(
+        cls := s"w-${size} h-${size}",
+        fill := "none",
+        stroke := "currentColor",
+        viewBox := "0 0 24 24",
+        xmlns := "http://www.w3.org/2000/svg",
+        path(
+          strokeLineCap := "round",
+          strokeLineJoin := "round",
+          strokeWidth := "2",
+          d := "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        )
+      )
+
+  end outline
+end Icons
