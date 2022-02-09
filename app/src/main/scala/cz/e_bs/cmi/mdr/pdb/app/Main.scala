@@ -41,7 +41,10 @@ object Main:
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
 
-  val base = "/mdr/pdb"
+  val base =
+    js.`import`.meta.env.BASE_URL
+      .asInstanceOf[String]
+      .init // Drop the ending slash
 
   val router = Router[Page](
     routes = List(
@@ -64,14 +67,6 @@ object Main:
       .collectStatic(Page.Detail)(pages.DetailPage)
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
     components.MainSection(child <-- pageSplitter.$view)
-
-  val $time = EventStream.periodic(1000).mapTo(new Date().toTimeString)
-
-  def appElement: Div = div(
-    h1("Hello"),
-    "Current time is: ",
-    b(child.text <-- $time)
-  )
 
   // TODO: pages by logged in user
   val allPages = Var(List(Page.Dashboard, Page.Detail))
