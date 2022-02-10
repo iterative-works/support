@@ -6,11 +6,11 @@ import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js
 import org.scalajs.dom
 import com.raquo.laminar.api.L.{*, given}
-import com.raquo.waypoint.*
 import cz.e_bs.cmi.mdr.pdb.app.components.{Navigation, Layout}
-import zio.json.{*, given}
 
 import scala.scalajs.js.Date
+import com.raquo.waypoint.Router
+import com.raquo.waypoint.SplitRender
 
 @js.native
 @JSImport("stylesheets/main.css", JSImport.Namespace)
@@ -23,6 +23,7 @@ object Main:
   def main(args: Array[String]): Unit = {
     documentEvents.onDomContentLoaded.foreach { _ =>
       val appContainer = dom.document.querySelector("#app")
+      given router: Router[Page] = Routes.router
       val _ = render(
         appContainer,
         Layout(
@@ -32,46 +33,21 @@ object Main:
           allPages.signal,
           // TODO: make static, use user profile to filter
           userMenu.signal,
-          renderPage(router.$currentPage)
-        )(using router)
+          renderPage
+        )
       )
     }(unsafeWindowOwner)
   }
 
-  given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
-  given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
-
-  val base =
-    js.`import`.meta.env.BASE_URL
-      .asInstanceOf[String]
-      .init // Drop the ending slash
-
-  val router = Router[Page](
-    routes = List(
-      Route.static(Page.Dashboard, root / "dashboard", basePath = base),
-      Route.static(Page.Detail, root / "detail", basePath = base)
-    ),
-    serializePage = _.toJson,
-    deserializePage = _.fromJson[Page]
-      .fold(s => throw IllegalStateException(s), identity),
-    getPageTitle = _.title,
-    routeFallback = _ => Page.Dashboard,
-    deserializeFallback = _ => Page.Dashboard
-  )(
-    $popStateEvent = windowEvents.onPopState,
-    owner = unsafeWindowOwner
-  )
-
-  def renderPage($currentPage: Signal[Page]): HtmlElement =
-    val pageSplitter = SplitRender[Page, HtmlElement]($currentPage)
-      .collectStatic(Page.Detail)(pages.DetailPage)
+  def renderPage(using router: Router[Page]): HtmlElement =
+    val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
+      .collectSignal[Page.Detail](pages.DetailPage)
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
+      .collectStatic(Page.Directory)(pages.DirectoryPage)
     components.MainSection(child <-- pageSplitter.$view)
 
   // TODO: pages by logged in user
-  val allPages = Var(List(Page.Dashboard, Page.Detail))
-  // TODO: page routing
-  val currentPage = Var(Page.Dashboard)
+  val allPages = Var(List(Page.Directory, Page.Dashboard))
 
   val logo = Navigation.Logo(
     "Workflow",

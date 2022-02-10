@@ -2,60 +2,214 @@ package cz.e_bs.cmi.mdr.pdb.app.pages
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import cz.e_bs.cmi.mdr.pdb.app.components.Icons
+import cz.e_bs.cmi.mdr.pdb.app.{Osoba, PracovniPomer, Funkce}
+import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
+import cz.e_bs.cmi.mdr.pdb.app.Page
 
-def DetailPage: HtmlElement =
+val datetime = customHtmlAttr("datetime", StringAsIsCodec)
+
+def DetailPage($page: Signal[Page.Detail]): HtmlElement =
   div(
-    cls := "md:flex md:items-center md:justify-between md:space-x-5",
+    cls := "bg-gray-50 overflow-hidden rounded-lg",
     div(
-      cls := "flex items-start space-x-5",
+      cls := "px-4 py-5 sm:p-6",
+      "Loading..."
+    )
+  )
+
+def OsobaView($osoba: Signal[Osoba]): HtmlElement =
+  def funkce($fce: Signal[Funkce]) =
+    p(
+      cls := "text-sm font-medium text-gray-500",
+      child.text <-- $fce.map(_.nazev),
+      span(
+        cls := "hidden md:inline",
+        " @ ",
+        child.text <-- $fce.map(_.stredisko),
+        ", ",
+        child.text <-- $fce.map(_.voj)
+      )
+    )
+
+  def pp($pp: Signal[PracovniPomer]) =
+    p(
+      cls := "text-sm font-medium text-gray-500",
+      child.text <-- $pp.map(_.druh),
+      " od ",
+      time(
+        datetime <-- $pp.map(_.pocatek.toString),
+        child.text <-- $pp.map(_.pocatek.toString)
+      )
+    )
+
+  div(
+    cls := "flex flex-col gap-4",
+    div(
+      cls := "md:flex md:items-center md:justify-between md:space-x-5",
       div(
-        cls := "flex-shrink-0",
+        cls := "flex items-start space-x-5",
         div(
-          cls := "relative",
-          img(
-            cls := "h-16 w-16 rounded-full",
-            src := "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=1024&h=1024&q=80",
-            alt := ""
-          ),
-          span(
-            cls := "absolute inset-0 shadow-inner rounded-full",
-            aria.hidden := true
-          )
-        )
-      ),
-      div(
-        cls := "pt-1.5",
-        h1(
-          cls := "text-2xl font-bold text-gray-900",
-          """Ricardo Cooper"""
+          cls := "flex-shrink-0",
+          Avatar($osoba.map(_.img), 16)
         ),
-        p(
-          cls := "text-sm font-medium text-gray-500",
-          """Applied for""",
-          a(
-            href := "#",
-            cls := "text-gray-900",
-            """Front End Developer"""
+        div(
+          cls := "pt-1.5",
+          h1(
+            cls := "text-2xl font-bold text-gray-900",
+            child.text <-- $osoba.map(_.jmeno)
           ),
-          """on""",
-          time(
-            customHtmlAttr("datetime", StringAsIsCodec) := "2020-08-25",
-            """August 25, 2020"""
-          )
+          funkce($osoba.map(_.hlavniFunkce)),
+          pp($osoba.map(_.pracovniPomer))
         )
       )
     ),
     div(
-      cls := "mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3",
-      button(
-        tpe := "button",
-        cls := "inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500",
-        """Disqualify"""
-      ),
-      button(
-        tpe := "button",
-        cls := "inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500",
-        """Advance to offer"""
+      cls := "bg-white shadow overflow-hidden sm:rounded-md",
+      ul(
+        role := "list",
+        cls := "divide-y divide-gray-200",
+        li(
+          a(
+            href := "#",
+            cls := "block hover:bg-gray-50",
+            div(
+              cls := "px-4 py-4 sm:px-6",
+              div(
+                cls := "flex items-center justify-between",
+                p(
+                  cls := "text-sm font-medium text-indigo-600 truncate",
+                  "Komise pro pověřování pracovníků"
+                ),
+                div(
+                  cls := "ml-2 flex-shrink-0 flex",
+                  p(
+                    cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
+                    """Splněno"""
+                  ),
+                  div(
+                    cls := "ml-5 flex-shrink-0",
+                    Icons.solid.`chevron-right`
+                  )
+                )
+              ),
+              div(
+                cls := "mt-2 sm:flex sm:justify-between",
+                div(
+                  cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
+                  Icons.solid.calendar,
+                  p(
+                    """do """,
+                    time(
+                      datetime := "2020-01-07",
+                      "01.07.2020"
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        li(
+          a(
+            href := "#",
+            cls := "block hover:bg-gray-50",
+            div(
+              cls := "px-4 py-4 sm:px-6",
+              div(
+                cls := "flex items-center justify-between",
+                p(
+                  cls := "text-sm font-medium text-indigo-600 truncate",
+                  """Front End Developer"""
+                ),
+                div(
+                  cls := "ml-2 flex-shrink-0 flex",
+                  p(
+                    cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
+                    """Full-time"""
+                  )
+                )
+              ),
+              div(
+                cls := "mt-2 sm:flex sm:justify-between",
+                div(
+                  cls := "sm:flex",
+                  p(
+                    cls := "flex items-center text-sm text-gray-500",
+                    Icons.solid.users,
+                    """Engineering"""
+                  ),
+                  p(
+                    cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6",
+                    Icons.solid.`location-marker`,
+                    """Remote"""
+                  )
+                ),
+                div(
+                  cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
+                  Icons.solid.calendar,
+                  p(
+                    """Closing on""",
+                    time(
+                      datetime := "2020-01-07",
+                      """January 7, 2020"""
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+        li(
+          a(
+            href := "#",
+            cls := "block hover:bg-gray-50",
+            div(
+              cls := "px-4 py-4 sm:px-6",
+              div(
+                cls := "flex items-center justify-between",
+                p(
+                  cls := "text-sm font-medium text-indigo-600 truncate",
+                  """User Interface Designer"""
+                ),
+                div(
+                  cls := "ml-2 flex-shrink-0 flex",
+                  p(
+                    cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
+                    """Full-time"""
+                  )
+                )
+              ),
+              div(
+                cls := "mt-2 sm:flex sm:justify-between",
+                div(
+                  cls := "sm:flex",
+                  p(
+                    cls := "flex items-center text-sm text-gray-500",
+                    Icons.solid.users,
+                    """Design"""
+                  ),
+                  p(
+                    cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6",
+                    Icons.solid.`location-marker`,
+                    """Remote"""
+                  )
+                ),
+                div(
+                  cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
+                  Icons.solid.calendar,
+                  p(
+                    """Closing on""",
+                    time(
+                      datetime := "2020-01-14",
+                      """January 14, 2020"""
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
       )
     )
   )
