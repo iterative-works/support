@@ -2,9 +2,10 @@ package cz.e_bs.cmi.mdr.pdb.app
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.*
-import zio.json.{*, given}
-import scala.scalajs.js
 import org.scalajs.dom
+import zio.json.{*, given}
+
+import scala.scalajs.js
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(val title: String)
@@ -14,6 +15,11 @@ object Page:
   case object Dashboard extends Page("Dashboard")
   case class Detail(osobniCislo: String) extends Page("Detail")
   case class NotFound(url: String, baseUrl: String) extends Page("404")
+  case class UnhandledError(
+      baseUrl: String,
+      errorName: Option[String],
+      errorMessage: Option[String]
+  ) extends Page("Unexpected error")
 
 object Routes:
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]

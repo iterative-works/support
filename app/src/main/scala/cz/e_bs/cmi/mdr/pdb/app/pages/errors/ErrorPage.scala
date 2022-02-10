@@ -3,7 +3,12 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.errors
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.{*, given}
 
-def PageNotFound(url: String, basePath: String): HtmlElement =
+def ErrorPage(
+    basePath: String,
+    errorName: String,
+    title: String,
+    subTitle: String
+): HtmlElement =
   div(
     cls := "min-h-full pt-16 pb-12 flex flex-col bg-white",
     main(
@@ -30,15 +35,15 @@ def PageNotFound(url: String, basePath: String): HtmlElement =
           cls := "text-center",
           p(
             cls := "text-sm font-semibold text-indigo-600 uppercase tracking-wide",
-            """404 error"""
+            errorName
           ),
           h1(
             cls := "mt-2 text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl",
-            """Page not found."""
+            title
           ),
           p(
             cls := "mt-2 text-base text-gray-500",
-            s"Sorry, but page $url doesn't exist."
+            subTitle
           ),
           div(
             cls := "mt-6",

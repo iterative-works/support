@@ -7,8 +7,6 @@ import scala.scalajs.js
 import org.scalajs.dom
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.components.{Navigation, Layout}
-import cz.e_bs.cmi.mdr.pdb.app.pages.errors.PageNotFound
-
 import scala.scalajs.js.Date
 import com.raquo.waypoint.Router
 import com.raquo.waypoint.SplitRender
@@ -26,6 +24,17 @@ object Main:
     documentEvents.onDomContentLoaded.foreach { _ =>
       val appContainer = dom.document.querySelector("#app")
       given router: Router[Page] = Routes.router
+
+      AirstreamError.registerUnhandledErrorCallback(err =>
+        router.forcePage(
+          Page.UnhandledError(
+            "", // TODO: basePath
+            Some(err.getClass.getName), // TODO: Fill only in dev mode
+            Some(err.getMessage)
+          )
+        )
+      )
+
       val _ = render(
         appContainer,
         Layout(
@@ -50,11 +59,16 @@ object Main:
       )
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
       .collect[Page.NotFound](pg =>
-        pages.errors.PageNotFound(pg.url, pg.baseUrl)
+        pages.errors.NotFoundPage(pg.url, pg.baseUrl)
+      )
+      .collect[Page.UnhandledError](pg =>
+        pages.errors
+          .UnhandledErrorPage(pg.baseUrl, pg.errorName, pg.errorMessage)
       )
       .collectStatic(Page.Directory)(
         pages.DirectoryPage(
-          EventStream.fromValue(List(ExampleData.persons.jmeistrova))
+          EventStream
+            .fromValue(List(ExampleData.persons.jmeistrova))
         )
       )
     components.MainSection(child <-- pageSplitter.$view)
