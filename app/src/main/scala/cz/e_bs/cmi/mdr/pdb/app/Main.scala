@@ -7,6 +7,7 @@ import scala.scalajs.js
 import org.scalajs.dom
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.components.{Navigation, Layout}
+import cz.e_bs.cmi.mdr.pdb.app.pages.errors.PageNotFound
 
 import scala.scalajs.js.Date
 import com.raquo.waypoint.Router
@@ -48,6 +49,9 @@ object Main:
         )
       )
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
+      .collect[Page.NotFound](pg =>
+        pages.errors.PageNotFound(pg.url, pg.baseUrl)
+      )
       .collectStatic(Page.Directory)(
         pages.DirectoryPage(
           EventStream.fromValue(List(ExampleData.persons.jmeistrova))

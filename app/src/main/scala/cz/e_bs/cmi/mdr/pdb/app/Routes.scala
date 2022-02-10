@@ -13,6 +13,7 @@ object Page:
   case object Directory extends Page("Directory")
   case object Dashboard extends Page("Dashboard")
   case class Detail(osobniCislo: String) extends Page("Detail")
+  case class NotFound(url: String, baseUrl: String) extends Page("404")
 
 object Routes:
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
@@ -42,7 +43,7 @@ object Routes:
     deserializePage = _.fromJson[Page]
       .fold(s => throw IllegalStateException(s), identity),
     getPageTitle = _.title,
-    routeFallback = _ => Page.Dashboard,
+    routeFallback = url => Page.NotFound(url, base),
     deserializeFallback = _ => Page.Dashboard
   )(
     $popStateEvent = windowEvents.onPopState,
