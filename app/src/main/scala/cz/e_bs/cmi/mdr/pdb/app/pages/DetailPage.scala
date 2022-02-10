@@ -10,13 +10,18 @@ import cz.e_bs.cmi.mdr.pdb.app.Page
 val datetime = customHtmlAttr("datetime", StringAsIsCodec)
 
 def DetailPage($page: Signal[Page.Detail]): HtmlElement =
-  div(
-    cls := "bg-gray-50 overflow-hidden rounded-lg",
+  // TODO: proper loader
+  val loading =
     div(
-      cls := "px-4 py-5 sm:p-6",
-      "Loading..."
+      cls := "bg-gray-50 overflow-hidden rounded-lg",
+      div(
+        cls := "px-4 py-5 sm:p-6",
+        "Loading..."
+      )
     )
-  )
+  val data = Var[Option[Osoba]](None)
+  val maybeOsobaSignal = data.signal.split(_ => ())((_, _, s) => OsobaView(s))
+  div(child <-- maybeOsobaSignal.map(_.getOrElse(loading)))
 
 def OsobaView($osoba: Signal[Osoba]): HtmlElement =
   def funkce($fce: Signal[Funkce]) =
