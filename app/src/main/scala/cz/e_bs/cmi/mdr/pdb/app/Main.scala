@@ -11,6 +11,7 @@ import cz.e_bs.cmi.mdr.pdb.app.components.{Navigation, Layout}
 import scala.scalajs.js.Date
 import com.raquo.waypoint.Router
 import com.raquo.waypoint.SplitRender
+import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
 
 @js.native
 @JSImport("stylesheets/main.css", JSImport.Namespace)
@@ -41,7 +42,14 @@ object Main:
 
   def renderPage(using router: Router[Page]): HtmlElement =
     val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
-      .collectSignal[Page.Detail](pages.DetailPage)
+      .collectSignal[Page.Detail](
+        pages.DetailPage(
+          new DataFetcher[String, Osoba] {
+            override def fetch(osobniCislo: String, o: Observer[Osoba]): Unit =
+              o.delay(1000).onNext(ExampleData.persons.jmeistrova)
+          }
+        )
+      )
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
       .collectStatic(Page.Directory)(pages.DirectoryPage)
     components.MainSection(child <-- pageSplitter.$view)

@@ -6,10 +6,13 @@ import cz.e_bs.cmi.mdr.pdb.app.components.Icons
 import cz.e_bs.cmi.mdr.pdb.app.{Osoba, PracovniPomer, Funkce}
 import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
 import cz.e_bs.cmi.mdr.pdb.app.Page
+import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
 
 val datetime = customHtmlAttr("datetime", StringAsIsCodec)
 
-def DetailPage($page: Signal[Page.Detail]): HtmlElement =
+def DetailPage(fetch: DataFetcher[String, Osoba])(
+    $page: Signal[Page.Detail]
+): HtmlElement =
   // TODO: proper loader
   val loading =
     div(
@@ -21,7 +24,12 @@ def DetailPage($page: Signal[Page.Detail]): HtmlElement =
     )
   val data = Var[Option[Osoba]](None)
   val maybeOsobaSignal = data.signal.split(_ => ())((_, _, s) => OsobaView(s))
-  div(child <-- maybeOsobaSignal.map(_.getOrElse(loading)))
+  div(
+    $page --> ((d: Page.Detail) =>
+      fetch.fetch(d.osobniCislo, data.writer.contramapSome)
+    ),
+    child <-- maybeOsobaSignal.map(_.getOrElse(loading))
+  )
 
 def OsobaView($osoba: Signal[Osoba]): HtmlElement =
   def funkce($fce: Signal[Funkce]) =
