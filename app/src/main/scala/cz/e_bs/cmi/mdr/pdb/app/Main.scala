@@ -28,7 +28,6 @@ object Main:
       AirstreamError.registerUnhandledErrorCallback(err =>
         router.forcePage(
           Page.UnhandledError(
-            "", // TODO: basePath
             Some(err.getClass.getName), // TODO: Fill only in dev mode
             Some(err.getMessage)
           )
@@ -58,12 +57,10 @@ object Main:
         )
       )
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
-      .collect[Page.NotFound](pg =>
-        pages.errors.NotFoundPage(pg.url, pg.baseUrl)
-      )
+      .collect[Page.NotFound](pg => pages.errors.NotFoundPage(pg.url))
       .collect[Page.UnhandledError](pg =>
         pages.errors
-          .UnhandledErrorPage(pg.baseUrl, pg.errorName, pg.errorMessage)
+          .UnhandledErrorPage(pg.errorName, pg.errorMessage)
       )
       .collectStatic(Page.Directory)(
         pages.DirectoryPage(

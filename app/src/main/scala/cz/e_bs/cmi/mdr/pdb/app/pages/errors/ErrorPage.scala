@@ -2,13 +2,15 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.errors
 
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.{*, given}
+import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.app.Page
+import cz.e_bs.cmi.mdr.pdb.app.Routes.navigateTo
 
 def ErrorPage(
-    basePath: String,
     errorName: String,
     title: String,
     subTitle: String
-): HtmlElement =
+)(using router: Router[Page]): HtmlElement =
   div(
     cls := "min-h-full pt-16 pb-12 flex flex-col bg-white",
     main(
@@ -48,7 +50,8 @@ def ErrorPage(
           div(
             cls := "mt-6",
             a(
-              href := basePath,
+              href := router.absoluteUrlForPage(Page.Dashboard),
+              navigateTo(Page.Dashboard),
               cls := "text-base font-medium text-indigo-600 hover:text-indigo-500",
               """Go back home"""
             )
