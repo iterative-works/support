@@ -4,6 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.*
 import zio.json.{*, given}
 import scala.scalajs.js
+import org.scalajs.dom
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(val title: String)
@@ -47,3 +48,25 @@ object Routes:
     $popStateEvent = windowEvents.onPopState,
     owner = unsafeWindowOwner
   )
+
+  // TODO: evaluate dangers of a global router in a SPA
+  def navigateTo(page: Page)(using router: Router[Page]): Binder[HtmlElement] =
+    Binder { el =>
+
+      val isLinkElement = el.ref.isInstanceOf[dom.html.Anchor]
+
+      if (isLinkElement) {
+        el.amend(href(router.absoluteUrlForPage(page)))
+      }
+
+      // If element is a link and user is holding a modifier while clicking:
+      //  - Do nothing, browser will open the URL in new tab / window / etc. depending on the modifier key
+      // Otherwise:
+      //  - Perform regular pushState transition
+      (onClick
+        .filter(ev =>
+          !(isLinkElement && (ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey))
+        )
+        .preventDefault
+        --> (_ => router.pushState(page))).bind(el)
+    }

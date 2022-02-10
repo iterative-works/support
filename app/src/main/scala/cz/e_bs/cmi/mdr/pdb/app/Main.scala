@@ -43,15 +43,16 @@ object Main:
   def renderPage(using router: Router[Page]): HtmlElement =
     val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
       .collectSignal[Page.Detail](
-        pages.DetailPage(
-          new DataFetcher[String, Osoba] {
-            override def fetch(osobniCislo: String, o: Observer[Osoba]): Unit =
-              o.delay(1000).onNext(ExampleData.persons.jmeistrova)
-          }
+        pages.DetailPage(osc =>
+          EventStream.fromValue(ExampleData.persons.jmeistrova).delay(1000)
         )
       )
       .collectStatic(Page.Dashboard)(pages.DashboardPage)
-      .collectStatic(Page.Directory)(pages.DirectoryPage)
+      .collectStatic(Page.Directory)(
+        pages.DirectoryPage(
+          EventStream.fromValue(List(ExampleData.persons.jmeistrova))
+        )
+      )
     components.MainSection(child <-- pageSplitter.$view)
 
   // TODO: pages by logged in user

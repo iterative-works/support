@@ -18,12 +18,7 @@ def PageHeader(currentPage: Signal[Page]): HtmlElement =
   )
 
 def MainSection(mods: Modifier[HtmlElement]*): HtmlElement =
-  main(
-    div(
-      cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
-      mods
-    )
-  )
+  main(mods)
 
 def Layout(
     logo: Navigation.Logo,

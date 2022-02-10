@@ -7,10 +7,11 @@ import cz.e_bs.cmi.mdr.pdb.app.{Osoba, PracovniPomer, Funkce}
 import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
+import com.raquo.airstream.core.EventStream
 
 val datetime = customHtmlAttr("datetime", StringAsIsCodec)
 
-def DetailPage(fetch: DataFetcher[String, Osoba])(
+def DetailPage(fetch: String => EventStream[Osoba])(
     $page: Signal[Page.Detail]
 ): HtmlElement =
   // TODO: proper loader
@@ -25,9 +26,8 @@ def DetailPage(fetch: DataFetcher[String, Osoba])(
   val data = Var[Option[Osoba]](None)
   val maybeOsobaSignal = data.signal.split(_ => ())((_, _, s) => OsobaView(s))
   div(
-    $page --> ((d: Page.Detail) =>
-      fetch.fetch(d.osobniCislo, data.writer.contramapSome)
-    ),
+    cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
+    $page.flatMap(pd => fetch(pd.osobniCislo)) --> data.writer.contramapSome,
     child <-- maybeOsobaSignal.map(_.getOrElse(loading))
   )
 
