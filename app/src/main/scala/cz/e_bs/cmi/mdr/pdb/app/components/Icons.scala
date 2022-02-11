@@ -6,10 +6,12 @@ import com.raquo.laminar.api.L.svg.{*, given}
 import com.raquo.laminar.builders.SvgBuilders
 import com.raquo.laminar.keys.ReactiveSvgAttr
 
+// TODO: fix sizes, colors, hover and stuff, normalize and amend on call site
 object Icons:
   val defaultSize: Int = 6
 
-  // TODO: remove aria-hidden from here, move to call sites, it has no reason to be here
+  // TODO: remove aria-hidden from here, move to call sites, it has no reason to be here. or does it?
+  // Who decides whether the icon should be hidden? Or should the icon be hidden always?
   object aria:
     val hidden = customSvgAttr("aria-hidden", BooleanAsTrueFalseStringCodec)
 
@@ -161,5 +163,32 @@ object Icons:
           clipRule := "evenodd"
         )
       )
+
+    def `arrow-narrow-left` =
+      svg(
+        cls := "flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-600",
+        xmlns := "http://www.w3.org/2000/svg",
+        viewBox := "0 0 20 20",
+        fill := "currentColor",
+        aria.hidden := true,
+        path(
+          fillRule := "evenodd",
+          d := "M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z",
+          clipRule := "evenodd"
+        )
+      )
+
+    def home =
+      svg(
+        cls := "flex-shrink-0 h-5 w-5",
+        xmlns := "http://www.w3.org/2000/svg",
+        viewBox := "0 0 20 20",
+        fill := "currentColor",
+        aria.hidden := true,
+        path(
+          d := "M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"
+        )
+      )
+
   end solid
 end Icons

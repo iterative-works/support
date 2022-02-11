@@ -5,14 +5,14 @@ import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.{Page, UserProfile}
 import com.raquo.waypoint.Router
 
-def PageHeader(currentPage: Signal[Page]): HtmlElement =
+def PageHeader(using router: Router[Page]): HtmlElement =
   header(
     cls := "bg-white shadow-sm",
     div(
       cls := "max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8",
       h1(
         cls := "text-lg leading-6 font-semibold text-gray-900",
-        child.text <-- currentPage.map(_.title)
+        Breadcrumbs
       )
     )
   )
@@ -35,6 +35,6 @@ def Layout(
       pages,
       userMenu
     ),
-    PageHeader(router.$currentPage),
+    PageHeader,
     content
   )

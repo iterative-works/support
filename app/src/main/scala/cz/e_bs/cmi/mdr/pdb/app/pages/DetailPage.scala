@@ -8,12 +8,13 @@ import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
 import com.raquo.airstream.core.EventStream
+import com.raquo.waypoint.Router
 
 val datetime = customHtmlAttr("datetime", StringAsIsCodec)
 
 def DetailPage(fetch: String => EventStream[Osoba])(
     $page: Signal[Page.Detail]
-): HtmlElement =
+)(using router: Router[Page]): HtmlElement =
   // TODO: proper loader
   val loading =
     div(
@@ -24,11 +25,15 @@ def DetailPage(fetch: String => EventStream[Osoba])(
       )
     )
   val data = Var[Option[Osoba]](None)
-  val maybeOsobaSignal = data.signal.split(_ => ())((_, _, s) => OsobaView(s))
+  val $maybeOsoba = data.signal.split(_ => ())((_, _, s) => OsobaView(s))
+  val $fetchedData = $page.splitOne(_.osobniCislo)((osc, _, _) => osc)
+    .flatMap(fetch)
+    .debugLog()
   div(
     cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
-    $page.flatMap(pd => fetch(pd.osobniCislo)) --> data.writer.contramapSome,
-    child <-- maybeOsobaSignal.map(_.getOrElse(loading))
+    $fetchedData --> data.writer.contramapSome,
+    $fetchedData --> (o => router.replaceState(Page.Detail(o))),
+    child <-- $maybeOsoba.map(_.getOrElse(loading))
   )
 
 def OsobaView($osoba: Signal[Osoba]): HtmlElement =
@@ -57,7 +62,7 @@ def OsobaView($osoba: Signal[Osoba]): HtmlElement =
     )
 
   div(
-    cls := "flex flex-col gap-4",
+    cls := "flex flex-col space-y-4",
     div(
       cls := "md:flex md:items-center md:justify-between md:space-x-5",
       div(
@@ -67,7 +72,6 @@ def OsobaView($osoba: Signal[Osoba]): HtmlElement =
           Avatar($osoba.map(_.img), 16)
         ),
         div(
-          cls := "pt-1.5",
           h1(
             cls := "text-2xl font-bold text-gray-900",
             child.text <-- $osoba.map(_.jmeno)
@@ -87,38 +91,42 @@ def OsobaView($osoba: Signal[Osoba]): HtmlElement =
             href := "#",
             cls := "block hover:bg-gray-50",
             div(
-              cls := "px-4 py-4 sm:px-6",
+              cls := "px-4 py-4 sm:px-6 items-center flex",
               div(
-                cls := "flex items-center justify-between",
-                p(
-                  cls := "text-sm font-medium text-indigo-600 truncate",
-                  "Komise pro pověřování pracovníků"
-                ),
+                cls := "min-w-0 flex-1 pr-4",
                 div(
-                  cls := "ml-2 flex-shrink-0 flex",
+                  cls := "flex items-center justify-between",
                   p(
-                    cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
-                    """Splněno"""
+                    cls := "text-sm font-medium text-indigo-600 truncate",
+                    "Komise pro pověřování pracovníků"
                   ),
                   div(
-                    cls := "ml-5 flex-shrink-0",
-                    Icons.solid.`chevron-right`
+                    cls := "ml-2 flex-shrink-0 flex",
+                    p(
+                      cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
+                      """Splněno"""
+                    )
+                  )
+                ),
+                div(
+                  cls := "mt-2 sm:flex sm:justify-between",
+                  div(),
+                  div(
+                    cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
+                    Icons.solid.calendar,
+                    p(
+                      """do """,
+                      time(
+                        datetime := "2020-01-07",
+                        "01.07.2020"
+                      )
+                    )
                   )
                 )
               ),
               div(
-                cls := "mt-2 sm:flex sm:justify-between",
-                div(
-                  cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
-                  Icons.solid.calendar,
-                  p(
-                    """do """,
-                    time(
-                      datetime := "2020-01-07",
-                      "01.07.2020"
-                    )
-                  )
-                )
+                cls := "flex-shrink-0",
+                Icons.solid.`chevron-right`
               )
             )
           )

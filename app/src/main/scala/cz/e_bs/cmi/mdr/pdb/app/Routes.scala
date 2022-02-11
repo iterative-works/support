@@ -8,17 +8,21 @@ import zio.json.{*, given}
 import scala.scalajs.js
 
 // enum is not working with Waypoints' SplitRender collectStatic
-sealed abstract class Page(val title: String)
+sealed abstract class Page(val title: String, val parent: Option[Page])
 
 object Page:
-  case object Directory extends Page("Directory")
-  case object Dashboard extends Page("Dashboard")
-  case class Detail(osobniCislo: String) extends Page("Detail")
-  case class NotFound(url: String) extends Page("404")
+  case object Directory extends Page("Directory", None)
+  case object Dashboard extends Page("Dashboard", Some(Directory))
+  case class Detail(osobniCislo: String, name: Option[String] = None)
+      extends Page(name.getOrElse("Detail"), Some(Directory))
+  object Detail {
+    def apply(o: Osoba): Detail = Detail(o.osobniCislo, Some(o.jmeno))
+  }
+  case class NotFound(url: String) extends Page("404", Some(Directory))
   case class UnhandledError(
       errorName: Option[String],
       errorMessage: Option[String]
-  ) extends Page("Unexpected error")
+  ) extends Page("Unexpected error", Some(Directory))
 
 object Routes:
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
