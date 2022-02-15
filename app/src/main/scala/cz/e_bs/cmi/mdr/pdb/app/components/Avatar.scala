@@ -21,7 +21,7 @@ class Avatar($avatarImg: Signal[Option[String]]):
       )
     ).map(_.getOrElse(avatarPlaceholder(size)))
 
-  def avatar(size: Int): HtmlElement =
+  inline def avatar(size: Int): HtmlElement =
     div(
       cls := "relative",
       child <-- avatarImage(size),
