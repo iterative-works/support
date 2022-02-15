@@ -16,5 +16,12 @@ object ExampleData:
           "generální ředitel, MJ ČMI",
           "úsek generálního ředitele"
         ),
-        PracovniPomer("HPP", LocalDate.of(2005, 7, 1), None)
+        PracovniPomer("HPP", LocalDate.of(2005, 7, 1), None),
+        List(
+          Parametr(
+            "1",
+            "Komise pro pověřování pracovníků",
+            Nil
+          )
+        )
       )

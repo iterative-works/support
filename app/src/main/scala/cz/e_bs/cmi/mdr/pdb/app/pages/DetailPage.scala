@@ -11,12 +11,17 @@ import com.raquo.airstream.core.EventStream
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs.datetime
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
+import cz.e_bs.cmi.mdr.pdb.app.components.OsobaView
+import cz.e_bs.cmi.mdr.pdb.app.Parametr
+import cz.e_bs.cmi.mdr.pdb.app.components.list.BaseList
+import cz.e_bs.cmi.mdr.pdb.app.components.list.NavigableList
+import cz.e_bs.cmi.mdr.pdb.app.components.list.Navigable
+import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 
 case class DetailPage(fetch: String => EventStream[Osoba])(
     $page: Signal[Page.Detail]
-)(using
-    router: Router[Page]
-) extends AppPage:
+)(using router: Router[Page])
+    extends AppPage:
   // TODO: proper loader
   private val loading =
     div(
@@ -30,7 +35,7 @@ case class DetailPage(fetch: String => EventStream[Osoba])(
   override def pageContent: HtmlElement =
     val data = Var[Option[Osoba]](None)
     val $maybeOsoba =
-      data.signal.split(_ => ())((_, _, s) => osobaView(s))
+      data.signal.split(_ => ())((_, _, s) => renderView(s))
     val $fetchedData = $page.splitOne(_.osobniCislo)((osc, _, _) => osc)
       .flatMap(fetch)
       .debugLog()
@@ -41,201 +46,48 @@ case class DetailPage(fetch: String => EventStream[Osoba])(
       child <-- $maybeOsoba.map(_.getOrElse(loading))
     )
 
-  private def osobaView($osoba: Signal[Osoba]): HtmlElement =
-    def funkce($fce: Signal[Funkce]) =
-      p(
-        cls := "text-sm font-medium text-gray-500",
-        child.text <-- $fce.map(_.nazev),
-        span(
-          cls := "hidden md:inline",
-          " @ ",
-          child.text <-- $fce.map(_.stredisko),
-          ", ",
-          child.text <-- $fce.map(_.voj)
-        )
-      )
+  private def renderView($osoba: Signal[Osoba]): HtmlElement =
+    given BaseList.AsRow[(Osoba, Parametr)] with
+      extension (d: (Osoba, Parametr))
+        def asRow = d match {
+          case (os, param) =>
+            BaseList.Row(
+              param.id,
+              param.nazev,
+              BaseList.Tag("Splněno", BaseList.Color.Green),
+              Nil,
+              BaseList.IconText(
+                p(
+                  """do """,
+                  time(
+                    datetime := "2020-01-07",
+                    "01.07.2020"
+                  )
+                ),
+                Icons.solid.calendar
+              )
+            )
+        }
 
-    def pp($pp: Signal[PracovniPomer]) =
-      p(
-        cls := "text-sm font-medium text-gray-500",
-        child.text <-- $pp.map(_.druh),
-        " od ",
-        time(
-          datetime <-- $pp.map(_.pocatek.toString),
-          child.text <-- $pp.map(_.pocatek.toString)
-        )
-      )
+    given Navigable[(Osoba, Parametr)] with
+      extension (x: (Osoba, Parametr))
+        def navigate: Modifier[HtmlElement] =
+          Navigator.navigateTo[Page](
+            Page.DetailParametru(x._1, x._2)
+          )
+
+    import BaseList.Row.given
+
+    val parameterList = new BaseList[(Osoba, Parametr)]
+      with NavigableList[(Osoba, Parametr), Page]
 
     div(
       cls := "flex flex-col space-y-4",
-      div(
-        cls := "md:flex md:items-center md:justify-between md:space-x-5",
-        div(
-          cls := "flex items-start space-x-5",
-          div(
-            cls := "flex-shrink-0",
-            Avatar($osoba.map(_.img)).avatar(16)
-          ),
-          div(
-            h1(
-              cls := "text-2xl font-bold text-gray-900",
-              child.text <-- $osoba.map(_.jmeno)
-            ),
-            funkce($osoba.map(_.hlavniFunkce)),
-            pp($osoba.map(_.pracovniPomer))
-          )
-        )
-      ),
+      OsobaView($osoba),
       div(
         cls := "bg-white shadow overflow-hidden sm:rounded-md",
-        ul(
-          role := "list",
-          cls := "divide-y divide-gray-200",
-          li(
-            a(
-              href := "#",
-              cls := "block hover:bg-gray-50",
-              div(
-                cls := "px-4 py-4 sm:px-6 items-center flex",
-                div(
-                  cls := "min-w-0 flex-1 pr-4",
-                  div(
-                    cls := "flex items-center justify-between",
-                    p(
-                      cls := "text-sm font-medium text-indigo-600 truncate",
-                      "Komise pro pověřování pracovníků"
-                    ),
-                    div(
-                      cls := "ml-2 flex-shrink-0 flex",
-                      p(
-                        cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
-                        """Splněno"""
-                      )
-                    )
-                  ),
-                  div(
-                    cls := "mt-2 sm:flex sm:justify-between",
-                    div(),
-                    div(
-                      cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
-                      Icons.solid.calendar,
-                      p(
-                        """do """,
-                        time(
-                          datetime := "2020-01-07",
-                          "01.07.2020"
-                        )
-                      )
-                    )
-                  )
-                ),
-                div(
-                  cls := "flex-shrink-0",
-                  Icons.solid.`chevron-right`
-                )
-              )
-            )
-          ),
-          li(
-            a(
-              href := "#",
-              cls := "block hover:bg-gray-50",
-              div(
-                cls := "px-4 py-4 sm:px-6",
-                div(
-                  cls := "flex items-center justify-between",
-                  p(
-                    cls := "text-sm font-medium text-indigo-600 truncate",
-                    """Front End Developer"""
-                  ),
-                  div(
-                    cls := "ml-2 flex-shrink-0 flex",
-                    p(
-                      cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
-                      """Full-time"""
-                    )
-                  )
-                ),
-                div(
-                  cls := "mt-2 sm:flex sm:justify-between",
-                  div(
-                    cls := "sm:flex",
-                    p(
-                      cls := "flex items-center text-sm text-gray-500",
-                      Icons.solid.users,
-                      """Engineering"""
-                    ),
-                    p(
-                      cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6",
-                      Icons.solid.`location-marker`,
-                      """Remote"""
-                    )
-                  ),
-                  div(
-                    cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
-                    Icons.solid.calendar,
-                    p(
-                      """Closing on""",
-                      time(
-                        datetime := "2020-01-07",
-                        """January 7, 2020"""
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          li(
-            a(
-              href := "#",
-              cls := "block hover:bg-gray-50",
-              div(
-                cls := "px-4 py-4 sm:px-6",
-                div(
-                  cls := "flex items-center justify-between",
-                  p(
-                    cls := "text-sm font-medium text-indigo-600 truncate",
-                    """User Interface Designer"""
-                  ),
-                  div(
-                    cls := "ml-2 flex-shrink-0 flex",
-                    p(
-                      cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800",
-                      """Full-time"""
-                    )
-                  )
-                ),
-                div(
-                  cls := "mt-2 sm:flex sm:justify-between",
-                  div(
-                    cls := "sm:flex",
-                    p(
-                      cls := "flex items-center text-sm text-gray-500",
-                      Icons.solid.users,
-                      """Design"""
-                    ),
-                    p(
-                      cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6",
-                      Icons.solid.`location-marker`,
-                      """Remote"""
-                    )
-                  ),
-                  div(
-                    cls := "mt-2 flex items-center text-sm text-gray-500 sm:mt-0",
-                    Icons.solid.calendar,
-                    p(
-                      """Closing on""",
-                      time(
-                        datetime := "2020-01-14",
-                        """January 14, 2020"""
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
+        parameterList.render(
+          for { o <- $osoba } yield for { p <- o.parametry } yield o -> p
         )
       )
     )

@@ -5,7 +5,10 @@ import com.raquo.waypoint.Router
 import org.scalajs.dom
 
 trait Navigator[P](using router: Router[P]):
-  def navigateTo(page: P): Binder[HtmlElement] =
+  def navigateTo(page: P): Binder[HtmlElement] = Navigator.navigateTo[P](page)
+
+object Navigator {
+  def navigateTo[P](page: P)(using router: Router[P]): Binder[HtmlElement] =
     Binder { el =>
 
       val isLinkElement = el.ref.isInstanceOf[dom.html.Anchor]
@@ -25,3 +28,4 @@ trait Navigator[P](using router: Router[P]):
         .preventDefault
         --> (_ => router.pushState(page))).bind(el)
     }
+}
