@@ -33,9 +33,11 @@ object Routes:
       .asInstanceOf[String]
       .init // Drop the ending slash
 
+  val homePage: Page = Page.Directory
+
   val router = Router[Page](
     routes = List(
-      Route.static(Page.Directory, root / endOfSegments, basePath = base),
+      Route.static(homePage, root / endOfSegments, basePath = base),
       Route.static(
         Page.Dashboard,
         root / "dashboard" / endOfSegments,
@@ -58,25 +60,3 @@ object Routes:
     $popStateEvent = windowEvents.onPopState,
     owner = unsafeWindowOwner
   )
-
-  // TODO: evaluate dangers of a global router in a SPA
-  def navigateTo(page: Page)(using router: Router[Page]): Binder[HtmlElement] =
-    Binder { el =>
-
-      val isLinkElement = el.ref.isInstanceOf[dom.html.Anchor]
-
-      if (isLinkElement) {
-        el.amend(href(router.absoluteUrlForPage(page)))
-      }
-
-      // If element is a link and user is holding a modifier while clicking:
-      //  - Do nothing, browser will open the URL in new tab / window / etc. depending on the modifier key
-      // Otherwise:
-      //  - Perform regular pushState transition
-      (onClick
-        .filter(ev =>
-          !(isLinkElement && (ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey))
-        )
-        .preventDefault
-        --> (_ => router.pushState(page))).bind(el)
-    }

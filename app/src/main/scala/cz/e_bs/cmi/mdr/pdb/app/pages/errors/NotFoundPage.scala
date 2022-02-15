@@ -5,11 +5,12 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.Page
 
-def NotFoundPage(url: String)(using
+def NotFoundPage(homePage: Page, url: String)(using
     router: Router[Page]
 ): HtmlElement =
   ErrorPage(
+    homePage,
     "404 error",
     "Page not found.",
     s"Sorry, but page $url doesn't exist."
-  )
+  ).render

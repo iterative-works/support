@@ -1,37 +1,36 @@
 package cz.e_bs.cmi.mdr.pdb.app.components
 
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.{*, given}
-import cz.e_bs.cmi.mdr.pdb.app.{Page, UserProfile}
+import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import CustomAttrs.ariaCurrent
 import com.raquo.waypoint.Router
-import cz.e_bs.cmi.mdr.pdb.app.Routes.navigateTo
 
-object Navigation:
+trait NavigationBar[Page](using router: Router[Page]):
+  self: Navigator[Page] =>
 
-  case class Logo(name: String, img: String)
-
+  case class Logo(img: String, name: String)
   case class MenuItem(title: String)
+  case class UserInfo(name: String, email: String, img: Option[String])
 
-  given Conversion[Navigation, HtmlElement] = _.render
+  def $userInfo: Signal[UserInfo]
 
-import Navigation._
+  def pages: List[Page]
+  def userMenu: List[MenuItem]
+  def logo: Logo
 
-case class Navigation(
-    logo: Logo,
-    profile: Signal[UserProfile],
-    pages: Signal[List[Page]],
-    userMenu: Signal[List[MenuItem]]
-)(using router: Router[Page]):
-  val mobileMenuOpen = Var(false)
+  // Extract title from the page object
+  def pageTitle(page: Page): String
 
-  // Made a pull request to add aria-current to scala-dom-types, remove after
-  val ariaCurrent = customHtmlAttr("aria-current", StringAsIsCodec)
-
-  val desktopOnly = cls("hidden md:block")
-  val mobileOnly = cls("md:hidden")
-
-  def render: HtmlElement =
+  def navigation: HtmlElement =
     nav(cls := "bg-indigo-600", navBar, mobileMenu)
+
+  private val mobileMenuOpen = Var(false)
+
+  private val desktopOnly = cls("hidden md:block")
+  private val mobileOnly = cls("md:hidden")
+
+  private inline def avatarImage(size: Int = 8) =
+    Avatar($userInfo.map(_.img)).avatarImage(size)
 
   private def notificationButton = button(
     tpe := "button",
@@ -50,21 +49,6 @@ case class Navigation(
     span(cls := "sr-only", "View notifications"),
     Icons.outline.bell
   )
-
-  private inline def avatar(size: Int = 8) =
-    profile.map(_.userInfo.img match {
-      case Some(url) =>
-        img(
-          cls := s"w-$size h-$size rounded-full",
-          src := url,
-          alt := ""
-        )
-      case None =>
-        div(
-          cls := s"rounded-full text-indigo-200 bg-indigo-500 h-${size} w-${size} flex items-center justify-center",
-          Icons.outline.user(size - 2)
-        )
-    })
 
   private def userProfile: HtmlElement =
     val menuOpen = Var(false)
@@ -89,7 +73,7 @@ case class Navigation(
           aria.expanded <-- menuOpen.signal,
           aria.hasPopup := true,
           span(cls := "sr-only", "Open user menu"),
-          child <-- avatar(),
+          child <-- avatarImage(),
           onClick.preventDefault.mapTo(
             !menuOpen.now()
           ) --> menuOpen.writer
@@ -115,7 +99,7 @@ case class Navigation(
         aria.labelledBy := "user-menu-button",
         tabIndex := -1,
         // : keyboard navigation
-        children <-- userMenu.map(_.zipWithIndex.map(menuItem))
+        userMenu.zipWithIndex.map(menuItem)
       )
     )
 
@@ -133,32 +117,29 @@ case class Navigation(
         cls := "flex items-center px-5",
         div(
           cls := "flex-shrink-0",
-          child <-- avatar(10)
+          child <-- avatarImage(10)
         ),
         div(
           cls := "ml-3",
           div(
             cls := "text-base font-medium text-white",
-            child.text <-- profile.map(_.userInfo.name)
+            child.text <-- $userInfo.map(_.name)
           ),
           div(
             cls := "text-sm font-medium text-indigo-300",
-            child.text <-- profile.map(_.userInfo.email)
+            child.text <-- $userInfo.map(_.email)
           )
         ),
         notificationButton.amend(cls := List("flex-shrink-0", "ml-auto"))
       ),
       div(
         cls := "mt-3 px-2 space-y-1",
-        children <-- userMenu.map(_.map(menuItem))
+        userMenu.map(menuItem)
       )
     )
 
-  private def pageLink(page: Page, active: Signal[Boolean])(using
-      router: Router[Page]
-  ): Anchor =
+  private def pageLink(page: Page, active: Signal[Boolean]): Anchor =
     a(
-      href := router.absoluteUrlForPage(page),
       navigateTo(page),
       cls <-- active.map {
         case true  => "bg-indigo-700"
@@ -169,7 +150,7 @@ case class Navigation(
         case true => "page"
         case _    => "false"
       },
-      page.title
+      pageTitle(page)
     )
 
   private def logoImg: Image =
@@ -179,9 +160,8 @@ case class Navigation(
       alt := logo.name
     )
 
-  private def pageLinks(mods: Modifier[HtmlElement]*) = pages.map(
-    _.map(p => pageLink(p, router.$currentPage.map(p == _)).amend(mods))
-  )
+  private def pageLinks(mods: Modifier[HtmlElement]*) =
+    pages.map(p => pageLink(p, router.$currentPage.map(p == _)).amend(mods))
 
   private def mobileMenuButton = button(
     tpe := "button",
@@ -208,7 +188,7 @@ case class Navigation(
         desktopOnly,
         div(
           cls := "ml-10 flex items-baseline space-x-4",
-          children <-- pageLinks()
+          pageLinks()
         )
       )
     )
@@ -241,7 +221,7 @@ case class Navigation(
       )
     )
 
-  def mobileMenu =
+  private def mobileMenu =
     div(
       mobileOnly,
       cls <-- mobileMenuOpen.signal.map { o =>
@@ -250,7 +230,7 @@ case class Navigation(
       idAttr := "mobile-menu",
       div(
         cls := "px-2 pt-2 pb-3 space-y-1 sm:px-3",
-        children <-- pageLinks(cls := "block")
+        pageLinks(cls := "block")
       ),
       mobileProfile
     )

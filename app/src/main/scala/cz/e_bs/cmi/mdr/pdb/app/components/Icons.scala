@@ -10,10 +10,8 @@ import com.raquo.laminar.keys.ReactiveSvgAttr
 object Icons:
   val defaultSize: Int = 6
 
-  // TODO: remove aria-hidden from here, move to call sites, it has no reason to be here. or does it?
-  // Who decides whether the icon should be hidden? Or should the icon be hidden always?
   object aria:
-    val hidden = customSvgAttr("aria-hidden", BooleanAsTrueFalseStringCodec)
+    inline def hidden = CustomAttrs.svg.ariaHidden
 
   object outline:
     def bell =
