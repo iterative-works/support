@@ -10,13 +10,22 @@ import scala.scalajs.js.Date
 import com.raquo.waypoint.Router
 import com.raquo.waypoint.SplitRender
 import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
+import scala.scalajs.js.JSON
+import zio.json._
+import cz.e_bs.cmi.mdr.pdb.UserInfo
 
 @js.native
 @JSImport("stylesheets/main.css", JSImport.Namespace)
 object Css extends js.Any
 
+@js.native
+@JSImport("data/users.json", JSImport.Default)
+object mockUsers extends js.Any
+
 @JSExportTopLevel("app")
 object Main:
+
+  given JsonDecoder[UserInfo] = DeriveJsonDecoder.gen
 
   @JSExport
   def main(args: Array[String]): Unit = {
@@ -65,7 +74,17 @@ object Main:
         pages
           .DirectoryPage(
             EventStream
-              .fromValue(List(ExampleData.persons.jmeistrova))
+              .fromValue(
+                mockUsers
+                  .asInstanceOf[js.Dictionary[js.Object]]
+                  .values
+                  // TODO: is there a more efficient way to parse from JS object directly?
+                  .map(o => JSON.stringify(o).fromJson[UserInfo])
+                  .collect { case Right(u) =>
+                    u
+                  }
+                  .toList
+              )
           )
           .render
       )

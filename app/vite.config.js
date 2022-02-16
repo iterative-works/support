@@ -27,6 +27,7 @@ export default ({mode}) => {
         resolve: {
             alias: {
                 'stylesheets': path.resolve(__dirname, './src/main/static/stylesheets'),
+                'data': path.resolve(__dirname, appInfo.mockDataDir),
                 /*
                 'website-config': mode === 'production' ?
                     resolve(__dirname, '../website-config/prod') :

@@ -10,7 +10,7 @@ trait NavigationBar[Page](using router: Router[Page]):
 
   case class Logo(img: String, name: String)
   case class MenuItem(title: String)
-  case class UserInfo(name: String, email: String, img: Option[String])
+  case class UserInfo(name: String, email: Option[String], img: Option[String])
 
   def $userInfo: Signal[UserInfo]
 
@@ -125,9 +125,13 @@ trait NavigationBar[Page](using router: Router[Page]):
             cls := "text-base font-medium text-white",
             child.text <-- $userInfo.map(_.name)
           ),
-          div(
-            cls := "text-sm font-medium text-indigo-300",
-            child.text <-- $userInfo.map(_.email)
+          child.maybe <-- $userInfo.map(
+            _.email.map(e =>
+              div(
+                cls := "text-sm font-medium text-indigo-300",
+                e
+              )
+            )
           )
         ),
         notificationButton.amend(cls := List("flex-shrink-0", "ml-auto"))

@@ -2,7 +2,7 @@ package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.Page
-import cz.e_bs.cmi.mdr.pdb.app.{UserProfile, UserInfo => ModelUserInfo}
+import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo => ModelUserInfo}
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 
 trait AppPage
@@ -34,12 +34,17 @@ trait AppPage
     UserProfile(
       "tom",
       ModelUserInfo(
-        "Tom Cook",
-        "tom@example.com",
-        "+420 222 866 180",
+        "1031",
+        "tom",
+        "Tom",
+        "Cook",
         None,
-        "ČMI Medical",
-        "ředitel"
+        None,
+        Some("tom@example.com"),
+        Some("+420 222 866 180"),
+        Some("ČMI Medical"),
+        Some("ředitel"),
+        None
       )
     )
   )

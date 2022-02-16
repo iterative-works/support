@@ -2,12 +2,12 @@ package cz.e_bs.cmi.mdr.pdb.app.pages
 
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.components.Icons
-import cz.e_bs.cmi.mdr.pdb.app.Osoba
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
+import cz.e_bs.cmi.mdr.pdb.UserInfo
 
-case class DirectoryPage(data: EventStream[List[Osoba]])(using
+case class DirectoryPage(data: EventStream[List[UserInfo]])(using
     router: Router[Page]
 ) extends AppPage:
 
@@ -67,7 +67,7 @@ case class DirectoryPage(data: EventStream[List[Osoba]])(using
             cls := "relative z-0 divide-y divide-gray-200",
             // TODO: zero / loading page
             children <-- data.map(_.map({ o =>
-              val page = Page.Detail(o.osobniCislo)
+              val page = Page.Detail(o.personalNumber)
               li(
                 div(
                   cls := "relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-500",
@@ -91,11 +91,11 @@ case class DirectoryPage(data: EventStream[List[Osoba]])(using
                       ),
                       p(
                         cls := "text-sm font-medium text-gray-900",
-                        o.jmeno
+                        o.name
                       ),
                       p(
                         cls := "text-sm text-gray-500 truncate",
-                        o.hlavniFunkce.nazev
+                        o.mainFunction
                       )
                     )
                   )

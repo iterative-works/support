@@ -1,11 +1,16 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
+import sbtcrossproject.CrossPlugin.autoImport.{CrossType, crossProject}
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := scala3Version
 
+lazy val core = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("core"))
+
 lazy val app = (project in file("app"))
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, MockDataExport)
   .settings(
     IWDeps.useZIO(Test),
     IWDeps.laminar,
@@ -27,6 +32,7 @@ lazy val app = (project in file("app"))
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     scalaJSUseMainModuleInitializer := true
   )
+  .dependsOn(core.js)
 
 lazy val root = (project in file("."))
   .settings(name := "mdr-personnel-db", publish / skip := true)
