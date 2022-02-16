@@ -72,7 +72,7 @@ object Main:
       )
       .collectStatic(Page.Directory)(
         pages
-          .DirectoryPage(
+          .DirectoryPage(() =>
             EventStream
               .fromValue(
                 mockUsers

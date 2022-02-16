@@ -4,13 +4,13 @@ import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 import CustomAttrs.ariaCurrent
 import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.UserInfo
 
 trait NavigationBar[Page](using router: Router[Page]):
   self: Navigator[Page] =>
 
   case class Logo(img: String, name: String)
   case class MenuItem(title: String)
-  case class UserInfo(name: String, email: Option[String], img: Option[String])
 
   def $userInfo: Signal[UserInfo]
 

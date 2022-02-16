@@ -2,7 +2,7 @@ package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.Page
-import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo => ModelUserInfo}
+import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo}
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 
 trait AppPage
@@ -33,7 +33,7 @@ trait AppPage
   val $userProfile = Var(
     UserProfile(
       "tom",
-      ModelUserInfo(
+      UserInfo(
         "1031",
         "tom",
         "Tom",
@@ -49,6 +49,4 @@ trait AppPage
     )
   )
 
-  override val $userInfo = $userProfile.signal.map(p =>
-    UserInfo(p.userInfo.name, p.userInfo.email, p.userInfo.img)
-  )
+  override val $userInfo = $userProfile.signal.map(_.userInfo)
