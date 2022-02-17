@@ -1,37 +1,26 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages
 
-import com.raquo.laminar.api.L.{*, given}
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
-import cz.e_bs.cmi.mdr.pdb.app.components.Icons
-import cz.e_bs.cmi.mdr.pdb.app.{Osoba, PracovniPomer, Funkce}
-import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
-import cz.e_bs.cmi.mdr.pdb.app.Page
-import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
 import com.raquo.airstream.core.EventStream
+import com.raquo.laminar.api.L.{_, given}
 import com.raquo.waypoint.Router
-import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs.datetime
-import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
-import cz.e_bs.cmi.mdr.pdb.app.components.OsobaView
+import cz.e_bs.cmi.mdr.pdb.app.Osoba
+import cz.e_bs.cmi.mdr.pdb.app.Page
 import cz.e_bs.cmi.mdr.pdb.app.Parametr
+import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
+import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
+import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs.datetime
+import cz.e_bs.cmi.mdr.pdb.app.components.Icons
+import cz.e_bs.cmi.mdr.pdb.app.components.Loading
+import cz.e_bs.cmi.mdr.pdb.app.components.OsobaView
 import cz.e_bs.cmi.mdr.pdb.app.components.list.BaseList
-import cz.e_bs.cmi.mdr.pdb.app.components.list.NavigableList
 import cz.e_bs.cmi.mdr.pdb.app.components.list.Navigable
+import cz.e_bs.cmi.mdr.pdb.app.components.list.NavigableList
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 
 case class DetailPage(fetch: String => EventStream[Osoba])(
     $page: Signal[Page.Detail]
 )(using router: Router[Page])
     extends AppPage:
-  // TODO: proper loader
-  private val loading =
-    div(
-      cls := "bg-gray-50 overflow-hidden rounded-lg",
-      div(
-        cls := "px-4 py-5 sm:p-6",
-        "Loading..."
-      )
-    )
-
   override def pageContent: HtmlElement =
     val data = Var[Option[Osoba]](None)
     val $maybeOsoba =
@@ -43,7 +32,7 @@ case class DetailPage(fetch: String => EventStream[Osoba])(
       cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
       $fetchedData --> data.writer.contramapSome,
       $fetchedData --> (o => router.replaceState(Page.Detail(o))),
-      child <-- $maybeOsoba.map(_.getOrElse(loading))
+      child <-- $maybeOsoba.map(_.getOrElse(Loading))
     )
 
   private def renderView($osoba: Signal[Osoba]): HtmlElement =
