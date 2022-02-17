@@ -2,6 +2,7 @@ package cz.e_bs.cmi.mdr.pdb.app
 
 import java.time.LocalDate
 import java.time.Instant
+import cz.e_bs.cmi.mdr.pdb.OsobniCislo
 
 case class Potvrzeni(
     uzivatel: String,
@@ -39,7 +40,7 @@ case class Funkce(
 )
 
 case class Osoba(
-    osobniCislo: String,
+    osobniCislo: OsobniCislo,
     jmeno: String,
     email: String,
     telefon: String,

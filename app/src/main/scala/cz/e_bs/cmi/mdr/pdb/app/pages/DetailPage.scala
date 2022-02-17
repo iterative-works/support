@@ -16,22 +16,30 @@ import cz.e_bs.cmi.mdr.pdb.app.components.list.BaseList
 import cz.e_bs.cmi.mdr.pdb.app.components.list.Navigable
 import cz.e_bs.cmi.mdr.pdb.app.components.list.NavigableList
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import cz.e_bs.cmi.mdr.pdb.app.Action
+import cz.e_bs.cmi.mdr.pdb.app.FetchUserDetails
 
-case class DetailPage(fetch: String => EventStream[Osoba])(
+case class DetailPage(
+    $input: EventStream[Osoba],
+    actionBus: Observer[Action],
     $page: Signal[Page.Detail]
 )(using router: Router[Page])
     extends AppPage:
   override def pageContent: HtmlElement =
-    val data = Var[Option[Osoba]](None)
+    val $oscChangeSignal = $page.splitOne(_.osobniCislo)((osc, _, _) => osc)
+    // TODO: filter the value based on the current osc
+    // OSC change will fetch new data, but still
+    // - we need to be sure that what we got is really what we ought to display
+    // - we want to display stale data accordingly (at least with loading indicator)
+    val $data = $input.startWithNone
     val $maybeOsoba =
-      data.signal.split(_ => ())((_, _, s) => renderView(s))
-    val $fetchedData = $page.splitOne(_.osobniCislo)((osc, _, _) => osc)
-      .flatMap(fetch)
-      .debugLog()
+      $data.split(_ => ())((_, _, s) => renderView(s))
+    val $pageChangeSignal =
+      $oscChangeSignal.map(FetchUserDetails.apply)
     div(
       cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
-      $fetchedData --> data.writer.contramapSome,
-      $fetchedData --> (o => router.replaceState(Page.Detail(o))),
+      $pageChangeSignal --> actionBus,
+      // $fetchedData --> (o => router.replaceState(Page.Detail(o))),
       child <-- $maybeOsoba.map(_.getOrElse(Loading))
     )
 

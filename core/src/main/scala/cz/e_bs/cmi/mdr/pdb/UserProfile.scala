@@ -1,7 +1,15 @@
 package cz.e_bs.cmi.mdr.pdb
 
+opaque type OsobniCislo = String
+
+object OsobniCislo:
+  // TODO: validation
+  def apply(osc: String): OsobniCislo = osc
+
+extension (osc: OsobniCislo) def toString: String = osc
+
 case class UserInfo(
-    personalNumber: String,
+    personalNumber: OsobniCislo,
     username: String,
     givenName: String,
     surname: String,

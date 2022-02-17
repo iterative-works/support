@@ -25,37 +25,37 @@ object mockUsers extends js.Any
 @JSExportTopLevel("app")
 object Main:
 
-  given JsonDecoder[UserInfo] = DeriveJsonDecoder.gen
-
   @JSExport
-  def main(args: Array[String]): Unit = {
-    documentEvents.onDomContentLoaded.foreach { _ =>
+  def main(args: Array[String]): Unit =
+    import Routes.given
+    onLoad {
+      setupAirstream()
       val appContainer = dom.document.querySelector("#app")
-      given router: Router[Page] = Routes.router
+      val _ =
+        render(
+          appContainer,
+          renderPage(MockAppState(using unsafeWindowOwner, router))
+        )
+    }
 
-      AirstreamError.registerUnhandledErrorCallback(err =>
-        router.forcePage(
-          Page.UnhandledError(
-            Some(err.getClass.getName), // TODO: Fill only in dev mode
-            Some(err.getMessage)
-          )
+  private def onLoad(f: => Unit): Unit =
+    documentEvents.onDomContentLoaded.foreach(_ => f)(unsafeWindowOwner)
+
+  private def setupAirstream()(using router: Router[Page]): Unit =
+    AirstreamError.registerUnhandledErrorCallback(err =>
+      router.forcePage(
+        Page.UnhandledError(
+          Some(err.getClass.getName), // TODO: Fill only in dev mode
+          Some(err.getMessage)
         )
       )
+    )
 
-      val _ = render(
-        appContainer,
-        renderPage
-      )
-    }(unsafeWindowOwner)
-  }
-
-  def renderPage(using router: Router[Page]): HtmlElement =
+  def renderPage(state: AppState)(using router: Router[Page]): HtmlElement =
     val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
       .collectSignal[Page.Detail](
         pages
-          .DetailPage(osc =>
-            EventStream.fromValue(ExampleData.persons.jmeistrova).delay(1000)
-          )(_)
+          .DetailPage(state.details, state.actionBus, _)
           .render
       )
       .collectStatic(Page.Dashboard)(pages.DashboardPage().render)
@@ -72,20 +72,7 @@ object Main:
       )
       .collectStatic(Page.Directory)(
         pages
-          .DirectoryPage(() =>
-            EventStream
-              .fromValue(
-                mockUsers
-                  .asInstanceOf[js.Dictionary[js.Object]]
-                  .values
-                  // TODO: is there a more efficient way to parse from JS object directly?
-                  .map(o => JSON.stringify(o).fromJson[UserInfo])
-                  .collect { case Right(u) =>
-                    u
-                  }
-                  .toList
-              )
-          )
+          .DirectoryPage(state.users, state.actionBus)
           .render
       )
     div(child <-- pageSplitter.$view)

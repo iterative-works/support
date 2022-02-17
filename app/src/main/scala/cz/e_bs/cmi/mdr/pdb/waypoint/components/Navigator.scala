@@ -7,6 +7,7 @@ import org.scalajs.dom
 trait Navigator[P](using router: Router[P]):
   def navigateTo(page: P): Binder[HtmlElement] = Navigator.navigateTo[P](page)
 
+// TODO: replace router NavigateTo action
 object Navigator {
   def navigateTo[P](page: P)(using router: Router[P]): Binder[HtmlElement] =
     Binder { el =>

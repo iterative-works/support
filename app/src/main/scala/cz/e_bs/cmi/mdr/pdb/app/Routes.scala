@@ -4,6 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.*
 import org.scalajs.dom
 import zio.json.{*, given}
+import cz.e_bs.cmi.mdr.pdb.OsobniCislo
 
 import scala.scalajs.js
 
@@ -16,7 +17,7 @@ object Page:
 
   case object Dashboard extends Page("Dashboard", Some(Directory))
 
-  case class Detail(osobniCislo: String, jmenoOsoby: Option[String] = None)
+  case class Detail(osobniCislo: OsobniCislo, jmenoOsoby: Option[String] = None)
       extends Page(jmenoOsoby.getOrElse("Detail"), Some(Directory))
 
   object Detail {
@@ -24,7 +25,7 @@ object Page:
   }
 
   case class DetailParametru(
-      osobniCislo: String,
+      osobniCislo: OsobniCislo,
       idParametru: String,
       jmenoOsoby: Option[String] = None,
       nazevParametru: Option[String] = None
@@ -46,6 +47,8 @@ object Page:
   ) extends Page("Unexpected error", Some(Directory))
 
 object Routes:
+  given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)
+  given JsonEncoder[OsobniCislo] = JsonEncoder.string.contramap(_.toString)
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
 
@@ -56,7 +59,7 @@ object Routes:
 
   val homePage: Page = Page.Directory
 
-  val router = Router[Page](
+  given router: Router[Page] = Router[Page](
     routes = List(
       Route.static(homePage, root / endOfSegments, basePath = base),
       Route.static(
@@ -65,14 +68,14 @@ object Routes:
         basePath = base
       ),
       Route[Page.Detail, String](
-        encode = _.osobniCislo,
-        decode = Page.Detail(_),
+        encode = _.osobniCislo.toString,
+        decode = osc => Page.Detail(OsobniCislo(osc)),
         root / "osoba" / segment[String] / endOfSegments,
         basePath = base
       ),
       Route[Page.DetailParametru, (String, String)](
-        encode = p => (p.osobniCislo, p.idParametru),
-        decode = p => Page.DetailParametru(p._1, p._2),
+        encode = p => (p.osobniCislo.toString, p.idParametru),
+        decode = p => Page.DetailParametru(OsobniCislo(p._1), p._2),
         root / "osoba" / segment[String] / "parametr" / segment[
           String
         ] / endOfSegments,

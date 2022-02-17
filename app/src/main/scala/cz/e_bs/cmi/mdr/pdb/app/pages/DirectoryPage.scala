@@ -7,20 +7,27 @@ import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.{AppPage, Loading}
 import cz.e_bs.cmi.mdr.pdb.UserInfo
 import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
+import cz.e_bs.cmi.mdr.pdb.app.Action
+import cz.e_bs.cmi.mdr.pdb.app.FetchDirectory
 
-case class DirectoryPage(fetch: () => EventStream[List[UserInfo]])(using
+case class DirectoryPage(
+    $input: EventStream[List[UserInfo]],
+    actionBus: Observer[Action]
+)(using
     router: Router[Page]
 ) extends AppPage:
 
   override def pageContent: HtmlElement =
-    val data = Var[Option[List[UserInfo]]](None)
+    val data = $input.startWithNone
     val $maybeDirectory =
       data.signal.split(_ => ())((_, _, s) => renderDirectory(s))
+    val $actionSignal = EventStream.fromValue(FetchDirectory)
     div(
       cls := "max-w-7xl mx-auto",
       //cls := "xl:order-first xl:flex xl:flex-col flex-shrink-0 w-96 border-r border-gray-200",
       searchForm,
-      fetch().delay(1000) --> data.writer.contramapSome,
+      $actionSignal --> actionBus,
+      // fetch().delay(1000) --> data.writer.contramapSome,
       child <-- $maybeDirectory.map(_.getOrElse(Loading))
     )
 

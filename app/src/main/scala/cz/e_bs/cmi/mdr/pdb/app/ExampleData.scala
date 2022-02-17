@@ -1,12 +1,14 @@
 package cz.e_bs.cmi.mdr.pdb.app
 
+import cz.e_bs.cmi.mdr.pdb.OsobniCislo
+
 import java.time.LocalDate
 
 object ExampleData:
   object persons:
     val jmeistrova =
       Osoba(
-        "1031",
+        OsobniCislo("60308"),
         "Ing. Jana Meistrová",
         "jmeistrova@cmi.cz",
         "+420222866180",
