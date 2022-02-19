@@ -7,6 +7,7 @@ import zio.json.{*, given}
 import cz.e_bs.cmi.mdr.pdb.OsobniCislo
 
 import scala.scalajs.js
+import cz.e_bs.cmi.mdr.pdb.UserInfo
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(val title: String, val parent: Option[Page])
@@ -21,7 +22,7 @@ object Page:
       extends Page(jmenoOsoby.getOrElse("Detail"), Some(Directory))
 
   object Detail {
-    def apply(o: Osoba): Detail = Detail(o.osobniCislo, Some(o.jmeno))
+    def apply(o: UserInfo): Detail = Detail(o.personalNumber, Some(o.name))
   }
 
   case class DetailParametru(
@@ -35,8 +36,8 @@ object Page:
       )
 
   object DetailParametru {
-    def apply(o: Osoba, p: Parametr): DetailParametru =
-      DetailParametru(o.osobniCislo, p.id, Some(o.jmeno), Some(p.nazev))
+    def apply(o: UserInfo, p: Parametr): DetailParametru =
+      DetailParametru(o.personalNumber, p.id, Some(o.name), Some(p.nazev))
   }
 
   case class NotFound(url: String) extends Page("404", Some(Directory))

@@ -26,26 +26,3 @@ case class Parametr(
     nazev: String,
     kriteria: List[Kriterium]
 )
-
-case class PracovniPomer(
-    druh: String,
-    pocatek: LocalDate,
-    konec: Option[LocalDate]
-)
-
-case class Funkce(
-    nazev: String,
-    stredisko: String,
-    voj: String
-)
-
-case class Osoba(
-    osobniCislo: OsobniCislo,
-    jmeno: String,
-    email: String,
-    telefon: String,
-    img: Option[String],
-    hlavniFunkce: Funkce,
-    pracovniPomer: PracovniPomer,
-    parametry: List[Parametr]
-)

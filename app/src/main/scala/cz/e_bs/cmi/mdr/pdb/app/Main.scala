@@ -54,11 +54,11 @@ object Main:
   def renderPage(state: AppState)(using router: Router[Page]): HtmlElement =
     val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
       .collectSignal[Page.Detail](
-        pages
-          .DetailPage(state.details, state.actionBus, _)
+        connectors
+          .DetailPageConnector(state.details, state.actionBus, _)
           .render
       )
-      .collectStatic(Page.Dashboard)(pages.DashboardPage().render)
+      .collectStatic(Page.Dashboard)(connectors.DashboardPageConnector().render)
       .collect[Page.NotFound](pg =>
         pages.errors.NotFoundPage(Routes.homePage, pg.url)
       )
@@ -71,8 +71,8 @@ object Main:
           )
       )
       .collectStatic(Page.Directory)(
-        pages
-          .DirectoryPage(state.users, state.actionBus)
+        connectors
+          .DirectoryPageConnector(state.users, state.actionBus)
           .render
       )
     div(child <-- pageSplitter.$view)

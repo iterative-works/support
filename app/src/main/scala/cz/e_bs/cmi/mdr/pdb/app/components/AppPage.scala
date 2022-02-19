@@ -4,8 +4,9 @@ import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo, OsobniCislo}
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import com.raquo.waypoint.Router
 
-trait AppPage
+class AppPage(using router: Router[Page])
     extends PageLayout
     with PageHeader
     with Breadcrumbs

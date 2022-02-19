@@ -12,7 +12,7 @@ import com.raquo.waypoint.Router
 
 trait AppState:
   def users: EventStream[List[UserInfo]]
-  def details: EventStream[Osoba]
+  def details: EventStream[UserInfo]
   def actionBus: Observer[Action]
 
 class MockAppState(implicit owner: Owner, router: Router[Page])
@@ -24,7 +24,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
   private val actions = EventBus[Action]()
   private val (usersStream, pushUsers) =
     EventStream.withCallback[List[UserInfo]]
-  private val (detailsStream, pushDetails) = EventStream.withCallback[Osoba]
+  private val (detailsStream, pushDetails) = EventStream.withCallback[UserInfo]
 
   private val mockData =
     mockUsers
@@ -40,9 +40,10 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
   actions.events.foreach {
     case FetchDirectory => pushUsers(mockData)
     case FetchUserDetails(osc) =>
-      val o = ExampleData.persons.jmeistrova.copy(osobniCislo = osc)
-      pushDetails(o)
-      router.replaceState(Page.Detail(o))
+      mockData.find(_.personalNumber == osc).foreach { o =>
+        pushDetails(o)
+        router.replaceState(Page.Detail(o))
+      }
     case NavigateTo(page) => router.pushState(page)
   }
 

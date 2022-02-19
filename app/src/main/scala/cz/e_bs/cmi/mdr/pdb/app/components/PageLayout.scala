@@ -5,13 +5,19 @@ import com.raquo.laminar.api.L.{*, given}
 trait PageLayout {
   def navigation: HtmlElement
   def pageHeader: HtmlElement
-  def pageContent: HtmlElement
 
-  def render: HtmlElement =
+  def render(
+      $m: Signal[Option[HtmlElement]],
+      mods: Modifier[HtmlElement]*
+  ): HtmlElement =
+    val $maybeContent = $m.split(_ => ())((_, c, _) => c)
     div(
       cls := "min-h-full",
       navigation,
       pageHeader,
-      main(pageContent)
+      main(
+        mods,
+        child <-- $maybeContent.map(_.getOrElse(Loading))
+      )
     )
 }
