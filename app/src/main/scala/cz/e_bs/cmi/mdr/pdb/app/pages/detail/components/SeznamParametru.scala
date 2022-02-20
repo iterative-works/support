@@ -10,8 +10,14 @@ import cz.e_bs.cmi.mdr.pdb.app.components.list.{
   RowNext
 }
 import cz.e_bs.cmi.mdr.pdb.app.components.Color
+import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.app.Page
 
 object SeznamParametru:
+  sealed trait Action
+  case object Selected extends Action
+
   case class Parametr(
       id: String,
       nazev: String,
@@ -22,7 +28,9 @@ object SeznamParametru:
 
   private val parametrList = new StackedList[Parametr]
 
-  def render($m: Signal[ViewModel]): HtmlElement =
+  def render($m: Signal[ViewModel])(pageF: Parametr => Page)(using
+      router: Router[Page]
+  ): HtmlElement =
     div(
       cls := "bg-white shadow overflow-hidden sm:rounded-md",
       parametrList.render($m, _.id) { $i =>
@@ -35,7 +43,7 @@ object SeznamParametru:
             bottomLeft = emptyNode,
             bottomRight = emptyNode,
             farRight = RowNext.render,
-            containerElement = a()
+            containerElement = a(Navigator.navigateTo(pageF(i)))
           )
         }
       }

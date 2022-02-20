@@ -8,6 +8,7 @@ import cz.e_bs.cmi.mdr.pdb.OsobniCislo
 
 import scala.scalajs.js
 import cz.e_bs.cmi.mdr.pdb.UserInfo
+import cz.e_bs.cmi.mdr.pdb.Parameter
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(val title: String, val parent: Option[Page])
@@ -36,8 +37,8 @@ object Page:
       )
 
   object DetailParametru {
-    def apply(o: UserInfo, p: Parametr): DetailParametru =
-      DetailParametru(o.personalNumber, p.id, Some(o.name), Some(p.nazev))
+    def apply(o: UserInfo, p: Parameter): DetailParametru =
+      DetailParametru(o.personalNumber, p.id, Some(o.name), Some(p.name))
   }
 
   case class NotFound(url: String) extends Page("404", Some(Directory))

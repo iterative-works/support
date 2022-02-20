@@ -35,7 +35,6 @@ trait Breadcrumbs(using router: Router[Page]):
         case None => renderHome(page)
         case Some(p) =>
           a(
-            href := router.absoluteUrlForPage(p),
             navigateTo(p),
             cls := "group inline-flex space-x-3 text-sm font-medium text-gray-500 hover:text-gray-700",
             Icons.solid.`arrow-narrow-left`,
@@ -53,9 +52,9 @@ trait Breadcrumbs(using router: Router[Page]):
             cls := "flex items-center",
             slash,
             a(
-              href := "#",
+              navigateTo(p),
               cls := "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700",
-              page.title
+              p.title
             )
           )
         )

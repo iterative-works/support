@@ -13,7 +13,9 @@ import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 
-trait AppState extends connectors.DetailPageConnector.AppState:
+trait AppState
+    extends connectors.DetailPageConnector.AppState
+    with connectors.DetailParametruPageConnector.AppState:
   def users: EventStream[List[UserInfo]]
   def details: EventStream[UserInfo]
   def parameters: EventStream[List[Parameter]]
@@ -54,6 +56,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       .collect { case Right(p) => p }
       .toList
 
+  // TODO: Extract to separate event handler
   actions.events.foreach {
     case FetchDirectory => pushUsers(mockData)
     case FetchUserDetails(osc) =>
@@ -63,6 +66,14 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       }
     case FetchParameters(osc) =>
       pushParameters(mockParameters)
+    case FetchParameter(osc, paramId) =>
+      for
+        o <- mockData.find(_.personalNumber == osc)
+        p <- mockParameters.find(_.id == paramId)
+      do
+        pushDetails(o)
+        pushParameters(mockParameters)
+        router.replaceState(Page.DetailParametru(o, p))
     case NavigateTo(page) => router.pushState(page)
   }
 

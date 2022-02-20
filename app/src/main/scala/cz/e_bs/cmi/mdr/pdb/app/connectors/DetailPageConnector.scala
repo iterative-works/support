@@ -47,21 +47,6 @@ case class DetailPageConnector(state: DetailPageConnector.AppState)(
       p: List[Parameter]
   ): DetailPage.ViewModel =
     DetailPage.ViewModel(
-      DetailOsoby.ViewModel(
-        o.personalNumber,
-        o.name,
-        o.email,
-        o.phone,
-        o.img,
-        None,
-        None
-      ),
-      p.map { param =>
-        SeznamParametru.Parametr(
-          id = param.name,
-          nazev = param.name,
-          status = "Nesplněno",
-          statusColor = Color.red
-        )
-      }
+      o.toViewModel,
+      p.map(_.toViewModel)
     )

@@ -3,6 +3,7 @@ package cz.e_bs.cmi.mdr.pdb.waypoint.components
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import org.scalajs.dom
+import com.raquo.domtypes.jsdom.defs.events.TypedTargetMouseEvent
 
 trait Navigator[P](using router: Router[P]):
   def navigateTo(page: P): Binder[HtmlElement] = Navigator.navigateTo[P](page)

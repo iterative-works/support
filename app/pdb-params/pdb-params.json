@@ -1,5 +1,6 @@
 {
   "KOMISE PRO POVĚŘOVÁNÍ PRACOVNÍKŮ":{
+    "id": "1",
     "name":"KOMISE PRO POVĚŘOVÁNÍ PRACOVNÍKŮ",
     "description":"Člen KPP\ndle G5.8/1 – je tato role bez kódů.\nSdílená kompetence, jako celek musí komise splnit veškerá kritéria.\nNěkterá kritéria budou povinná pro všechny členy KPP (tato budou označena).\nNěkteří z členů KPP jsou tkzv. plniči – oprávnění vkládat důkazy do PDB.\nPracovníci odpovědní za \n- stanovení kvalifikačních kritérií a za \n- pověřování jiných pracovníků prováděním konkrétních činností posuzování shody musí být přímo zaměstnanci oznámeného subjektu a nesmějí být externími odborníky nebo subdodavateli. \nUvedení pracovníci musí mít prokazatelné znalosti a zkušenosti ve všech těchto oblastech:",
     "criteria":[
@@ -56,6 +57,7 @@
     ]
   },
   "VEDOUCÍ PROJEKTU":{
+    "id": "2",
     "name":"VEDOUCÍ PROJEKTU",
     "description":"Vedoucí projektu\nU každé žádosti musí oznámený … určit jednu osobu odpovědnou za zajištění toho, aby bylo posouzení dané žádosti provedeno v souladu s příslušnými postupy a aby byly pro každý z úkolů v rámci posuzování využity vhodné zdroje včetně pracovníků.\nTato role je bez kódů, pokud není vedoucí projektu zároveň PR (což většinou je).\nV takovém případě bude mít v PDB jak parametr VP tak PR.\nKritéria si definujeme sami.",
     "criteria":[
@@ -82,6 +84,7 @@
     ]
   },
   "INTERNÍ KLINIK":{
+    "id": "3",
     "name":"INTERNÍ KLINIK",
     "description":"Interní klinik dle G5.5/2, může a nemusí být zařazen do přímého přezkumu technické dokumentace, pokud ano pak přiděleny MD kódy a klinická specializace (viz níže G6.3.2/2)\nParametr bude dělený – k obecným kritériím na IK budou přidány specifická kritéria pro specifické kódy a také specifické specializace.\nNutno ověřit u ÚNMZ, zda musí nutně mít IK, pokud provádí přezkum, kódy! Postačuje specializace? Viz G6.3.2/2\nPokud nebude provádět přezkum klinických aspektů technické dokumentace nemusí mít kódy!\nKRITÉRIA A PRŮKAZY SPECIFICKÉ PRO KÓDY ČI PRŮŘEZOVÉ SPECIALIZACE (TJ. DRUHY PROSTŘEDKŮ, NORMY) BUDOU DOPLNĚNY.\nOznámené subjekty musí mít trvale k dispozici pracovníky s příslušnými odbornými klinickými znalostmi, přičemž tito pracovníci musí být, pokud možno, přímo zaměstnanci oznámeného subjektu. \nTito pracovníci musí být zapojeni do všech fází posuzování a rozhodování uplatňovaného oznámeným subjektem, aby:",
     "criteria":[
@@ -148,6 +151,7 @@
     ]
   },
   "KLINICKÝ SPECIALISTA":{
+    "id": "4",
     "name":"KLINICKÝ SPECIALISTA",
     "description":"Klinický specialista dle G6.4 \nobvykle se jedná o lékaře specialisty (nebo držitele alternativních titulů, např. zubního lékaře) s certifikovanou specializací v lékařském oboru, který je relevantní pro kódy MDR, k nimž má být osoba pověřena.\nMá přiděleny MD kódy nebo klinickou specializaci (viz níže G6.4.2/1)\nParametr bude dělený – k obecným kritériím na KS budou přidány specifická kritéria pro specifické kódy a také specifické specializace.\nKRITÉRIA A PRŮKAZY SPECIFICKÉ PRO KÓDY ČI PRŮŘEZOVÉ SPECIALIZACE (TJ. DRUHY PROSTŘEDKŮ, NORMY) BUDOU DOPLNĚNY.",
     "criteria":[
@@ -169,6 +173,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU (RECENZENT, PROVĚŘOVATEL, OVĚŘOVATEL, REVIZOR?)":{
+    "id": "5",
     "name":"HODNOTITEL VÝROBKU (RECENZENT, PROVĚŘOVATEL, OVĚŘOVATEL, REVIZOR?)",
     "description":"Hodnotitel (recenzent) výrobku\npřiděleny kódy MDA/MDN/MDS\nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nParametr bude dělený - k obecným kritériím na PR budou přidána specifická kritéria pro specifické kódy. \nKRITÉRIA A PRŮKAZY SPECIFICKÉ PRO KÓDY ČI PRŮŘEZOVÉ SPECIALIZACE (TJ. DRUHY PROSTŘEDKŮ, NORMY) BUDOU DOPLNĚNY",
     "criteria":[
@@ -235,6 +240,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – biologické hodnocení 1. kategorie":{
+    "id": "6",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – biologické hodnocení 1. kategorie",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -336,6 +342,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – biologické hodnocení 2. kategorie":{
+    "id": "7",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – biologické hodnocení 2. kategorie",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -437,6 +444,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – biologické hodnocení 3. kategorie":{
+    "id": "8",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – biologické hodnocení 3. kategorie",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -538,6 +546,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Fyzikální charakterizace":{
+    "id": "9",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Fyzikální charakterizace",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -639,6 +648,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Chemická charakterizace":{
+    "id": "10",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Chemická charakterizace",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -740,6 +750,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Mikrobiologická charakterizace":{
+    "id": "11",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Mikrobiologická charakterizace",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -841,6 +852,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Elektrická bezpečnost a elektromagnetická kompatibilita":{
+    "id": "12",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Elektrická bezpečnost a elektromagnetická kompatibilita",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -942,6 +954,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Ověřování a validace software":{
+    "id": "13",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Ověřování a validace software",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -1043,6 +1056,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Balení a značení":{
+    "id": "14",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Balení a značení",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -1144,6 +1158,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Sterilizační procesy":{
+    "id": "15",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Sterilizační procesy",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -1245,6 +1260,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Zdravotnické prostředky s diagnostickou nebo měřicí funkcí":{
+    "id": "16",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Zdravotnické prostředky s diagnostickou nebo měřicí funkcí",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -1346,6 +1362,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Předklinické aspekty bezpečnosti a účinnosti":{
+    "id": "17",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Předklinické aspekty bezpečnosti a účinnosti",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -1447,6 +1464,7 @@
     ]
   },
   "HODNOTITEL VÝROBKU – specifické oblasti – Ochrana před zářením":{
+    "id": "18",
     "name":"HODNOTITEL VÝROBKU – specifické oblasti – Ochrana před zářením",
     "description":"Hodnotitel (recenzent) výrobku\nPřidělena specifická oblast (~kódu] \nPracovníci odpovědní za provádění přezkumů týkajících se výrobků (osoby provádějící přezkum výrobků), jako například přezkumů technické dokumentace nebo přezkoušení typu včetně takových aspektů, jako je klinické hodnocení, biologická bezpečnost, sterilizace a validace softwaru, musí mít všechny tyto prokazatelné kvalifikace\nAplikace obecných kritérií zahrnuje specifická kritéria pro posuzované aspekty.",
     "criteria":[
@@ -1548,6 +1566,7 @@
     ]
   },
   "AUDITOR":{
+    "id": "19",
     "name":"AUDITOR",
     "description":"Auditor\npřiděleny kódy MDT\nKRITÉRIA A PRŮKAZY SPECIFICKÉ PRO KÓDY (TJ. QMS, TECHNOLOGIE, NORMY) BUDOU DOPLNĚNY\nPracovníci odpovědní za provádění auditů systému výrobce v oblasti řízení kvality (osoby provádějící audit na místě) musí mít všechny tyto prokazatelné kvalifikace:",
     "criteria":[
@@ -1609,6 +1628,7 @@
     ]
   },
   "KOMISE PRO KONEČNÉ HODNOCENÍ (ZÁVĚREČNÉ OVĚŘENÍ, PROVĚŘENÍ, PŘEZKUM, RECENZI, REVIZI?)":{
+    "id": "20",
     "name":"KOMISE PRO KONEČNÉ HODNOCENÍ (ZÁVĚREČNÉ OVĚŘENÍ, PROVĚŘENÍ, PŘEZKUM, RECENZI, REVIZI?)",
     "description":"Pracovníci s celkovou odpovědností za konečné přezkumy (s širokou skupinou MD kódů) ohledně certifikace musí být přímo zaměstnanci oznámeného subjektu a nesmějí být externími odborníky ani subdodavateli. Tito pracovníci musí mít jako skupina prokazatelné znalosti a komplexní zkušenosti ve všech těchto oblastech\nPŘIDĚLENY KÓDY POKRÝVAJÍCÍ ŠIROKÝ ROZSAH (NAPŘ. CELÉ MDA)\nParametr nebude dělený - k obecným kritériím na IK nebudou přidána specifická kritéria pro specifické kódy. \nSdílená kompetence, jako celek musí komise splnit veškerá kritéria.\nNěkterá kritéria budou povinná pro všechny členy KPKH (tato budou označena).",
     "criteria":[
