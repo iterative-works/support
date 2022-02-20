@@ -13,6 +13,7 @@ import cz.e_bs.cmi.mdr.pdb.app.services.DataFetcher
 import scala.scalajs.js.JSON
 import zio.json._
 import cz.e_bs.cmi.mdr.pdb.UserInfo
+import cz.e_bs.cmi.mdr.pdb.app.state.AppState
 
 @js.native
 @JSImport("stylesheets/main.css", JSImport.Namespace)
@@ -20,7 +21,11 @@ object Css extends js.Any
 
 @js.native
 @JSImport("data/users.json", JSImport.Default)
-object mockUsers extends js.Any
+object mockUsers extends js.Object
+
+@js.native
+@JSImport("params/pdb-params.json", JSImport.Default)
+object pdbParams extends js.Object
 
 @JSExportTopLevel("app")
 object Main:
@@ -34,7 +39,7 @@ object Main:
       val _ =
         render(
           appContainer,
-          renderPage(MockAppState(using unsafeWindowOwner, router))
+          renderPage(state.MockAppState(using unsafeWindowOwner, router))
         )
     }
 
@@ -51,11 +56,13 @@ object Main:
       )
     )
 
-  def renderPage(state: AppState)(using router: Router[Page]): HtmlElement =
+  def renderPage(state: AppState)(using
+      router: Router[Page]
+  ): HtmlElement =
     val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
       .collectSignal[Page.Detail](
         connectors
-          .DetailPageConnector(state.details, state.actionBus, _)
+          .DetailPageConnector(state)(_)
           .render
       )
       .collectStatic(Page.Dashboard)(connectors.DashboardPageConnector().render)

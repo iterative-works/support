@@ -6,4 +6,5 @@ sealed trait Action
 
 case object FetchDirectory extends Action
 case class FetchUserDetails(osc: OsobniCislo) extends Action
+case class FetchParameters(osc: OsobniCislo) extends Action
 case class NavigateTo(page: Page) extends Action
