@@ -90,8 +90,23 @@ lazy val app = (project in file("app"))
   )
   .dependsOn(core.js)
 
+lazy val server = (project in file("server")).settings(
+  IWDeps.useZIO(),
+  libraryDependencies ++= Seq(
+    "org.http4s" %% "http4s-blaze-server" % "0.23.10",
+    "com.softwaremill.sttp.tapir" %% "tapir-core" % "0.20.0-M10",
+    "com.softwaremill.sttp.tapir" %% "tapir-zio" % "0.20.0-M10",
+    "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server" % "0.20.0-M10",
+    "dev.zio" %% "zio-interop-cats" % "3.3.0-RC2",
+    "dev.zio" %% "zio-logging-slf4j" % "2.0.0-RC5",
+    "ch.qos.logback" % "logback-classic" % "1.2.10" % Runtime,
+    "org.pac4j" %% "http4s-pac4j" % "4.0.0",
+    "org.pac4j" % "pac4j-oidc" % "5.2.0"
+  )
+)
+
 lazy val root = (project in file("."))
   .settings(name := "mdr-personnel-db", publish / skip := true)
   // Auto activates for all projects, but make sure we have required dependencies
   .enablePlugins(IWScalaProjectPlugin)
-  .aggregate(app)
+  .aggregate(app, server)
