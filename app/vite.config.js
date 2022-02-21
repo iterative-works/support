@@ -36,7 +36,7 @@ export default ({mode}) => {
                 */
             }
         },
-        base: '/mdr/pdb/app/',
+        base: '/mdr/pdb/',
         build: {
             outDir: 'target/vite'
         }

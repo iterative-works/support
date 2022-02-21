@@ -16,13 +16,13 @@ sealed abstract class Page(val title: String, val parent: Option[Page])
 
 object Page:
 
-  case object Directory extends Page("Directory", None)
+  case object Directory extends Page("Adresář", None)
 
-  case object Dashboard extends Page("Dashboard", Some(Directory))
+  case object Dashboard extends Page("Přehled", Some(Directory))
 
   // TODO: refactor to some "NamedParameter" concept, where the tuples value + title are better managed
   case class Detail(osobniCislo: OsobniCislo, jmenoOsoby: Option[String] = None)
-      extends Page(jmenoOsoby.getOrElse("Detail"), Some(Directory))
+      extends Page(jmenoOsoby.getOrElse("Detail osoby"), Some(Directory))
 
   object Detail {
     def apply(o: UserInfo): Detail = Detail(o.personalNumber, Some(o.name))
@@ -84,8 +84,7 @@ object Routes:
 
   val base =
     js.`import`.meta.env.BASE_URL
-      .asInstanceOf[String]
-      .init // Drop the ending slash
+      .asInstanceOf[String] + "app"
 
   val homePage: Page = Page.Directory
 
@@ -112,8 +111,18 @@ object Routes:
         basePath = base
       ),
       Route[Page.DetailKriteria, (String, String, String)](
-        encode = p => (p.osobniCislo.toString, p.idParametru, p.idKriteria),
-        decode = p => Page.DetailKriteria(OsobniCislo(p._1), p._2, p._3),
+        encode = p =>
+          (
+            p.osobniCislo.toString,
+            p.idParametru,
+            p.idKriteria.replaceAll("\\.", "--")
+          ),
+        decode = p =>
+          Page.DetailKriteria(
+            OsobniCislo(p._1),
+            p._2,
+            p._3.replaceAll("--", ".")
+          ),
         root / "osoba" / segment[String] / "parametr" / segment[
           String
         ] / "kriterium" / segment[String] / endOfSegments,
