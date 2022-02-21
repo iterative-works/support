@@ -70,6 +70,11 @@ object Main:
           .DetailParametruPageConnector(state)(_)
           .render
       )
+      .collectSignal[Page.DetailKriteria](
+        connectors
+          .DetailKriteriaPageConnector(state)(_)
+          .render
+      )
       .collectStatic(Page.Dashboard)(connectors.DashboardPageConnector().render)
       .collect[Page.NotFound](pg =>
         pages.errors.NotFoundPage(Routes.homePage, pg.url)

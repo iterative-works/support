@@ -7,7 +7,9 @@ case class ParameterCriteria(
     chapterId: String,
     itemId: String,
     criteriumText: String
-)
+) {
+  val id = s"${chapterId}${itemId}"
+}
 
 case class Parameter(
     id: String,

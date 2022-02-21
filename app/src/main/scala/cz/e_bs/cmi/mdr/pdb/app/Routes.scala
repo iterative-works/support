@@ -9,6 +9,7 @@ import cz.e_bs.cmi.mdr.pdb.OsobniCislo
 import scala.scalajs.js
 import cz.e_bs.cmi.mdr.pdb.UserInfo
 import cz.e_bs.cmi.mdr.pdb.Parameter
+import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(val title: String, val parent: Option[Page])
@@ -19,6 +20,7 @@ object Page:
 
   case object Dashboard extends Page("Dashboard", Some(Directory))
 
+  // TODO: refactor to some "NamedParameter" concept, where the tuples value + title are better managed
   case class Detail(osobniCislo: OsobniCislo, jmenoOsoby: Option[String] = None)
       extends Page(jmenoOsoby.getOrElse("Detail"), Some(Directory))
 
@@ -32,13 +34,39 @@ object Page:
       jmenoOsoby: Option[String] = None,
       nazevParametru: Option[String] = None
   ) extends Page(
-        jmenoOsoby.getOrElse("Detail parametru"),
+        nazevParametru.getOrElse("Detail parametru"),
         Some(Detail(osobniCislo, jmenoOsoby))
       )
 
   object DetailParametru {
     def apply(o: UserInfo, p: Parameter): DetailParametru =
       DetailParametru(o.personalNumber, p.id, Some(o.name), Some(p.name))
+  }
+
+  case class DetailKriteria(
+      osobniCislo: OsobniCislo,
+      idParametru: String,
+      idKriteria: String,
+      jmenoOsoby: Option[String] = None,
+      nazevParametru: Option[String] = None,
+      nazevKriteria: Option[String] = None
+  ) extends Page(
+        nazevKriteria.getOrElse("Detail kriteria"),
+        Some(
+          DetailParametru(osobniCislo, idParametru, jmenoOsoby, nazevParametru)
+        )
+      )
+
+  object DetailKriteria {
+    def apply(o: UserInfo, p: Parameter, k: ParameterCriteria): DetailKriteria =
+      DetailKriteria(
+        o.personalNumber,
+        p.id,
+        k.id,
+        Some(o.name),
+        Some(p.name),
+        Some(k.id)
+      )
   }
 
   case class NotFound(url: String) extends Page("404", Some(Directory))
@@ -81,6 +109,14 @@ object Routes:
         root / "osoba" / segment[String] / "parametr" / segment[
           String
         ] / endOfSegments,
+        basePath = base
+      ),
+      Route[Page.DetailKriteria, (String, String, String)](
+        encode = p => (p.osobniCislo.toString, p.idParametru, p.idKriteria),
+        decode = p => Page.DetailKriteria(OsobniCislo(p._1), p._2, p._3),
+        root / "osoba" / segment[String] / "parametr" / segment[
+          String
+        ] / "kriterium" / segment[String] / endOfSegments,
         basePath = base
       )
     ),

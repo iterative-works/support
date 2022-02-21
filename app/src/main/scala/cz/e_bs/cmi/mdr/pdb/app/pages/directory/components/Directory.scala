@@ -2,8 +2,6 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.directory.components
 
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.UserInfo
-import com.raquo.waypoint.Router
-import cz.e_bs.cmi.mdr.pdb.app.Page
 
 object Directory:
 
@@ -18,16 +16,16 @@ object Directory:
   import com.raquo.laminar.api.L.{*, given}
 
   object UserList:
-    type ViewModel = List[UserInfo]
-    def render($m: Signal[ViewModel])(using router: Router[Page]): HtmlElement =
+    type ViewModel = List[UserRow.ViewModel]
+    def render($m: Signal[ViewModel]): HtmlElement =
       ul(
         role := "list",
         cls := "relative z-0 divide-y divide-gray-200",
-        children <-- $m.split(_.username)((_, _, s) => UserRow.render(s))
+        children <-- $m.split(_.osobniCislo)((_, _, s) => UserRow.render(s))
       )
 
-  type ViewModel = List[(String, List[UserInfo])]
-  def render($m: Signal[ViewModel])(using router: Router[Page]): HtmlElement =
+  type ViewModel = List[(String, List[UserRow.ViewModel])]
+  def render($m: Signal[ViewModel]): HtmlElement =
     nav(
       cls := "flex-1 min-h-0 overflow-y-auto",
       aria.label := "Directory",

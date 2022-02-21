@@ -1,20 +1,20 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages.directory.components
 
 import com.raquo.laminar.api.L.{*, given}
-import cz.e_bs.cmi.mdr.pdb.UserInfo
 import com.raquo.airstream.core.Signal
-import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
-import cz.e_bs.cmi.mdr.pdb.app.Page
-import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 
 object UserRow:
-  type ViewModel = UserInfo
+  case class ViewModel(
+      osobniCislo: String,
+      celeJmeno: String,
+      prijmeni: String,
+      hlavniFunkce: Option[String],
+      img: Option[String],
+      container: HtmlElement = div()
+  )
 
-  sealed trait Action
-  case class Selected(value: ViewModel) extends Action
-
-  def render($m: Signal[ViewModel])(using router: Router[Page]): HtmlElement =
+  def render($m: Signal[ViewModel]): HtmlElement =
     inline def avatarImage =
       Avatar($m.map(_.img)).avatarImage(10)
 
@@ -28,8 +28,7 @@ object UserRow:
         div(
           cls := "flex-1 min-w-0",
           child <-- $m.map { o =>
-            a(
-              Navigator.navigateTo[Page](Page.Detail(o.personalNumber)),
+            o.container.amend(
               cls := "focus:outline-none",
               span(
                 cls := "absolute inset-0",
@@ -37,11 +36,11 @@ object UserRow:
               ),
               p(
                 cls := "text-sm font-medium text-gray-900",
-                o.name
+                o.celeJmeno
               ),
               p(
                 cls := "text-sm text-gray-500 truncate",
-                o.mainFunction
+                o.hlavniFunkce
               )
             )
           }

@@ -47,6 +47,6 @@ case class DetailPageConnector(state: DetailPageConnector.AppState)(
       p: List[Parameter]
   ): DetailPage.ViewModel =
     DetailPage.ViewModel(
-      o.toViewModel,
-      p.map(_.toViewModel)
+      o.toDetailOsoby,
+      p.map(_.toParametr)
     )

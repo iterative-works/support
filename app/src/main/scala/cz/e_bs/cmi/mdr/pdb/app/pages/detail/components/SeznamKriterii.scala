@@ -14,7 +14,8 @@ object SeznamKriterii:
       bod: String,
       status: String,
       statusColor: Color,
-      splneno: Boolean
+      splneno: Boolean,
+      container: HtmlElement = div()
   ) {
     val id = s"${kapitola}${bod}"
   }
@@ -36,7 +37,7 @@ object SeznamKriterii:
               p(cls := "text-sm text-gray-500", s"${i.kapitola}${i.bod}"),
             bottomRight = emptyNode,
             farRight = RowNext.render,
-            containerElement = a()
+            containerElement = i.container
           )
         }
       }
