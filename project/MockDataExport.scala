@@ -1,10 +1,13 @@
 import sbt._
 import Keys._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin
 import scala.xml.XML
 import scala.xml.Elem
 
 object MockDataExport extends AutoPlugin {
-  override def trigger = noTrigger
+  override lazy val requires = ScalaJSPlugin
+  override lazy val trigger = noTrigger
 
   object autoImport {
     lazy val generateOrgDbData =
@@ -23,15 +26,26 @@ object MockDataExport extends AutoPlugin {
     orgDbHeliosExportFile := orgDbExportDir.value / "HeliosData.xml",
     generateOrgDbData := {
       val file = orgDbOutputFile.value
-      val heliosData =
-        XML.loadFile(orgDbHeliosExportFile.value.getAbsolutePath())
-      IO.write(
-        file,
-        userData(heliosData)
-      )
-      Seq(file)
-    }
-    // TODO: cached run & auto run on fastLinkJS
+      val heliosFile = orgDbHeliosExportFile.value
+      def doExport() = {
+        val heliosData =
+          XML.loadFile(orgDbHeliosExportFile.value.getAbsolutePath())
+        IO.write(
+          file,
+          userData(heliosData)
+        )
+      }
+      val cachedFun =
+        FileFunction.cached(streams.value.cacheDirectory / "orgdb_export") {
+          _ =>
+            doExport()
+            Set(file)
+        }
+      cachedFun(Set(heliosFile)).toSeq
+    },
+    (Compile / fastLinkJS) := (Compile / fastLinkJS)
+      .dependsOn(generateOrgDbData)
+      .value
   )
 
   def escaped(v: String): String = v.replaceAll("\"", "\\\"")
