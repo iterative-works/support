@@ -1,23 +1,25 @@
 package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
+import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.app.Page
 
-trait PageLayout {
-  def navigation: HtmlElement
-  def pageHeader: HtmlElement
-
+object PageLayout:
+  case class ViewModel(
+      navigation: NavigationBar.ViewModel,
+      content: Option[HtmlElement]
+  )
   def render(
-      $m: Signal[Option[HtmlElement]],
+      $m: Signal[ViewModel],
       mods: Modifier[HtmlElement]*
-  ): HtmlElement =
-    val $maybeContent = $m.split(_ => ())((_, c, _) => c)
+  )(using Router[Page]): HtmlElement =
+    val $maybeContent = $m.map(_.content).split(_ => ())((_, c, _) => c)
     div(
       cls := "min-h-full",
-      navigation,
-      pageHeader,
+      NavigationBar.render($m.map(_.navigation)),
+      PageHeader.render,
       main(
         mods,
         child <-- $maybeContent.map(_.getOrElse(Loading))
       )
     )
-}

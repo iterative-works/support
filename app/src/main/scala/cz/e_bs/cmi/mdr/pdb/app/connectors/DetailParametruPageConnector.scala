@@ -41,7 +41,7 @@ case class DetailParametruPageConnector(
     )
 
   def render: HtmlElement =
-    AppPage().render(
+    AppPage.render(
       $merged.map(_.map(buildModel))
         .split(_ => ())((_, _, s) => DetailParametruPage.render(s)),
       $pageChangeSignal --> state.actionBus

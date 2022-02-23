@@ -6,29 +6,24 @@ import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo, OsobniCislo}
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 import com.raquo.waypoint.Router
 
-class AppPage(using router: Router[Page])
-    extends PageLayout
-    with PageHeader
-    with Breadcrumbs
-    with NavigationBar[Page]
-    with Navigator[Page]:
+object AppPage:
   // TODO: pages by logged in user
   val pages = List(Page.Directory, Page.Dashboard)
 
-  override val logo = Logo(
+  import NavigationBar.{Logo, MenuItem}
+
+  val logo = Logo(
     "https://tailwindui.com/img/logos/workflow-mark-indigo-300.svg",
     "Workflow"
   )
 
   // TODO: menu items by user profile
-  override val userMenu =
+  val userMenu =
     List(
       MenuItem("Your Profile"),
       MenuItem("Settings"),
       MenuItem("Sign out")
     )
-
-  override def pageTitle(page: Page): String = page.title
 
   // TODO: load user profile
   val $userProfile = Var(
@@ -50,4 +45,23 @@ class AppPage(using router: Router[Page])
     )
   )
 
-  override val $userInfo = $userProfile.signal.map(_.userInfo)
+  val $userInfo = $userProfile.signal.map(_.userInfo)
+
+  type ViewModel = Option[HtmlElement]
+  def render($m: Signal[ViewModel], mods: Modifier[HtmlElement]*)(using
+      Router[Page]
+  ): HtmlElement =
+    PageLayout.render(
+      $m.combineWith($userInfo).map((c, u) =>
+        PageLayout.ViewModel(
+          NavigationBar.ViewModel(
+            u,
+            pages,
+            userMenu,
+            logo
+          ),
+          c
+        )
+      ),
+      mods
+    )

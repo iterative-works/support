@@ -12,17 +12,30 @@ import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 
 // enum is not working with Waypoints' SplitRender collectStatic
-sealed abstract class Page(val title: String, val parent: Option[Page])
+sealed abstract class Page(
+    val id: String,
+    val title: String,
+    val parent: Option[Page]
+) {
+  val path: Vector[Page] =
+    parent match
+      case None    => Vector(this)
+      case Some(p) => p.path :+ this
+}
 
 object Page:
 
-  case object Directory extends Page("Adresář", None)
+  case object Directory extends Page("directory", "Adresář", None)
 
-  case object Dashboard extends Page("Přehled", Some(Directory))
+  case object Dashboard extends Page("dashboard", "Přehled", Some(Directory))
 
   // TODO: refactor to some "NamedParameter" concept, where the tuples value + title are better managed
   case class Detail(osobniCislo: OsobniCislo, jmenoOsoby: Option[String] = None)
-      extends Page(jmenoOsoby.getOrElse("Detail osoby"), Some(Directory))
+      extends Page(
+        "user",
+        jmenoOsoby.getOrElse("Detail osoby"),
+        Some(Directory)
+      )
 
   object Detail {
     def apply(o: UserInfo): Detail = Detail(o.personalNumber, Some(o.name))
@@ -34,6 +47,7 @@ object Page:
       jmenoOsoby: Option[String] = None,
       nazevParametru: Option[String] = None
   ) extends Page(
+        "parameter",
         nazevParametru.getOrElse("Detail parametru"),
         Some(Detail(osobniCislo, jmenoOsoby))
       )
@@ -51,6 +65,7 @@ object Page:
       nazevParametru: Option[String] = None,
       nazevKriteria: Option[String] = None
   ) extends Page(
+        "criteria",
         nazevKriteria.getOrElse("Detail kriteria"),
         Some(
           DetailParametru(osobniCislo, idParametru, jmenoOsoby, nazevParametru)
@@ -69,12 +84,12 @@ object Page:
       )
   }
 
-  case class NotFound(url: String) extends Page("404", Some(Directory))
+  case class NotFound(url: String) extends Page("404", "404", Some(Directory))
 
   case class UnhandledError(
       errorName: Option[String],
       errorMessage: Option[String]
-  ) extends Page("Unexpected error", Some(Directory))
+  ) extends Page("500", "Unexpected error", Some(Directory))
 
 object Routes:
   given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)

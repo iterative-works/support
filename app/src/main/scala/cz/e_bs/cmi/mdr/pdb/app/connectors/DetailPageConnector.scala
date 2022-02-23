@@ -35,7 +35,7 @@ case class DetailPageConnector(state: DetailPageConnector.AppState)(
   val $params = state.parameters.startWithNone
 
   def render: HtmlElement =
-    AppPage().render(
+    AppPage.render(
       $data.combineWithFn($params)(_ zip _)
         .map(_.map(buildModel))
         .split(_ => ())((_, _, s) => DetailPage.render(s)),

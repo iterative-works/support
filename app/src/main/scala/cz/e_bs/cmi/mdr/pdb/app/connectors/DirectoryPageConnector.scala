@@ -15,7 +15,7 @@ case class DirectoryPageConnector(
   val $actionSignal = EventStream.fromValue(FetchDirectory)
 
   def render: HtmlElement =
-    AppPage().render(
+    AppPage.render(
       $data.split(_ => ())((_, _, s) =>
         pages.directory.DirectoryPage.render(
           s.map(

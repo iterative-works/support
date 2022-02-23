@@ -8,4 +8,4 @@ import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
 
 class DashboardPageConnector(using router: Router[Page]):
   def render: HtmlElement =
-    AppPage().render(Val(Some(DashboardPage.render)))
+    AppPage.render(Val(Some(DashboardPage.render)))
