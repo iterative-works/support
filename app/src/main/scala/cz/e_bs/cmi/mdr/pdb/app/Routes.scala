@@ -21,6 +21,8 @@ sealed abstract class Page(
     parent match
       case None    => Vector(this)
       case Some(p) => p.path :+ this
+
+  val isRoot: Boolean = parent.isEmpty
 }
 
 object Page:

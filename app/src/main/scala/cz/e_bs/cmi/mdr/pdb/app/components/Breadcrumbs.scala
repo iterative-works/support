@@ -4,10 +4,11 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import CustomAttrs.svg.ariaHidden
 import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import cz.e_bs.cmi.mdr.pdb.app.components.list.IconText.ViewModel
 import cz.e_bs.cmi.mdr.pdb.app.Page
 
 import com.raquo.laminar.api.L.{*, given}
-import cz.e_bs.cmi.mdr.pdb.app.components.list.IconText.ViewModel
+import io.laminext.syntax.core.{*, given}
 
 object Breadcrumbs:
 
@@ -24,67 +25,87 @@ object Breadcrumbs:
       )
     )
 
-  object Home:
-    type ViewModel = Page
+  object Link:
+    case class ViewModel(
+        page: Page,
+        icon: Option[SvgElement],
+        text: String,
+        extraClasses: String
+    )
     def apply($m: Signal[ViewModel])(using Router[Page]): HtmlElement =
+      inline def alt[T](
+          homeVariant: => T,
+          pageVariant: ViewModel => T
+      ): Signal[T] =
+        $m.map { m =>
+          if (m.page.isRoot) then homeVariant else pageVariant(m)
+        }
       a(
-        Navigator.navigateTo($m),
-        cls := "text-gray-400 hover:text-gray-500",
-        Icons.solid.home,
-        span(cls := "sr-only", "Home")
-      )
-
-  object Segment:
-    type ViewModel = Page
-    def apply($m: Signal[ViewModel])(using Router[Page]): HtmlElement =
-      li(
-        div(
-          cls := "flex items-center",
-          slash,
-          a(
-            Navigator.navigateTo($m),
-            cls := "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700",
-            child.text <-- $m.map(_.title)
-          )
+        Navigator.navigateTo($m.map(_.page)),
+        cls <-- alt(
+          "text-gray-400 hover:text-gray-500",
+          m =>
+            s"${m.extraClasses} text-sm font-medium text-gray-500 hover:text-gray-700"
+        ),
+        child.maybe <-- alt(
+          Some(Icons.solid.home),
+          _.icon
+        ),
+        child <-- alt(
+          span(cls := "sr-only", "Domů"),
+          m => span(m.text)
         )
       )
 
   object FullBreadcrumbs:
     type ViewModel = Page
     def apply($m: Signal[ViewModel])(using Router[Page]): HtmlElement =
-      div(
-        cls := "hidden sm:block",
-        ol(
-          role := "list",
-          cls := "flex items-center space-x-4",
-          Home($m.map(_.path.head)),
-          children <-- $m.map(_.path.tail)
-            .split(_.id)((_, _, $p) => Segment($p))
+      ol(
+        role := "list",
+        cls := "flex items-center space-x-4",
+        children <-- $m.map(_.path).split(_.id)((_, _, $p) =>
+          li(
+            div(
+              cls := "flex items-center",
+              child.maybe <-- $p.map(_.isRoot).switch(None, Some(slash)),
+              Link(
+                $p.map(p =>
+                  Link.ViewModel(
+                    p,
+                    None,
+                    p.title,
+                    "ml-4"
+                  )
+                )
+              )
+            )
+          )
         )
       )
 
   object ShortBreadcrumbs:
     type ViewModel = Page
     def apply($m: Signal[ViewModel])(using Router[Page]): HtmlElement =
-      div(
-        cls := "flex sm:hidden",
-        child <-- $m.map(
-          _.parent match
-            case None => Home($m)
-            case Some(p) =>
-              a(
-                Navigator.navigateTo($m),
-                cls := "group inline-flex space-x-3 text-sm font-medium text-gray-500 hover:text-gray-700",
-                Icons.solid.`arrow-narrow-left`,
-                span(p.title)
-              )
+      Link($m.map { p =>
+        val target = p.parent.getOrElse(p)
+        Link.ViewModel(
+          target,
+          Some(Icons.solid.`arrow-narrow-left`),
+          s"Zpět na ${target.title}",
+          "group inline-flex space-x-3"
         )
-      )
+      })
 
   def apply()(using router: Router[Page]): HtmlElement =
     nav(
       cls := "flex",
       aria.label := "Breadcrumb",
-      ShortBreadcrumbs(router.$currentPage),
-      FullBreadcrumbs(router.$currentPage)
+      div(
+        cls := "flex sm:hidden",
+        ShortBreadcrumbs(router.$currentPage)
+      ),
+      div(
+        cls := "hidden sm:block",
+        FullBreadcrumbs(router.$currentPage)
+      )
     )
