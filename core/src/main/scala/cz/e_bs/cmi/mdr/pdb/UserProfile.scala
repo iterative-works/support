@@ -1,5 +1,7 @@
 package cz.e_bs.cmi.mdr.pdb
 
+import java.time.LocalDate
+
 opaque type OsobniCislo = String
 
 object OsobniCislo:
@@ -7,6 +9,13 @@ object OsobniCislo:
   def apply(osc: String): OsobniCislo = osc
 
 extension (osc: OsobniCislo) def toString: String = osc
+
+case class UserContract(
+    rel: String,
+    startDate: LocalDate,
+    endDate: Option[LocalDate]
+)
+case class UserFunction(name: String, dept: String, ou: String)
 
 case class UserInfo(
     personalNumber: OsobniCislo,
@@ -17,8 +26,8 @@ case class UserInfo(
     titlesAfterName: Option[String] = None,
     email: Option[String] = None,
     phone: Option[String] = None,
-    organizationalUnit: Option[String] = None,
-    mainFunction: Option[String] = None,
+    mainFunction: Option[UserFunction] = None,
+    userContracts: List[UserContract] = Nil,
     img: Option[String] = None
 ) {
   val name =

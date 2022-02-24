@@ -7,8 +7,10 @@ object DetailKriteria:
   type ViewModel = SeznamKriterii.Kriterium
   def render($m: Signal[ViewModel]): HtmlElement =
     div(
-      h3(cls := "text-l font-bold text-gray-900"),
-      child.text <-- $m.map(_.nazev),
+      h3(
+        cls := "text-l font-bold text-gray-900",
+        child.text <-- $m.map(_.nazev)
+      ),
       div(
         cls := "bg-white shadow overflow-hidden sm:rounded-lg",
         div(

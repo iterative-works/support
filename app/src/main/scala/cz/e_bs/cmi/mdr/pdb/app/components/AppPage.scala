@@ -6,6 +6,7 @@ import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo, OsobniCislo}
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.Action
 import cz.e_bs.cmi.mdr.pdb.app.NavigateTo
+import cz.e_bs.cmi.mdr.pdb.UserFunction
 
 object AppPage:
   // TODO: pages by logged in user
@@ -39,8 +40,10 @@ object AppPage:
         None,
         Some("tom@example.com"),
         Some("+420 222 866 180"),
-        Some("ČMI Medical"),
-        Some("ředitel"),
+        Some(
+          UserFunction("administrátor zakázek", "ředitelství", "ČMI Medical")
+        ),
+        Nil,
         None
       )
     )

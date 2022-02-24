@@ -16,6 +16,7 @@ object SeznamParametru:
   case class Parametr(
       id: String,
       nazev: String,
+      popis: String,
       status: String,
       statusColor: Color,
       a: Anchor

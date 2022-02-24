@@ -18,8 +18,12 @@ extension (o: UserInfo)
       o.email,
       o.phone,
       o.img,
-      None,
-      None
+      o.mainFunction.map(f =>
+        DetailOsoby.Funkce.ViewModel(f.name, f.dept, f.ou)
+      ),
+      o.userContracts.headOption.map(c =>
+        DetailOsoby.PracovniPomer.ViewModel(c.rel, c.startDate, c.endDate)
+      )
     )
 
 extension (param: Parameter)
@@ -27,6 +31,7 @@ extension (param: Parameter)
     SeznamParametru.Parametr(
       id = param.id,
       nazev = param.name,
+      popis = param.description,
       status = "Nesplněno",
       statusColor = Color.red,
       a = container(param)
@@ -54,7 +59,7 @@ extension (user: UserInfo)
       osobniCislo = user.personalNumber.toString,
       celeJmeno = user.name,
       prijmeni = user.surname,
-      hlavniFunkce = user.mainFunction,
+      hlavniFunkce = user.mainFunction.map(_.name),
       img = user.img,
       container = container(user)
     )

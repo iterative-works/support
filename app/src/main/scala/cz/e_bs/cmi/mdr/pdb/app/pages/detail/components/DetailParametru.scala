@@ -6,6 +6,13 @@ object DetailParametru:
   type ViewModel = SeznamParametru.Parametr
   def render($m: Signal[ViewModel]): HtmlElement =
     div(
-      h2(cls := "text-xl font-bold text-gray-900"),
-      child.text <-- $m.map(_.nazev)
+      cls := "pb-5 border-b border-gray-200",
+      h2(
+        cls := "text-lg leading-6 font-medium text-gray-900",
+        child.text <-- $m.map(_.nazev)
+      ),
+      p(
+        cls := "mt-2 max-w-4xl text-sm text-gray-500",
+        child.text <-- $m.map(_.popis)
+      )
     )

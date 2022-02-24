@@ -12,6 +12,8 @@ import com.raquo.airstream.ownership.Owner
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
+import cz.e_bs.cmi.mdr.pdb.UserFunction
+import cz.e_bs.cmi.mdr.pdb.UserContract
 
 trait AppState
     extends connectors.DetailPageConnector.AppState
@@ -26,6 +28,8 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
     extends AppState:
 
   given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)
+  given JsonDecoder[UserFunction] = DeriveJsonDecoder.gen
+  given JsonDecoder[UserContract] = DeriveJsonDecoder.gen
   given JsonDecoder[UserInfo] = DeriveJsonDecoder.gen
 
   given JsonDecoder[ParameterCriteria] = DeriveJsonDecoder.gen
@@ -43,7 +47,11 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       .asInstanceOf[js.Dictionary[js.Object]]
       .values
       // TODO: is there a more efficient way to parse from JS object directly?
-      .map(o => JSON.stringify(o).fromJson[UserInfo])
+      .map { o =>
+        val parsed = JSON.stringify(o).fromJson[UserInfo]
+        parsed.left.foreach(org.scalajs.dom.console.log(_))
+        parsed
+      }
       .collect { case Right(u) =>
         u
       }

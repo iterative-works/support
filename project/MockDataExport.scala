@@ -70,7 +70,7 @@ object MockDataExport extends AutoPlugin {
       fce: Option[List[(String, Option[String])]],
       pp: List[List[(String, Option[String])]]
   ): String = {
-    val contracts = pp.map(p => s"{${renderParams(p)}").mkString(", ")
+    val contracts = pp.map(p => s"{${renderParams(p)}}").mkString(", ")
     val mainF = fce
       .map(renderParams)
       .map(p => s""", "mainFunction": {$p}""")
@@ -92,10 +92,11 @@ object MockDataExport extends AutoPlugin {
         .find(n => (n \ "hlavniFunkce").text == "true")
         .flatMap(str(a))
 
-    def mainContract(a: String) = (z: scala.xml.Node) =>
-      (z \\ "ExportPracovniPomer")
-        .find(n => (n \ "datumUkonceni").text.isEmpty)
-        .flatMap(str(a))
+    def mainContract(f: String => scala.xml.Node => Option[String])(a: String) =
+      (z: scala.xml.Node) =>
+        (z \\ "ExportPracovniPomer")
+          .find(n => (n \ "datumUkonceni").text.isEmpty)
+          .flatMap(f(a))
 
     def id = str("osobniCislo").andThen(_.get)
 
@@ -135,9 +136,13 @@ object MockDataExport extends AutoPlugin {
     ): (String, List[(String, Option[String])]) =
       parseRecord(
         List(
-          "rel" -> mainContract("druh"),
-          "startDate" -> mainContract("datumNastupu"),
-          "endDate" -> mainContract("datumUkonceni")
+          "rel" -> mainContract(str)("druh"),
+          "startDate" -> mainContract(str)("datumNastupu").andThen(
+            _.map(_.take(10))
+          ),
+          "endDate" -> mainContract(optstr)("datumUkonceni").andThen(
+            _.map(_.take(10))
+          )
         )
       )(record)
 
