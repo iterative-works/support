@@ -26,7 +26,7 @@ object SeznamKriterii:
   def render($m: Signal[ViewModel]): HtmlElement =
     div(
       cls := "bg-white shadow overflow-hidden sm:rounded-md",
-      kritList.render($m, _.id) { $i =>
+      kritList($m, _.id) { $i =>
         $i.map { i =>
           ListRow.ViewModel(
             title = i.nazev,

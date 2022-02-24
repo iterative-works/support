@@ -5,6 +5,7 @@ import com.raquo.laminar.api.L.{*, given}
 import components._
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.app.Action
 
 object DetailPage:
 
@@ -13,16 +14,12 @@ object DetailPage:
       parametry: SeznamParametru.ViewModel
   )
 
-  def render($m: Signal[ViewModel])(using router: Router[Page]): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     div(
       cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
       div(
         cls := "flex flex-col space-y-4",
         DetailOsoby.render($m.map(_.osoba)),
-        child <-- $m.map(m =>
-          SeznamParametru.render($m.map(_.parametry))(p =>
-            Page.DetailParametru(m.osoba.osobniCislo, p.id)
-          )
-        )
+        SeznamParametru($m.map(_.parametry))
       )
     )

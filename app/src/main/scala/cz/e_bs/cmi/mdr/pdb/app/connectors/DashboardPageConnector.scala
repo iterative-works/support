@@ -6,6 +6,8 @@ import cz.e_bs.cmi.mdr.pdb.app.pages.dashboard.DashboardPage
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
 
-class DashboardPageConnector(using router: Router[Page]):
-  def render: HtmlElement =
-    AppPage.render(Val(Some(DashboardPage.render)))
+class DashboardPageConnector(actionBus: Observer[Action])(using
+    router: Router[Page]
+):
+  def apply: HtmlElement =
+    AppPage(actionBus)(Val(Some(DashboardPage.render)))

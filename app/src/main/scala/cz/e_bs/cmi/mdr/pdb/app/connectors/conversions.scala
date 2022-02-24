@@ -23,18 +23,18 @@ extension (o: UserInfo)
     )
 
 extension (param: Parameter)
-  def toParametr: SeznamParametru.Parametr =
+  def toParametr(container: Parameter => Anchor): SeznamParametru.Parametr =
     SeznamParametru.Parametr(
       id = param.id,
       nazev = param.name,
       status = "Nesplněno",
-      statusColor = Color.red
+      statusColor = Color.red,
+      a = container(param)
     )
 
 extension (crit: ParameterCriteria)
   def toKriterium(
-      container: ParameterCriteria => HtmlElement = (_: ParameterCriteria) =>
-        div()
+      container: ParameterCriteria => Anchor
   ): SeznamKriterii.Kriterium =
     SeznamKriterii.Kriterium(
       nazev = crit.criteriumText,

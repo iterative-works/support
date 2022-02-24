@@ -13,7 +13,7 @@ object ListRow:
       containerElement: HtmlElement = div()
   )
 
-  def render($m: Signal[ViewModel]): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     li(
       child <-- $m.map(m =>
         m.containerElement.amend(

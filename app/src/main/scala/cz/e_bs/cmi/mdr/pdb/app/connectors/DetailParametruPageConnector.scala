@@ -8,7 +8,7 @@ import cz.e_bs.cmi.mdr.pdb.app.pages.detail.DetailParametruPage
 import pages.detail.DetailParametruPage
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
-import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import cz.e_bs.cmi.mdr.pdb.app.components.PageLink
 
 object DetailParametruPageConnector {
   trait AppState {
@@ -40,8 +40,8 @@ case class DetailParametruPageConnector(
       } yield (da, pb)
     )
 
-  def render: HtmlElement =
-    AppPage.render(
+  def apply: HtmlElement =
+    AppPage(state.actionBus)(
       $merged.map(_.map(buildModel))
         .split(_ => ())((_, _, s) => DetailParametruPage.render(s)),
       $pageChangeSignal --> state.actionBus
@@ -53,10 +53,15 @@ case class DetailParametruPageConnector(
   ): DetailParametruPage.ViewModel =
     DetailParametruPage.ViewModel(
       o.toDetailOsoby,
-      p.toParametr,
+      p.toParametr(p =>
+        PageLink.container(Page.DetailParametru(o, p), state.actionBus)
+      ),
       p.criteria.map(
-        _.toKriterium(c =>
-          a(Navigator.navigateTo[Page](Page.DetailKriteria(o, p, c)))
-        )
+        _.toKriterium { c =>
+          PageLink.container(
+            Page.DetailKriteria(o, p, c),
+            state.actionBus
+          )
+        }
       )
     )

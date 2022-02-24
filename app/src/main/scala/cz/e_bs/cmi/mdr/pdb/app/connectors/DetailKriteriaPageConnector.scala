@@ -9,7 +9,6 @@ import pages.detail.DetailKriteriaPage
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
-import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 
 object DetailKriteriaPageConnector {
   trait AppState {
@@ -44,8 +43,8 @@ case class DetailKriteriaPageConnector(
       } yield (da, pb, ka)
     )
 
-  def render: HtmlElement =
-    AppPage.render(
+  def apply: HtmlElement =
+    AppPage(state.actionBus)(
       $merged.map(_.map(buildModel))
         .split(_ => ())((_, _, s) => DetailKriteriaPage.render(s)),
       $pageChangeSignal --> state.actionBus
@@ -58,6 +57,6 @@ case class DetailKriteriaPageConnector(
   ): DetailKriteriaPage.ViewModel =
     DetailKriteriaPage.ViewModel(
       o.toDetailOsoby,
-      p.toParametr,
-      k.toKriterium()
+      p.toParametr(_ => a()),
+      k.toKriterium(_ => a())
     )

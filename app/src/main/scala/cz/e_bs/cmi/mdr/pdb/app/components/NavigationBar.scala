@@ -1,25 +1,24 @@
 package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
-import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 import CustomAttrs.ariaCurrent
-import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.UserInfo
-import cz.e_bs.cmi.mdr.pdb.app.Page
+import io.laminext.syntax.core.*
 
 object NavigationBar:
 
   case class Logo(img: String, name: String)
+  case class Link(a: () => Anchor, active: Boolean)
   case class MenuItem(title: String)
 
   case class ViewModel(
       userInfo: UserInfo,
-      pages: List[Page],
+      pages: List[Link],
       userMenu: List[MenuItem],
       logo: Logo
   )
 
-  def render($m: Signal[ViewModel])(using router: Router[Page]): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     val $userInfo = $m.map(_.userInfo)
     val mobileMenuOpen = Var(false)
 
@@ -139,20 +138,17 @@ object NavigationBar:
         )
       )
 
-    def pageLink(page: Page, active: Signal[Boolean]): Anchor =
-      a(
-        Navigator.navigateTo(page),
-        cls <-- active.map {
-          case true  => "bg-indigo-700"
-          case false => "hover:bg-indigo-500 hover:bg-opacity-75"
-        },
-        cls := "text-white px-3 py-2 rounded-md text-sm font-medium",
-        ariaCurrent <-- active.map {
-          case true => "page"
-          case _    => "false"
-        },
-        page.title
-      )
+    def pageLink(page: Link): Anchor =
+      page
+        .a()
+        .amend(
+          cls := "text-white px-3 py-2 rounded-md text-sm font-medium",
+          cls := Seq(
+            "bg-indigo-700" -> page.active,
+            "hover:bg-indigo-500 hover:bg-opacity-75" -> !page.active
+          ),
+          ariaCurrent := (if page.active then "page" else "false")
+        )
 
     def logoImg: Image =
       img(
@@ -161,25 +157,18 @@ object NavigationBar:
         alt <-- $m.map(_.logo.name)
       )
 
-    def pageLinks(mods: Modifier[HtmlElement]*) =
-      $m.map(
-        _.pages.map(p =>
-          pageLink(p, router.$currentPage.map(p == _)).amend(mods)
-        )
-      )
-
     def mobileMenuButton = button(
       tpe := "button",
       cls := "bg-indigo-600 inline-flex items-center justify-center p-2 rounded-md text-indigo-200 hover:text-white hover:bg-indigo-500 hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white",
       aria.controls := "mobile-menu",
       aria.expanded <-- mobileMenuOpen.signal,
       span(cls := "sr-only", "Open main menu"),
-      Icons.outline.menu.amend(svg.cls <-- mobileMenuOpen.signal.map { o =>
-        if (o) "hidden" else "block"
-      }),
-      Icons.outline.x.amend(svg.cls <-- mobileMenuOpen.signal.map { o =>
-        if (o) "block" else "hidden"
-      }),
+      Icons.outline.menu.amend(
+        svg.cls <-- mobileMenuOpen.signal.switch("hidden", "block")
+      ),
+      Icons.outline.x.amend(
+        svg.cls <-- mobileMenuOpen.signal.switch("block", "hidden")
+      ),
       onClick.preventDefault.mapTo(
         !mobileMenuOpen.now()
       ) --> mobileMenuOpen.writer
@@ -193,7 +182,9 @@ object NavigationBar:
           desktopOnly,
           div(
             cls := "ml-10 flex items-baseline space-x-4",
-            children <-- pageLinks()
+            children <-- $m.map(
+              _.pages.map(p => pageLink(p).amend(cls := "block"))
+            )
           )
         )
       )
@@ -235,7 +226,9 @@ object NavigationBar:
         idAttr := "mobile-menu",
         div(
           cls := "px-2 pt-2 pb-3 space-y-1 sm:px-3",
-          children <-- pageLinks(cls := "block")
+          children <-- $m.map(
+            _.pages.map(p => pageLink(p).amend(cls := "block"))
+          )
         ),
         mobileProfile
       )

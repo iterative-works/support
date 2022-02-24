@@ -6,6 +6,7 @@ import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.UserInfo
 import pages.detail.DetailPage
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
+import cz.e_bs.cmi.mdr.pdb.app.components.PageLink
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.DetailOsoby
 import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.SeznamParametru
@@ -34,11 +35,11 @@ case class DetailPageConnector(state: DetailPageConnector.AppState)(
   val $data = state.details.startWithNone
   val $params = state.parameters.startWithNone
 
-  def render: HtmlElement =
-    AppPage.render(
+  def apply: HtmlElement =
+    AppPage(state.actionBus)(
       $data.combineWithFn($params)(_ zip _)
         .map(_.map(buildModel))
-        .split(_ => ())((_, _, s) => DetailPage.render(s)),
+        .split(_ => ())((_, _, s) => DetailPage(s)),
       $pageChangeSignal --> state.actionBus
     )
 
@@ -48,5 +49,9 @@ case class DetailPageConnector(state: DetailPageConnector.AppState)(
   ): DetailPage.ViewModel =
     DetailPage.ViewModel(
       o.toDetailOsoby,
-      p.map(_.toParametr)
+      p.map(
+        _.toParametr(param =>
+          PageLink.container(Page.DetailParametru(o, param), state.actionBus)
+        )
+      )
     )

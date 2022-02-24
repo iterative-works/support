@@ -2,18 +2,23 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.errors
 
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import com.raquo.laminar.api.L.{*, given}
-import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.app.components.PageLink
 import cz.e_bs.cmi.mdr.pdb.app.Page
-import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
+import cz.e_bs.cmi.mdr.pdb.app.Action
+import com.raquo.waypoint.Router
 
-case class ErrorPage(
-    homePage: Page,
-    errorName: String,
-    title: String,
-    subTitle: String
-)(using router: Router[Page])
-    extends Navigator[Page]:
-  def render: HtmlElement =
+object ErrorPage:
+  case class ViewModel(
+      homePage: Page,
+      errorName: String,
+      title: String,
+      subTitle: String
+  )
+
+  def apply(m: ViewModel, actionBus: Observer[Action])(using
+      Router[Page]
+  ): HtmlElement =
+    val ViewModel(homePage, errorName, title, subTitle) = m
     div(
       cls := "min-h-full pt-16 pb-12 flex flex-col bg-white",
       main(
@@ -52,11 +57,12 @@ case class ErrorPage(
             ),
             div(
               cls := "mt-6",
-              a(
-                navigateTo(homePage),
-                cls := "text-base font-medium text-indigo-600 hover:text-indigo-500",
-                """Go back home"""
-              )
+              PageLink
+                .container(homePage, actionBus)
+                .amend(
+                  cls := "text-base font-medium text-indigo-600 hover:text-indigo-500",
+                  """Go back home"""
+                )
             )
           )
         )

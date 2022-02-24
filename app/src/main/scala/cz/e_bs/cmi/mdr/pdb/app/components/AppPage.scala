@@ -3,12 +3,13 @@ package cz.e_bs.cmi.mdr.pdb.app.components
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import cz.e_bs.cmi.mdr.pdb.{UserProfile, UserInfo, OsobniCislo}
-import cz.e_bs.cmi.mdr.pdb.waypoint.components.Navigator
 import com.raquo.waypoint.Router
+import cz.e_bs.cmi.mdr.pdb.app.Action
+import cz.e_bs.cmi.mdr.pdb.app.NavigateTo
 
 object AppPage:
   // TODO: pages by logged in user
-  val pages = List(Page.Directory, Page.Dashboard)
+  val pages: List[Page] = List(Page.Directory, Page.Dashboard)
 
   import NavigationBar.{Logo, MenuItem}
 
@@ -48,15 +49,26 @@ object AppPage:
   val $userInfo = $userProfile.signal.map(_.userInfo)
 
   type ViewModel = Option[HtmlElement]
-  def render($m: Signal[ViewModel], mods: Modifier[HtmlElement]*)(using
-      Router[Page]
+  def apply(
+      actionBus: Observer[Action]
+  )($m: Signal[ViewModel], mods: Modifier[HtmlElement]*)(using
+      router: Router[Page]
   ): HtmlElement =
-    PageLayout.render(
-      $m.combineWith($userInfo).map((c, u) =>
+    PageLayout(actionBus)(
+      $m.combineWith($userInfo, router.$currentPage).map((c, u, cp) =>
         PageLayout.ViewModel(
           NavigationBar.ViewModel(
             u,
-            pages,
+            pages.map(p =>
+              NavigationBar.Link(
+                () =>
+                  PageLink(
+                    p,
+                    actionBus
+                  ),
+                p == cp
+              )
+            ),
             userMenu,
             logo
           ),

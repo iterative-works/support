@@ -63,34 +63,36 @@ object Main:
       .collectSignal[Page.Detail](
         connectors
           .DetailPageConnector(state)(_)
-          .render
+          .apply
       )
       .collectSignal[Page.DetailParametru](
         connectors
           .DetailParametruPageConnector(state)(_)
-          .render
+          .apply
       )
       .collectSignal[Page.DetailKriteria](
         connectors
           .DetailKriteriaPageConnector(state)(_)
-          .render
+          .apply
       )
-      .collectStatic(Page.Dashboard)(connectors.DashboardPageConnector().render)
+      .collectStatic(Page.Dashboard)(
+        connectors.DashboardPageConnector(state.actionBus).apply
+      )
       .collect[Page.NotFound](pg =>
-        pages.errors.NotFoundPage(Routes.homePage, pg.url)
+        pages.errors.NotFoundPage(Routes.homePage, pg.url, state.actionBus)
       )
       .collect[Page.UnhandledError](pg =>
         pages.errors
           .UnhandledErrorPage(
-            Routes.homePage,
-            pg.errorName,
-            pg.errorMessage
+            pages.errors.UnhandledErrorPage
+              .ViewModel(Routes.homePage, pg.errorName, pg.errorMessage),
+            state.actionBus
           )
       )
       .collectStatic(Page.Directory)(
         connectors
           .DirectoryPageConnector(state.users, state.actionBus)
-          .render
+          .apply
       )
     div(child <-- pageSplitter.$view)
 
