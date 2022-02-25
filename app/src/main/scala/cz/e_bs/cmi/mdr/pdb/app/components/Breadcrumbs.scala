@@ -80,7 +80,7 @@ object Breadcrumbs:
                     p,
                     None,
                     p.title,
-                    "ml-4"
+                    "ml-4 max-w-xs truncate"
                   )
                 ),
                 actionBus
