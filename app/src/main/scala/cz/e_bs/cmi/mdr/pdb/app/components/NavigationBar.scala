@@ -43,7 +43,7 @@ object NavigationBar:
         "text-indigo-200"
       ),
       span(cls := "sr-only", "View notifications"),
-      Icons.outline.bell
+      Icons.outline.bell()
     )
 
     def userProfile: HtmlElement =
@@ -163,12 +163,16 @@ object NavigationBar:
       aria.controls := "mobile-menu",
       aria.expanded <-- mobileMenuOpen.signal,
       span(cls := "sr-only", "Open main menu"),
-      Icons.outline.menu.amend(
-        svg.cls <-- mobileMenuOpen.signal.switch("hidden", "block")
-      ),
-      Icons.outline.x.amend(
-        svg.cls <-- mobileMenuOpen.signal.switch("block", "hidden")
-      ),
+      Icons.outline
+        .menu()
+        .amend(
+          svg.cls <-- mobileMenuOpen.signal.switch("hidden", "block")
+        ),
+      Icons.outline
+        .x()
+        .amend(
+          svg.cls <-- mobileMenuOpen.signal.switch("block", "hidden")
+        ),
       onClick.preventDefault.mapTo(
         !mobileMenuOpen.now()
       ) --> mobileMenuOpen.writer

@@ -52,7 +52,7 @@ object Breadcrumbs:
               s"${m.extraClasses} text-sm font-medium text-gray-500 hover:text-gray-700"
           ),
           child.maybe <-- alt(
-            Some(Icons.solid.home),
+            Some(Icons.solid.home().amend(svg.cls := "flex-shrink-0")),
             _.icon
           ),
           child <-- alt(
@@ -100,7 +100,13 @@ object Breadcrumbs:
           val target = p.parent.getOrElse(p)
           Link.ViewModel(
             target,
-            Some(Icons.solid.`arrow-narrow-left`),
+            Some(
+              Icons.solid
+                .`arrow-narrow-left`()
+                .amend(
+                  svg.cls := "flex-shrink-0 text-gray-400 group-hover:text-gray-600"
+                )
+            ),
             s"Zpět na ${target.title}",
             "group inline-flex space-x-3"
           )

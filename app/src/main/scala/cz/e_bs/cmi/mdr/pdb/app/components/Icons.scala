@@ -8,15 +8,15 @@ import com.raquo.laminar.keys.ReactiveSvgAttr
 
 // TODO: fix sizes, colors, hover and stuff, normalize and amend on call site
 object Icons:
-  val defaultSize: Int = 6
-
   object aria:
     inline def hidden = CustomAttrs.svg.ariaHidden
 
   object outline:
-    def bell =
+    val defaultSize: Int = 6
+
+    inline def bell(size: Int = defaultSize) =
       svg(
-        cls := "h-6 w-6",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         fill := "none",
         viewBox := "0 0 24 24",
@@ -30,24 +30,40 @@ object Icons:
         )
       )
 
-    def menu = svg(
-      cls := "h-6 w-6",
-      xmlns := "http://www.w3.org/2000/svg",
-      fill := "none",
-      viewBox := "0 0 24 24",
-      stroke := "currentColor",
-      aria.hidden := true,
-      path(
-        strokeLineCap := "round",
-        strokeLineJoin := "round",
-        strokeWidth := "2",
-        d := "M4 6h16M4 12h16M4 18h16"
-      )
-    )
-
-    def x =
+    inline def `document-add`(size: Int = defaultSize) =
       svg(
-        cls := "h-6 w-6",
+        cls := s"w-${size} h-${size}",
+        fill := "none",
+        stroke := "currentColor",
+        viewBox := "0 0 24 24",
+        xmlns := "http://www.w3.org/2000/svg",
+        path(
+          strokeLineCap := "round",
+          strokeLineJoin := "round",
+          strokeWidth := "2",
+          d := "M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        )
+      )
+
+    inline def menu(size: Int = defaultSize) =
+      svg(
+        cls := s"h-${size} w-${size}",
+        xmlns := "http://www.w3.org/2000/svg",
+        fill := "none",
+        viewBox := "0 0 24 24",
+        stroke := "currentColor",
+        aria.hidden := true,
+        path(
+          strokeLineCap := "round",
+          strokeLineJoin := "round",
+          strokeWidth := "2",
+          d := "M4 6h16M4 12h16M4 18h16"
+        )
+      )
+
+    inline def x(size: Int = defaultSize) =
+      svg(
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         fill := "none",
         viewBox := "0 0 24 24",
@@ -61,7 +77,7 @@ object Icons:
         )
       )
 
-    inline def user(size: Int = Icons.defaultSize) =
+    inline def user(size: Int = defaultSize) =
       svg(
         cls := s"w-${size} h-${size}",
         fill := "none",
@@ -80,9 +96,11 @@ object Icons:
   end outline
 
   object solid:
-    def users =
+    val defaultSize: Int = 5
+
+    inline def users(size: Int = defaultSize) =
       svg(
-        cls := "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -92,9 +110,9 @@ object Icons:
         )
       )
 
-    def `location-marker` =
+    inline def `location-marker`(size: Int = defaultSize) =
       svg(
-        cls := "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -106,9 +124,9 @@ object Icons:
         )
       )
 
-    def calendar =
+    inline def calendar(size: Int = defaultSize) =
       svg(
-        cls := "flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -120,9 +138,9 @@ object Icons:
         )
       )
 
-    def `chevron-right` =
+    inline def `chevron-right`(size: Int = defaultSize) =
       svg(
-        cls := "h-5 w-5 text-gray-400",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -134,9 +152,9 @@ object Icons:
         )
       )
 
-    def search =
+    inline def search(size: Int = defaultSize) =
       svg(
-        cls := "h-5 w-5 text-gray-400",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -148,9 +166,9 @@ object Icons:
         )
       )
 
-    def filter =
+    inline def filter(size: Int = defaultSize) =
       svg(
-        cls := "h-5 w-5 text-gray-400",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -162,9 +180,9 @@ object Icons:
         )
       )
 
-    def `arrow-narrow-left` =
+    inline def `arrow-narrow-left`(size: Int = defaultSize) =
       svg(
-        cls := "flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-600",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -176,9 +194,9 @@ object Icons:
         )
       )
 
-    def home =
+    inline def home(size: Int = defaultSize) =
       svg(
-        cls := "flex-shrink-0 h-5 w-5",
+        cls := s"h-${size} w-${size}",
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",

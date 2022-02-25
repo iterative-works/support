@@ -19,7 +19,7 @@ object SearchForm:
           cls := "relative rounded-md shadow-sm",
           div(
             cls := "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none",
-            Icons.solid.search
+            Icons.solid.search().amend(svg.cls := "text-gray-400")
           ),
           input(
             tpe := "search",
@@ -33,7 +33,7 @@ object SearchForm:
       button(
         tpe := "submit",
         cls := "inline-flex justify-center px-3.5 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500",
-        Icons.solid.filter,
+        Icons.solid.filter().amend(svg.cls := "text-gray-400"),
         span(
           cls := "sr-only",
           """Search"""
