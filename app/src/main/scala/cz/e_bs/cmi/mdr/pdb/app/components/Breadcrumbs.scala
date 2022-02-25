@@ -47,7 +47,7 @@ object Breadcrumbs:
     def shortHome(p: Page) = ViewModel(
       p,
       Some(backIcon),
-      "group inline-flex space-x-3 text-gray-400 hover:text-gray-500",
+      "group inline-flex space-x-3 text-sm text-gray-400 hover:text-gray-600",
       "Zpět na úvodní stránku",
       None
     )
@@ -118,7 +118,7 @@ object Breadcrumbs:
             Link.ViewModel(
               target,
               Some(backIcon),
-              "group inline-flex space-x-3 text-gray-500 hover:text-gray-700",
+              "group inline-flex space-x-3 text-sm text-gray-400 hover:text-gray-600",
               s"Zpět na ${target.title}"
             )
         },

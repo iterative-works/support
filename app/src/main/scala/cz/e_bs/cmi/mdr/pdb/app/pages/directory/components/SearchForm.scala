@@ -8,7 +8,7 @@ object SearchForm:
     div(
       cls := "px-6 pt-4 pb-4",
       form(
-        cls := "mt-6 flex space-x-4",
+        cls := "flex space-x-4",
         action := "#",
         div(
           cls := "flex-1 min-w-0",
