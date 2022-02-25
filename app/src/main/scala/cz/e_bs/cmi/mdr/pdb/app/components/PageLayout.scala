@@ -16,10 +16,11 @@ object PageLayout:
   )(using Router[Page]): HtmlElement =
     val $maybeContent = $m.map(_.content).split(_ => ())((_, c, _) => c)
     div(
-      cls := "min-h-full",
+      cls := "h-full flex flex-col",
       NavigationBar($m.map(_.navigation)),
       PageHeader(actionBus),
       main(
+        cls := "flex-grow-1 overflow-y-auto",
         mods,
         child <-- $maybeContent.map(_.getOrElse(Loading))
       )

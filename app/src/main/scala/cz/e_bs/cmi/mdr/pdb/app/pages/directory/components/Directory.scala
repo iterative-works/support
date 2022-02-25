@@ -19,7 +19,7 @@ object Directory:
       ul(
         role := "list",
         cls := "relative z-0 divide-y divide-gray-200",
-        children <-- $m.split(_.osobniCislo)((_, _, s) => UserRow.render(s))
+        children <-- $m.split(_.osobniCislo)((_, _, s) => UserRow(s))
       )
 
   type ViewModel = List[(String, List[UserRow.ViewModel])]

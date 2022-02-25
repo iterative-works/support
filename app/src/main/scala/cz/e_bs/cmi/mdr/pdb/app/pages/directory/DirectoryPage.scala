@@ -17,7 +17,7 @@ object DirectoryPage:
     } yield (letter.toString, users.sortBy(_.prijmeni))
 
     div(
-      cls := "max-w-7xl mx-auto",
+      cls := "h-full max-w-7xl mx-auto order-first flex flex-col flex-shrink-0",
       SearchForm(),
       Directory(byLetter)
     )

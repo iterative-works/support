@@ -14,13 +14,13 @@ object UserRow:
       container: HtmlElement = div()
   )
 
-  def render($m: Signal[ViewModel]): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     inline def avatarImage =
       Avatar($m.map(_.img)).avatarImage(10)
 
     li(
       div(
-        cls := "relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-500",
+        cls := "bg-white relative px-6 py-5 flex items-center space-x-3 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-pink-500",
         div(
           cls := "flex-shrink-0",
           child <-- avatarImage

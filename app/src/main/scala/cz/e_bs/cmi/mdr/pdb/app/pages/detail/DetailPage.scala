@@ -16,7 +16,7 @@ object DetailPage:
 
   def apply($m: Signal[ViewModel]): HtmlElement =
     div(
-      cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
+      cls := "h-full overflow-y-auto max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
       div(
         cls := "flex flex-col space-y-4",
         DetailOsoby($m.map(_.osoba)),

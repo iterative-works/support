@@ -94,7 +94,7 @@ object Main:
           .DirectoryPageConnector(state.users, state.actionBus)
           .apply
       )
-    div(child <-- pageSplitter.$view)
+    div(cls := "h-full", child <-- pageSplitter.$view)
 
   // Pull in the stylesheet
   val css: Css.type = Css
