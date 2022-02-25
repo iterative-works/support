@@ -12,7 +12,9 @@ object UserRow:
       hlavniFunkce: Option[String],
       img: Option[String],
       container: HtmlElement = div()
-  )
+  ) {
+    val search = prijmeni.toLowerCase
+  }
 
   def apply($m: Signal[ViewModel]): HtmlElement =
     inline def avatarImage =

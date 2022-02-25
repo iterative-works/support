@@ -4,7 +4,12 @@ import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.components.Icons
 
 object SearchForm:
-  def apply(): HtmlElement =
+  sealed trait Action
+  sealed trait FilterAction extends Action
+  case object NoFilter extends FilterAction
+  case class Filter(value: String) extends FilterAction
+
+  def apply(actions: Observer[Action]): HtmlElement =
     div(
       cls := "px-6 pt-4 pb-4",
       form(
@@ -15,7 +20,7 @@ object SearchForm:
           label(
             forId := "search",
             cls := "sr-only",
-            """Search"""
+            "Hledat"
           ),
           div(
             cls := "relative rounded-md shadow-sm",
@@ -28,7 +33,8 @@ object SearchForm:
               name := "search",
               idAttr := "search",
               cls := "focus:ring-pink-500 focus:border-pink-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md",
-              placeholder := "Search"
+              placeholder := "Hledat",
+              onInput.mapToValue.setAsValue.map(Filter(_)) --> actions
             )
           )
         ),
@@ -38,7 +44,7 @@ object SearchForm:
           Icons.solid.filter().amend(svg.cls := "text-gray-400"),
           span(
             cls := "sr-only",
-            """Search"""
+            "Hledat"
           )
         )
       )
