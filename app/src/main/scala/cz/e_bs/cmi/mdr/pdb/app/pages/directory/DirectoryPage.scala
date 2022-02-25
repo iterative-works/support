@@ -13,10 +13,11 @@ object DirectoryPage:
     val (actionsStream, actionObserver) =
       EventStream.withObserver[SearchForm.Action]
     val $filter = actionsStream
-      .collect { case ev: SearchForm.FilterAction =>
-        ev
+      .collect {
+        case SearchForm.ClearFilter  => None
+        case SearchForm.SetFilter(t) => Some(t)
       }
-      .startWith(SearchForm.NoFilter)
+      .startWith(None)
     val byLetter = for {
       d <- $m
       f <- $filter
@@ -24,8 +25,8 @@ object DirectoryPage:
       (letter, users) <- d
         .filter { user =>
           f match
-            case SearchForm.NoFilter  => true
-            case SearchForm.Filter(t) => user.search.contains(t)
+            case None    => true
+            case Some(t) => user.search.contains(t)
         }
         .groupBy(_.prijmeni.head)
         .to(List)

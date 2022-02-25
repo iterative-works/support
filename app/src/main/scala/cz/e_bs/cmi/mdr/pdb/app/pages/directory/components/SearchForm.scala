@@ -5,16 +5,17 @@ import cz.e_bs.cmi.mdr.pdb.app.components.Icons
 
 object SearchForm:
   sealed trait Action
+  case object SubmitFilter extends Action
   sealed trait FilterAction extends Action
-  case object NoFilter extends FilterAction
-  case class Filter(value: String) extends FilterAction
+  case object ClearFilter extends FilterAction
+  case class SetFilter(value: String) extends FilterAction
 
   def apply(actions: Observer[Action]): HtmlElement =
     div(
       cls := "px-6 pt-4 pb-4",
       form(
         cls := "flex space-x-4",
-        action := "#",
+        onSubmit.mapTo(SubmitFilter) --> actions,
         div(
           cls := "flex-1 min-w-0",
           label(
@@ -34,7 +35,9 @@ object SearchForm:
               idAttr := "search",
               cls := "focus:ring-pink-500 focus:border-pink-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md",
               placeholder := "Hledat",
-              onInput.mapToValue.setAsValue.map(Filter(_)) --> actions
+              composeEvents(onInput.mapToValue.setAsValue.map(SetFilter(_)))(
+                _.throttle(500)
+              ) --> actions
             )
           )
         ),
