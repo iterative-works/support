@@ -2,9 +2,9 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.detail
 
 import com.raquo.laminar.api.L.{*, given}
 
-import components._
+import components.*
 
-object DetailKriteriaPage:
+object NovyDukazKriteriaPage:
 
   case class ViewModel(
       osoba: DetailOsoby.ViewModel,
@@ -12,9 +12,7 @@ object DetailKriteriaPage:
       kriterium: DetailKriteria.ViewModel
   )
 
-  def apply($m: Signal[ViewModel])(
-      action: Observer[DukazyKriteria.Action]
-  ): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     div(
       cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
       div(
@@ -25,7 +23,7 @@ object DetailKriteriaPage:
         ),
         div(
           DetailKriteria($m.map(_.kriterium)),
-          DukazyKriteria($m.map(_.kriterium.dukazy))(action)
+          NovyDukazForm()
         )
       )
     )

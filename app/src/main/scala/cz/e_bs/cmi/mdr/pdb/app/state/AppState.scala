@@ -18,7 +18,8 @@ import cz.e_bs.cmi.mdr.pdb.UserContract
 trait AppState
     extends connectors.DetailPageConnector.AppState
     with connectors.DetailParametruPageConnector.AppState
-    with connectors.DetailKriteriaPageConnector.AppState:
+    with connectors.DetailKriteriaPageConnector.AppState
+    with connectors.NovyDukazKriteriaPageConnector.AppState:
   def users: EventStream[List[UserInfo]]
   def details: EventStream[UserInfo]
   def parameters: EventStream[List[Parameter]]
@@ -83,7 +84,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
         pushDetails(o)
         pushParameters(mockParameters)
         router.replaceState(Page.DetailParametru(o, p))
-    case FetchParameterCriteria(osc, paramId, critId) =>
+    case FetchParameterCriteria(osc, paramId, critId, page) =>
       for
         o <- mockData.find(_.personalNumber == osc)
         p <- mockParameters.find(_.id == paramId)
@@ -91,7 +92,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       do
         pushDetails(o)
         pushParameters(mockParameters)
-        router.replaceState(Page.DetailKriteria(o, p, c))
+        router.replaceState(page(o, p, c))
     case NavigateTo(page) => router.pushState(page)
   }
 

@@ -75,6 +75,11 @@ object Main:
           .DetailKriteriaPageConnector(state)(_)
           .apply
       )
+      .collectSignal[Page.NovyDukazKriteria](
+        connectors
+          .NovyDukazKriteriaPageConnector(state)(_)
+          .apply
+      )
       .collectStatic(Page.Dashboard)(
         connectors.DashboardPageConnector(state.actionBus).apply
       )
