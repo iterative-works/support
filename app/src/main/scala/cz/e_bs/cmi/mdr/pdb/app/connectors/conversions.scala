@@ -48,6 +48,7 @@ extension (crit: ParameterCriteria)
       status = "Nesplněno",
       statusColor = Color.red,
       splneno = false,
+      dukaz = None,
       container = container(crit)
     )
 

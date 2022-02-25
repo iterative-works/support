@@ -6,8 +6,17 @@ import cz.e_bs.cmi.mdr.pdb.app.components.list.StackedList
 import cz.e_bs.cmi.mdr.pdb.app.components.list.ListRow
 import cz.e_bs.cmi.mdr.pdb.app.components.list.RowTag
 import cz.e_bs.cmi.mdr.pdb.app.components.list.RowNext
+import java.time.LocalDate
 
 object SeznamKriterii:
+  case class Dokument(nazev: String, url: String)
+  case class Osoba(osobniCislo: String, jmeno: String)
+  case class Dukaz(
+      dokumenty: List[Dokument],
+      autorizoval: Option[Osoba],
+      autorizovano: Option[LocalDate],
+      poznámka: Option[String]
+  )
   case class Kriterium(
       nazev: String,
       kapitola: String,
@@ -15,6 +24,7 @@ object SeznamKriterii:
       status: String,
       statusColor: Color,
       splneno: Boolean,
+      dukaz: Option[Dukaz],
       container: HtmlElement = div()
   ) {
     val id = s"${kapitola}${bod}"

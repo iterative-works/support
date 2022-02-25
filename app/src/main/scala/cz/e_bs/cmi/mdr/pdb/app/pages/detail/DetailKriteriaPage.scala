@@ -19,6 +19,6 @@ object DetailKriteriaPage:
         cls := "flex flex-col space-y-4",
         DetailOsoby.render($m.map(_.osoba)),
         DetailParametru.render($m.map(_.parametr)),
-        DetailKriteria.render($m.map(_.kriterium))
+        DetailKriteria($m.map(_.kriterium))
       )
     )
