@@ -11,7 +11,7 @@ object UserRow:
       prijmeni: String,
       hlavniFunkce: Option[String],
       img: Option[String],
-      container: HtmlElement = div()
+      container: () => HtmlElement = () => div()
   ) {
     val search = prijmeni.toLowerCase
   }
@@ -30,21 +30,22 @@ object UserRow:
         div(
           cls := "flex-1 min-w-0",
           child <-- $m.map { o =>
-            o.container.amend(
-              cls := "focus:outline-none",
-              span(
-                cls := "absolute inset-0",
-                aria.hidden := true
-              ),
-              p(
-                cls := "text-sm font-medium text-gray-900",
-                o.celeJmeno
-              ),
-              p(
-                cls := "text-sm text-gray-500 truncate",
-                o.hlavniFunkce
+            o.container()
+              .amend(
+                cls := "focus:outline-none",
+                span(
+                  cls := "absolute inset-0",
+                  aria.hidden := true
+                ),
+                p(
+                  cls := "text-sm font-medium text-gray-900",
+                  o.celeJmeno
+                ),
+                p(
+                  cls := "text-sm text-gray-500 truncate",
+                  o.hlavniFunkce
+                )
               )
-            )
           }
         )
       )

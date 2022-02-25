@@ -64,5 +64,5 @@ extension (user: UserInfo)
       prijmeni = user.surname,
       hlavniFunkce = user.mainFunction.map(_.name),
       img = user.img,
-      container = container(user)
+      container = () => container(user)
     )
