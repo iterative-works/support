@@ -13,17 +13,9 @@ import cz.e_bs.cmi.mdr.pdb.app.components.Color
 import cz.e_bs.cmi.mdr.pdb.app.components.LinkSupport.*
 
 object SeznamParametru:
-  case class Parametr(
-      id: String,
-      nazev: String,
-      popis: String,
-      status: String,
-      statusColor: Color,
-      a: Anchor
-  )
-  type ViewModel = List[Parametr]
+  type ViewModel = List[DetailParametru.ViewModel]
 
-  private val parametrList = new StackedList[Parametr]
+  private val parametrList = new StackedList[DetailParametru.ViewModel]
 
   def apply($m: Signal[ViewModel]): HtmlElement =
     div(

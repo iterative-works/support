@@ -8,17 +8,17 @@ object DetailKriteriaPage:
 
   case class ViewModel(
       osoba: DetailOsoby.ViewModel,
-      parametr: SeznamParametru.Parametr,
-      kriterium: SeznamKriterii.Kriterium
+      parametr: DetailParametru.ViewModel,
+      kriterium: DetailKriteria.ViewModel
   )
 
-  def render($m: Signal[ViewModel]): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     div(
       cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
       div(
         cls := "flex flex-col space-y-4",
-        DetailOsoby.render($m.map(_.osoba)),
-        DetailParametru.render($m.map(_.parametr)),
+        DetailOsoby($m.map(_.osoba)),
+        DetailParametru($m.map(_.parametr)),
         DetailKriteria($m.map(_.kriterium))
       )
     )

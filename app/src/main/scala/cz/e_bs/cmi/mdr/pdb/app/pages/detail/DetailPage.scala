@@ -19,7 +19,7 @@ object DetailPage:
       cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
       div(
         cls := "flex flex-col space-y-4",
-        DetailOsoby.render($m.map(_.osoba)),
+        DetailOsoby($m.map(_.osoba)),
         SeznamParametru($m.map(_.parametry))
       )
     )

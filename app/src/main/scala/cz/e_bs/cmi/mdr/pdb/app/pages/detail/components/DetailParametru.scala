@@ -1,10 +1,18 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
+import cz.e_bs.cmi.mdr.pdb.app.components.Color
 
 object DetailParametru:
-  type ViewModel = SeznamParametru.Parametr
-  def render($m: Signal[ViewModel]): HtmlElement =
+  case class ViewModel(
+      id: String,
+      nazev: String,
+      popis: String,
+      status: String,
+      statusColor: Color,
+      a: Anchor
+  )
+  def apply($m: Signal[ViewModel]): HtmlElement =
     div(
       cls := "pb-5 border-b border-gray-200",
       h2(

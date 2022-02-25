@@ -46,7 +46,7 @@ case class DetailKriteriaPageConnector(
   def apply: HtmlElement =
     AppPage(state.actionBus)(
       $merged.map(_.map(buildModel))
-        .split(_ => ())((_, _, s) => DetailKriteriaPage.render(s)),
+        .split(_ => ())((_, _, s) => DetailKriteriaPage(s)),
       $pageChangeSignal --> state.actionBus
     )
 

@@ -9,31 +9,11 @@ import cz.e_bs.cmi.mdr.pdb.app.components.list.RowNext
 import java.time.LocalDate
 
 object SeznamKriterii:
-  case class Dokument(nazev: String, url: String)
-  case class Osoba(osobniCislo: String, jmeno: String)
-  case class Dukaz(
-      dokumenty: List[Dokument],
-      autorizoval: Option[Osoba],
-      autorizovano: Option[LocalDate],
-      poznámka: Option[String]
-  )
-  case class Kriterium(
-      nazev: String,
-      kapitola: String,
-      bod: String,
-      status: String,
-      statusColor: Color,
-      splneno: Boolean,
-      dukaz: Option[Dukaz],
-      container: HtmlElement = div()
-  ) {
-    val id = s"${kapitola}${bod}"
-  }
-  type ViewModel = List[Kriterium]
+  type ViewModel = List[DetailKriteria.ViewModel]
 
-  private val kritList = new StackedList[Kriterium]
+  private val kritList = new StackedList[DetailKriteria.ViewModel]
 
-  def render($m: Signal[ViewModel]): HtmlElement =
+  def apply($m: Signal[ViewModel]): HtmlElement =
     div(
       cls := "bg-white shadow overflow-hidden sm:rounded-md",
       kritList($m, _.id) { $i =>

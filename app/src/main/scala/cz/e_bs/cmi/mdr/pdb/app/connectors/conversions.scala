@@ -9,6 +9,8 @@ import cz.e_bs.cmi.mdr.pdb.app.components.Color
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.SeznamKriterii
 import cz.e_bs.cmi.mdr.pdb.app.pages.directory.components.UserRow
+import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.DetailParametru
+import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.DetailKriteria
 
 extension (o: UserInfo)
   def toDetailOsoby: DetailOsoby.ViewModel =
@@ -27,8 +29,8 @@ extension (o: UserInfo)
     )
 
 extension (param: Parameter)
-  def toParametr(container: Parameter => Anchor): SeznamParametru.Parametr =
-    SeznamParametru.Parametr(
+  def toParametr(container: Parameter => Anchor): DetailParametru.ViewModel =
+    DetailParametru.ViewModel(
       id = param.id,
       nazev = param.name,
       popis = param.description,
@@ -40,15 +42,15 @@ extension (param: Parameter)
 extension (crit: ParameterCriteria)
   def toKriterium(
       container: ParameterCriteria => Anchor
-  ): SeznamKriterii.Kriterium =
-    SeznamKriterii.Kriterium(
+  ): DetailKriteria.ViewModel =
+    DetailKriteria.ViewModel(
       nazev = crit.criteriumText,
       kapitola = crit.chapterId,
       bod = crit.itemId,
       status = "Nesplněno",
       statusColor = Color.red,
       splneno = false,
-      dukaz = None,
+      dukazy = Nil,
       container = container(crit)
     )
 
