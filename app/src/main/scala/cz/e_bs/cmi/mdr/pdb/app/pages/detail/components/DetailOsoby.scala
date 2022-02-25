@@ -59,9 +59,9 @@ object DetailOsoby:
 
   def apply($m: Signal[ViewModel]): HtmlElement =
     div(
-      cls := "md:flex md:items-center md:justify-between md:space-x-5",
+      cls := "md:flex md:items-center md:justify-between md:space-x-4",
       div(
-        cls := "flex items-start space-x-5",
+        cls := "flex items-start space-x-4",
         div(
           cls := "flex-shrink-0",
           Avatar($m.map(_.img)).avatar(16)
@@ -76,6 +76,24 @@ object DetailOsoby:
           ),
           child.maybe <-- $m.map(_.pracovniPomer).split(_ => ())((_, _, d) =>
             PracovniPomer.render(d)
+          )
+        )
+      )
+    )
+
+  def header($m: Signal[ViewModel]): HtmlElement =
+    div(
+      cls := "md:flex md:items-center md:justify-between md:space-x-5",
+      div(
+        cls := "flex items-start space-x-4",
+        div(
+          cls := "flex-shrink-0",
+          Avatar($m.map(_.img)).avatar(8)
+        ),
+        div(
+          h1(
+            cls := "text-lg font-medium text-gray-800",
+            child.text <-- $m.map(_.jmeno)
           )
         )
       )
