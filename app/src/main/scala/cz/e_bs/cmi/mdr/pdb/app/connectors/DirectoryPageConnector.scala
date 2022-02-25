@@ -22,7 +22,7 @@ case class DirectoryPageConnector(
             _.map(
               _.toUserRow(u =>
                 PageLink.container(
-                  Page.Detail(u.personalNumber),
+                  Page.Detail(Page.Titled(u.personalNumber)),
                   actionBus
                 )
               )

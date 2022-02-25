@@ -23,7 +23,7 @@ object DetailPageConnector {
 case class DetailPageConnector(state: DetailPageConnector.AppState)(
     $page: Signal[Page.Detail]
 )(using router: Router[Page]):
-  val $oscChangeSignal = $page.splitOne(_.osobniCislo)((osc, _, _) => osc)
+  val $oscChangeSignal = $page.splitOne(_.osobniCislo.value)((osc, _, _) => osc)
   val $pageChangeSignal =
     $oscChangeSignal.flatMap(osc =>
       EventStream.fromSeq(Seq(FetchUserDetails(osc), FetchParameters(osc)))

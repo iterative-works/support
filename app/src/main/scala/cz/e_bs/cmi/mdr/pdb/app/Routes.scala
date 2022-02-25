@@ -10,6 +10,7 @@ import scala.scalajs.js
 import cz.e_bs.cmi.mdr.pdb.UserInfo
 import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
+import cz.e_bs.cmi.mdr.pdb.app.Page.Titled
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(
@@ -27,62 +28,78 @@ sealed abstract class Page(
 
 object Page:
 
+  case class Titled[V](value: V, title: Option[String] = None):
+    val show: String = title.getOrElse(value.toString)
+
   case object Directory extends Page("directory", "Adresář", None)
 
   case object Dashboard extends Page("dashboard", "Přehled", Some(Directory))
 
-  // TODO: refactor to some "NamedParameter" concept, where the tuples value + title are better managed
-  case class Detail(osobniCislo: OsobniCislo, jmenoOsoby: Option[String] = None)
-      extends Page(
-        "user",
-        jmenoOsoby.getOrElse("Detail osoby"),
-        Some(Directory)
-      )
+  case class Detail(osobniCislo: Titled[OsobniCislo])
+      extends Page("user", osobniCislo.show, Some(Directory))
 
   object Detail {
-    def apply(o: UserInfo): Detail = Detail(o.personalNumber, Some(o.name))
+    def apply(o: UserInfo): Detail = Detail(
+      Titled(o.personalNumber, Some(o.name))
+    )
   }
 
   case class DetailParametru(
-      osobniCislo: OsobniCislo,
-      idParametru: String,
-      jmenoOsoby: Option[String] = None,
-      nazevParametru: Option[String] = None
+      osobniCislo: Titled[OsobniCislo],
+      parametr: Titled[String]
   ) extends Page(
         "parameter",
-        nazevParametru.getOrElse("Detail parametru"),
-        Some(Detail(osobniCislo, jmenoOsoby))
+        parametr.show,
+        Some(Detail(osobniCislo))
       )
 
   object DetailParametru {
     def apply(o: UserInfo, p: Parameter): DetailParametru =
-      DetailParametru(o.personalNumber, p.id, Some(o.name), Some(p.name))
+      DetailParametru(
+        Titled(o.personalNumber, Some(o.name)),
+        Titled(p.id, Some(p.name))
+      )
   }
 
   case class DetailKriteria(
-      osobniCislo: OsobniCislo,
-      idParametru: String,
-      idKriteria: String,
-      jmenoOsoby: Option[String] = None,
-      nazevParametru: Option[String] = None,
-      nazevKriteria: Option[String] = None
+      osobniCislo: Titled[OsobniCislo],
+      parametr: Titled[String],
+      kriterium: Titled[String]
   ) extends Page(
         "criteria",
-        nazevKriteria.getOrElse("Detail kriteria"),
-        Some(
-          DetailParametru(osobniCislo, idParametru, jmenoOsoby, nazevParametru)
-        )
+        kriterium.show,
+        Some(DetailParametru(osobniCislo, parametr))
       )
 
   object DetailKriteria {
     def apply(o: UserInfo, p: Parameter, k: ParameterCriteria): DetailKriteria =
       DetailKriteria(
-        o.personalNumber,
-        p.id,
-        k.id,
-        Some(o.name),
-        Some(p.name),
-        Some(k.id)
+        Titled(o.personalNumber, Some(o.name)),
+        Titled(p.id, Some(p.name)),
+        Titled(k.id, Some(k.id))
+      )
+  }
+
+  case class NovyDukazKriteria(
+      osobniCislo: Titled[OsobniCislo],
+      parametr: Titled[String],
+      kriterium: Titled[String]
+  ) extends Page(
+        "addProof",
+        "Nový důkaz",
+        Some(DetailKriteria(osobniCislo, parametr, kriterium))
+      )
+
+  object NovyDukazKriteria {
+    def apply(
+        o: UserInfo,
+        p: Parameter,
+        k: ParameterCriteria
+    ): NovyDukazKriteria =
+      NovyDukazKriteria(
+        Titled(o.personalNumber, Some(o.name)),
+        Titled(p.id, Some(p.name)),
+        Titled(k.id, Some(k.id))
       )
   }
 
@@ -96,6 +113,10 @@ object Page:
 object Routes:
   given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)
   given JsonEncoder[OsobniCislo] = JsonEncoder.string.contramap(_.toString)
+  given [V: JsonEncoder]: JsonEncoder[Titled[V]] =
+    DeriveJsonEncoder.gen[Titled[V]]
+  given [V: JsonDecoder]: JsonDecoder[Titled[V]] =
+    DeriveJsonDecoder.gen[Titled[V]]
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
 
@@ -114,14 +135,15 @@ object Routes:
         basePath = base
       ),
       Route[Page.Detail, String](
-        encode = _.osobniCislo.toString,
-        decode = osc => Page.Detail(OsobniCislo(osc)),
+        encode = _.osobniCislo.value.toString,
+        decode = osc => Page.Detail(Titled(OsobniCislo(osc))),
         root / "osoba" / segment[String] / endOfSegments,
         basePath = base
       ),
       Route[Page.DetailParametru, (String, String)](
-        encode = p => (p.osobniCislo.toString, p.idParametru),
-        decode = p => Page.DetailParametru(OsobniCislo(p._1), p._2),
+        encode = p => (p.osobniCislo.value.toString, p.parametr.value),
+        decode =
+          p => Page.DetailParametru(Titled(OsobniCislo(p._1)), Titled(p._2)),
         root / "osoba" / segment[String] / "parametr" / segment[
           String
         ] / endOfSegments,
@@ -130,19 +152,37 @@ object Routes:
       Route[Page.DetailKriteria, (String, String, String)](
         encode = p =>
           (
-            p.osobniCislo.toString,
-            p.idParametru,
-            p.idKriteria.replaceAll("\\.", "--")
+            p.osobniCislo.value.toString,
+            p.parametr.value,
+            p.kriterium.value.replaceAll("\\.", "--")
           ),
         decode = p =>
           Page.DetailKriteria(
-            OsobniCislo(p._1),
-            p._2,
-            p._3.replaceAll("--", ".")
+            Titled(OsobniCislo(p._1)),
+            Titled(p._2),
+            Titled(p._3.replaceAll("--", "."))
           ),
         root / "osoba" / segment[String] / "parametr" / segment[
           String
         ] / "kriterium" / segment[String] / endOfSegments,
+        basePath = base
+      ),
+      Route[Page.NovyDukazKriteria, (String, String, String)](
+        encode = p =>
+          (
+            p.osobniCislo.value.toString,
+            p.parametr.value,
+            p.kriterium.value.replaceAll("\\.", "--")
+          ),
+        decode = p =>
+          Page.NovyDukazKriteria(
+            Titled(OsobniCislo(p._1)),
+            Titled(p._2),
+            Titled(p._3.replaceAll("--", "."))
+          ),
+        root / "osoba" / segment[String] / "parametr" / segment[
+          String
+        ] / "kriterium" / segment[String] / "add" / endOfSegments,
         basePath = base
       )
     ),

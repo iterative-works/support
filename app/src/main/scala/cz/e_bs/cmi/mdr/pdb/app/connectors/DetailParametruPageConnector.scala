@@ -24,7 +24,7 @@ case class DetailParametruPageConnector(
     $page: Signal[Page.DetailParametru]
 )(using router: Router[Page]):
   val $paramChangeSignal =
-    $page.splitOne(p => (p.osobniCislo, p.idParametru))((x, _, _) => x)
+    $page.splitOne(p => (p.osobniCislo.value, p.parametr.value))((x, _, _) => x)
   val $pageChangeSignal =
     $paramChangeSignal.map(FetchParameter(_, _))
 
