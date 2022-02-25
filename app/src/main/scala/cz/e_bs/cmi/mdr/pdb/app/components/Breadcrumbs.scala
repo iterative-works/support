@@ -26,38 +26,51 @@ object Breadcrumbs:
       )
     )
 
+  def backIcon =
+    Icons.solid
+      .`arrow-narrow-left`()
+      .amend(
+        svg.cls := "flex-shrink-0 text-gray-400 group-hover:text-gray-600"
+      )
+
   object Link:
     case class ViewModel(
         page: Page,
         icon: Option[SvgElement],
+        extraClasses: String,
         text: String,
-        extraClasses: String
+        textClasses: Option[String] = None
     )
+
+    val baseClasses = "text-sm font-medium text-gray-500 hover:text-gray-700"
+
+    def shortHome(p: Page) = ViewModel(
+      p,
+      Some(backIcon),
+      "group inline-flex space-x-3 text-gray-400 hover:text-gray-500",
+      "Zpět na úvodní stránku",
+      None
+    )
+
+    def fullHome(p: Page) = ViewModel(
+      p,
+      Some(Icons.solid.home().amend(svg.cls := "flex-shrink-0")),
+      "text-gray-400 hover:text-gray-500",
+      "Domů",
+      Some("sr-only")
+    )
+
     def apply($m: Signal[ViewModel], actionBus: Observer[Action])(using
         Router[Page]
     ): HtmlElement =
-      inline def alt[T](
-          homeVariant: => T,
-          pageVariant: ViewModel => T
-      ): Signal[T] =
-        $m.map { m =>
-          if (m.page.isRoot) then homeVariant else pageVariant(m)
-        }
       PageLink
         .container($m.map(_.page), actionBus)
         .amend(
-          cls <-- alt(
-            "text-gray-400 hover:text-gray-500",
-            m =>
-              s"${m.extraClasses} text-sm font-medium text-gray-500 hover:text-gray-700"
-          ),
-          child.maybe <-- alt(
-            Some(Icons.solid.home().amend(svg.cls := "flex-shrink-0")),
-            _.icon
-          ),
-          child <-- alt(
-            span(cls := "sr-only", "Domů"),
-            m => span(m.text)
+          cls <-- $m.map(_.extraClasses),
+          child.maybe <-- $m.map(_.icon),
+          span(
+            cls <-- $m.map(_.textClasses.getOrElse("")),
+            child.text <-- $m.map(_.text)
           )
         )
 
@@ -76,12 +89,14 @@ object Breadcrumbs:
               child.maybe <-- $p.map(_.isRoot).switch(None, Some(slash)),
               Link(
                 $p.map(p =>
-                  Link.ViewModel(
-                    p,
-                    None,
-                    p.title,
-                    "ml-4 max-w-xs truncate"
-                  )
+                  if (p.isRoot) then Link.fullHome(p)
+                  else
+                    Link.ViewModel(
+                      p,
+                      None,
+                      s"ml-4 max-w-xs truncate ${Link.baseClasses}",
+                      p.title
+                    )
                 ),
                 actionBus
               )
@@ -98,18 +113,14 @@ object Breadcrumbs:
       Link(
         $m.map { p =>
           val target = p.parent.getOrElse(p)
-          Link.ViewModel(
-            target,
-            Some(
-              Icons.solid
-                .`arrow-narrow-left`()
-                .amend(
-                  svg.cls := "flex-shrink-0 text-gray-400 group-hover:text-gray-600"
-                )
-            ),
-            s"Zpět na ${target.title}",
-            "group inline-flex space-x-3"
-          )
+          if target.isRoot then Link.shortHome(target)
+          else
+            Link.ViewModel(
+              target,
+              Some(backIcon),
+              "group inline-flex space-x-3 text-gray-500 hover:text-gray-700",
+              s"Zpět na ${target.title}"
+            )
         },
         actionBus
       )
