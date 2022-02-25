@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.components.Icons
 
 object SearchForm:
-  def render: HtmlElement =
+  def apply(): HtmlElement =
     form(
       cls := "p-4 mt-6 flex space-x-4",
       action := "#",

@@ -17,7 +17,7 @@ case class DirectoryPageConnector(
   def apply: HtmlElement =
     AppPage(actionBus)(
       $data.split(_ => ())((_, _, s) =>
-        pages.directory.DirectoryPage.render(
+        pages.directory.DirectoryPage(
           s.map(
             _.map(
               _.toUserRow(u =>
