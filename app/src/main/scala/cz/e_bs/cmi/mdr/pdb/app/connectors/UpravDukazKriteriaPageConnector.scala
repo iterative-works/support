@@ -6,13 +6,13 @@ import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.UserInfo
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.DetailParametruPage
 import pages.detail.DetailKriteriaPage
-import pages.detail.NovyDukazKriteriaPage
+import pages.detail.UpravDukazKriteriaPage
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 
 // TODO: extract common pieces for all detail kriteria pages
-object NovyDukazKriteriaPageConnector {
+object UpravDukazKriteriaPageConnector {
   trait AppState {
     def details: EventStream[UserInfo]
     def parameters: EventStream[List[Parameter]]
@@ -20,8 +20,8 @@ object NovyDukazKriteriaPageConnector {
   }
 }
 
-case class NovyDukazKriteriaPageConnector(
-    state: NovyDukazKriteriaPageConnector.AppState
+case class UpravDukazKriteriaPageConnector(
+    state: UpravDukazKriteriaPageConnector.AppState
 )(
     $page: Signal[Page.NovyDukazKriteria]
 )(using Router[Page]):
@@ -50,7 +50,7 @@ case class NovyDukazKriteriaPageConnector(
   def apply: HtmlElement =
     AppPage(state.actionBus)(
       $merged.map(_.map(buildModel))
-        .split(_ => ())((_, _, $s) => NovyDukazKriteriaPage($s)),
+        .split(_ => ())((_, _, $s) => UpravDukazKriteriaPage($s)),
       $pageChangeSignal --> state.actionBus
     )
 
@@ -58,8 +58,8 @@ case class NovyDukazKriteriaPageConnector(
       o: UserInfo,
       p: Parameter,
       k: ParameterCriteria
-  ): NovyDukazKriteriaPage.ViewModel =
-    NovyDukazKriteriaPage.ViewModel(
+  ): UpravDukazKriteriaPage.ViewModel =
+    UpravDukazKriteriaPage.ViewModel(
       o.toDetailOsoby,
       p.toParametr(_ => a()),
       k.toKriterium(_ => a())

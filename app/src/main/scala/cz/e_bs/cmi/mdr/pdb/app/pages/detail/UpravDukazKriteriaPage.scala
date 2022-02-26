@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 
 import components.*
 
-object NovyDukazKriteriaPage:
+object UpravDukazKriteriaPage:
 
   case class ViewModel(
       osoba: DetailOsoby.ViewModel,
@@ -23,7 +23,7 @@ object NovyDukazKriteriaPage:
         ),
         div(
           DetailKriteria($m.map(_.kriterium)),
-          NovyDukazForm()
+          UpravDukazForm()
         )
       )
     )

@@ -3,7 +3,7 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs
 
-object NovyDukazForm:
+object UpravDukazForm:
   def apply(): HtmlElement =
     div(
       cls := "bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6",

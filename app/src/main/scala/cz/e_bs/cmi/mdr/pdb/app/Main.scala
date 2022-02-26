@@ -77,7 +77,7 @@ object Main:
       )
       .collectSignal[Page.NovyDukazKriteria](
         connectors
-          .NovyDukazKriteriaPageConnector(state)(_)
+          .UpravDukazKriteriaPageConnector(state)(_)
           .apply
       )
       .collectStatic(Page.Dashboard)(

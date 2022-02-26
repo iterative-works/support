@@ -19,7 +19,7 @@ trait AppState
     extends connectors.DetailPageConnector.AppState
     with connectors.DetailParametruPageConnector.AppState
     with connectors.DetailKriteriaPageConnector.AppState
-    with connectors.NovyDukazKriteriaPageConnector.AppState:
+    with connectors.UpravDukazKriteriaPageConnector.AppState:
   def users: EventStream[List[UserInfo]]
   def details: EventStream[UserInfo]
   def parameters: EventStream[List[Parameter]]
