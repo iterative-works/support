@@ -53,7 +53,7 @@ case class DetailKriteriaPageConnector(
           DetailKriteriaPage($s)(state.actionBus.contramap {
             case DukazyKriteria.Add =>
               NavigateTo(
-                Page.NovyDukazKriteria(
+                Page.UpravDukazKriteria(
                   Page.Titled(s.osoba.osobniCislo, Some(s.osoba.jmeno)),
                   Page.Titled(s.parametr.id, Some(s.parametr.nazev)),
                   Page.Titled(s.kriterium.id, Some(s.kriterium.id))

@@ -80,7 +80,7 @@ object Page:
       )
   }
 
-  case class NovyDukazKriteria(
+  case class UpravDukazKriteria(
       osobniCislo: Titled[OsobniCislo],
       parametr: Titled[String],
       kriterium: Titled[String]
@@ -90,13 +90,13 @@ object Page:
         Some(DetailKriteria(osobniCislo, parametr, kriterium))
       )
 
-  object NovyDukazKriteria {
+  object UpravDukazKriteria {
     def apply(
         o: UserInfo,
         p: Parameter,
         k: ParameterCriteria
-    ): NovyDukazKriteria =
-      NovyDukazKriteria(
+    ): UpravDukazKriteria =
+      UpravDukazKriteria(
         Titled(o.personalNumber, Some(o.name)),
         Titled(p.id, Some(p.name)),
         Titled(k.id, Some(k.id))
@@ -167,7 +167,7 @@ object Routes:
         ] / "kriterium" / segment[String] / endOfSegments,
         basePath = base
       ),
-      Route[Page.NovyDukazKriteria, (String, String, String)](
+      Route[Page.UpravDukazKriteria, (String, String, String)](
         encode = p =>
           (
             p.osobniCislo.value.toString,
@@ -175,7 +175,7 @@ object Routes:
             p.kriterium.value.replaceAll("\\.", "--")
           ),
         decode = p =>
-          Page.NovyDukazKriteria(
+          Page.UpravDukazKriteria(
             Titled(OsobniCislo(p._1)),
             Titled(p._2),
             Titled(p._3.replaceAll("--", "."))

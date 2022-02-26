@@ -75,7 +75,7 @@ object Main:
           .DetailKriteriaPageConnector(state)(_)
           .apply
       )
-      .collectSignal[Page.NovyDukazKriteria](
+      .collectSignal[Page.UpravDukazKriteria](
         connectors
           .UpravDukazKriteriaPageConnector(state)(_)
           .apply

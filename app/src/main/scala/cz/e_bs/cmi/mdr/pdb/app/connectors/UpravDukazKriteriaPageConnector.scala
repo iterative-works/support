@@ -23,7 +23,7 @@ object UpravDukazKriteriaPageConnector {
 case class UpravDukazKriteriaPageConnector(
     state: UpravDukazKriteriaPageConnector.AppState
 )(
-    $page: Signal[Page.NovyDukazKriteria]
+    $page: Signal[Page.UpravDukazKriteria]
 )(using Router[Page]):
   val $paramChangeSignal =
     $page.splitOne(p =>
@@ -31,7 +31,7 @@ case class UpravDukazKriteriaPageConnector(
     )((x, _, _) => x)
   val $pageChangeSignal =
     $paramChangeSignal.map(
-      FetchParameterCriteria(_, _, _, Page.NovyDukazKriteria(_, _, _))
+      FetchParameterCriteria(_, _, _, Page.UpravDukazKriteria(_, _, _))
     )
 
   val $data = state.details.startWithNone
