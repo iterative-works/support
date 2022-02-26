@@ -1,9 +1,143 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
+import io.laminext.syntax.core.*
 import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs
+import org.scalajs.dom
+import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 object UpravDukazForm:
+  import com.raquo.laminar.api.L.{*, given}
+
+  object FormHeader:
+    case class ViewModel(header: String, description: String)
+    def apply(m: ViewModel): HtmlElement =
+      div(
+        h3(cls := "text-lg leading-6 font-medium text-gray-900", m.header),
+        p(cls := "mt-1 max-w-2xl text-sm text-gray-500", m.description)
+      )
+
+  object FormSection:
+    def apply(
+        mods: Modifier[ReactiveHtmlElement[dom.HTMLElement]]*
+    ): HtmlElement =
+      div(
+        cls := "mt-6 sm:mt-5 space-y-6 sm:space-y-5",
+        mods
+      )
+
+  object FormRow:
+    case class ViewModel(id: String, label: String, content: HtmlElement)
+    def apply(m: ViewModel): HtmlElement =
+      div(
+        cls := "sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5",
+        label(
+          forId := m.id,
+          cls := "block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2",
+          m.label
+        ),
+        div(
+          cls := "mt-1 sm:mt-0 sm:col-span-2",
+          m.content
+        )
+      )
+
+  object ComboBox:
+    object ComboOption:
+      case class ViewModel(value: String, active: Boolean)
+      def apply(m: ViewModel): HtmlElement =
+        li(
+          cls := "relative cursor-default select-none py-2 pl-8 pr-4",
+          cls := (if m.active then "text-white bg-indigo-600"
+                  else "text-gray-900"),
+          idAttr := "option-0",
+          role := "option",
+          tabIndex := -1,
+          span(
+            cls := "block truncate",
+            m.value
+          ),
+          if m.active then
+            span(
+              cls := "absolute inset-y-0 left-0 flex items-center pl-1.5",
+              cls := (if m.active then "text-white" else "text-indigo-600"), {
+                import svg.*
+                svg(
+                  cls := "h-5 w-5",
+                  xmlns := "http://www.w3.org/2000/svg",
+                  viewBox := "0 0 20 20",
+                  fill := "currentColor",
+                  CustomAttrs.svg.ariaHidden := true,
+                  path(
+                    fillRule := "evenodd",
+                    d := "M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z",
+                    clipRule := "evenodd"
+                  )
+                )
+              }
+            )
+          else emptyNode
+        )
+    case class ViewModel(id: String, options: List[ComboOption.ViewModel])
+    def apply(m: ViewModel): HtmlElement =
+      val isOpen = Var(false)
+      div(
+        cls := "relative mt-1",
+        input(
+          idAttr := m.id,
+          tpe := "text",
+          cls := "w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-12 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm",
+          role := "combobox",
+          aria.controls := "options",
+          aria.expanded := false,
+          onClick.mapTo(true) --> isOpen.writer
+        ),
+        button(
+          tpe := "button",
+          cls := "absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none", {
+            import svg.*
+            svg(
+              cls := "h-5 w-5 text-gray-400",
+              xmlns := "http://www.w3.org/2000/svg",
+              viewBox := "0 0 20 20",
+              fill := "currentColor",
+              CustomAttrs.svg.ariaHidden := true,
+              path(
+                fillRule := "evenodd",
+                d := "M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z",
+                clipRule := "evenodd"
+              )
+            )
+          }
+        ),
+        ul(
+          cls <-- isOpen.signal.switch("", "hidden"),
+          cls := "absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm",
+          idAttr := "options",
+          role := "listbox",
+          m.options.map(ComboOption(_))
+        )
+      )
+
+  object SubmitButtons:
+    def apply: HtmlElement =
+      div(
+        cls := "pt-5",
+        div(
+          cls := "flex justify-end",
+          button(
+            tpe := "button",
+            cls := "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+            """Cancel"""
+          ),
+          button(
+            tpe := "submit",
+            cls := "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+            """Save"""
+          )
+        )
+      )
+
   def apply(): HtmlElement =
     div(
       cls := "bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6",
@@ -12,148 +146,45 @@ object UpravDukazForm:
         div(
           cls := "space-y-8 divide-y divide-gray-200 sm:space-y-5",
           div(
-            div(
-              h3(
-                cls := "text-lg leading-6 font-medium text-gray-900",
-                """Profile"""
-              ),
-              p(
-                cls := "mt-1 max-w-2xl text-sm text-gray-500",
-                """This information will be displayed publicly so be careful what you share."""
+            FormHeader(
+              FormHeader.ViewModel(
+                "Doložení kritéria",
+                "Sestavte doklady poskytující důkaz kritéria a potvrďte odesláním formuláře. Případné limitace či jiné relevantní údaje vepište do pole Komentář."
               )
             ),
-            div(
-              cls := "mt-6 sm:mt-5 space-y-6 sm:space-y-5",
-              div(
-                cls := "sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5",
-                label(
-                  forId := "username",
-                  cls := "block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2",
-                  """Username"""
-                ),
-                div(
-                  cls := "mt-1 sm:mt-0 sm:col-span-2",
-                  div(
-                    cls := "max-w-lg flex rounded-md shadow-sm",
-                    span(
-                      cls := "inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm",
-                      """workcation.com/"""
-                    ),
-                    input(
-                      tpe := "text",
-                      name := "username",
-                      idAttr := "username",
-                      autoComplete := "username",
-                      cls := "flex-1 block w-full focus:ring-indigo-500 focus:border-indigo-500 min-w-0 rounded-none rounded-r-md sm:text-sm border-gray-300"
-                    )
-                  )
-                )
-              ),
-              div(
-                cls := "sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5",
-                label(
-                  forId := "about",
-                  cls := "block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2",
-                  """About"""
-                ),
-                div(
-                  cls := "mt-1 sm:mt-0 sm:col-span-2",
-                  textArea(
-                    idAttr := "about",
-                    name := "about",
-                    rows := 3,
-                    cls := "max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
-                  ),
-                  p(
-                    cls := "mt-2 text-sm text-gray-500",
-                    """Write a few sentences about yourself."""
-                  )
-                )
-              ),
-              div(
-                cls := "sm:grid sm:grid-cols-3 sm:gap-4 sm:items-center sm:border-t sm:border-gray-200 sm:pt-5",
-                label(
-                  forId := "photo",
-                  cls := "block text-sm font-medium text-gray-700",
-                  """Photo"""
-                ),
-                div(
-                  cls := "mt-1 sm:mt-0 sm:col-span-2",
-                  div(
-                    cls := "flex items-center",
-                    span(
-                      cls := "h-12 w-12 rounded-full overflow-hidden bg-gray-100", {
-                        import svg._
-                        svg(
-                          cls := "h-full w-full text-gray-300",
-                          fill := "currentColor",
-                          viewBox := "0 0 24 24",
-                          path(
-                            d := "M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"
-                          )
+            FormSection(
+              FormRow(
+                FormRow.ViewModel(
+                  "dokumenty",
+                  "Dokumenty",
+                  ComboBox(
+                    ComboBox.ViewModel(
+                      "dokumenty",
+                      List(
+                        ComboBox.ComboOption.ViewModel(
+                          "Nebyly nalezeny žádné dokumenty.",
+                          false
                         )
-                      }
-                    ),
-                    button(
-                      tpe := "button",
-                      cls := "ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-                      """Change"""
-                    )
-                  )
-                )
-              ),
-              div(
-                cls := "sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5",
-                label(
-                  forId := "cover-photo",
-                  cls := "block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2",
-                  """Cover photo"""
-                ),
-                div(
-                  cls := "mt-1 sm:mt-0 sm:col-span-2",
-                  div(
-                    cls := "max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md",
-                    div(
-                      cls := "space-y-1 text-center", {
-                        import svg.*
-                        svg(
-                          cls := "mx-auto h-12 w-12 text-gray-400",
-                          stroke := "currentColor",
-                          fill := "none",
-                          viewBox := "0 0 48 48",
-                          CustomAttrs.svg.ariaHidden := true,
-                          path(
-                            d := "M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02",
-                            strokeWidth := "2",
-                            strokeLineCap := "round",
-                            strokeLineJoin := "round"
-                          )
-                        )
-                      },
-                      div(
-                        cls := "flex text-sm text-gray-600",
-                        label(
-                          forId := "file-upload",
-                          cls := "relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500",
-                          span(
-                            """Upload a file"""
-                          ),
-                          input(
-                            idAttr := "file-upload",
-                            name := "file-upload",
-                            tpe := "file",
-                            cls := "sr-only"
-                          )
-                        ),
-                        p(
-                          cls := "pl-1",
-                          """or drag and drop"""
-                        )
-                      ),
-                      p(
-                        cls := "text-xs text-gray-500",
-                        """PNG, JPG, GIF up to 10MB"""
                       )
+                    )
+                  )
+                )
+              ),
+              FormRow(
+                FormRow.ViewModel(
+                  "komentar",
+                  "Komentář",
+                  div(
+                    cls := "mt-1 sm:mt-0 sm:col-span-2",
+                    textArea(
+                      idAttr := "komentar",
+                      name := "about",
+                      rows := 3,
+                      cls := "max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
+                    ),
+                    p(
+                      cls := "mt-2 text-sm text-gray-500",
+                      "Doplňte prosímpotřebné informace související s doložením kritéria, včetně případných limitací."
                     )
                   )
                 )
@@ -518,21 +549,6 @@ object UpravDukazForm:
          )
            */
         ),
-        div(
-          cls := "pt-5",
-          div(
-            cls := "flex justify-end",
-            button(
-              tpe := "button",
-              cls := "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-              """Cancel"""
-            ),
-            button(
-              tpe := "submit",
-              cls := "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-              """Save"""
-            )
-          )
-        )
+        SubmitButtons.apply
       )
     )
