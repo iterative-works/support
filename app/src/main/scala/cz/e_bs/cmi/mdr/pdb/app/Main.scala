@@ -76,9 +76,7 @@ object Main:
           .apply
       )
       .collectSignal[Page.UpravDukazKriteria](
-        connectors
-          .UpravDukazKriteriaPageConnector(state)(_)
-          .apply
+        pages.detail.UpravDukaz.Connector(state)(_).apply
       )
       .collectStatic(Page.Dashboard)(
         connectors.DashboardPageConnector(state.actionBus).apply
