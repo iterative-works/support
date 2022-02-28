@@ -3,16 +3,24 @@ package cz.e_bs.cmi.mdr.pdb
 import java.math.BigInteger
 import java.security.MessageDigest
 
+object ParameterCriteria {
+  type Id = String
+}
+
 case class ParameterCriteria(
     chapterId: String,
     itemId: String,
     criteriumText: String
 ) {
-  val id = s"${chapterId}${itemId}"
+  val id: ParameterCriteria.Id = s"${chapterId}${itemId}"
+}
+
+object Parameter {
+  type Id = String
 }
 
 case class Parameter(
-    id: String,
+    id: Parameter.Id,
     name: String,
     description: String,
     criteria: List[ParameterCriteria]
