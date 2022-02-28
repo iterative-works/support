@@ -6,6 +6,7 @@ import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs
 import cz.e_bs.cmi.mdr.pdb.app.components.form.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import cz.e_bs.cmi.mdr.pdb.app.components.files
 
 object UpravDukazForm:
   object SubmitButtons:
@@ -43,17 +44,19 @@ object UpravDukazForm:
               FormRow(
                 "dokumenty",
                 "Dokumenty",
-                ComboBox(
-                  ComboBox.ViewModel(
-                    "dokumenty",
-                    List(
-                      ComboBox.ComboOption.ViewModel(
-                        "Nebyly nalezeny žádné dokumenty.",
-                        false
+                files
+                  .FileList(
+                    Val(
+                      List(
+                        files.File(
+                          "Pracovní smlouva",
+                          "http://example.com/123.doc"
+                        )
                       )
                     )
                   )
-                ).amend(cls := "max-w-lg")
+                  .toHtml
+                  .amend(idAttr := "dokumenty", cls("max-w-lg"))
               ).toHtml,
               FormRow(
                 "komentar",
@@ -68,7 +71,7 @@ object UpravDukazForm:
                   ),
                   p(
                     cls := "mt-2 text-sm text-gray-500",
-                    "Doplňte prosímpotřebné informace související s doložením kritéria, včetně případných limitací."
+                    "Doplňte prosím potřebné informace související s doložením kritéria, včetně případných limitací."
                   )
                 )
               ).toHtml
