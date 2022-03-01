@@ -7,6 +7,7 @@ import cz.e_bs.cmi.mdr.pdb.app.components.form.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import cz.e_bs.cmi.mdr.pdb.app.components.files
+import cz.e_bs.cmi.mdr.pdb.app.components.files.FilePicker
 
 object UpravDukazForm:
   object SubmitButtons:
@@ -44,19 +45,21 @@ object UpravDukazForm:
               FormRow(
                 "dokumenty",
                 "Dokumenty",
-                files
-                  .FileList(
-                    Val(
-                      List(
-                        files.File(
-                          "Pracovní smlouva",
-                          "http://example.com/123.doc"
+                FilePicker(
+                  files
+                    .FileList(
+                      Val(
+                        List(
+                          files.File(
+                            "Pracovní smlouva",
+                            "http://example.com/123.doc"
+                          )
                         )
                       )
                     )
-                  )
-                  .toHtml
-                  .amend(idAttr := "dokumenty", cls("max-w-lg"))
+                    .toHtml
+                    .amend(idAttr := "dokumenty", cls("max-w-lg"))
+                )
               ).toHtml,
               FormRow(
                 "komentar",
