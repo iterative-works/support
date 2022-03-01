@@ -13,7 +13,9 @@ import cz.e_bs.cmi.mdr.pdb.frontend.DocumentRef
 import cz.e_bs.cmi.mdr.pdb.app.components.files.File
 
 object UpravDukazForm:
-  def apply(): HtmlElement =
+  sealed trait Action
+  case object Cancel extends Action
+  def apply(onEvent: Observer[Action]): HtmlElement =
     val files = Var[List[File]](Nil)
     def submitButtons: HtmlElement =
       div(
@@ -23,7 +25,8 @@ object UpravDukazForm:
           button(
             tpe := "button",
             cls := "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-            "Zrušit"
+            "Zrušit",
+            onClick.mapTo(Cancel) --> onEvent
           ),
           button(
             tpe := "submit",

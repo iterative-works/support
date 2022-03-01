@@ -5,6 +5,7 @@ package pages.detail
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
+import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.UpravDukazForm
 
 object UpravDukaz:
 
@@ -47,8 +48,15 @@ object UpravDukaz:
 
     def apply: HtmlElement =
       AppPage(state.actionBus)(
-        $merged.map(_.map(buildModel))
-          .split(_ => ())((_, _, $s) => PageComponent($s)),
+        $merged.map(_.map((o, p, k) => (o, p, k, buildModel(o, p, k))))
+          .split(_ => ())((_, s, $s) =>
+            PageComponent(
+              $s.map(_._4),
+              state.actionBus.contramap { case UpravDukazForm.Cancel =>
+                NavigateTo(Page.DetailKriteria(s._1, s._2, s._3))
+              }
+            )
+          ),
         $pageChangeSignal --> state.actionBus
       )
 
@@ -73,7 +81,10 @@ object UpravDukaz:
         kriterium: DetailKriteria.ViewModel
     )
 
-    def apply($m: Signal[ViewModel]): HtmlElement =
+    def apply(
+        $m: Signal[ViewModel],
+        events: Observer[UpravDukazForm.Action]
+    ): HtmlElement =
       div(
         cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
         div(
@@ -84,7 +95,7 @@ object UpravDukaz:
           ),
           div(
             DetailKriteria($m.map(_.kriterium)),
-            UpravDukazForm()
+            UpravDukazForm(events)
           )
         )
       )
