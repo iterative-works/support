@@ -8,6 +8,9 @@ import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import cz.e_bs.cmi.mdr.pdb.app.components.files
 import cz.e_bs.cmi.mdr.pdb.app.components.files.FilePicker
+import cz.e_bs.cmi.mdr.pdb.frontend.AutorizujDukaz
+import cz.e_bs.cmi.mdr.pdb.frontend.DocumentRef
+import cz.e_bs.cmi.mdr.pdb.app.components.files.File
 
 object UpravDukazForm:
   object SubmitButtons:
@@ -30,6 +33,7 @@ object UpravDukazForm:
       )
 
   def apply(): HtmlElement =
+    val files = Var[List[File]](Nil)
     div(
       cls := "bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6",
       Form(
@@ -45,11 +49,18 @@ object UpravDukazForm:
               FormRow(
                 "dokumenty",
                 "Dokumenty",
-                FilePicker(
-                  files
-                    .FileList(_)
-                    .toHtml
-                    .amend(idAttr := "dokumenty", cls("max-w-lg"))
+                FilePicker(files)
+                  .amend(idAttr := "dokumenty", cls("max-w-lg"))
+              ).toHtml,
+              FormRow(
+                "platnost",
+                "Platnost",
+                input(
+                  idAttr := "platnost",
+                  name := "platnost",
+                  tpe := "date",
+                  autoComplete := "date",
+                  cls := "block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
                 )
               ).toHtml,
               FormRow(

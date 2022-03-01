@@ -17,18 +17,9 @@ object File:
             .amend(svg.cls := "flex-shrink-0 text-gray-400"),
           span(cls("ml-2 flex-1 w-0 truncate"), m.name)
         ),
-        div(
-          cls("ml-4 flex-shrink-0 flex space-x-4"),
-          a(
-            href(m.url),
-            cls("font-medium text-indigo-600 hover:text-indigo-500"),
-            "Otevřít"
-          ),
-          span(cls("text-gray-300"), "|"),
-          a(
-            href("#"),
-            cls("font-medium text-indigo-600 hover:text-indigo-500"),
-            "Odebrat"
-          )
+        a(
+          href(m.url),
+          cls("font-medium text-indigo-600 hover:text-indigo-500"),
+          "Otevřít"
         )
       )
