@@ -48,15 +48,14 @@ object UpravDukaz:
 
     def apply: HtmlElement =
       AppPage(state.actionBus)(
-        $merged.map(_.map((o, p, k) => (o, p, k, buildModel(o, p, k))))
-          .split(_ => ())((_, s, $s) =>
-            PageComponent(
-              $s.map(_._4),
-              state.actionBus.contramap { case UpravDukazForm.Cancel =>
-                NavigateTo(Page.DetailKriteria(s._1, s._2, s._3))
-              }
-            )
-          ),
+        $merged.split(_ => ())((_, s, $s) =>
+          PageComponent(
+            $s.map(buildModel),
+            state.actionBus.contramap { case UpravDukazForm.Cancel =>
+              NavigateTo(Page.DetailKriteria.fromProduct(s))
+            }
+          )
+        ),
         $pageChangeSignal --> state.actionBus
       )
 
