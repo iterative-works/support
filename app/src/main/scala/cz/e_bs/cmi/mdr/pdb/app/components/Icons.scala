@@ -30,6 +30,21 @@ object Icons:
         )
       )
 
+    inline def `check-circle`(size: Int = defaultSize) =
+      svg(
+        cls := s"w-${size} h-${size}",
+        fill := "none",
+        stroke := "currentColor",
+        viewBox := "0 0 24 24",
+        xmlns := "http://www.w3.org/2000/svg",
+        path(
+          strokeLineCap := "round",
+          strokeLineJoin := "round",
+          strokeWidth := "2",
+          d := "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        )
+      )
+
     inline def `document-add`(size: Int = defaultSize) =
       svg(
         cls := s"w-${size} h-${size}",
@@ -42,6 +57,21 @@ object Icons:
           strokeLineJoin := "round",
           strokeWidth := "2",
           d := "M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        )
+      )
+
+    inline def `external-link`(size: Int = defaultSize) =
+      svg(
+        cls := s"w-${size} h-${size}",
+        fill := "none",
+        stroke := "currentColor",
+        viewBox := "0 0 24 24",
+        xmlns := "http://www.w3.org/2000/svg",
+        path(
+          strokeLineCap := "round",
+          strokeLineJoin := "round",
+          strokeWidth := "2",
+          d := "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
         )
       )
 

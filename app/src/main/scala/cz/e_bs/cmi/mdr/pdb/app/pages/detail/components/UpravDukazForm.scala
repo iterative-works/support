@@ -47,16 +47,7 @@ object UpravDukazForm:
                 "Dokumenty",
                 FilePicker(
                   files
-                    .FileList(
-                      Val(
-                        List(
-                          files.File(
-                            "Pracovní smlouva",
-                            "http://example.com/123.doc"
-                          )
-                        )
-                      )
-                    )
+                    .FileList(_)
                     .toHtml
                     .amend(idAttr := "dokumenty", cls("max-w-lg"))
                 )
