@@ -13,8 +13,9 @@ import cz.e_bs.cmi.mdr.pdb.frontend.DocumentRef
 import cz.e_bs.cmi.mdr.pdb.app.components.files.File
 
 object UpravDukazForm:
-  object SubmitButtons:
-    def apply: HtmlElement =
+  def apply(): HtmlElement =
+    val files = Var[List[File]](Nil)
+    def submitButtons: HtmlElement =
       div(
         cls := "pt-5",
         div(
@@ -22,18 +23,17 @@ object UpravDukazForm:
           button(
             tpe := "button",
             cls := "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-            """Cancel"""
+            "Zrušit"
           ),
           button(
             tpe := "submit",
-            cls := "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-            """Save"""
+            cls := "disabled:bg-indigo-300 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+            disabled <-- files.signal.map(_.isEmpty),
+            "Autorizovat"
           )
         )
       )
 
-  def apply(): HtmlElement =
-    val files = Var[List[File]](Nil)
     div(
       cls := "bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6",
       Form(
@@ -83,6 +83,6 @@ object UpravDukazForm:
             )
           )
         ),
-        SubmitButtons.apply
+        submitButtons
       )
     )
