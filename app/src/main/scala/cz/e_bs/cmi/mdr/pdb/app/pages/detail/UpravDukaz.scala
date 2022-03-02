@@ -6,6 +6,7 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.UpravDukazForm
+import fiftyforms.services.files.components.File
 
 object UpravDukaz:
 
@@ -15,6 +16,7 @@ object UpravDukaz:
   trait State {
     def details: EventStream[UserInfo]
     def parameters: EventStream[List[Parameter]]
+    def availableFiles: EventStream[List[File]]
     def actionBus: Observer[Action]
   }
 
@@ -51,8 +53,12 @@ object UpravDukaz:
         $merged.split(_ => ())((_, s, $s) =>
           PageComponent(
             $s.map(buildModel),
-            state.actionBus.contramap { case UpravDukazForm.Cancel =>
-              NavigateTo(Page.DetailKriteria.fromProduct(s))
+            state.availableFiles,
+            state.actionBus.contramap {
+              case UpravDukazForm.Cancelled =>
+                NavigateTo(Page.DetailKriteria(s._1, s._2, s._3))
+              case UpravDukazForm.AvailableFilesRequested =>
+                FetchAvailableFiles(s._1.personalNumber)
             }
           )
         ),
@@ -82,7 +88,8 @@ object UpravDukaz:
 
     def apply(
         $m: Signal[ViewModel],
-        events: Observer[UpravDukazForm.Action]
+        availableFilesStream: EventStream[List[File]],
+        events: Observer[UpravDukazForm.Event]
     ): HtmlElement =
       div(
         cls := "max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8",
@@ -94,7 +101,7 @@ object UpravDukaz:
           ),
           div(
             DetailKriteria($m.map(_.kriterium)),
-            UpravDukazForm(events)
+            UpravDukazForm(availableFilesStream)(events)
           )
         )
       )

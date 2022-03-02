@@ -86,7 +86,7 @@ object Page:
       kriterium: Titled[String]
   ) extends Page(
         "addProof",
-        "Nový důkaz",
+        "Důkaz",
         Some(DetailKriteria(osobniCislo, parametr, kriterium))
       )
 
@@ -182,7 +182,7 @@ object Routes:
           ),
         root / "osoba" / segment[String] / "parametr" / segment[
           String
-        ] / "kriterium" / segment[String] / "add" / endOfSegments,
+        ] / "kriterium" / segment[String] / "edit" / endOfSegments,
         basePath = base
       )
     ),

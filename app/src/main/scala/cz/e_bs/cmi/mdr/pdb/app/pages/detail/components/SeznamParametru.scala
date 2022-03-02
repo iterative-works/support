@@ -1,7 +1,7 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import cz.e_bs.cmi.mdr.pdb.app.components.list.{
+import fiftyforms.ui.components.list.{
   StackedList,
   ListRow,
   RowTag,
@@ -9,8 +9,8 @@ import cz.e_bs.cmi.mdr.pdb.app.components.list.{
   IconText,
   RowNext
 }
-import cz.e_bs.cmi.mdr.pdb.app.components.Color
-import cz.e_bs.cmi.mdr.pdb.app.components.LinkSupport.*
+import fiftyforms.ui.components.Color
+import fiftyforms.ui.components.LinkSupport.*
 
 object SeznamParametru:
   type ViewModel = List[DetailParametru.ViewModel]

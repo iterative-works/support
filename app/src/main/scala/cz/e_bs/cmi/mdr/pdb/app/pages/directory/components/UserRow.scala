@@ -2,7 +2,7 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.directory.components
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.airstream.core.Signal
-import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
+import fiftyforms.ui.components.Avatar
 
 object UserRow:
   case class ViewModel(

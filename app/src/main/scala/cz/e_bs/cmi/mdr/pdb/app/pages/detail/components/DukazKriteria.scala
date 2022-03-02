@@ -2,7 +2,7 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
 import java.time.LocalDate
-import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs
+import fiftyforms.ui.components.CustomAttrs
 
 object DukazKriteria:
   case class Osoba(osobniCislo: String, jmeno: String)

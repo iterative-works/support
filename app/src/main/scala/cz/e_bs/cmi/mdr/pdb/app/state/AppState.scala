@@ -14,6 +14,7 @@ import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 import cz.e_bs.cmi.mdr.pdb.UserFunction
 import cz.e_bs.cmi.mdr.pdb.UserContract
+import fiftyforms.services.files.components.File
 
 trait AppState
     extends connectors.DetailPageConnector.AppState
@@ -42,6 +43,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
   private val (usersStream, pushUsers) =
     EventStream.withCallback[List[UserInfo]]
   private val (detailsStream, pushDetails) = EventStream.withCallback[UserInfo]
+  private val (filesStream, pushFiles) = EventStream.withCallback[List[File]]
 
   private val mockData: List[UserInfo] =
     mockUsers
@@ -94,6 +96,12 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
         pushParameters(mockParameters)
         router.replaceState(page(o, p, c))
     case NavigateTo(page) => router.pushState(page)
+    case FetchAvailableFiles(osc) =>
+      pushFiles(
+        List(
+          File("https://tc163.cmi.cz/here", "Example file")
+        )
+      )
   }
 
   override def users: EventStream[List[UserInfo]] =
@@ -104,6 +112,9 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
 
   override def parameters: EventStream[List[Parameter]] =
     parametersStream.debugWithName("parameters")
+
+  override def availableFiles: EventStream[List[File]] =
+    filesStream.debugWithName("available files")
 
   override def actionBus: Observer[Action] =
     actions.writer.debugWithName("actions writer")

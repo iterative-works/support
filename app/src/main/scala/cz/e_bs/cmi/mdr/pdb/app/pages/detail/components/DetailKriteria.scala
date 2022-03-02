@@ -1,10 +1,10 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs
-import cz.e_bs.cmi.mdr.pdb.app.components.Icons
+import fiftyforms.ui.components.CustomAttrs
+import fiftyforms.ui.components.Icons
 import java.time.LocalDate
-import cz.e_bs.cmi.mdr.pdb.app.components.Color
+import fiftyforms.ui.components.Color
 
 object DetailKriteria:
   case class ViewModel(

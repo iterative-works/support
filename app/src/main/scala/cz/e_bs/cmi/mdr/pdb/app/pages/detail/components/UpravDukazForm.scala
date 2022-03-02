@@ -2,20 +2,24 @@ package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
 import io.laminext.syntax.core.*
-import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs
-import cz.e_bs.cmi.mdr.pdb.app.components.form.*
+import fiftyforms.ui.components.CustomAttrs
+import fiftyforms.ui.components.form.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import cz.e_bs.cmi.mdr.pdb.app.components.files
-import cz.e_bs.cmi.mdr.pdb.app.components.files.FilePicker
+import fiftyforms.services.files.components.FilePicker
 import cz.e_bs.cmi.mdr.pdb.frontend.AutorizujDukaz
 import cz.e_bs.cmi.mdr.pdb.frontend.DocumentRef
-import cz.e_bs.cmi.mdr.pdb.app.components.files.File
+import fiftyforms.services.files.components.File
 
 object UpravDukazForm:
-  sealed trait Action
-  case object Cancel extends Action
-  def apply(onEvent: Observer[Action]): HtmlElement =
+  sealed trait Event
+  case object Cancelled extends Event
+  case object AvailableFilesRequested extends Event
+  def apply(availableFilesStream: EventStream[List[File]])(
+      updates: Observer[Event]
+  ): HtmlElement =
+    val (filesStream, filesObserver) =
+      EventStream.withObserver[FilePicker.Event]
     val files = Var[List[File]](Nil)
     def submitButtons: HtmlElement =
       div(
@@ -26,7 +30,7 @@ object UpravDukazForm:
             tpe := "button",
             cls := "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
             "Zrušit",
-            onClick.mapTo(Cancel) --> onEvent
+            onClick.mapTo(Cancelled) --> updates
           ),
           button(
             tpe := "submit",
@@ -38,6 +42,12 @@ object UpravDukazForm:
       )
 
     div(
+      filesStream.collect { case FilePicker.SelectionUpdated(files) =>
+        files.to(List)
+      } --> files.writer,
+      filesStream.collect { case FilePicker.AvailableFilesRequested =>
+        AvailableFilesRequested
+      } --> updates,
       cls := "bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6",
       Form(
         Form.Body(
@@ -52,7 +62,7 @@ object UpravDukazForm:
               FormRow(
                 "dokumenty",
                 "Dokumenty",
-                FilePicker(files)
+                FilePicker(files.signal, availableFilesStream)(filesObserver)
                   .amend(idAttr := "dokumenty", cls("max-w-lg"))
               ).toHtml,
               FormRow(

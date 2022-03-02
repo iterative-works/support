@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import cz.e_bs.cmi.mdr.pdb.OsobniCislo
 
 import java.time.LocalDate
-import cz.e_bs.cmi.mdr.pdb.app.components.Avatar
+import fiftyforms.ui.components.Avatar
 
 object DetailOsoby:
 
@@ -36,7 +36,7 @@ object DetailOsoby:
     )
 
     def render($m: Signal[ViewModel]): HtmlElement =
-      import cz.e_bs.cmi.mdr.pdb.app.components.CustomAttrs.datetime
+      import fiftyforms.ui.components.CustomAttrs.datetime
       p(
         cls := "text-sm font-medium text-gray-500",
         child.text <-- $m.map(_.druh),

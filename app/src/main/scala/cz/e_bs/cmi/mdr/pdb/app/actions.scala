@@ -17,4 +17,5 @@ case class FetchParameterCriteria(
     critId: String,
     page: (UserInfo, Parameter, ParameterCriteria) => Page
 ) extends Action
+case class FetchAvailableFiles(osc: OsobniCislo) extends Action
 case class NavigateTo(page: Page) extends Action

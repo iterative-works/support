@@ -1,7 +1,9 @@
 package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
-import CustomAttrs.ariaCurrent
+import fiftyforms.ui.components.CustomAttrs.ariaCurrent
+import fiftyforms.ui.components.Icons
+import fiftyforms.ui.components.Avatar
 import cz.e_bs.cmi.mdr.pdb.UserInfo
 import io.laminext.syntax.core.*
 

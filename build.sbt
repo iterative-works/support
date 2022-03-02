@@ -12,6 +12,20 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
 
+lazy val ui = (project in file("ui"))
+  .enablePlugins(ScalaJSPlugin)
+  .settings(
+    IWDeps.useZIO(Test),
+    IWDeps.laminar,
+    IWDeps.zioJson,
+    IWDeps.waypoint,
+    IWDeps.urlDsl,
+    IWDeps.laminextCore,
+    IWDeps.laminextUI,
+    IWDeps.laminextTailwind,
+    IWDeps.laminextValidationCore
+  )
+
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin, VitePlugin, MockDataExport)
   .settings(
@@ -33,7 +47,7 @@ lazy val app = (project in file("app"))
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     scalaJSUseMainModuleInitializer := true
   )
-  .dependsOn(core.js)
+  .dependsOn(core.js, ui)
 
 lazy val server = (project in file("server"))
   .enablePlugins(DockerPlugin, JavaServerAppPackaging)
