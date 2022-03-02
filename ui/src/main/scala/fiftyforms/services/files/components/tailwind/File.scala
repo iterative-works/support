@@ -1,11 +1,11 @@
-package fiftyforms.services.files.components.tailwind
+package fiftyforms.services.files
+package components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import fiftyforms.ui.components.tailwind.Icons
+import fiftyforms.ui.components.tailwind.Renderable
 
-case class File(url: String, name: String)
-
-object File:
+given Renderable[File] with
   extension (m: File)
     def toHtml: HtmlElement =
       li(

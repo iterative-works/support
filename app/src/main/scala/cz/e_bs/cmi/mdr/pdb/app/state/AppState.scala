@@ -14,7 +14,7 @@ import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.ParameterCriteria
 import cz.e_bs.cmi.mdr.pdb.UserFunction
 import cz.e_bs.cmi.mdr.pdb.UserContract
-import fiftyforms.services.files.components.tailwind.File
+import fiftyforms.services.files.File
 
 trait AppState
     extends connectors.DetailPageConnector.AppState

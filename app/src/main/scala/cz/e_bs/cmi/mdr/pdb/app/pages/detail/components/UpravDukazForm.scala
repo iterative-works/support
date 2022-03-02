@@ -9,7 +9,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import fiftyforms.services.files.components.tailwind.FilePicker
 import cz.e_bs.cmi.mdr.pdb.frontend.AutorizujDukaz
 import cz.e_bs.cmi.mdr.pdb.frontend.DocumentRef
-import fiftyforms.services.files.components.tailwind.File
+import fiftyforms.services.files.File
 
 object UpravDukazForm:
   sealed trait Event
