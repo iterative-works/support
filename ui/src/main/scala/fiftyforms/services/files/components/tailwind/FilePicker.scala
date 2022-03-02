@@ -1,4 +1,4 @@
-package fiftyforms.services.files.components
+package fiftyforms.services.files.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import io.laminext.syntax.core.{*, given}

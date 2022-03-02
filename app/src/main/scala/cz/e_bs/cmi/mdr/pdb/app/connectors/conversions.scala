@@ -10,7 +10,7 @@ import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.SeznamKriterii
 import cz.e_bs.cmi.mdr.pdb.app.pages.directory.components.UserRow
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.DetailParametru
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.DetailKriteria
-import fiftyforms.ui.components.Color
+import fiftyforms.ui.components.tailwind.Color
 
 extension (o: UserInfo)
   def toDetailOsoby: DetailOsoby.ViewModel =

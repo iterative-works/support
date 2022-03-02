@@ -10,7 +10,7 @@ import cz.e_bs.cmi.mdr.pdb.app.components.PageLink
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.DetailOsoby
 import cz.e_bs.cmi.mdr.pdb.Parameter
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.SeznamParametru
-import fiftyforms.ui.components.Color
+import fiftyforms.ui.components.tailwind.Color
 
 object DetailPageConnector {
   trait AppState {

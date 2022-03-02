@@ -1,9 +1,9 @@
-package fiftyforms.services.files.components
+package fiftyforms.services.files.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
-import fiftyforms.ui.components.Icons
-import fiftyforms.ui.components.Loading
+import fiftyforms.ui.components.tailwind.Icons
+import fiftyforms.ui.components.tailwind.Loading
 import io.laminext.syntax.core.{*, given}
 import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
 

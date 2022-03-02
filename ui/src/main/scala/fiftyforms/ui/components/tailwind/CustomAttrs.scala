@@ -1,4 +1,4 @@
-package fiftyforms.ui.components
+package fiftyforms.ui.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec

@@ -1,8 +1,8 @@
-package fiftyforms.services.files.components
+package fiftyforms.services.files.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
-import fiftyforms.ui.components.Icons
+import fiftyforms.ui.components.tailwind.Icons
 
 def FileTable(
     files: Signal[List[File]],

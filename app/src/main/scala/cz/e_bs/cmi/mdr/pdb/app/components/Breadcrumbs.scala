@@ -2,9 +2,9 @@ package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
-import fiftyforms.ui.components.CustomAttrs.svg.ariaHidden
-import fiftyforms.ui.components.list.IconText.ViewModel
-import fiftyforms.ui.components.Icons
+import fiftyforms.ui.components.tailwind.CustomAttrs.svg.ariaHidden
+import fiftyforms.ui.components.tailwind.list.IconText.ViewModel
+import fiftyforms.ui.components.tailwind.Icons
 import cz.e_bs.cmi.mdr.pdb.app.components.PageLink
 import cz.e_bs.cmi.mdr.pdb.app.Page
 

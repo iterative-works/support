@@ -1,7 +1,7 @@
 package cz.e_bs.cmi.mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.Icons
+import fiftyforms.ui.components.tailwind.Icons
 
 object DukazyKriteria:
   sealed trait Action

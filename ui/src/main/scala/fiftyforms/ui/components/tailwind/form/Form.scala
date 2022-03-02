@@ -1,4 +1,4 @@
-package fiftyforms.ui.components.form
+package fiftyforms.ui.components.tailwind.form
 
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom

@@ -1,7 +1,7 @@
-package fiftyforms.services.files.components
+package fiftyforms.services.files.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.Icons
+import fiftyforms.ui.components.tailwind.Icons
 import io.laminext.syntax.core.{*, given}
 
 def FileList(files: List[File]): HtmlElement =

@@ -1,4 +1,4 @@
-package fiftyforms.ui.components
+package fiftyforms.ui.components.tailwind
 
 import CustomAttrs.ariaHidden
 import com.raquo.laminar.api.L.{*, given}

@@ -1,4 +1,4 @@
-package fiftyforms.ui.components
+package fiftyforms.ui.components.tailwind
 
 enum ColorWeight(value: String):
   inline def toCSS: String = value

@@ -6,7 +6,7 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import cz.e_bs.cmi.mdr.pdb.app.components.AppPage
 import cz.e_bs.cmi.mdr.pdb.app.pages.detail.components.UpravDukazForm
-import fiftyforms.services.files.components.File
+import fiftyforms.services.files.components.tailwind.File
 
 object UpravDukaz:
 

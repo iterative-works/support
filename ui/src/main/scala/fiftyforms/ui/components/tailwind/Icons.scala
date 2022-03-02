@@ -1,4 +1,4 @@
-package fiftyforms.ui.components
+package fiftyforms.ui.components.tailwind
 
 import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
 import com.raquo.domtypes.generic.defs.attrs.AriaAttrs

@@ -1,7 +1,7 @@
 package cz.e_bs.cmi.mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.LinkSupport.*
+import fiftyforms.ui.components.tailwind.LinkSupport.*
 import cz.e_bs.cmi.mdr.pdb.app.Page
 import cz.e_bs.cmi.mdr.pdb.app.Action
 import com.raquo.waypoint.Router
