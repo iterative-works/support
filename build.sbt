@@ -60,6 +60,7 @@ lazy val server = (project in file("server"))
     IWDeps.zioInteropCats,
     IWDeps.tapirCore,
     IWDeps.tapirZIO,
+    IWDeps.tapirZIOJson,
     IWDeps.tapirZIOHttp4sServer,
     IWDeps.http4sBlazeServer,
     IWDeps.logbackClassic,
@@ -77,7 +78,16 @@ lazy val server = (project in file("server"))
       "BLAZE_PORT" -> "8080",
       "APP_PATH" -> "/opt/docker/vite"
     ),
-    reStart / envVars := Map("APP_PATH" -> "../app/target/vite")
+    reStart / envVars := Map(
+      "APP_PATH" -> "../app/target/vite",
+      "SECURITY_URLBASE" -> "http://localhost:8080",
+      "SECURITY_DISCOVERYURI" -> "https://login.cmi.cz/auth/realms/MDRTest/.well-known/openid-configuration",
+      "SECURITY_CALLBACKBASE" -> "mdr/pdb/auth/",
+      "SECURITY_LOGOUTURL" -> "https://tc163.cmi.cz/mdr/app",
+      "SECURITY_CLIENTID" -> "mdrpdbtest",
+      "SECURITY_CLIENTSECRET" -> "aCZqYp2aGl1C2MbGDvglZXbJEUwRHV02"
+    )
+    // Revolver.enableDebugging(port = 5005, suspend = true)
   )
 
 lazy val root = (project in file("."))

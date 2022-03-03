@@ -1,30 +1,26 @@
 package mdr.pdb.server
 
 import zio.*
-import zio.interop.catz.*
-import zio.interop.catz.implicits.{*, given}
-import org.http4s.Request
-import org.pac4j.http4s.Http4sWebContext
+import org.pac4j.core.profile.CommonProfile
 
-type AppTask = RIO[ZEnv, *]
+type AppEnv = ZEnv
+type AppTask = RIO[AppEnv, *]
+type AppAuth = List[CommonProfile]
 
 object Main extends ZIOAppDefault:
 
-  // TODO: move inside HttpApplication (using ZIO.runtime)
-  private val contextBuilder =
-    (req: Request[AppTask], conf: org.pac4j.core.config.Config) =>
-      new Http4sWebContext[AppTask](
-        req,
-        conf.getSessionStore,
-        runtime.unsafeRun(_)
-      )
+  lazy val runtimeLayer = ZLayer.fromZIO(ZIO.runtime[AppEnv])
+  lazy val securityLayer =
+    security.Pac4jSecurityConfig.fromEnv ++ runtimeLayer >>> security.Pac4jHttpSecurity.layer
+  lazy val appLayer =
+    AppConfig.fromEnv ++ securityLayer >>> HttpApplicationLive.layer
+  lazy val serverLayer =
+    blaze.BlazeServerConfig.fromEnv >+> appLayer >>> blaze.BlazeHttpServer.layer
 
   override def run =
     for {
       server <- ZIO
         .service[HttpServer]
-        .provideCustom(
-          HttpApplicationLive.layer(contextBuilder) >>> BlazeHttpServer.layer
-        )
+        .provideCustom(serverLayer)
       _ <- server.serve()
     } yield ()
