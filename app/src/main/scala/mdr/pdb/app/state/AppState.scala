@@ -55,11 +55,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       .asInstanceOf[js.Dictionary[js.Object]]
       .values
       // TODO: is there a more efficient way to parse from JS object directly?
-      .map { o =>
-        val parsed = JSON.stringify(o).fromJson[UserInfo]
-        parsed.left.foreach(org.scalajs.dom.console.log(_))
-        parsed
-      }
+      .map(JSON.stringify(_).fromJson[UserInfo])
       .collect { case Right(u) =>
         u
       }

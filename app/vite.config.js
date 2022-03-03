@@ -6,7 +6,7 @@ import appInfo from './app-info.js'
 //const __dirname = path.dirname(moduleUrl.pathname)
 
 // https://vitejs.dev/config/
-export default ({mode}) => {
+export default ({ mode }) => {
     const mainJS = `./${appInfo.bundleMain(mode)}`
     console.log('mainJS', mainJS)
     const script = `<script type="module" src="${mainJS}"></script>`
@@ -37,6 +37,11 @@ export default ({mode}) => {
             }
         },
         base: '/mdr/pdb/',
+        server: {
+            proxy: {
+                '/mdr/pdb/api': 'http://localhost:8080'
+            }
+        },
         build: {
             outDir: 'target/vite'
         }

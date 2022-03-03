@@ -43,7 +43,8 @@ lazy val app = (project in file("app"))
     IWDeps.laminextUI,
     IWDeps.laminextTailwind,
     IWDeps.laminextValidationCore,
-    IWDeps.tapirSttpClient
+    IWDeps.tapirSttpClient,
+    IWDeps.sttpClientCore
   )
   .settings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },

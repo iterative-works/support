@@ -34,6 +34,11 @@ object Main:
   def main(args: Array[String]): Unit =
     import Routes.given
     onLoad {
+      Api(Some("/mdr/pdb/api"))
+        .alive(())
+        .foreach(org.scalajs.dom.console.log(_))(using
+          scala.concurrent.ExecutionContext.global
+        )
       setupAirstream()
       val appContainer = dom.document.querySelector("#app")
       val _ =
