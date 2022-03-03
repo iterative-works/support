@@ -1,5 +1,5 @@
 package mdr.pdb
-package frontend
+package api
 
 import java.time.LocalDate
 import java.time.Instant
