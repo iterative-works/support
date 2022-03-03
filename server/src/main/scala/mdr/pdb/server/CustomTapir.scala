@@ -7,9 +7,8 @@ import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
 import zio.*
 import sttp.tapir.ztapir.ZTapir
 
-object CustomTapir
-    extends Tapir
-    with ZTapir
+trait CustomTapir
+    extends mdr.pdb.api.CustomTapir
     with ZHttp4sServerInterpreter[AppEnv]
-    with TapirJsonZio
-    with TapirAliases
+
+object CustomTapir extends CustomTapir

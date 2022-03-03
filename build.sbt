@@ -95,6 +95,7 @@ lazy val server = (project in file("server"))
     )
     // Revolver.enableDebugging(port = 5005, suspend = true)
   )
+  .dependsOn(core.jvm)
 
 lazy val root = (project in file("."))
   .settings(name := "mdr-personnel-db", publish / skip := true)
