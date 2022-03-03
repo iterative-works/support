@@ -11,6 +11,12 @@ ThisBuild / scalaVersion := scala3Version
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
+  .settings(
+    IWDeps.useZIO(Test),
+    IWDeps.tapirCore,
+    IWDeps.tapirZIO,
+    IWDeps.tapirZIOJson
+  )
 
 lazy val ui = (project in file("ui"))
   .enablePlugins(ScalaJSPlugin)
