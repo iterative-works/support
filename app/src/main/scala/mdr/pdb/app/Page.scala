@@ -21,6 +21,8 @@ sealed abstract class Page(
 
 object Page:
 
+  val homePage: Page = Page.Directory
+
   case class Titled[V](value: V, title: Option[String] = None):
     val show: String = title.getOrElse(value.toString)
 

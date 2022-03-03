@@ -10,9 +10,9 @@ import mdr.pdb.*
 
 object Routes:
 
-  val layer: ULayer[Router[Page]] = ZLayer.succeed(Routes().router)
+  val layer: ULayer[Routes] = ZLayer.succeed(Routes())
 
-  val homePage: Page = Page.Directory
+  val router: ULayer[Router[Page]] = layer.project(_.router)
 
 class Routes():
   import Page.*
@@ -33,7 +33,7 @@ class Routes():
 
   given router: Router[Page] = Router[Page](
     routes = List(
-      Route.static(homePage, root / endOfSegments, basePath = base),
+      Route.static(Page.homePage, root / endOfSegments, basePath = base),
       Route.static(
         Dashboard,
         root / "dashboard" / endOfSegments,

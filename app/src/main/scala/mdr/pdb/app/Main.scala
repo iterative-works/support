@@ -31,35 +31,29 @@ object pdbParams extends js.Object
 @JSExportTopLevel("app")
 object Main extends ZIOApp:
 
-  override type Environment = ZEnv & LaminarApp
+  override type Environment = ZEnv & Router[Page] & AppState & Api & LaminarApp
 
   override val tag: EnvironmentTag[Environment] = EnvironmentTag[Environment]
 
+  // TODO: config
   override val layer: ZLayer[ZIOAppArgs, Any, Environment] =
-    ZEnv.live ++ (Routes.layer >>> LaminarAppLive.layer)
+    ZEnv.live ++ (Routes.router >+> ApiLive.layer(
+      Some("/mdr/pdb/api")
+    ) >+> state.AppStateLive.layer(
+      unsafeWindowOwner
+    ) >+> LaminarAppLive.layer)
 
   override def run =
     for
-      _ <- RIO.async[LaminarApp, Unit](cb =>
+      _ <- RIO.async[Environment, Unit](cb =>
         documentEvents.onDomContentLoaded
           .foreach(_ => cb(program))(unsafeWindowOwner)
       )
     yield ()
 
   private def program: RIO[LaminarApp, Unit] =
-    import Routes.given
-    for
-      _ <- testApi
-      _ <- LaminarApp.renderApp
+    for _ <- LaminarApp.renderApp
     yield ()
-
-  private val testApi: Task[Unit] = Task.attempt {
-    Api(Some("/mdr/pdb/api"))
-      .alive(())
-      .foreach(org.scalajs.dom.console.log(_))(using
-        scala.concurrent.ExecutionContext.global
-      )
-  }
 
   // Pull in the stylesheet
   val css: Css.type = Css

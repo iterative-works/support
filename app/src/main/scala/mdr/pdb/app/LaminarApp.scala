@@ -11,13 +11,13 @@ trait LaminarApp:
   def renderApp: Task[Unit]
 
 object LaminarApp:
-  def renderApp: RIO[LaminarApp, Unit] = ZIO.serviceWith(_.renderApp)
+  def renderApp: RIO[LaminarApp, Unit] = ZIO.serviceWithZIO(_.renderApp)
 
 object LaminarAppLive:
-  val layer: URLayer[Router[Page], LaminarApp] =
-    (LaminarAppLive(_)).toLayer[LaminarApp]
+  val layer: URLayer[AppState & Router[Page], LaminarApp] =
+    (LaminarAppLive(_, _)).toLayer[LaminarApp]
 
-class LaminarAppLive(router: Router[Page]) extends LaminarApp:
+class LaminarAppLive(state: AppState, router: Router[Page]) extends LaminarApp:
   given Router[Page] = router
 
   def renderApp: Task[Unit] =
@@ -31,7 +31,7 @@ class LaminarAppLive(router: Router[Page]) extends LaminarApp:
       val appContainer = dom.document.querySelector("#app")
       render(
         appContainer,
-        renderPage(state.MockAppState(using unsafeWindowOwner, router))
+        renderPage
       )
     }
 
@@ -47,9 +47,7 @@ class LaminarAppLive(router: Router[Page]) extends LaminarApp:
       )
     }
 
-  private def renderPage(state: AppState)(using
-      router: Router[Page]
-  ): HtmlElement =
+  private def renderPage: HtmlElement =
     val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
       .collectSignal[Page.Detail](
         connectors
@@ -73,13 +71,13 @@ class LaminarAppLive(router: Router[Page]) extends LaminarApp:
         connectors.DashboardPageConnector(state).apply
       )
       .collect[Page.NotFound](pg =>
-        pages.errors.NotFoundPage(Routes.homePage, pg.url, state.actionBus)
+        pages.errors.NotFoundPage(Page.homePage, pg.url, state.actionBus)
       )
       .collect[Page.UnhandledError](pg =>
         pages.errors
           .UnhandledErrorPage(
             pages.errors.UnhandledErrorPage
-              .ViewModel(Routes.homePage, pg.errorName, pg.errorMessage),
+              .ViewModel(Page.homePage, pg.errorName, pg.errorMessage),
             state.actionBus
           )
       )

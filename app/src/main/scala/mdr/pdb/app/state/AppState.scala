@@ -1,8 +1,9 @@
 package mdr.pdb.app
 package state
 
+import zio.*
 import com.raquo.airstream.core.{EventStream, Signal}
-import com.raquo.airstream.state.Val
+import com.raquo.airstream.state.{Val, Var}
 import mdr.pdb.{UserInfo, OsobniCislo}
 import com.raquo.airstream.core.Observer
 import scala.scalajs.js
@@ -16,6 +17,7 @@ import mdr.pdb.ParameterCriteria
 import mdr.pdb.UserFunction
 import mdr.pdb.UserContract
 import fiftyforms.services.files.File
+import sttp.tapir.DecodeResult
 
 trait AppState
     extends components.AppPage.AppState
@@ -31,7 +33,11 @@ trait AppState
   def parameters: EventStream[List[Parameter]]
   def actionBus: Observer[Action]
 
-class MockAppState(implicit owner: Owner, router: Router[Page])
+object AppStateLive:
+  def layer(owner: Owner): URLayer[Api & Router[Page], AppState] =
+    (AppStateLive(owner, _, _)).toLayer[AppState]
+
+class AppStateLive(owner: Owner, api: Api, router: Router[Page])
     extends AppState:
 
   given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)
@@ -49,6 +55,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
     EventStream.withCallback[List[UserInfo]]
   private val (detailsStream, pushDetails) = EventStream.withCallback[UserInfo]
   private val (filesStream, pushFiles) = EventStream.withCallback[List[File]]
+  private val isOnline = Var(false)
 
   private val mockData: List[UserInfo] =
     mockUsers
@@ -68,6 +75,18 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       .map(o => JSON.stringify(o).fromJson[Parameter])
       .collect { case Right(p) => p }
       .toList
+
+  EventStream
+    .periodic(1000, false, false)
+    .flatMap(_ =>
+      EventStream
+        .fromFuture(api.alive())
+        .map {
+          case DecodeResult.Value(_) => true
+          case _                     => false
+        }
+    )
+    .foreach(isOnline.set)(using owner)
 
   // TODO: Extract to separate event handler
   actions.events.foreach {
@@ -103,9 +122,9 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
           File("https://tc163.cmi.cz/here", "Example file")
         )
       )
-  }
+  }(using owner)
 
-  override def online: Signal[Boolean] = Val(false)
+  override def online: Signal[Boolean] = isOnline.signal
   override def users: EventStream[List[UserInfo]] =
     usersStream.debugWithName("users")
 
