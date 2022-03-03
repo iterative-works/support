@@ -12,10 +12,9 @@ import mdr.pdb.app.components.AppPage
 import mdr.pdb.ParameterCriteria
 
 object DetailKriteriaPageConnector {
-  trait AppState {
+  trait AppState extends AppPage.AppState {
     def details: EventStream[UserInfo]
     def parameters: EventStream[List[Parameter]]
-    def actionBus: Observer[Action]
   }
 }
 
@@ -47,7 +46,7 @@ case class DetailKriteriaPageConnector(
     )
 
   def apply: HtmlElement =
-    AppPage(state.actionBus)(
+    AppPage(state)(
       $merged.map(_.map(buildModel))
         .split(_ => ())((_, s, $s) =>
           DetailKriteriaPage($s)(state.actionBus.contramap {

@@ -7,8 +7,8 @@ import fiftyforms.ui.components.tailwind.form.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import fiftyforms.services.files.components.tailwind.FilePicker
-import mdr.pdb.frontend.AutorizujDukaz
-import mdr.pdb.frontend.DocumentRef
+import mdr.pdb.api.AutorizujDukaz
+import mdr.pdb.api.DocumentRef
 import fiftyforms.services.files.File
 
 object UpravDukazForm:

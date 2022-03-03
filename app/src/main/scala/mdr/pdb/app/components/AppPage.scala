@@ -9,6 +9,11 @@ import mdr.pdb.app.NavigateTo
 import mdr.pdb.UserFunction
 
 object AppPage:
+  trait AppState {
+    def online: Signal[Boolean]
+    def actionBus: Observer[Action]
+  }
+
   // TODO: pages by logged in user
   val pages: List[Page] = List(Page.Directory, Page.Dashboard)
 
@@ -52,31 +57,34 @@ object AppPage:
   val $userInfo = $userProfile.signal.map(_.userInfo)
 
   type ViewModel = Option[HtmlElement]
+
   def apply(
-      actionBus: Observer[Action]
+      state: AppState
   )($m: Signal[ViewModel], mods: Modifier[HtmlElement]*)(using
       router: Router[Page]
   ): HtmlElement =
-    PageLayout(actionBus)(
-      $m.combineWith($userInfo, router.$currentPage).map((c, u, cp) =>
-        PageLayout.ViewModel(
-          NavigationBar.ViewModel(
-            u,
-            pages.map(p =>
-              NavigationBar.Link(
-                () =>
-                  PageLink(
-                    p,
-                    actionBus
-                  ),
-                p == cp
-              )
+    PageLayout(state.actionBus)(
+      $m.combineWith($userInfo, router.$currentPage, state.online).map(
+        (c, u, cp, o) =>
+          PageLayout.ViewModel(
+            NavigationBar.ViewModel(
+              u,
+              pages.map(p =>
+                NavigationBar.Link(
+                  () =>
+                    PageLink(
+                      p,
+                      state.actionBus
+                    ),
+                  p == cp
+                )
+              ),
+              userMenu,
+              logo,
+              o
             ),
-            userMenu,
-            logo
-          ),
-          c
-        )
+            c
+          )
       ),
       mods
     )

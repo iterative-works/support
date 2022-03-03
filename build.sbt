@@ -14,7 +14,6 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     IWDeps.useZIO(Test),
     IWDeps.tapirCore,
-    IWDeps.tapirZIO,
     IWDeps.tapirZIOJson
   )
 
@@ -43,7 +42,8 @@ lazy val app = (project in file("app"))
     IWDeps.laminextCore,
     IWDeps.laminextUI,
     IWDeps.laminextTailwind,
-    IWDeps.laminextValidationCore
+    IWDeps.laminextValidationCore,
+    IWDeps.tapirSttpClient
   )
   .settings(
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },

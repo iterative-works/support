@@ -9,6 +9,7 @@ import sttp.tapir.ztapir.ZTapir
 
 trait CustomTapir
     extends mdr.pdb.api.CustomTapir
+    with ZTapir
     with ZHttp4sServerInterpreter[AppEnv]
 
 object CustomTapir extends CustomTapir

@@ -1,7 +1,8 @@
 package mdr.pdb.app
 package state
 
-import com.raquo.airstream.core.EventStream
+import com.raquo.airstream.core.{EventStream, Signal}
+import com.raquo.airstream.state.Val
 import mdr.pdb.{UserInfo, OsobniCislo}
 import com.raquo.airstream.core.Observer
 import scala.scalajs.js
@@ -17,10 +18,14 @@ import mdr.pdb.UserContract
 import fiftyforms.services.files.File
 
 trait AppState
-    extends connectors.DetailPageConnector.AppState
+    extends components.AppPage.AppState
+    with connectors.DirectoryPageConnector.AppState
+    with connectors.DetailPageConnector.AppState
     with connectors.DetailParametruPageConnector.AppState
     with connectors.DetailKriteriaPageConnector.AppState
     with pages.detail.UpravDukaz.State:
+
+  def online: Signal[Boolean]
   def users: EventStream[List[UserInfo]]
   def details: EventStream[UserInfo]
   def parameters: EventStream[List[Parameter]]
@@ -104,6 +109,7 @@ class MockAppState(implicit owner: Owner, router: Router[Page])
       )
   }
 
+  override def online: Signal[Boolean] = Val(false)
   override def users: EventStream[List[UserInfo]] =
     usersStream.debugWithName("users")
 

@@ -17,7 +17,8 @@ object NavigationBar:
       userInfo: UserInfo,
       pages: List[Link],
       userMenu: List[MenuItem],
-      logo: Logo
+      logo: Logo,
+      online: Boolean
   )
 
   def apply($m: Signal[ViewModel]): HtmlElement =
@@ -29,6 +30,14 @@ object NavigationBar:
 
     inline def avatarImage(size: Int = 8) =
       Avatar($userInfo.map(_.img)).avatarImage(size)
+
+    def offlineIcon = button(
+      tpe := "button",
+      cls <-- $m.map(m => List("hidden" -> m.online)),
+      cls("bg-indigo-600 text-indigo-200"),
+      span(cls := "sr-only", "Server odpojen"),
+      Icons.outline.`status-offline`()
+    )
 
     def notificationButton = button(
       tpe := "button",
@@ -44,7 +53,7 @@ object NavigationBar:
         "rounded-full",
         "text-indigo-200"
       ),
-      span(cls := "sr-only", "View notifications"),
+      span(cls := "sr-only", "Zobrazit upozornění"),
       Icons.outline.bell()
     )
 
@@ -132,7 +141,11 @@ object NavigationBar:
               )
             )
           ),
-          notificationButton.amend(cls := List("flex-shrink-0", "ml-auto"))
+          div(
+            cls("flex-shrink-0 ml-auto flex"),
+            offlineIcon,
+            notificationButton
+          )
         ),
         div(
           cls := "mt-3 px-2 space-y-1",
@@ -200,6 +213,7 @@ object NavigationBar:
         desktopOnly,
         div(
           cls := "ml-4 flex items-center md:ml-6",
+          offlineIcon,
           notificationButton,
           userProfile
         )

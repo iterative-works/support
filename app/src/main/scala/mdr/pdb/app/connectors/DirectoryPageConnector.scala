@@ -7,15 +7,18 @@ import mdr.pdb.UserInfo
 import mdr.pdb.app.components.PageLink
 import mdr.pdb.app.components.AppPage
 
-case class DirectoryPageConnector(
-    $input: EventStream[List[UserInfo]],
-    actionBus: Observer[Action]
-)(using router: Router[Page]):
-  val $data = $input.startWithNone
-  val $actionSignal = EventStream.fromValue(FetchDirectory)
+object DirectoryPageConnector:
+  trait AppState extends AppPage.AppState:
+    def users: EventStream[List[UserInfo]]
 
+class DirectoryPageConnector(state: DirectoryPageConnector.AppState)(using
+    router: Router[Page]
+):
   def apply: HtmlElement =
-    AppPage(actionBus)(
+    val $data = state.users.startWithNone
+    val $actionSignal = EventStream.fromValue(FetchDirectory)
+
+    AppPage(state)(
       $data.split(_ => ())((_, _, s) =>
         pages.directory.DirectoryPage(
           s.map(
@@ -23,12 +26,12 @@ case class DirectoryPageConnector(
               _.toUserRow(u =>
                 PageLink.container(
                   Page.Detail(Page.Titled(u.personalNumber)),
-                  actionBus
+                  state.actionBus
                 )
               )
             )
           )
         )
       ),
-      $actionSignal --> actionBus
+      $actionSignal --> state.actionBus
     )

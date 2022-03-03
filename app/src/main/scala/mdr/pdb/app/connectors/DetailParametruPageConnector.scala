@@ -11,10 +11,9 @@ import mdr.pdb.app.components.AppPage
 import mdr.pdb.app.components.PageLink
 
 object DetailParametruPageConnector {
-  trait AppState {
+  trait AppState extends AppPage.AppState {
     def details: EventStream[UserInfo]
     def parameters: EventStream[List[Parameter]]
-    def actionBus: Observer[Action]
   }
 }
 
@@ -41,7 +40,7 @@ case class DetailParametruPageConnector(
     )
 
   def apply: HtmlElement =
-    AppPage(state.actionBus)(
+    AppPage(state)(
       $merged.map(_.map(buildModel))
         .split(_ => ())((_, _, s) => DetailParametruPage(s)),
       $pageChangeSignal --> state.actionBus

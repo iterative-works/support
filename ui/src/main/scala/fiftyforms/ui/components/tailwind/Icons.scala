@@ -91,19 +91,19 @@ object Icons:
         )
       )
 
-    inline def x(size: Int = defaultSize) =
+    inline def `status-offline`(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
-        xmlns := "http://www.w3.org/2000/svg",
+        cls := s"w-${size} h-${size}",
         fill := "none",
-        viewBox := "0 0 24 24",
         stroke := "currentColor",
+        viewBox := "0 0 24 24",
+        xmlns := "http://www.w3.org/2000/svg",
         aria.hidden := true,
         path(
           strokeLineCap := "round",
           strokeLineJoin := "round",
           strokeWidth := "2",
-          d := "M6 18L18 6M6 6l12 12"
+          d := "M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"
         )
       )
 
@@ -120,6 +120,22 @@ object Icons:
           strokeLineJoin := "round",
           strokeWidth := "2",
           d := "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        )
+      )
+
+    inline def x(size: Int = defaultSize) =
+      svg(
+        cls := s"h-${size} w-${size}",
+        xmlns := "http://www.w3.org/2000/svg",
+        fill := "none",
+        viewBox := "0 0 24 24",
+        stroke := "currentColor",
+        aria.hidden := true,
+        path(
+          strokeLineCap := "round",
+          strokeLineJoin := "round",
+          strokeWidth := "2",
+          d := "M6 18L18 6M6 6l12 12"
         )
       )
 

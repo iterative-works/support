@@ -13,11 +13,10 @@ object UpravDukaz:
   type ThisPage = Page.UpravDukazKriteria
   type PageKey = (OsobniCislo, String, String)
 
-  trait State {
+  trait State extends AppPage.AppState {
     def details: EventStream[UserInfo]
     def parameters: EventStream[List[Parameter]]
     def availableFiles: EventStream[List[File]]
-    def actionBus: Observer[Action]
   }
 
   def keyOfPage(page: ThisPage): PageKey =
@@ -49,7 +48,7 @@ object UpravDukaz:
       )
 
     def apply: HtmlElement =
-      AppPage(state.actionBus)(
+      AppPage(state)(
         $merged.split(_ => ())((_, s, $s) =>
           PageComponent(
             $s.map(buildModel),

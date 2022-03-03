@@ -13,10 +13,9 @@ import mdr.pdb.app.pages.detail.components.SeznamParametru
 import fiftyforms.ui.components.tailwind.Color
 
 object DetailPageConnector {
-  trait AppState {
+  trait AppState extends AppPage.AppState {
     def details: EventStream[UserInfo]
     def parameters: EventStream[List[Parameter]]
-    def actionBus: Observer[Action]
   }
 }
 
@@ -36,7 +35,7 @@ case class DetailPageConnector(state: DetailPageConnector.AppState)(
   val $params = state.parameters.startWithNone
 
   def apply: HtmlElement =
-    AppPage(state.actionBus)(
+    AppPage(state)(
       $data.combineWithFn($params)(_ zip _)
         .map(_.map(buildModel))
         .split(_ => ())((_, _, s) => DetailPage(s)),

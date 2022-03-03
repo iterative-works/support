@@ -5,9 +5,12 @@ import com.raquo.laminar.api.L.{*, given}
 import mdr.pdb.app.pages.dashboard.DashboardPage
 import com.raquo.waypoint.Router
 import mdr.pdb.app.components.AppPage
+import state.AppState
 
-class DashboardPageConnector(actionBus: Observer[Action])(using
+class DashboardPageConnector(state: AppState)(using
     router: Router[Page]
 ):
   def apply: HtmlElement =
-    AppPage(actionBus)(Val(Some(DashboardPage.render)))
+    AppPage(state)(
+      Val(Some(DashboardPage.render))
+    )

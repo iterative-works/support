@@ -79,7 +79,7 @@ object Main:
         pages.detail.UpravDukaz.Connector(state)(_).apply
       )
       .collectStatic(Page.Dashboard)(
-        connectors.DashboardPageConnector(state.actionBus).apply
+        connectors.DashboardPageConnector(state).apply
       )
       .collect[Page.NotFound](pg =>
         pages.errors.NotFoundPage(Routes.homePage, pg.url, state.actionBus)
@@ -94,7 +94,7 @@ object Main:
       )
       .collectStatic(Page.Directory)(
         connectors
-          .DirectoryPageConnector(state.users, state.actionBus)
+          .DirectoryPageConnector(state)
           .apply
       )
     div(cls := "h-full", child <-- pageSplitter.$view)
