@@ -11,7 +11,8 @@ import com.raquo.waypoint.Router
 import com.raquo.waypoint.SplitRender
 import mdr.pdb.app.services.DataFetcher
 import scala.scalajs.js.JSON
-import zio.json._
+import zio.*
+import zio.json.*
 import mdr.pdb.UserInfo
 import mdr.pdb.app.state.AppState
 
@@ -28,81 +29,37 @@ object mockUsers extends js.Object
 object pdbParams extends js.Object
 
 @JSExportTopLevel("app")
-object Main:
+object Main extends ZIOApp:
 
-  @JSExport
-  def main(args: Array[String]): Unit =
+  override type Environment = ZEnv & LaminarApp
+
+  override val tag: EnvironmentTag[Environment] = EnvironmentTag[Environment]
+
+  override val layer: ZLayer[ZIOAppArgs, Any, Environment] =
+    ZEnv.live ++ (Routes.layer >>> LaminarAppLive.layer)
+
+  override def run =
+    for
+      _ <- RIO.async[LaminarApp, Unit](cb =>
+        documentEvents.onDomContentLoaded
+          .foreach(_ => cb(program))(unsafeWindowOwner)
+      )
+    yield ()
+
+  private def program: RIO[LaminarApp, Unit] =
     import Routes.given
-    onLoad {
-      Api(Some("/mdr/pdb/api"))
-        .alive(())
-        .foreach(org.scalajs.dom.console.log(_))(using
-          scala.concurrent.ExecutionContext.global
-        )
-      setupAirstream()
-      val appContainer = dom.document.querySelector("#app")
-      val _ =
-        render(
-          appContainer,
-          renderPage(state.MockAppState(using unsafeWindowOwner, router))
-        )
-    }
+    for
+      _ <- testApi
+      _ <- LaminarApp.renderApp
+    yield ()
 
-  private def onLoad(f: => Unit): Unit =
-    documentEvents.onDomContentLoaded.foreach(_ => f)(unsafeWindowOwner)
-
-  private def setupAirstream()(using router: Router[Page]): Unit =
-    AirstreamError.registerUnhandledErrorCallback(err =>
-      router.forcePage(
-        Page.UnhandledError(
-          Some(err.getClass.getName), // TODO: Fill only in dev mode
-          Some(err.getMessage)
-        )
+  private val testApi: Task[Unit] = Task.attempt {
+    Api(Some("/mdr/pdb/api"))
+      .alive(())
+      .foreach(org.scalajs.dom.console.log(_))(using
+        scala.concurrent.ExecutionContext.global
       )
-    )
-
-  def renderPage(state: AppState)(using
-      router: Router[Page]
-  ): HtmlElement =
-    val pageSplitter = SplitRender[Page, HtmlElement](router.$currentPage)
-      .collectSignal[Page.Detail](
-        connectors
-          .DetailPageConnector(state)(_)
-          .apply
-      )
-      .collectSignal[Page.DetailParametru](
-        connectors
-          .DetailParametruPageConnector(state)(_)
-          .apply
-      )
-      .collectSignal[Page.DetailKriteria](
-        connectors
-          .DetailKriteriaPageConnector(state)(_)
-          .apply
-      )
-      .collectSignal[Page.UpravDukazKriteria](
-        pages.detail.UpravDukaz.Connector(state)(_).apply
-      )
-      .collectStatic(Page.Dashboard)(
-        connectors.DashboardPageConnector(state).apply
-      )
-      .collect[Page.NotFound](pg =>
-        pages.errors.NotFoundPage(Routes.homePage, pg.url, state.actionBus)
-      )
-      .collect[Page.UnhandledError](pg =>
-        pages.errors
-          .UnhandledErrorPage(
-            pages.errors.UnhandledErrorPage
-              .ViewModel(Routes.homePage, pg.errorName, pg.errorMessage),
-            state.actionBus
-          )
-      )
-      .collectStatic(Page.Directory)(
-        connectors
-          .DirectoryPageConnector(state)
-          .apply
-      )
-    div(cls := "h-full", child <-- pageSplitter.$view)
+  }
 
   // Pull in the stylesheet
   val css: Css.type = Css
