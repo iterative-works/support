@@ -5,6 +5,8 @@ import zio.*
 import zio.interop.catz.*
 import zio.interop.catz.implicits.{*, given}
 
+import cats.syntax.all.*
+
 import org.http4s.*
 import org.http4s.dsl.Http4sDsl
 import org.http4s.dsl.io.*
@@ -30,12 +32,13 @@ case class HttpApplicationLive(
 ) extends HttpApplication:
   import dsl.*
 
-  val files = static.Routes(config)
+  val staticR = static.Routes(config)
+  val apiR = api.Routes()
 
   def httpApp(appPath: String): HttpRoutes[AppTask] =
     Router(
       security.route,
-      "/mdr" -> security.secure(files.routes)
+      "/mdr" -> security.secure(apiR.routes <+> staticR.routes)
     )
 
   override def routes(): UIO[HttpRoutes[AppTask]] =

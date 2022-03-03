@@ -7,16 +7,13 @@ import zio.interop.catz.implicits.{*, given}
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.HttpRoutes
 
-object BlazeHttpServer {
+object BlazeHttpServer:
   val layer: URLayer[BlazeServerConfig & HttpApplication, HttpServer] =
     val routesLayer = ZLayer
       .environment[HttpApplication]
       .flatMap(a => ZLayer.fromZIO(a.get.routes()))
     val blazeLayer = (BlazeHttpServer(_, _)).toLayer[HttpServer]
     (ZLayer.environment[BlazeServerConfig] ++ routesLayer) >>> blazeLayer
-}
-
-import BlazeHttpServer.*
 
 case class BlazeHttpServer(
     config: BlazeServerConfig,
