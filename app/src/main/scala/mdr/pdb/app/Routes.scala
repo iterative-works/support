@@ -16,20 +16,10 @@ object Routes:
 
 class Routes(appConfig: AppConfig):
   import Page.*
-  import Routes.*
-
-  given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)
-  given JsonEncoder[OsobniCislo] = JsonEncoder.string.contramap(_.toString)
-  given [V: JsonEncoder]: JsonEncoder[Titled[V]] =
-    DeriveJsonEncoder.gen[Titled[V]]
-  given [V: JsonDecoder]: JsonDecoder[Titled[V]] =
-    DeriveJsonDecoder.gen[Titled[V]]
-  given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
-  given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
 
   val base = appConfig.baseUrl + "app"
 
-  given router: Router[Page] = Router[Page](
+  val router: Router[Page] = Router[Page](
     routes = List(
       Route.static(Page.homePage, root / endOfSegments, basePath = base),
       Route.static(

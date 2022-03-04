@@ -13,6 +13,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .in(file("core"))
   .settings(
     IWDeps.useZIO(Test),
+    IWDeps.zioJson,
     IWDeps.tapirCore,
     IWDeps.tapirZIOJson
   )

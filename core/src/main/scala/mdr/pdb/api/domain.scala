@@ -3,6 +3,8 @@ package api
 
 import java.time.LocalDate
 import java.time.Instant
+import zio.json.JsonCodec
+import zio.json.DeriveJsonCodec
 
 sealed trait Command
 
@@ -15,3 +17,6 @@ case class AutorizujDukaz(
     dukaz: List[DocumentRef],
     platiDo: Option[LocalDate]
 ) extends Command
+
+object AutorizujDukaz:
+  given JsonCodec[AutorizujDukaz] = DeriveJsonCodec.gen

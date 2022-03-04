@@ -4,6 +4,10 @@ import mdr.pdb.OsobniCislo
 import mdr.pdb.UserInfo
 import mdr.pdb.Parameter
 import mdr.pdb.ParameterCriteria
+import zio.json.JsonEncoder
+import zio.json.DeriveJsonEncoder
+import zio.json.JsonDecoder
+import zio.json.DeriveJsonDecoder
 
 // enum is not working with Waypoints' SplitRender collectStatic
 sealed abstract class Page(
@@ -25,6 +29,12 @@ object Page:
 
   case class Titled[V](value: V, title: Option[String] = None):
     val show: String = title.getOrElse(value.toString)
+
+  object Titled:
+    given [V: JsonEncoder]: JsonEncoder[Titled[V]] =
+      DeriveJsonEncoder.gen[Titled[V]]
+    given [V: JsonDecoder]: JsonDecoder[Titled[V]] =
+      DeriveJsonDecoder.gen[Titled[V]]
 
   case object Directory extends Page("directory", "Adresář", None)
 
@@ -104,3 +114,6 @@ object Page:
       errorName: Option[String],
       errorMessage: Option[String]
   ) extends Page("500", "Unexpected error", Some(Directory))
+
+  given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
+  given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
