@@ -9,22 +9,20 @@ import org.http4s.HttpRoutes
 
 object BlazeHttpServer:
   val layer: URLayer[BlazeServerConfig & HttpApplication, HttpServer] =
-    val routesLayer = ZLayer
-      .environment[HttpApplication]
-      .flatMap(a => ZLayer.fromZIO(a.get.routes()))
-    val blazeLayer = (BlazeHttpServer(_, _)).toLayer[HttpServer]
-    (ZLayer.environment[BlazeServerConfig] ++ routesLayer) >>> blazeLayer
+    (BlazeHttpServer(_, _)).toLayer[HttpServer]
 
 case class BlazeHttpServer(
     config: BlazeServerConfig,
-    httpApp: HttpRoutes[AppTask]
+    httpApp: HttpApplication
 ) extends HttpServer:
-  override def serve(): UIO[ExitCode] =
-    BlazeServerBuilder[AppTask]
-      .bindHttp(config.port, config.host)
-      .withHttpApp(httpApp.orNotFound)
-      .serve
-      .compile
-      .drain
-      .fold(_ => ExitCode.failure, _ => ExitCode.success)
-      .provideEnvironment(ZEnvironment.default)
+  override def serve(): URIO[AppEnv, ExitCode] =
+    for
+      routes <- httpApp.routes()
+      server <- BlazeServerBuilder[AppTask]
+        .bindHttp(config.port, config.host)
+        .withHttpApp(routes.orNotFound)
+        .serve
+        .compile
+        .drain
+        .fold(_ => ExitCode.failure, _ => ExitCode.success)
+    yield server

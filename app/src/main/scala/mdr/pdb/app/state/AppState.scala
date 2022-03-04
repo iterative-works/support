@@ -8,7 +8,7 @@ import mdr.pdb.{UserInfo, OsobniCislo}
 import com.raquo.airstream.core.Observer
 import scala.scalajs.js
 import scala.scalajs.js.JSON
-import zio.json._
+import zio.json.{*, given}
 import com.raquo.airstream.eventbus.EventBus
 import com.raquo.airstream.ownership.Owner
 import com.raquo.waypoint.Router
@@ -109,7 +109,11 @@ class AppStateLive(
           scheduleOnlineCheck()
         }
       yield ()
-    case FetchDirectory => Task.attempt(pushUsers(mockData))
+    case FetchDirectory =>
+      for
+        users <- api.listUsers()
+        _ <- Task.attempt(pushUsers(users))
+      yield ()
     case FetchUserDetails(osc) =>
       Task.attempt {
         mockData.find(_.personalNumber == osc).foreach { o =>

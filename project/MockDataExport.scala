@@ -1,20 +1,19 @@
 import sbt._
 import Keys._
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
-import org.scalajs.sbtplugin.ScalaJSPlugin
 import scala.xml.XML
 import scala.xml.Elem
+import sbt.plugins.JvmPlugin
 
 object MockDataExport extends AutoPlugin {
-  override lazy val requires = ScalaJSPlugin
+  override lazy val requires = JvmPlugin
   override lazy val trigger = noTrigger
 
   object autoImport {
     lazy val generateOrgDbData =
       taskKey[Seq[File]]("Generate org db data to JSON file")
     lazy val orgDbExportDir = settingKey[File]("Org db JSON export directory")
-    lazy val orgDbOutputFile =
-      settingKey[File]("Output file for the org DB JSON export")
+    lazy val orgDbOutputFileName =
+      settingKey[String]("Output file name for the org DB JSON export")
     lazy val orgDbHeliosExportFile = settingKey[File]("HeliosData export file")
     lazy val orgDbDataExportFile = settingKey[File]("DataExport export file")
   }
@@ -22,12 +21,12 @@ object MockDataExport extends AutoPlugin {
   import autoImport._
 
   override def projectSettings = Seq(
-    orgDbOutputFile := (Compile / target).value / "mock_data" / "users.json",
+    orgDbOutputFileName := "users.json",
     orgDbExportDir := (Compile / sourceDirectory).value / "data",
     orgDbHeliosExportFile := orgDbExportDir.value / "HeliosData.xml",
     orgDbDataExportFile := orgDbExportDir.value / "DataExport_zam.xml",
     generateOrgDbData := {
-      val file = orgDbOutputFile.value
+      val file = (Compile / resourceManaged).value / orgDbOutputFileName.value
       val heliosFile = orgDbHeliosExportFile.value
       def doExport() = {
         val heliosData =
@@ -47,9 +46,7 @@ object MockDataExport extends AutoPlugin {
         }
       cachedFun(Set(heliosFile)).toSeq
     },
-    (Compile / fastLinkJS) := (Compile / fastLinkJS)
-      .dependsOn(generateOrgDbData)
-      .value
+    Compile / resourceGenerators += generateOrgDbData.taskValue
   )
 
   def escaped(v: String): String = v.replaceAll("\"", "\\\"")

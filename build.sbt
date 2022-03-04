@@ -33,7 +33,7 @@ lazy val ui = (project in file("ui"))
   )
 
 lazy val app = (project in file("app"))
-  .enablePlugins(ScalaJSPlugin, VitePlugin, MockDataExport)
+  .enablePlugins(ScalaJSPlugin, VitePlugin)
   .settings(
     IWDeps.useZIO(Test),
     IWDeps.laminar,

@@ -3,6 +3,8 @@ package mdr.pdb
 import java.time.LocalDate
 import zio.json.JsonCodec
 import zio.json.DeriveJsonCodec
+import zio.json.JsonFieldEncoder
+import zio.json.JsonFieldDecoder
 
 opaque type OsobniCislo = String
 
@@ -14,6 +16,9 @@ object OsobniCislo:
 
   given JsonCodec[OsobniCislo] =
     JsonCodec.string.transform(OsobniCislo.apply, _.toString)
+  given JsonFieldEncoder[OsobniCislo] =
+    JsonFieldEncoder.string.contramap(OsobniCislo.apply)
+  given JsonFieldDecoder[OsobniCislo] = JsonFieldDecoder.string.map(_.toString)
 
 case class UserContract(
     rel: String,
