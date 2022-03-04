@@ -31,17 +31,14 @@ object pdbParams extends js.Object
 @JSExportTopLevel("app")
 object Main extends ZIOApp:
 
-  override type Environment = ZEnv & Router[Page] & AppState & Api & LaminarApp
+  override type Environment = ZEnv & AppConfig & Router[Page] & AppState & Api &
+    LaminarApp
 
   override val tag: EnvironmentTag[Environment] = EnvironmentTag[Environment]
 
   // TODO: config
   override val layer: ZLayer[ZIOAppArgs, Any, Environment] =
-    ZEnv.live ++ (Routes.router >+> ApiLive.layer(
-      Some("/mdr/pdb/api")
-    ) >+> state.AppStateLive.layer(
-      unsafeWindowOwner
-    ) >+> LaminarAppLive.layer)
+    ZEnv.live >+> AppConfig.layer >+> Routes.router >+> ApiLive.layer >+> state.AppStateLive.layer >+> LaminarAppLive.layer
 
   override def run =
     for
@@ -49,6 +46,8 @@ object Main extends ZIOApp:
         documentEvents.onDomContentLoaded
           .foreach(_ => cb(program))(unsafeWindowOwner)
       )
+      // Keep running forever, otherwise the resources are released after the run finishes
+      _ <- ZIO.never
     yield ()
 
   private def program: RIO[LaminarApp, Unit] =

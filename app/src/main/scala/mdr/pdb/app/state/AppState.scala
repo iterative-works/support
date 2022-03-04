@@ -18,6 +18,9 @@ import mdr.pdb.UserFunction
 import mdr.pdb.UserContract
 import fiftyforms.services.files.File
 import sttp.tapir.DecodeResult
+import com.raquo.airstream.ownership.OneTimeOwner
+import scala.annotation.unused
+import com.raquo.airstream.ownership.Subscription
 
 trait AppState
     extends components.AppPage.AppState
@@ -34,11 +37,26 @@ trait AppState
   def actionBus: Observer[Action]
 
 object AppStateLive:
-  def layer(owner: Owner): URLayer[Api & Router[Page], AppState] =
-    (AppStateLive(owner, _, _)).toLayer[AppState]
+  def layer: URLayer[ZEnv & AppConfig & Api & Router[Page], AppState] = {
+    (ZLayer.fromZIO(ZIO.runtime[ZEnv]) ++ ZIOOwner.layer) >>> (
+        (
+            appConfig: AppConfig,
+            api: Api,
+            router: Router[Page],
+            runtime: Runtime[ZEnv],
+            owner: Owner
+        ) => AppStateLive(appConfig, api, router, runtime)(using owner)
+    ).toLayer[AppState]
+  }
 
-class AppStateLive(owner: Owner, api: Api, router: Router[Page])
-    extends AppState:
+class AppStateLive(
+    appConfig: AppConfig,
+    api: Api,
+    router: Router[Page],
+    runtime: Runtime[ZEnv]
+)(using
+    owner: Owner
+) extends AppState:
 
   given JsonDecoder[OsobniCislo] = JsonDecoder.string.map(OsobniCislo.apply)
   given JsonDecoder[UserFunction] = DeriveJsonDecoder.gen
@@ -55,7 +73,7 @@ class AppStateLive(owner: Owner, api: Api, router: Router[Page])
     EventStream.withCallback[List[UserInfo]]
   private val (detailsStream, pushDetails) = EventStream.withCallback[UserInfo]
   private val (filesStream, pushFiles) = EventStream.withCallback[List[File]]
-  private val isOnline = Var(false)
+  private val isOnline = Var(true)
 
   private val mockData: List[UserInfo] =
     mockUsers
@@ -76,53 +94,65 @@ class AppStateLive(owner: Owner, api: Api, router: Router[Page])
       .collect { case Right(p) => p }
       .toList
 
-  EventStream
-    .periodic(1000, false, false)
-    .flatMap(_ =>
-      EventStream
-        .fromFuture(api.alive())
-        .map {
-          case DecodeResult.Value(_) => true
-          case _                     => false
-        }
+  private def scheduleOnlineCheck(): Unit =
+    appConfig.onlineCheckMs.foreach(d =>
+      actions.writer.delay(d).onNext(CheckOnlineState)
     )
-    .foreach(isOnline.set)(using owner)
 
   // TODO: Extract to separate event handler
-  actions.events.foreach {
-    case FetchDirectory => pushUsers(mockData)
+  private val handler: Action => Task[Unit] =
+    case CheckOnlineState =>
+      for
+        o <- api.isAlive()
+        _ <- Task.attempt {
+          isOnline.set(o)
+          scheduleOnlineCheck()
+        }
+      yield ()
+    case FetchDirectory => Task.attempt(pushUsers(mockData))
     case FetchUserDetails(osc) =>
-      mockData.find(_.personalNumber == osc).foreach { o =>
-        pushDetails(o)
-        router.replaceState(Page.Detail(o))
+      Task.attempt {
+        mockData.find(_.personalNumber == osc).foreach { o =>
+          pushDetails(o)
+          router.replaceState(Page.Detail(o))
+        }
       }
     case FetchParameters(osc) =>
-      pushParameters(mockParameters)
+      Task.attempt(pushParameters(mockParameters))
     case FetchParameter(osc, paramId) =>
-      for
-        o <- mockData.find(_.personalNumber == osc)
-        p <- mockParameters.find(_.id == paramId)
-      do
-        pushDetails(o)
-        pushParameters(mockParameters)
-        router.replaceState(Page.DetailParametru(o, p))
+      Task.attempt {
+        for
+          o <- mockData.find(_.personalNumber == osc)
+          p <- mockParameters.find(_.id == paramId)
+        do
+          pushDetails(o)
+          pushParameters(mockParameters)
+          router.replaceState(Page.DetailParametru(o, p))
+      }
     case FetchParameterCriteria(osc, paramId, critId, page) =>
-      for
-        o <- mockData.find(_.personalNumber == osc)
-        p <- mockParameters.find(_.id == paramId)
-        c <- p.criteria.find(_.id == critId)
-      do
-        pushDetails(o)
-        pushParameters(mockParameters)
-        router.replaceState(page(o, p, c))
-    case NavigateTo(page) => router.pushState(page)
+      Task.attempt {
+        for
+          o <- mockData.find(_.personalNumber == osc)
+          p <- mockParameters.find(_.id == paramId)
+          c <- p.criteria.find(_.id == critId)
+        do
+          pushDetails(o)
+          pushParameters(mockParameters)
+          router.replaceState(page(o, p, c))
+      }
+    case NavigateTo(page) => Task.attempt { router.pushState(page) }
     case FetchAvailableFiles(osc) =>
-      pushFiles(
-        List(
-          File("https://tc163.cmi.cz/here", "Example file")
+      Task.attempt {
+        pushFiles(
+          List(
+            File("https://tc163.cmi.cz/here", "Example file")
+          )
         )
-      )
-  }(using owner)
+      }
+
+  actions.events.foreach(action => runtime.unsafeRunAsync(handler(action)))
+
+  scheduleOnlineCheck()
 
   override def online: Signal[Boolean] = isOnline.signal
   override def users: EventStream[List[UserInfo]] =

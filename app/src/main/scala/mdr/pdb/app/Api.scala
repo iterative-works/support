@@ -6,12 +6,14 @@ import sttp.client3.*
 import sttp.tapir.DecodeResult
 import org.scalajs.dom
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 trait Api:
-  def alive(): Future[DecodeResult[Either[Unit, String]]]
+  def isAlive(): Task[Boolean]
 
 object ApiLive:
-  def layer(base: Option[String]): ULayer[Api] = ZLayer.succeed(ApiLive(base))
+  val layer: URLayer[AppConfig, Api] =
+    ((conf: AppConfig) => ApiLive(Some(conf.baseUrl + "api/"))).toLayer
 
 class ApiLive(base: Option[String]) extends Api with CustomTapir:
   private val backend = FetchBackend(
@@ -22,5 +24,13 @@ class ApiLive(base: Option[String]) extends Api with CustomTapir:
   )
   private val baseUri = base.map(b => uri"${b}")
   private val aliveClient = toClient(Endpoints.alive, baseUri, backend)
-  override def alive(): Future[DecodeResult[Either[Unit, String]]] =
-    aliveClient(())
+  override def isAlive(): Task[Boolean] =
+    ZIO.fromFuture(ec =>
+      given ExecutionContext = ec
+      aliveClient(()).map {
+        case DecodeResult.Value(Right("ok")) => true
+        case _                               => false
+      } recover { case _ =>
+        false
+      }
+    )

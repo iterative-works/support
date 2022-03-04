@@ -10,11 +10,11 @@ import mdr.pdb.*
 
 object Routes:
 
-  val layer: ULayer[Routes] = ZLayer.succeed(Routes())
+  val layer: URLayer[AppConfig, Routes] = (Routes(_)).toLayer
 
-  val router: ULayer[Router[Page]] = layer.project(_.router)
+  val router: URLayer[AppConfig, Router[Page]] = layer.project(_.router)
 
-class Routes():
+class Routes(appConfig: AppConfig):
   import Page.*
   import Routes.*
 
@@ -27,9 +27,7 @@ class Routes():
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
 
-  val base =
-    js.`import`.meta.env.BASE_URL
-      .asInstanceOf[String] + "app"
+  val base = appConfig.baseUrl + "app"
 
   given router: Router[Page] = Router[Page](
     routes = List(
