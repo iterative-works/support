@@ -2,14 +2,14 @@ package mdr.pdb.app
 package connectors
 
 import com.raquo.laminar.api.L.{*, given}
-import mdr.pdb.Parameter
-import mdr.pdb.UserInfo
+import mdr.pdb.parameters.*
+import mdr.pdb.users.query.UserInfo
 import mdr.pdb.app.pages.detail.DetailParametruPage
 import pages.detail.DetailKriteriaPage
 import pages.detail.components.DukazyKriteria
 import com.raquo.waypoint.Router
 import mdr.pdb.app.components.AppPage
-import mdr.pdb.ParameterCriteria
+import mdr.pdb.parameters.*
 
 object DetailKriteriaPageConnector {
   trait AppState extends AppPage.AppState {

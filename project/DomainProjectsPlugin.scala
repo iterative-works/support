@@ -73,16 +73,22 @@ object DomainProjectsPlugin extends AutoPlugin {
       repo: Project,
       projection: Project
   ) extends CompositeProject {
+    val model = common.model
     def model(upd: CrossProject => CrossProject): QueryProjects =
       copy(common = common.model(upd))
+    val json = common.json
     def json(upd: CrossProject => CrossProject): QueryProjects =
       copy(common = common.json(upd))
+    val endpoints = common.endpoints
     def endpoints(upd: CrossProject => CrossProject): QueryProjects =
       copy(common = common.endpoints(upd))
+    val client = common.client
     def client(upd: Project => Project): QueryProjects =
       copy(common = common.client(upd))
+    val api = common.api
     def api(upd: Project => Project): QueryProjects =
       copy(common = common.api(upd))
+    val components = common.components
     def components(upd: Project => Project): QueryProjects =
       copy(common = common.components(upd))
     def repo(upd: Project => Project): QueryProjects = copy(repo = upd(repo))
@@ -94,16 +100,22 @@ object DomainProjectsPlugin extends AutoPlugin {
 
   case class CommandProjects(common: CommonProjects, entity: Project)
       extends CompositeProject {
+    val model = common.model
     def model(upd: CrossProject => CrossProject): CommandProjects =
       copy(common = common.model(upd))
+    val json = common.json
     def json(upd: CrossProject => CrossProject): CommandProjects =
       copy(common = common.json(upd))
+    val endpoints = common.endpoints
     def endpoints(upd: CrossProject => CrossProject): CommandProjects =
       copy(common = common.endpoints(upd))
+    val client = common.client
     def client(upd: Project => Project): CommandProjects =
       copy(common = common.client(upd))
+    val api = common.api
     def api(upd: Project => Project): CommandProjects =
       copy(common = common.api(upd))
+    val components = common.components
     def components(upd: Project => Project): CommandProjects =
       copy(common = common.components(upd))
     def entity(upd: Project => Project): CommandProjects =
@@ -163,7 +175,18 @@ object DomainProjectsPlugin extends AutoPlugin {
       def queryProjects = {
         val qb = pb("query")
         import qb._
-        QueryProjects(commonProjects(qb), p("repo"), p("projection"))
+        val common = commonProjects(qb)
+        val repo = p("repo")
+          .settings(IWDeps.useZIO(Test))
+          .dependsOn(
+            common.model.projects(JVMPlatform),
+            common.json.projects(JVMPlatform)
+          )
+        QueryProjects(
+          common.api(_.dependsOn(repo)),
+          repo,
+          p("projection").dependsOn(repo)
+        )
       }
 
       def commandProjects = {

@@ -3,7 +3,7 @@ package connectors
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
-import mdr.pdb.UserInfo
+import mdr.pdb.users.query.UserInfo
 import mdr.pdb.app.components.PageLink
 import mdr.pdb.app.components.AppPage
 

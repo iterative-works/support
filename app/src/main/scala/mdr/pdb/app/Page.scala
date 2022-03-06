@@ -1,9 +1,8 @@
 package mdr.pdb.app
 
 import mdr.pdb.OsobniCislo
-import mdr.pdb.UserInfo
-import mdr.pdb.Parameter
-import mdr.pdb.ParameterCriteria
+import mdr.pdb.users.query.UserInfo
+import mdr.pdb.parameters.*
 import zio.json.JsonEncoder
 import zio.json.DeriveJsonEncoder
 import zio.json.JsonDecoder
@@ -115,5 +114,6 @@ object Page:
       errorMessage: Option[String]
   ) extends Page("500", "Unexpected error", Some(Directory))
 
+  import mdr.pdb.json.Codecs.given
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]

@@ -4,7 +4,8 @@ package state
 import zio.*
 import com.raquo.airstream.core.{EventStream, Signal}
 import com.raquo.airstream.state.{Val, Var}
-import mdr.pdb.{UserInfo, OsobniCislo}
+import mdr.pdb.OsobniCislo
+import mdr.pdb.users.query.*
 import com.raquo.airstream.core.Observer
 import scala.scalajs.js
 import scala.scalajs.js.JSON
@@ -12,15 +13,13 @@ import zio.json.{*, given}
 import com.raquo.airstream.eventbus.EventBus
 import com.raquo.airstream.ownership.Owner
 import com.raquo.waypoint.Router
-import mdr.pdb.Parameter
-import mdr.pdb.ParameterCriteria
-import mdr.pdb.UserFunction
-import mdr.pdb.UserContract
+import mdr.pdb.parameters.*
 import fiftyforms.services.files.File
 import sttp.tapir.DecodeResult
 import com.raquo.airstream.ownership.OneTimeOwner
 import scala.annotation.unused
 import com.raquo.airstream.ownership.Subscription
+import mdr.pdb.users.query.client.UsersRepository
 
 trait AppState
     extends components.AppPage.AppState
@@ -37,21 +36,29 @@ trait AppState
   def actionBus: Observer[Action]
 
 object AppStateLive:
-  def layer: URLayer[ZEnv & AppConfig & Api & Router[Page], AppState] = {
+  def layer: URLayer[
+    ZEnv & AppConfig & Api & UsersRepository & Router[Page],
+    AppState
+  ] = {
     (ZLayer.fromZIO(ZIO.runtime[ZEnv]) ++ ZIOOwner.layer) >>> (
         (
             appConfig: AppConfig,
             api: Api,
+            usersRepository: UsersRepository,
             router: Router[Page],
             runtime: Runtime[ZEnv],
             owner: Owner
-        ) => AppStateLive(appConfig, api, router, runtime)(using owner)
+        ) =>
+          AppStateLive(appConfig, api, usersRepository, router, runtime)(using
+            owner
+          )
     ).toLayer[AppState]
   }
 
 class AppStateLive(
     appConfig: AppConfig,
     api: Api,
+    usersRepository: UsersRepository,
     router: Router[Page],
     runtime: Runtime[ZEnv]
 )(using
@@ -103,7 +110,7 @@ class AppStateLive(
   private val handler: Action => Task[Unit] =
     case CheckOnlineState =>
       for
-        o <- api.isAlive()
+        o <- api.alive()
         _ <- Task.attempt {
           isOnline.set(o)
           scheduleOnlineCheck()
@@ -111,7 +118,7 @@ class AppStateLive(
       yield ()
     case FetchDirectory =>
       for
-        users <- api.listUsers()
+        users <- usersRepository.list()
         _ <- Task.attempt(pushUsers(users))
       yield ()
     case FetchUserDetails(osc) =>

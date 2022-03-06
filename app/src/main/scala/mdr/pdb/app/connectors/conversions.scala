@@ -1,11 +1,10 @@
 package mdr.pdb.app.connectors
 
 import com.raquo.laminar.api.L.{*, given}
-import mdr.pdb.UserInfo
+import mdr.pdb.users.query.UserInfo
 import mdr.pdb.app.pages.detail.components.DetailOsoby
-import mdr.pdb.Parameter
+import mdr.pdb.parameters.*
 import mdr.pdb.app.pages.detail.components.SeznamParametru
-import mdr.pdb.ParameterCriteria
 import mdr.pdb.app.pages.detail.components.SeznamKriterii
 import mdr.pdb.app.pages.directory.components.UserRow
 import mdr.pdb.app.pages.detail.components.DetailParametru

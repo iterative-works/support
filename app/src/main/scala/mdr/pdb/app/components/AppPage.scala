@@ -2,11 +2,12 @@ package mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
 import mdr.pdb.app.Page
-import mdr.pdb.{UserProfile, UserInfo, OsobniCislo}
+import mdr.pdb.users.query.{UserProfile, UserInfo}
+import mdr.pdb.OsobniCislo
 import com.raquo.waypoint.Router
 import mdr.pdb.app.Action
 import mdr.pdb.app.NavigateTo
-import mdr.pdb.UserFunction
+import mdr.pdb.users.query.UserFunction
 
 object AppPage:
   trait AppState {

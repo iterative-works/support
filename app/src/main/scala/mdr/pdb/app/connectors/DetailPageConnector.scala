@@ -3,12 +3,12 @@ package connectors
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
-import mdr.pdb.UserInfo
+import mdr.pdb.users.query.UserInfo
 import pages.detail.DetailPage
 import mdr.pdb.app.components.AppPage
 import mdr.pdb.app.components.PageLink
 import mdr.pdb.app.pages.detail.components.DetailOsoby
-import mdr.pdb.Parameter
+import mdr.pdb.parameters.*
 import mdr.pdb.app.pages.detail.components.SeznamParametru
 import fiftyforms.ui.components.tailwind.Color
 

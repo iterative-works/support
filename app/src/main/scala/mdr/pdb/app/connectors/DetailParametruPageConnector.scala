@@ -2,8 +2,8 @@ package mdr.pdb.app
 package connectors
 
 import com.raquo.laminar.api.L.{*, given}
-import mdr.pdb.Parameter
-import mdr.pdb.UserInfo
+import mdr.pdb.parameters.*
+import mdr.pdb.users.query.UserInfo
 import mdr.pdb.app.pages.detail.DetailParametruPage
 import pages.detail.DetailParametruPage
 import com.raquo.waypoint.Router

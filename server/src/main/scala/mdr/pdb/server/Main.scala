@@ -1,8 +1,7 @@
 package mdr.pdb.server
 
 import zio.*
-import mdr.pdb.server.user.MockUserDirectory
-import mdr.pdb.server.user.UserDirectory
+import mdr.pdb.users.query.repo.*
 import zio.config.ReadError
 import zio.logging.*
 import zio.logging.backend.SLF4J
@@ -20,8 +19,8 @@ object Main extends ZIOAppDefault:
   lazy val httpAppLayer: ZLayer[AppEnv, ReadError[String], HttpApplication] =
     AppConfig.fromEnv ++ securityLayer >>> HttpApplicationLive.layer
 
-  lazy val appEnvLayer: TaskLayer[UserDirectory] =
-    MockUserDirectory.layer
+  lazy val appEnvLayer: TaskLayer[UsersRepository] =
+    MockUsersRepository.layer
 
   lazy val serverLayer: ZLayer[ZEnv, Throwable, HttpServer] =
     appEnvLayer >+> blaze.BlazeServerConfig.fromEnv >+> httpAppLayer >>> blaze.BlazeHttpServer.layer

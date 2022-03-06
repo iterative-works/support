@@ -7,6 +7,8 @@ import com.raquo.waypoint.Router
 import mdr.pdb.app.components.AppPage
 import mdr.pdb.app.pages.detail.components.UpravDukazForm
 import fiftyforms.services.files.File
+import mdr.pdb.parameters.*
+import mdr.pdb.users.query.*
 
 object UpravDukaz:
 

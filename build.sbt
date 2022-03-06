@@ -9,17 +9,31 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := scala3Version
 
 lazy val parameters = entityProject("parameters", file("domain/parameters"))
-  .components(_.dependsOn(ui)).model(_.dependsOn(core))
+  .components(_.dependsOn(ui))
+  .model(_.dependsOn(core))
+  .json(_.dependsOn(json))
+  .endpoints(_.dependsOn(`tapir-support`))
+
+lazy val users = entityProject("users", file("domain/users"))
+  .components(_.dependsOn(ui))
+  .model(_.dependsOn(core))
+  .json(_.dependsOn(json))
+  .endpoints(_.dependsOn(`tapir-support`, endpoints))
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
-  .settings(
-    IWDeps.useZIO(Test),
-    IWDeps.zioJson,
-    IWDeps.tapirCore,
-    IWDeps.tapirZIOJson
-  )
+
+lazy val json = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("json"))
+  .settings(IWDeps.zioJson)
+  .dependsOn(core)
+
+lazy val endpoints = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("endpoints"))
+  .dependsOn(core, json, `tapir-support`)
 
 lazy val ui = (project in file("fiftyforms/ui"))
   .enablePlugins(ScalaJSPlugin)
@@ -34,6 +48,12 @@ lazy val ui = (project in file("fiftyforms/ui"))
     IWDeps.laminextTailwind,
     IWDeps.laminextValidationCore
   )
+
+lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
+  .in(file("fiftyforms/tapir"))
+  .settings(IWDeps.tapirCore, IWDeps.tapirZIOJson, IWDeps.zioJson)
+  .jsSettings(IWDeps.tapirSttpClient)
+  .jvmSettings(IWDeps.tapirZIO, IWDeps.tapirZIOHttp4sServer)
 
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin, VitePlugin)
@@ -58,7 +78,15 @@ lazy val app = (project in file("app"))
     scalaJSLinkerConfig ~= { _.withSourceMap(false) },
     scalaJSUseMainModuleInitializer := true
   )
-  .dependsOn(core.js, ui)
+  .dependsOn(
+    core.js,
+    ui,
+    parameters.query.client,
+    parameters.command.client,
+    users.query.client,
+    users.command.client,
+    endpoints.js
+  )
 
 lazy val server = (project in file("server"))
   .enablePlugins(DockerPlugin, JavaServerAppPackaging)
@@ -100,7 +128,14 @@ lazy val server = (project in file("server"))
     )
     // Revolver.enableDebugging(port = 5005, suspend = true)
   )
-  .dependsOn(core.jvm)
+  .dependsOn(
+    core.jvm,
+    parameters.query.api,
+    parameters.command.api,
+    users.query.api,
+    users.command.api,
+    endpoints.jvm
+  )
 
 lazy val root = (project in file("."))
   .settings(name := "mdr-personnel-db", publish / skip := true)

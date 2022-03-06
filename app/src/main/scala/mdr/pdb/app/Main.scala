@@ -13,8 +13,11 @@ import mdr.pdb.app.services.DataFetcher
 import scala.scalajs.js.JSON
 import zio.*
 import zio.json.*
-import mdr.pdb.UserInfo
+import mdr.pdb.users.query.UserInfo
 import mdr.pdb.app.state.AppState
+import sttp.client3.*
+import fiftyforms.tapir.{CustomTapir, BaseUri}
+import mdr.pdb.users.query.client.UsersRepositoryLive
 
 @js.native
 @JSImport("stylesheets/main.css", JSImport.Namespace)
@@ -37,8 +40,20 @@ object Main extends ZIOApp:
   override val tag: EnvironmentTag[Environment] = EnvironmentTag[Environment]
 
   // TODO: config
+  private val sttpLayer: ULayer[CustomTapir.Backend] = ZLayer.succeed(
+    FetchBackend(
+      FetchOptions(
+        Some(dom.RequestCredentials.`same-origin`),
+        Some(dom.RequestMode.`same-origin`)
+      )
+    )
+  )
+
+  private val baseUriLayer: TaskLayer[BaseUri] =
+    AppConfig.layer.project(c => BaseUri(uri"${c.baseUrl}api/"))
+
   override val layer: ZLayer[ZIOAppArgs, Any, Environment] =
-    ZEnv.live >+> AppConfig.layer >+> Routes.router >+> ApiLive.layer >+> state.AppStateLive.layer >+> LaminarAppLive.layer
+    ZEnv.live >+> AppConfig.layer >+> baseUriLayer >+> sttpLayer >+> Routes.router >+> UsersRepositoryLive.layer >+> ApiLive.layer >+> state.AppStateLive.layer >+> LaminarAppLive.layer
 
   override def run =
     for

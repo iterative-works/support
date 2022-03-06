@@ -1,7 +1,7 @@
 package mdr.pdb.app.pages.directory
 
 import com.raquo.laminar.api.L.{*, given}
-import mdr.pdb.UserInfo
+import mdr.pdb.users.query.UserInfo
 
 import components._
 

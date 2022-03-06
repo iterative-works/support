@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import fiftyforms.ui.components.tailwind.CustomAttrs.ariaCurrent
 import fiftyforms.ui.components.tailwind.Icons
 import fiftyforms.ui.components.tailwind.Avatar
-import mdr.pdb.UserInfo
+import mdr.pdb.users.query.UserInfo
 import io.laminext.syntax.core.*
 
 object NavigationBar:

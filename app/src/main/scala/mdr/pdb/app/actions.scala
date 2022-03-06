@@ -1,9 +1,8 @@
 package mdr.pdb.app
 
 import mdr.pdb.OsobniCislo
-import mdr.pdb.UserInfo
-import mdr.pdb.Parameter
-import mdr.pdb.ParameterCriteria
+import mdr.pdb.users.query.UserInfo
+import mdr.pdb.parameters.*
 
 sealed trait Action
 
