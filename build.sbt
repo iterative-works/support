@@ -8,6 +8,9 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := scala3Version
 
+lazy val parameters = entityProject("parameters", file("domain/parameters"))
+  .components(_.dependsOn(ui)).model(_.dependsOn(core))
+
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
@@ -18,7 +21,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     IWDeps.tapirZIOJson
   )
 
-lazy val ui = (project in file("ui"))
+lazy val ui = (project in file("fiftyforms/ui"))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     IWDeps.useZIO(Test),
