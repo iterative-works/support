@@ -7,9 +7,7 @@ import java.time.Instant
 
 sealed trait Command
 
-type DocumentRef = String
-
-case class AutorizujDukaz(
+case class AuthorizeProof(
     osoba: OsobniCislo,
     parametr: Parameter.Id,
     kriterium: ParameterCriterion.Id,

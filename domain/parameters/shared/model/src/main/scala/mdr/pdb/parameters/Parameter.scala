@@ -3,10 +3,7 @@ package parameters
 
 import java.math.BigInteger
 import java.security.MessageDigest
-
-case class Proof(
-    criterionId: ParameterCriterion.Id
-)
+import java.time.LocalDate
 
 object ParameterCriterion:
   type Id = String

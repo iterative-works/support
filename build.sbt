@@ -8,6 +8,13 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := scala3Version
 
+lazy val proof = entityProject("proof", file("domain/proof"))
+  .components(_.dependsOn(ui))
+  .model(_.dependsOn(core))
+  .json(_.dependsOn(json))
+  .repo(_.dependsOn(`mongo-support`))
+  .endpoints(_.dependsOn(`tapir-support`))
+
 lazy val parameters = entityProject("parameters", file("domain/parameters"))
   .components(_.dependsOn(ui))
   .model(_.dependsOn(core))
@@ -55,6 +62,16 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
   .jsSettings(IWDeps.tapirSttpClient)
   .jvmSettings(IWDeps.tapirZIO, IWDeps.tapirZIOHttp4sServer)
 
+lazy val `mongo-support` = project
+  .in(file("fiftyforms/mongo"))
+  .settings(
+    IWDeps.useZIO(Test),
+    IWDeps.zioJson,
+    IWDeps.zioConfig,
+    libraryDependencies += ("org.mongodb.scala" %% "mongo-scala-driver" % "4.2.3")
+      .cross(CrossVersion.for3Use2_13)
+  )
+
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin, VitePlugin)
   .settings(
@@ -85,6 +102,8 @@ lazy val app = (project in file("app"))
     parameters.command.client,
     users.query.client,
     users.command.client,
+    proof.query.client,
+    proof.command.client,
     endpoints.js
   )
 
@@ -134,6 +153,8 @@ lazy val server = (project in file("server"))
     parameters.command.api,
     users.query.api,
     users.command.api,
+    proof.query.api,
+    proof.command.api,
     endpoints.jvm
   )
 
