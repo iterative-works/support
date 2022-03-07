@@ -70,7 +70,7 @@ class AppStateLive(
   given JsonDecoder[UserContract] = DeriveJsonDecoder.gen
   given JsonDecoder[UserInfo] = DeriveJsonDecoder.gen
 
-  given JsonDecoder[ParameterCriteria] = DeriveJsonDecoder.gen
+  given JsonDecoder[ParameterCriterion] = DeriveJsonDecoder.gen
   given JsonDecoder[Parameter] = DeriveJsonDecoder.gen
 
   private val actions = EventBus[Action]()
@@ -140,7 +140,7 @@ class AppStateLive(
           pushParameters(mockParameters)
           router.replaceState(Page.DetailParametru(o, p))
       }
-    case FetchParameterCriteria(osc, paramId, critId, page) =>
+    case FetchParameterCriterion(osc, paramId, critId, page) =>
       Task.attempt {
         for
           o <- mockData.find(_.personalNumber == osc)

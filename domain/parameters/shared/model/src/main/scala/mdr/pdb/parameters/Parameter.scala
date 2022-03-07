@@ -4,15 +4,19 @@ package parameters
 import java.math.BigInteger
 import java.security.MessageDigest
 
-object ParameterCriteria:
+case class Proof(
+    criterionId: ParameterCriterion.Id
+)
+
+object ParameterCriterion:
   type Id = String
 
-case class ParameterCriteria(
+case class ParameterCriterion(
     chapterId: String,
     itemId: String,
     criteriumText: String
 ):
-  val id: ParameterCriteria.Id = s"${chapterId}${itemId}"
+  val id: ParameterCriterion.Id = s"${chapterId}${itemId}"
 
 object Parameter:
   type Id = String
@@ -21,5 +25,5 @@ case class Parameter(
     id: Parameter.Id,
     name: String,
     description: String,
-    criteria: List[ParameterCriteria]
+    criteria: List[ParameterCriterion]
 )

@@ -29,7 +29,7 @@ case class DetailKriteriaPageConnector(
     )((x, _, _) => x)
   val $pageChangeSignal =
     $paramChangeSignal.map(
-      FetchParameterCriteria(_, _, _, Page.DetailKriteria(_, _, _))
+      FetchParameterCriterion(_, _, _, Page.DetailKriteria(_, _, _))
     )
 
   val $data = state.details.startWithNone
@@ -66,7 +66,7 @@ case class DetailKriteriaPageConnector(
   private def buildModel(
       o: UserInfo,
       p: Parameter,
-      k: ParameterCriteria
+      k: ParameterCriterion
   ): DetailKriteriaPage.ViewModel =
     DetailKriteriaPage.ViewModel(
       o.toDetailOsoby,

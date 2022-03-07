@@ -38,9 +38,9 @@ extension (param: Parameter)
       a = container(param)
     )
 
-extension (crit: ParameterCriteria)
+extension (crit: ParameterCriterion)
   def toKriterium(
-      container: ParameterCriteria => Anchor
+      container: ParameterCriterion => Anchor
   ): DetailKriteria.ViewModel =
     DetailKriteria.ViewModel(
       nazev = crit.criteriumText,

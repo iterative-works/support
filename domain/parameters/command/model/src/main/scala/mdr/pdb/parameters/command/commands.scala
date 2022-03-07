@@ -12,7 +12,7 @@ type DocumentRef = String
 case class AutorizujDukaz(
     osoba: OsobniCislo,
     parametr: Parameter.Id,
-    kriterium: ParameterCriteria.Id,
+    kriterium: ParameterCriterion.Id,
     dukaz: List[DocumentRef],
     platiDo: Option[LocalDate]
 ) extends Command

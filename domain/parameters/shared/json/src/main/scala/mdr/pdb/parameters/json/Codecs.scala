@@ -6,5 +6,5 @@ import zio.json.*
 
 trait Codecs:
 
-  given JsonCodec[ParameterCriteria] = DeriveJsonCodec.gen
+  given JsonCodec[ParameterCriterion] = DeriveJsonCodec.gen
   given JsonCodec[Parameter] = DeriveJsonCodec.gen

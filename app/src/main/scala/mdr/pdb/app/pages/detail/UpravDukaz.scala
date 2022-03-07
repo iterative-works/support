@@ -25,7 +25,7 @@ object UpravDukaz:
     (page.osobniCislo.value, page.parametr.value, page.kriterium.value)
 
   def onChangeAction(key: PageKey): Action =
-    FetchParameterCriteria(
+    FetchParameterCriterion(
       key._1,
       key._2,
       key._3,
@@ -69,7 +69,7 @@ object UpravDukaz:
     private def buildModel(
         o: UserInfo,
         p: Parameter,
-        k: ParameterCriteria
+        k: ParameterCriterion
     ): PageComponent.ViewModel =
       import connectors.*
       PageComponent.ViewModel(

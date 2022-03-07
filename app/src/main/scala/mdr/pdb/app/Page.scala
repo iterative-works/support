@@ -76,7 +76,11 @@ object Page:
       )
 
   object DetailKriteria {
-    def apply(o: UserInfo, p: Parameter, k: ParameterCriteria): DetailKriteria =
+    def apply(
+        o: UserInfo,
+        p: Parameter,
+        k: ParameterCriterion
+    ): DetailKriteria =
       DetailKriteria(
         Titled(o.personalNumber, Some(o.name)),
         Titled(p.id, Some(p.name)),
@@ -98,7 +102,7 @@ object Page:
     def apply(
         o: UserInfo,
         p: Parameter,
-        k: ParameterCriteria
+        k: ParameterCriterion
     ): UpravDukazKriteria =
       UpravDukazKriteria(
         Titled(o.personalNumber, Some(o.name)),
