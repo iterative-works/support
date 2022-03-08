@@ -238,7 +238,14 @@ object DomainProjectsPlugin extends AutoPlugin {
       def commandProjects = {
         val cb = pb("command")
         import cb._
-        CommandProjects(commonProjects(cb), p("entity"))
+        val common = commonProjects(cb)
+        CommandProjects(
+          common,
+          p("entity").dependsOn(
+            common.model.projects(JVMPlatform),
+            common.json.projects(JVMPlatform)
+          )
+        )
       }
 
       EntityProject(

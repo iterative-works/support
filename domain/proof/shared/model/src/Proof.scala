@@ -4,29 +4,35 @@ package proof
 import java.time.Instant
 import java.time.LocalDate
 
+sealed abstract class RevocationReason(msg: String)
+case object Expired extends RevocationReason("Vypršela platnost důkazu")
+case class Other(msg: String) extends RevocationReason(msg)
+
 case class Authorization(
-    time: Instant,
-    person: OsobniCislo
+    authorized: WW,
+    note: Option[String]
 )
 
 case class Revocation(
-    time: Instant,
-    person: OsobniCislo,
-    explanation: String,
+    revoked: WW,
+    revokedSince: Instant,
+    reason: RevocationReason,
     documents: List[DocumentRef]
 )
 
 case class Proof(
-    person: OsobniCislo,
     id: Proof.Id,
+    person: OsobniCislo,
     parameterId: String,
     criterionId: String,
     documents: List[DocumentRef],
-    note: String,
     authorizations: List[Authorization],
-    expiration: Option[LocalDate],
-    revocation: Option[Revocation]
-)
+    revocations: List[Revocation],
+    created: WW
+) {
+  def isAuthorized = authorizations.nonEmpty
+  def isRevoked = revocations.exists(_.revokedSince.isBefore(Instant.now()))
+}
 
 object Proof:
   type Id = String

@@ -5,6 +5,7 @@ import zio.json.*
 
 trait Codecs:
 
+  given JsonCodec[WhoWhen] = DeriveJsonCodec.gen
   given JsonCodec[OsobniCislo] =
     JsonCodec.string.transform(OsobniCislo.apply, _.toString)
   given JsonFieldEncoder[OsobniCislo] =
