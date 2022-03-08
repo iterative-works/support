@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 
-import sbtcrossproject.JVMPlatform
+import sbtcrossproject.{JVMPlatform, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import sbtcrossproject.CrossProject
 import scalajscrossproject.JSPlatform
@@ -38,7 +38,9 @@ object DomainProjectsPlugin extends AutoPlugin {
     def components(upd: Project => Project): EntityProject =
       query(_.components(upd)).command(_.components(upd))
     def repo(upd: Project => Project): EntityProject = query(_.repo(upd))
-    def projection(upd: Project => Project): EntityProject = query(_.projection(upd))
+    def projection(upd: Project => Project): EntityProject = query(
+      _.projection(upd)
+    )
     def entity(upd: Project => Project): EntityProject = command(_.entity(upd))
     override def componentProjects: Seq[Project] =
       Seq(model, json).flatMap(
@@ -127,15 +129,56 @@ object DomainProjectsPlugin extends AutoPlugin {
       common.componentProjects :+ entity
   }
 
+  object MiniCrossType extends CrossType {
+    @deprecated(
+      "use projectDir(crossBase: File, platform: Platform): File",
+      "0.1.0"
+    )
+    def projectDir(crossBase: File, projectType: String): File =
+      crossBase / ("." + projectType)
+
+    def projectDir(crossBase: File, platform: Platform): File =
+      crossBase / ("." + platform.identifier)
+
+    def sharedSrcDir(projectBase: File, conf: String): Option[File] = {
+      val dirName = conf match {
+        case "main" => "src"
+        case "test" => "test"
+        case c @ _  => s"$c-src"
+      }
+      Some(projectBase.getParentFile / dirName)
+    }
+
+    override def sharedResourcesDir(
+        projectBase: File,
+        conf: String
+    ): Option[File] = {
+      val dirName = conf match {
+        case "main" => "resources"
+        case c @ _  => s"$c-resources"
+      }
+      Some(projectBase.getParentFile / dirName)
+    }
+  }
+
   object EntityProject {
     class ProjectBuilder(b: String, base: File)(kind: String) {
+      val commonSettings = Seq(
+        Compile / scalaSource := baseDirectory.value / "src",
+        Test / scalaSource := baseDirectory.value / "test",
+        Compile / resourceDirectory := baseDirectory.value / "resources",
+        Test / resourceDirectory := baseDirectory.value / "test-resources"
+      )
       def name(n: String) = s"$b-$kind-$n"
       def path(n: String) = base / kind / n
-      def p(n: String): Project = Project(name(n), path(n))
+      def p(n: String): Project =
+        Project(name(n), path(n)).settings(commonSettings)
       def cp(n: String): CrossProject =
         CrossProject(name(n), path(n))(JSPlatform, JVMPlatform)
-          .crossType(CrossType.Pure)
-      def js(n: String): Project = p(n).enablePlugins(ScalaJSPlugin)
+          .crossType(MiniCrossType)
+          .settings(commonSettings)
+      def js(n: String): Project =
+        p(n).enablePlugins(ScalaJSPlugin).settings(commonSettings)
     }
 
     def apply(b: String, base: File): EntityProject = {
