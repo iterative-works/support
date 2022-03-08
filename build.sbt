@@ -8,11 +8,15 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := scala3Version
 
+// TODO: get rid of the nested empty directories in packages
+// MAYBE: get rid of src/main/scala, replace with less nested structure
+// We mostly know what kind of project it is, there is no need to have this by default
 lazy val proof = entityProject("proof", file("domain/proof"))
   .components(_.dependsOn(ui))
   .model(_.dependsOn(core))
   .json(_.dependsOn(json))
   .repo(_.dependsOn(`mongo-support`))
+  .entity(_.dependsOn(`akka-persistence-support`))
   .endpoints(_.dependsOn(`tapir-support`))
 
 lazy val parameters = entityProject("parameters", file("domain/parameters"))
@@ -42,6 +46,7 @@ lazy val endpoints = crossProject(JSPlatform, JVMPlatform)
   .in(file("endpoints"))
   .dependsOn(core, json, `tapir-support`)
 
+// TODO: move all from fiftyforms to iterative works
 lazy val ui = (project in file("fiftyforms/ui"))
   .enablePlugins(ScalaJSPlugin)
   .settings(
@@ -71,6 +76,10 @@ lazy val `mongo-support` = project
     libraryDependencies += ("org.mongodb.scala" %% "mongo-scala-driver" % "4.2.3")
       .cross(CrossVersion.for3Use2_13)
   )
+
+lazy val `akka-persistence-support` = project
+  .in(file("fiftyforms/akka-persistence"))
+  .settings(IWDeps.akkaPersistence)
 
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin, VitePlugin)

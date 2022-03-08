@@ -38,6 +38,8 @@ object DomainProjectsPlugin extends AutoPlugin {
     def components(upd: Project => Project): EntityProject =
       query(_.components(upd)).command(_.components(upd))
     def repo(upd: Project => Project): EntityProject = query(_.repo(upd))
+    def projection(upd: Project => Project): EntityProject = query(_.projection(upd))
+    def entity(upd: Project => Project): EntityProject = command(_.entity(upd))
     override def componentProjects: Seq[Project] =
       Seq(model, json).flatMap(
         _.componentProjects
