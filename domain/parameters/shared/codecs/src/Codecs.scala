@@ -1,6 +1,6 @@
 package mdr.pdb
 package parameters
-package json
+package codecs
 
 import zio.json.*
 

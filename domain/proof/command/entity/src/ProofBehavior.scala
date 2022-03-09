@@ -3,6 +3,7 @@ package proof
 package command
 package entity
 
+import akka.persistence.typed.scaladsl.Effect
 import akka.persistence.typed.scaladsl.EventSourcedBehavior
 import akka.persistence.typed.PersistenceId
 import akka.actor.typed.Behavior
@@ -11,9 +12,13 @@ import akka.pattern.StatusReply
 import akka.Done
 
 import fiftyforms.akka.*
-import akka.persistence.typed.scaladsl.Effect
+import akka.actor.typed.ActorSystem
+import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import akka.cluster.sharding.typed.scaladsl.EntityContext
+import akka.cluster.sharding.typed.scaladsl.ClusterSharding
+import akka.cluster.sharding.typed.scaladsl.Entity
 
-object ProofBehaviour:
+object ProofBehavior:
 
   type ReplyTo = ActorRef[StatusReply[Done]]
 
@@ -24,11 +29,18 @@ object ProofBehaviour:
   type ProofReplyEffect =
     akka.persistence.typed.scaladsl.ReplyEffect[ProofEvent, State]
 
-  def apply(persistenceId: PersistenceId): Behavior[ProofCommand] =
+  val EntityKey: EntityTypeKey[ProofCommand] = EntityTypeKey("Proof")
+
+  def init(system: ActorSystem[_]): Unit =
+    val behaviorFactory: EntityContext[ProofCommand] => Behavior[ProofCommand] =
+      entityContext => ProofBehavior(entityContext.entityId)
+    ClusterSharding(system).init(Entity(EntityKey)(behaviorFactory))
+
+  def apply(persistenceId: String): Behavior[ProofCommand] =
     import ProofEventHandler.*
     EventSourcedBehavior
       .withEnforcedReplies[ProofCommand, ProofEvent, State](
-        persistenceId = persistenceId,
+        persistenceId = PersistenceId.ofUniqueId(persistenceId),
         emptyState = None,
         commandHandler = handleProofCommand,
         eventHandler = (state, event) =>

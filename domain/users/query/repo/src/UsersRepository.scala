@@ -18,7 +18,7 @@ object MockUsersRepository:
     ZLayer.fromZIO {
       val readUsers: Task[List[UserInfo]] =
         import zio.json.{*, given}
-        import mdr.pdb.users.query.json.Codecs.given
+        import mdr.pdb.users.query.codecs.Codecs.given
         for
           maybeUsers <- readJsonAs(
             getClass.getResource("/users.json")

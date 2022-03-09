@@ -3,7 +3,7 @@ package endpoints
 
 import fiftyforms.tapir.CustomTapir
 import fiftyforms.tapir.ServerError
-import mdr.pdb.users.query.json.Codecs
+import mdr.pdb.users.query.codecs.Codecs
 
 object Endpoints
     extends mdr.pdb.endpoints.Endpoints

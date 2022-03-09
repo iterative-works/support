@@ -21,14 +21,14 @@ object DomainProjectsPlugin extends AutoPlugin {
 
   case class EntityProject(
       model: CrossProject,
-      json: CrossProject,
+      codecs: CrossProject,
       query: QueryProjects,
       command: CommandProjects
   ) extends CompositeProject {
     def model(upd: CrossProject => CrossProject): EntityProject =
       copy(model = upd(model))
-    def json(upd: CrossProject => CrossProject): EntityProject =
-      copy(json = upd(json))
+    def codecs(upd: CrossProject => CrossProject): EntityProject =
+      copy(codecs = upd(codecs))
     def query(upd: QueryProjects => QueryProjects): EntityProject =
       copy(query = upd(query))
     def command(upd: CommandProjects => CommandProjects): EntityProject =
@@ -43,14 +43,14 @@ object DomainProjectsPlugin extends AutoPlugin {
     )
     def entity(upd: Project => Project): EntityProject = command(_.entity(upd))
     override def componentProjects: Seq[Project] =
-      Seq(model, json).flatMap(
+      Seq(model, codecs).flatMap(
         _.componentProjects
       ) ++ query.componentProjects ++ command.componentProjects
   }
 
   case class CommonProjects(
       model: CrossProject,
-      json: CrossProject,
+      codecs: CrossProject,
       endpoints: CrossProject,
       client: Project,
       api: Project,
@@ -58,8 +58,8 @@ object DomainProjectsPlugin extends AutoPlugin {
   ) extends CompositeProject {
     def model(upd: CrossProject => CrossProject): CommonProjects =
       copy(model = upd(model))
-    def json(upd: CrossProject => CrossProject): CommonProjects =
-      copy(json = upd(json))
+    def codecs(upd: CrossProject => CrossProject): CommonProjects =
+      copy(codecs = upd(codecs))
     def endpoints(upd: CrossProject => CrossProject): CommonProjects =
       copy(endpoints = upd(endpoints))
     def client(upd: Project => Project): CommonProjects =
@@ -68,7 +68,7 @@ object DomainProjectsPlugin extends AutoPlugin {
     def components(upd: Project => Project): CommonProjects =
       copy(components = upd(components))
     override def componentProjects: Seq[Project] =
-      Seq(model, json, endpoints).flatMap(
+      Seq(model, codecs, endpoints).flatMap(
         _.componentProjects
       ) ++ Seq(client, api, components)
   }
@@ -81,9 +81,9 @@ object DomainProjectsPlugin extends AutoPlugin {
     val model = common.model
     def model(upd: CrossProject => CrossProject): QueryProjects =
       copy(common = common.model(upd))
-    val json = common.json
-    def json(upd: CrossProject => CrossProject): QueryProjects =
-      copy(common = common.json(upd))
+    val codecs = common.codecs
+    def codecs(upd: CrossProject => CrossProject): QueryProjects =
+      copy(common = common.codecs(upd))
     val endpoints = common.endpoints
     def endpoints(upd: CrossProject => CrossProject): QueryProjects =
       copy(common = common.endpoints(upd))
@@ -108,9 +108,9 @@ object DomainProjectsPlugin extends AutoPlugin {
     val model = common.model
     def model(upd: CrossProject => CrossProject): CommandProjects =
       copy(common = common.model(upd))
-    val json = common.json
-    def json(upd: CrossProject => CrossProject): CommandProjects =
-      copy(common = common.json(upd))
+    val codecs = common.codecs
+    def codecs(upd: CrossProject => CrossProject): CommandProjects =
+      copy(common = common.codecs(upd))
     val endpoints = common.endpoints
     def endpoints(upd: CrossProject => CrossProject): CommandProjects =
       copy(common = common.endpoints(upd))
@@ -185,20 +185,20 @@ object DomainProjectsPlugin extends AutoPlugin {
       def pb(kind: String) = new ProjectBuilder(b, base)(kind)
       val sh = pb("shared")
       val sharedModel = sh.cp("model").settings(IWDeps.zioPrelude)
-      val sharedJson =
-        sh.cp("json").settings(IWDeps.zioJson).dependsOn(sharedModel)
+      val sharedCodecs =
+        sh.cp("codecs").settings(IWDeps.zioJson).dependsOn(sharedModel)
 
       def commonProjects(kb: ProjectBuilder) = {
         import kb._
         val model: CrossProject = cp("model").dependsOn(sharedModel)
-        val json: CrossProject =
-          cp("json").dependsOn(model, sharedJson)
+        val codecs: CrossProject =
+          cp("codecs").dependsOn(model, sharedCodecs)
         val endpoints: CrossProject = cp("endpoints")
           .settings(
             IWDeps.tapirCore,
             IWDeps.tapirZIOJson
           )
-          .dependsOn(model, json)
+          .dependsOn(model, codecs)
         val client: Project =
           js("client").dependsOn(endpoints.projects(JSPlatform))
         val api: Project = p("api")
@@ -215,7 +215,7 @@ object DomainProjectsPlugin extends AutoPlugin {
             IWDeps.laminextTailwind,
             IWDeps.laminextValidationCore
           )
-        CommonProjects(model, json, endpoints, client, api, components)
+        CommonProjects(model, codecs, endpoints, client, api, components)
       }
 
       def queryProjects = {
@@ -226,7 +226,7 @@ object DomainProjectsPlugin extends AutoPlugin {
           .settings(IWDeps.useZIO(Test))
           .dependsOn(
             common.model.projects(JVMPlatform),
-            common.json.projects(JVMPlatform)
+            common.codecs.projects(JVMPlatform)
           )
         QueryProjects(
           common.api(_.dependsOn(repo)),
@@ -239,18 +239,20 @@ object DomainProjectsPlugin extends AutoPlugin {
         val cb = pb("command")
         import cb._
         val common = commonProjects(cb)
-        CommandProjects(
-          common,
+        val entity =
           p("entity").dependsOn(
             common.model.projects(JVMPlatform),
-            common.json.projects(JVMPlatform)
+            common.codecs.projects(JVMPlatform)
           )
+        CommandProjects(
+          common.api(_.dependsOn(entity)),
+          entity
         )
       }
 
       EntityProject(
         model = sharedModel,
-        json = sharedJson,
+        codecs = sharedCodecs,
         query = queryProjects,
         command = commandProjects
       )

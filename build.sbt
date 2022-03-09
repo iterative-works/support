@@ -14,38 +14,38 @@ ThisBuild / scalaVersion := scala3Version
 lazy val proof = entityProject("proof", file("domain/proof"))
   .components(_.dependsOn(ui))
   .model(_.dependsOn(core))
-  .json(_.dependsOn(json))
+  .codecs(_.dependsOn(codecs, `tapir-support`))
   .repo(_.dependsOn(`mongo-support`))
   .entity(_.dependsOn(`akka-persistence-support`))
   .projection(_.dependsOn(`akka-persistence-support`))
-  .endpoints(_.dependsOn(`tapir-support`))
+  .endpoints(_.dependsOn(`tapir-support`, endpoints))
 
 lazy val parameters = entityProject("parameters", file("domain/parameters"))
   .components(_.dependsOn(ui))
   .model(_.dependsOn(core))
-  .json(_.dependsOn(json))
-  .endpoints(_.dependsOn(`tapir-support`))
+  .codecs(_.dependsOn(codecs, `tapir-support`))
+  .endpoints(_.dependsOn(`tapir-support`, endpoints))
 
 lazy val users = entityProject("users", file("domain/users"))
   .components(_.dependsOn(ui))
   .model(_.dependsOn(core))
-  .json(_.dependsOn(json))
+  .codecs(_.dependsOn(codecs, `tapir-support`))
   .endpoints(_.dependsOn(`tapir-support`, endpoints))
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
 
-lazy val json = crossProject(JSPlatform, JVMPlatform)
+lazy val codecs = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
-  .in(file("json"))
+  .in(file("codecs"))
   .settings(IWDeps.zioJson)
-  .dependsOn(core)
+  .dependsOn(core, `tapir-support`)
 
 lazy val endpoints = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("endpoints"))
-  .dependsOn(core, json, `tapir-support`)
+  .dependsOn(core, codecs, `tapir-support`)
 
 // TODO: move all from fiftyforms to iterative works
 lazy val ui = (project in file("fiftyforms/ui"))
@@ -80,7 +80,11 @@ lazy val `mongo-support` = project
 
 lazy val `akka-persistence-support` = project
   .in(file("fiftyforms/akka-persistence"))
-  .settings(IWDeps.akka.profiles.eventsourcedJdbcProjection)
+  .settings(
+    IWDeps.akka.libs.persistence,
+    libraryDependencies += "com.typesafe.akka" %% "akka-cluster-sharding-typed" % IWDeps.akka.V,
+    IWDeps.akka.profiles.eventsourcedJdbcProjection
+  )
 
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin, VitePlugin)
@@ -166,6 +170,7 @@ lazy val server = (project in file("server"))
     proof.query.api,
     proof.command.api,
     proof.query.projection,
+    proof.command.entity,
     endpoints.jvm
   )
 

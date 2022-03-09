@@ -9,6 +9,7 @@ import org.mongodb.scala.model.Filters.*
 import org.bson.json.JsonObject
 import fiftyforms.mongo.MongoJsonRepository
 
+// TODO: extract common mongo repo config, just nest under mongo / <aggregateRoot>
 case class MongoProofConfig(db: String, collection: String)
 
 object MongoProofConfig {
@@ -47,7 +48,7 @@ private[query] class MongoProofRepository(
     collection: MongoCollection[JsonObject]
 ) extends ProofRepositoryWrite:
   import ProofRepository.*
-  import mdr.pdb.proof.json.Codecs.given
+  import mdr.pdb.proof.codecs.Codecs.given
 
   private val jsonRepo = MongoJsonRepository[Proof, String, Criteria](
     collection, {

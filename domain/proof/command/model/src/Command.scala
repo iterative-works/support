@@ -5,7 +5,8 @@ package command
 import java.time.LocalDate
 import java.time.Instant
 
-sealed trait Command
+sealed trait Command:
+  def id: Proof.Id
 
 sealed trait AuthorizeOption
 case object Unauthorized extends AuthorizeOption

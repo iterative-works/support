@@ -33,7 +33,7 @@ case class HttpApplicationLive(
   import dsl.*
 
   val staticR = static.Routes(config)
-  val apiR = api.Routes()
+  val apiR = api.Routes
 
   def httpApp(appPath: String): HttpRoutes[AppTask] =
     Router(

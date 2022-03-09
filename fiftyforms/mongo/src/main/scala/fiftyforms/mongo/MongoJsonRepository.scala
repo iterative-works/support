@@ -18,11 +18,11 @@ object MongoConfig:
       .to[MongoConfig]
   val fromEnv = ZConfig.fromSystemEnv(configDesc)
 
-val client: RLayer[MongoConfig, MongoClient] =
-  (for
-    config <- ZIO.service[MongoConfig]
-    client <- Task.attempt(MongoClient(config.uri))
-  yield client).toLayer
+extension (m: MongoClient.type)
+  def layer: RLayer[MongoConfig, MongoClient] =
+    ZIO
+      .serviceWithZIO[MongoConfig](c => Task.attempt(MongoClient(c.uri)))
+      .toLayer
 
 class MongoJsonRepository[Elem, Key, Criteria](
     collection: MongoCollection[JsonObject],
