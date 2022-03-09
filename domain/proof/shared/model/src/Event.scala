@@ -3,7 +3,13 @@ package proof
 
 import java.time.Instant
 
-sealed trait Event
+case class ProofEvent(event: Event, meta: WW)
+
+object ProofEvent:
+  val Tag = "proof"
+
+sealed trait Event:
+  def id: Proof.Id
 
 case class ProofCreated(
     id: Proof.Id,

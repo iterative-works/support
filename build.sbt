@@ -17,6 +17,7 @@ lazy val proof = entityProject("proof", file("domain/proof"))
   .json(_.dependsOn(json))
   .repo(_.dependsOn(`mongo-support`))
   .entity(_.dependsOn(`akka-persistence-support`))
+  .projection(_.dependsOn(`akka-persistence-support`))
   .endpoints(_.dependsOn(`tapir-support`))
 
 lazy val parameters = entityProject("parameters", file("domain/parameters"))
@@ -79,7 +80,7 @@ lazy val `mongo-support` = project
 
 lazy val `akka-persistence-support` = project
   .in(file("fiftyforms/akka-persistence"))
-  .settings(IWDeps.akkaPersistence)
+  .settings(IWDeps.akka.profiles.eventsourcedJdbcProjection)
 
 lazy val app = (project in file("app"))
   .enablePlugins(ScalaJSPlugin, VitePlugin)
@@ -164,6 +165,7 @@ lazy val server = (project in file("server"))
     users.command.api,
     proof.query.api,
     proof.command.api,
+    proof.query.projection,
     endpoints.jvm
   )
 
