@@ -3,12 +3,12 @@ package proof
 
 import java.time.Instant
 
-case class ProofEvent(event: Event, meta: WW)
+case class ProofEvent(event: Event, meta: WW) extends CborSerializable
 
 object ProofEvent:
   val Tag = "proof"
 
-sealed trait Event:
+sealed trait Event extends CborSerializable:
   def id: Proof.Id
 
 case class ProofCreated(

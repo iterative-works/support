@@ -20,6 +20,7 @@ import com.raquo.airstream.ownership.OneTimeOwner
 import scala.annotation.unused
 import com.raquo.airstream.ownership.Subscription
 import mdr.pdb.users.query.client.UsersRepository
+import mdr.pdb.proof.command.client.ProofCommandApi
 
 trait AppState
     extends components.AppPage.AppState
@@ -37,7 +38,7 @@ trait AppState
 
 object AppStateLive:
   def layer: URLayer[
-    ZEnv & AppConfig & Api & UsersRepository & Router[Page],
+    ZEnv & AppConfig & Api & UsersRepository & ProofCommandApi & Router[Page],
     AppState
   ] = {
     (ZLayer.fromZIO(ZIO.runtime[ZEnv]) ++ ZIOOwner.layer) >>> (
@@ -45,13 +46,19 @@ object AppStateLive:
             appConfig: AppConfig,
             api: Api,
             usersRepository: UsersRepository,
+            proofCommandApi: ProofCommandApi,
             router: Router[Page],
             runtime: Runtime[ZEnv],
             owner: Owner
         ) =>
-          AppStateLive(appConfig, api, usersRepository, router, runtime)(using
-            owner
-          )
+          AppStateLive(
+            appConfig,
+            api,
+            usersRepository,
+            proofCommandApi,
+            router,
+            runtime
+          )(using owner)
     ).toLayer[AppState]
   }
 
@@ -59,6 +66,7 @@ class AppStateLive(
     appConfig: AppConfig,
     api: Api,
     usersRepository: UsersRepository,
+    proofCommandApi: ProofCommandApi,
     router: Router[Page],
     runtime: Runtime[ZEnv]
 )(using
@@ -81,17 +89,6 @@ class AppStateLive(
   private val (detailsStream, pushDetails) = EventStream.withCallback[UserInfo]
   private val (filesStream, pushFiles) = EventStream.withCallback[List[File]]
   private val isOnline = Var(true)
-
-  private val mockData: List[UserInfo] =
-    mockUsers
-      .asInstanceOf[js.Dictionary[js.Object]]
-      .values
-      // TODO: is there a more efficient way to parse from JS object directly?
-      .map(JSON.stringify(_).fromJson[UserInfo])
-      .collect { case Right(u) =>
-        u
-      }
-      .toList
 
   private val mockParameters: List[Parameter] =
     pdbParams
@@ -118,40 +115,35 @@ class AppStateLive(
       yield ()
     case FetchDirectory =>
       for
-        users <- usersRepository.list()
+        users <- usersRepository.matching(AllUsers)
         _ <- Task.attempt(pushUsers(users))
       yield ()
     case FetchUserDetails(osc) =>
-      Task.attempt {
-        mockData.find(_.personalNumber == osc).foreach { o =>
-          pushDetails(o)
-          router.replaceState(Page.Detail(o))
-        }
-      }
+      for user <- usersRepository.matching(UserWithOsobniCislo(osc))
+      yield for o <- user do
+        pushDetails(o)
+        router.replaceState(Page.Detail(o))
     case FetchParameters(osc) =>
       Task.attempt(pushParameters(mockParameters))
     case FetchParameter(osc, paramId) =>
-      Task.attempt {
-        for
-          o <- mockData.find(_.personalNumber == osc)
-          p <- mockParameters.find(_.id == paramId)
-        do
-          pushDetails(o)
-          pushParameters(mockParameters)
-          router.replaceState(Page.DetailParametru(o, p))
-      }
+      for user <- usersRepository.matching(UserWithOsobniCislo(osc))
+      yield for
+        o <- user
+        p <- mockParameters.find(_.id == paramId)
+      do
+        pushDetails(o)
+        pushParameters(mockParameters)
+        router.replaceState(Page.DetailParametru(o, p))
     case FetchParameterCriterion(osc, paramId, critId, page) =>
-      Task.attempt {
-        for
-          o <- mockData.find(_.personalNumber == osc)
-          p <- mockParameters.find(_.id == paramId)
-          c <- p.criteria.find(_.id == critId)
-        do
-          pushDetails(o)
-          pushParameters(mockParameters)
-          router.replaceState(page(o, p, c))
-      }
-    case NavigateTo(page) => Task.attempt { router.pushState(page) }
+      for user <- usersRepository.matching(UserWithOsobniCislo(osc))
+      yield for
+        o <- user
+        p <- mockParameters.find(_.id == paramId)
+        c <- p.criteria.find(_.id == critId)
+      do
+        pushDetails(o)
+        pushParameters(mockParameters)
+        router.replaceState(page(o, p, c))
     case FetchAvailableFiles(osc) =>
       Task.attempt {
         pushFiles(
@@ -160,6 +152,12 @@ class AppStateLive(
           )
         )
       }
+    case SubmitProofCommand(cmd, next) =>
+      for
+        _ <- proofCommandApi.submitCommand(cmd)
+        _ <- Task.attempt(router.pushState(next))
+      yield ()
+    case NavigateTo(page) => Task.attempt { router.pushState(page) }
 
   actions.events.foreach(action => runtime.unsafeRunAsync(handler(action)))
 

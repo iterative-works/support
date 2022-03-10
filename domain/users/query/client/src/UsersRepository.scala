@@ -8,11 +8,11 @@ import fiftyforms.tapir.CustomTapir
 import fiftyforms.tapir.BaseUri
 
 trait UsersRepository:
-  def list(): Task[List[UserInfo]]
+  def matching(criteria: Criteria): Task[List[UserInfo]]
 
 object UsersRepository:
-  def list(): RIO[UsersRepository, List[UserInfo]] =
-    ZIO.serviceWithZIO(_.list())
+  def matching(criteria: Criteria): RIO[UsersRepository, List[UserInfo]] =
+    ZIO.serviceWithZIO(_.matching(criteria))
 
 object UsersRepositoryLive:
 
@@ -22,6 +22,6 @@ object UsersRepositoryLive:
 class UsersRepositoryLive(using baseUri: BaseUri, backend: CustomTapir.Backend)
     extends UsersRepository
     with CustomTapir:
-  private val listClient = makeClient(Endpoints.list)
-  override def list(): Task[List[UserInfo]] =
-    ZIO.fromFuture(_ => listClient(()))
+  private val matchingClient = makeClient(Endpoints.matching)
+  override def matching(criteria: Criteria): Task[List[UserInfo]] =
+    ZIO.fromFuture(_ => matchingClient(criteria))

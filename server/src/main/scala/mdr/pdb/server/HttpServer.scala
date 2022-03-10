@@ -3,4 +3,4 @@ package mdr.pdb.server
 import zio.*
 
 trait HttpServer:
-  def serve(): URIO[AppEnv, ExitCode]
+  def serve(): URIO[AppEnv & HttpSecurity, ExitCode]

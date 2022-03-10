@@ -11,43 +11,50 @@ import fiftyforms.mongo.*
 import org.mongodb.scala.MongoClient
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
+import akka.cluster.typed.Cluster
+import akka.cluster.typed.Join
 
 object Main extends ZIOAppDefault:
 
   override def hook = SLF4J.slf4j(LogLevel.Debug)
 
-  lazy val runtimeLayer: URLayer[AppEnv, Runtime[AppEnv]] =
+  val runtimeLayer: URLayer[AppEnv, Runtime[AppEnv]] =
     ZLayer.fromZIO(ZIO.runtime[AppEnv])
 
-  lazy val mongoClientLayer: RLayer[ZEnv, MongoClient] =
+  val mongoClientLayer: RLayer[ZEnv, MongoClient] =
     MongoConfig.fromEnv >>> MongoClient.layer
 
-  lazy val proofRepositoryLayer: RLayer[ZEnv, ProofRepository] =
+  val proofRepositoryLayer: RLayer[ZEnv, ProofRepository] =
     (mongoClientLayer >+> MongoProofConfig.fromEnv) >>> MongoProofRepository.layer
 
-  lazy val securityLayer: ZLayer[AppEnv, ReadError[String], HttpSecurity] =
+  val securityLayer: ZLayer[AppEnv, ReadError[String], HttpSecurity] =
     security.Pac4jSecurityConfig.fromEnv ++ runtimeLayer >>> security.Pac4jHttpSecurity.layer
 
-  lazy val httpAppLayer: ZLayer[AppEnv, ReadError[String], HttpApplication] =
-    AppConfig.fromEnv ++ securityLayer >>> HttpApplicationLive.layer
+  val actorSystemLayer: TaskLayer[ActorSystem[_]] =
+    (for
+      system <- Task.attempt(ActorSystem(Behaviors.empty, "mdrpdb"))
+      _ <- Task.attempt {
+        val cluster = Cluster(system)
+        cluster.manager ! Join(cluster.selfMember.address)
+      }
+    yield system).toLayer
 
-  lazy val actorSystemLayer: TaskLayer[ActorSystem[_]] =
-    Task.attempt(ActorSystem(Behaviors.empty, "MDR PDB")).toLayer
-
-  lazy val proofCommandBusLayer: RLayer[ZEnv, ProofCommandBus] =
+  val proofCommandBusLayer: RLayer[ZEnv, ProofCommandBus] =
     actorSystemLayer >>> ProofCommandBus.layer
 
-  lazy val appEnvLayer
-      : RLayer[ZEnv, UsersRepository & ProofRepository & ProofCommandBus] =
+  val appEnvLayer: RLayer[ZEnv, CustomAppEnv] =
     MockUsersRepository.layer >+> proofRepositoryLayer >+> proofCommandBusLayer
 
-  lazy val serverLayer: RLayer[ZEnv, HttpServer] =
-    appEnvLayer >+> blaze.BlazeServerConfig.fromEnv >+> httpAppLayer >>> blaze.BlazeHttpServer.layer
+  val httpAppLayer: ZLayer[ZEnv, ReadError[String], HttpApplication] =
+    AppConfig.fromEnv >>> HttpApplicationLive.layer
+
+  val serverLayer: RLayer[ZEnv, HttpServer] =
+    blaze.BlazeServerConfig.fromEnv >+> httpAppLayer >>> blaze.BlazeHttpServer.layer
 
   override def run =
     for {
       server <- ZIO
         .service[HttpServer]
         .provideCustom(serverLayer)
-      _ <- server.serve().provideCustom(appEnvLayer)
+      _ <- server.serve().provideCustom(appEnvLayer >+> securityLayer)
     } yield ()

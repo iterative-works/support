@@ -9,6 +9,8 @@ import fiftyforms.tapir.InternalServerError
 object UsersApi extends CustomTapir:
 
   val list: ZServerEndpoint[UsersRepository, Any] =
-    Endpoints.list.zServerLogic(_ =>
-      UsersRepository.list.mapError(InternalServerError.fromThrowable)
+    Endpoints.matching.zServerLogic(criteria =>
+      UsersRepository
+        .matching(criteria)
+        .mapError(InternalServerError.fromThrowable)
     )

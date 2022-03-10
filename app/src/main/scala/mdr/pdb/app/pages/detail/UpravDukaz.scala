@@ -9,6 +9,8 @@ import mdr.pdb.app.pages.detail.components.UpravDukazForm
 import fiftyforms.services.files.File
 import mdr.pdb.parameters.*
 import mdr.pdb.users.query.*
+import mdr.pdb.proof.command.CreateProof
+import mdr.pdb.proof.command.Authorized
 
 object UpravDukaz:
 
@@ -60,6 +62,18 @@ object UpravDukaz:
                 NavigateTo(Page.DetailKriteria(s._1, s._2, s._3))
               case UpravDukazForm.AvailableFilesRequested =>
                 FetchAvailableFiles(s._1.personalNumber)
+              case UpravDukazForm.Submitted(files) =>
+                SubmitProofCommand(
+                  CreateProof(
+                    "test",
+                    s._1.personalNumber,
+                    s._2.id,
+                    s._3.id,
+                    files.map(_.url),
+                    Authorized(None)
+                  ),
+                  Page.DetailKriteria(s._1, s._2, s._3)
+                )
             }
           )
         ),

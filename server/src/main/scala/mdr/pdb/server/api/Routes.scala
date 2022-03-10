@@ -11,6 +11,7 @@ import mdr.pdb.endpoints.Endpoints
 import mdr.pdb.users.query.api.UsersApi
 import mdr.pdb.proof.query.api.ProofQueryApi
 import mdr.pdb.proof.command.api.ProofCommandApi
+import org.http4s.HttpRoutes
 
 object Routes extends CustomTapir:
   import fiftyforms.tapir.InternalServerError
@@ -26,5 +27,7 @@ object Routes extends CustomTapir:
       ProofCommandApi.submitCommand.widen[AppEnv]
     )
 
-  val routes: AuthedRoutes[AppAuth, AppTask] =
-    Router("pdb/api" -> from(serverEndpoints).toRoutes).local(_.req)
+  //val routes: AuthedRoutes[AppAuth, AppTask] =
+  //  Router("pdb/api" -> from(serverEndpoints).toRoutes).local(_.req)
+  val routes: HttpRoutes[AppTask] =
+    Router("pdb/api" -> from(serverEndpoints).toRoutes)

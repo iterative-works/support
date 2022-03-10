@@ -18,14 +18,11 @@ import mdr.pdb.app.state.AppState
 import sttp.client3.*
 import fiftyforms.tapir.{CustomTapir, BaseUri}
 import mdr.pdb.users.query.client.UsersRepositoryLive
+import mdr.pdb.proof.command.client.ProofCommandApiLive
 
 @js.native
 @JSImport("stylesheets/main.css", JSImport.Namespace)
 object Css extends js.Any
-
-@js.native
-@JSImport("data/users.json", JSImport.Default)
-object mockUsers extends js.Object
 
 @js.native
 @JSImport("params/pdb-params.json", JSImport.Default)
@@ -53,7 +50,7 @@ object Main extends ZIOApp:
     AppConfig.layer.project(c => BaseUri(uri"${c.baseUrl}api/"))
 
   override val layer: ZLayer[ZIOAppArgs, Any, Environment] =
-    ZEnv.live >+> AppConfig.layer >+> baseUriLayer >+> sttpLayer >+> Routes.router >+> UsersRepositoryLive.layer >+> ApiLive.layer >+> state.AppStateLive.layer >+> LaminarAppLive.layer
+    ZEnv.live >+> AppConfig.layer >+> baseUriLayer >+> sttpLayer >+> Routes.router >+> UsersRepositoryLive.layer >+> ApiLive.layer >+> ProofCommandApiLive.layer >+> state.AppStateLive.layer >+> LaminarAppLive.layer
 
   override def run =
     for

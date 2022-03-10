@@ -7,6 +7,7 @@ import mdr.pdb.parameters.*
 sealed trait Action
 
 case object CheckOnlineState extends Action
+
 case object FetchDirectory extends Action
 case class FetchUserDetails(osc: OsobniCislo) extends Action
 case class FetchParameters(osc: OsobniCislo) extends Action
@@ -18,4 +19,10 @@ case class FetchParameterCriterion(
     page: (UserInfo, Parameter, ParameterCriterion) => Page
 ) extends Action
 case class FetchAvailableFiles(osc: OsobniCislo) extends Action
+
+case class SubmitProofCommand(
+    command: mdr.pdb.proof.command.Command,
+    next: Page
+) extends Action
+
 case class NavigateTo(page: Page) extends Action

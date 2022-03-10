@@ -3,6 +3,10 @@ package users.query
 
 import java.time.LocalDate
 
+sealed trait Criteria
+case object AllUsers extends Criteria
+case class UserWithOsobniCislo(osobniCislo: OsobniCislo) extends Criteria
+
 case class UserContract(
     rel: String,
     startDate: LocalDate,

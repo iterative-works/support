@@ -10,8 +10,10 @@ object Endpoints
     with CustomTapir
     with Codecs:
 
-  val list: Endpoint[Unit, Unit, ServerError, List[UserInfo], Any] =
+  val matching: Endpoint[Unit, Criteria, ServerError, List[UserInfo], Any] =
     endpoint
       .in("users")
+      .post
+      .in(jsonBody[Criteria])
       .out(jsonBody[List[UserInfo]])
       .errorOut(jsonBody[ServerError])

@@ -5,7 +5,7 @@ package command
 import java.time.LocalDate
 import java.time.Instant
 
-sealed trait Command:
+sealed trait Command extends CborSerializable:
   def id: Proof.Id
 
 sealed trait AuthorizeOption

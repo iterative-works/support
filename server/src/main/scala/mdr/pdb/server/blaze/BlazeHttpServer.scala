@@ -15,9 +15,10 @@ case class BlazeHttpServer(
     config: BlazeServerConfig,
     httpApp: HttpApplication
 ) extends HttpServer:
-  override def serve(): URIO[AppEnv, ExitCode] =
+  override def serve(): URIO[AppEnv & HttpSecurity, ExitCode] =
     for
-      routes <- httpApp.routes()
+      security <- ZIO.service[HttpSecurity]
+      routes <- httpApp.routes(security)
       server <- BlazeServerBuilder[AppTask]
         .bindHttp(config.port, config.host)
         .withHttpApp(routes.orNotFound)

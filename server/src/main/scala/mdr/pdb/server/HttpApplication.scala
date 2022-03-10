@@ -18,28 +18,26 @@ import org.pac4j.http4s.*
 import org.pac4j.core.profile.CommonProfile
 
 trait HttpApplication {
-  def routes(): UIO[HttpRoutes[AppTask]]
+  def routes(security: HttpSecurity): UIO[HttpRoutes[AppTask]]
 }
 
 object HttpApplicationLive {
-  val layer: URLayer[AppConfig & HttpSecurity, HttpApplication] =
-    (HttpApplicationLive(_, _)).toLayer[HttpApplication]
+  val layer: URLayer[AppConfig, HttpApplication] =
+    (HttpApplicationLive(_)).toLayer[HttpApplication]
 }
 
-case class HttpApplicationLive(
-    config: AppConfig,
-    security: HttpSecurity
-) extends HttpApplication:
+case class HttpApplicationLive(config: AppConfig) extends HttpApplication:
   import dsl.*
 
   val staticR = static.Routes(config)
   val apiR = api.Routes
 
-  def httpApp(appPath: String): HttpRoutes[AppTask] =
+  def httpApp(appPath: String, security: HttpSecurity): HttpRoutes[AppTask] =
     Router(
       security.route,
-      "/mdr" -> security.secure(apiR.routes <+> staticR.routes)
+      // "/mdr" -> security.secure(apiR.routes <+> staticR.routes)
+      "/mdr" -> (apiR.routes <+> staticR.routes)
     )
 
-  override def routes(): UIO[HttpRoutes[AppTask]] =
-    ZIO.succeed(httpApp(config.appPath))
+  override def routes(security: HttpSecurity): UIO[HttpRoutes[AppTask]] =
+    ZIO.succeed(httpApp(config.appPath, security))

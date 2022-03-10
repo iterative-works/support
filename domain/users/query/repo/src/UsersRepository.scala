@@ -4,14 +4,20 @@ package repo
 
 import zio.*
 
-trait UsersRepository:
-  def list: Task[List[UserInfo]]
-
 object UsersRepository:
-  def list: RIO[UsersRepository, List[UserInfo]] = ZIO.serviceWithZIO(_.list)
+  def matching(criteria: Criteria): RIO[UsersRepository, List[UserInfo]] =
+    ZIO.serviceWithZIO(_.matching(criteria))
+
+trait UsersRepository:
+  def matching(criteria: Criteria): Task[List[UserInfo]]
 
 case class MockUsersRepository(users: List[UserInfo]) extends UsersRepository:
-  def list: Task[List[UserInfo]] = ZIO.succeed(users)
+  def matching(criteria: Criteria): Task[List[UserInfo]] =
+    ZIO.succeed(
+      criteria match
+        case AllUsers                 => users
+        case UserWithOsobniCislo(osc) => users.filter(_.personalNumber == osc)
+    )
 
 object MockUsersRepository:
   val layer: TaskLayer[UsersRepository] =

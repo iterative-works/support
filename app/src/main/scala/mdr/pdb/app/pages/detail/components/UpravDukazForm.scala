@@ -7,13 +7,13 @@ import fiftyforms.ui.components.tailwind.form.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import fiftyforms.services.files.components.tailwind.FilePicker
-import mdr.pdb.parameters.command.*
 import fiftyforms.services.files.File
 
 object UpravDukazForm:
   sealed trait Event
   case object Cancelled extends Event
   case object AvailableFilesRequested extends Event
+  case class Submitted(files: List[File]) extends Event
   def apply(availableFilesStream: EventStream[List[File]])(
       updates: Observer[Event]
   ): HtmlElement =
@@ -35,6 +35,9 @@ object UpravDukazForm:
             tpe := "submit",
             cls := "disabled:bg-indigo-300 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
             disabled <-- files.signal.map(_.isEmpty),
+            composeEvents(onClick.preventDefault)(
+              _.sample(files.signal).map(Submitted(_))
+            ) --> updates,
             "Autorizovat"
           )
         )

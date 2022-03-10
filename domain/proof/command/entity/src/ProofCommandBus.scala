@@ -21,7 +21,7 @@ object ProofCommandBus:
         for
           timeout <- Task.attempt(
             Timeout.create(
-              system.settings.config.getDuration("proof-bus.timeout")
+              system.settings.config.getDuration("domain.proof.bus.timeout")
             )
           )
           // TODO: init only once

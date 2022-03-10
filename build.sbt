@@ -81,8 +81,8 @@ lazy val `mongo-support` = project
 lazy val `akka-persistence-support` = project
   .in(file("fiftyforms/akka-persistence"))
   .settings(
-    IWDeps.akka.libs.persistence,
-    libraryDependencies += "com.typesafe.akka" %% "akka-cluster-sharding-typed" % IWDeps.akka.V,
+    libraryDependencies += IWDeps.akka.modules.persistence.cross(CrossVersion.for3Use2_13),
+    libraryDependencies += "com.typesafe.akka" %% "akka-cluster-sharding-typed" % IWDeps.akka.V cross(CrossVersion.for3Use2_13),
     IWDeps.akka.profiles.eventsourcedJdbcProjection
   )
 
@@ -138,6 +138,8 @@ lazy val server = (project in file("server"))
     IWDeps.logbackClassic,
     IWDeps.http4sPac4J,
     IWDeps.pac4jOIDC,
+    libraryDependencies += "mysql" % "mysql-connector-java" % "8.0.28",
+    // libraryDependencies += "com.typesafe.akka" %% "akka-serialization-jackson" % IWDeps.akka.V,
     Docker / mappings ++= directory((app / viteBuild).value).map {
       case (f, p) => f -> s"/opt/docker/${p}"
     },
@@ -151,6 +153,7 @@ lazy val server = (project in file("server"))
       "APP_PATH" -> "/opt/docker/vite"
     ),
     reStart / envVars := Map(
+      "DB_HOST" -> "localhost",
       "APP_PATH" -> "../app/target/vite",
       "SECURITY_URLBASE" -> "http://localhost:8080",
       "SECURITY_DISCOVERYURI" -> "https://login.cmi.cz/auth/realms/MDRTest/.well-known/openid-configuration",
