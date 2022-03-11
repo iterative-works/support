@@ -8,9 +8,6 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := scala3Version
 
-// TODO: get rid of the nested empty directories in packages
-// MAYBE: get rid of src/main/scala, replace with less nested structure
-// We mostly know what kind of project it is, there is no need to have this by default
 lazy val proof = entityProject("proof", file("domain/proof"))
   .components(_.dependsOn(ui))
   .model(_.dependsOn(core))
@@ -81,8 +78,12 @@ lazy val `mongo-support` = project
 lazy val `akka-persistence-support` = project
   .in(file("fiftyforms/akka-persistence"))
   .settings(
-    libraryDependencies += IWDeps.akka.modules.persistence.cross(CrossVersion.for3Use2_13),
-    libraryDependencies += "com.typesafe.akka" %% "akka-cluster-sharding-typed" % IWDeps.akka.V cross(CrossVersion.for3Use2_13),
+    IWDeps.useZIO(Test),
+    IWDeps.zioJson,
+    IWDeps.zioConfig,
+    libraryDependencies += IWDeps.akka.modules.persistence
+      .cross(CrossVersion.for3Use2_13),
+    libraryDependencies += "com.typesafe.akka" %% "akka-cluster-sharding-typed" % IWDeps.akka.V cross (CrossVersion.for3Use2_13),
     IWDeps.akka.profiles.eventsourcedJdbcProjection
   )
 

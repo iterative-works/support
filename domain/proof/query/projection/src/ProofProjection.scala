@@ -16,26 +16,61 @@ import scala.concurrent.Future
 
 import zio.*
 import fiftyforms.akka.UnhandledEvent
+import akka.projection.jdbc.scaladsl.JdbcHandler
+import akka.projection.ProjectionId
+import akka.projection.slick.SlickProjection
+import akka.projection.slick.SlickHandler
+import slick.basic.DatabaseConfig
+import slick.jdbc.MySQLProfile
+import akka.projection.Projection
 
-class ProofProjection(system: ActorSystem[_]):
+object ProofProjection:
 
-  val sourceProvider: SourceProvider[Offset, EventEnvelope[ProofEvent]] =
-    EventSourcedProvider.eventsByTag[ProofEvent](
-      system,
-      readJournalPluginId = JdbcReadJournal.Identifier,
-      tag = ProofEvent.Tag
-    )
+  val live: ZLayer[ActorSystem[
+    ?
+  ] & ProofRepositoryWrite, Throwable, ProofProjection] =
+    (for
+      given ActorSystem[?] <- ZIO.service[ActorSystem[?]]
+      runtime <- ZIO.runtime[ProofRepositoryWrite]
+      sourceProvider <- Task
+        .attempt[SourceProvider[Offset, EventEnvelope[ProofEvent]]] {
+          EventSourcedProvider.eventsByTag[ProofEvent](
+            summon[ActorSystem[?]],
+            readJournalPluginId = JdbcReadJournal.Identifier,
+            tag = ProofEvent.Tag
+          )
+        }
+      dbConfig <- Task.attempt[DatabaseConfig[MySQLProfile]] {
+        DatabaseConfig.forConfig(
+          "projection.slick",
+          summon[ActorSystem[?]].settings.config
+        )
+      }
+      proj <- Task.attempt {
+        SlickProjection.exactlyOnce(
+          projectionId = ProjectionId("Proof", "proof"),
+          sourceProvider,
+          dbConfig,
+          handler = () => new ProofProjectionHandler(dbConfig, runtime)
+        )
+      }
+    yield ProofProjection(proj)).toLayer
 
+case class ProofProjection(projection: Projection[EventEnvelope[ProofEvent]])
+
+// TODO: extract TaskHandler with ZIO convertible to DBIO given runtime
 class ProofProjectionHandler(
-    tag: String,
-    system: ActorSystem[_],
+    dbConfig: DatabaseConfig[MySQLProfile],
     runtime: Runtime[ProofRepositoryWrite]
-) extends Handler[EventEnvelope[ProofEvent]]():
-  override def process(envelope: EventEnvelope[ProofEvent]): Future[Done] =
+) extends SlickHandler[EventEnvelope[ProofEvent]]():
+  import dbConfig.profile.api.*
+
+  override def process(envelope: EventEnvelope[ProofEvent]): DBIO[Done] =
     val prog: RIO[ProofRepositoryWrite, Done] = envelope.event.event match
       case ev: ProofCreated => createProof(envelope.event)
       case ev               => updateProof(envelope.event)
-    runtime.unsafeRunToFuture(prog)
+    // TODO: is there a better way?
+    DBIO.from(runtime.unsafeRunToFuture(prog))
 
   private def createProof(ev: ProofEvent): RIO[ProofRepositoryWrite, Done] =
     for

@@ -13,6 +13,9 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.typed.Cluster
 import akka.cluster.typed.Join
+import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
+import akka.projection.ProjectionBehavior
+import mdr.pdb.proof.query.projection.ProofProjection
 
 object Main extends ZIOAppDefault:
 
@@ -56,5 +59,18 @@ object Main extends ZIOAppDefault:
       server <- ZIO
         .service[HttpServer]
         .provideCustom(serverLayer)
-      _ <- server.serve().provideCustom(appEnvLayer >+> securityLayer)
+      _ <- (for
+        system <- ZIO.service[ActorSystem[?]]
+        _ <- ZIO.serviceWithZIO[ProofProjection] { pp =>
+          Task.attempt {
+            ShardedDaemonProcess(system).init[ProjectionBehavior.Command](
+              name = "proof",
+              numberOfInstances = 1,
+              behaviorFactory = _ => ProjectionBehavior(pp.projection),
+              stopMessage = ProjectionBehavior.Stop
+            )
+          }
+        }
+        _ <- server.serve()
+      yield ()).provideCustom(appEnvLayer >+> securityLayer)
     } yield ()
