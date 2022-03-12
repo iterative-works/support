@@ -1,8 +1,0 @@
-version: "3"
-services:
-  front:
-    image: docker.e-bs.cz/mdr-pdb-frontend-server:0.1.0-SNAPSHOT
-    environment:
-      APP_BASE: https://tc163.cmi.cz
-    ports:
-      - "19003:8080"
