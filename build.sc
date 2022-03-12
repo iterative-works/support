@@ -1,6 +1,7 @@
 import mill._, scalalib._, scalajslib._
 
 import $file.fiftyforms.{build => ff}, ff.support._
+import $file.fiftyforms.{domain => dmn}, dmn.DomainModule
 
 object core extends PureCrossSbtModule
 
@@ -9,86 +10,51 @@ object codecs extends PureCrossSbtModule {
   def moduleDeps = Seq(core, ff.tapir)
 }
 
-val coreCodecs = codecs
-
 object endpoints extends PureCrossSbtModule {
   def moduleDeps = Seq(core, codecs, ff.tapir)
 }
 
-val coreEndpoints = endpoints
-
 object domain extends Module {
-  trait DomainModule extends Module {
-    object shared extends Module {
-      object model extends PureCrossModule {
-        def moduleDeps = Seq(core)
-        def ivyDeps = Agg(Deps.zioPrelude)
-      }
-      object codecs extends PureCrossModule {
-        def moduleDeps = Seq(model, coreCodecs)
-        def ivyDeps = Agg(Deps.zioJson)
-      }
-    }
-
-    trait CommonProjects extends Module {
-      object model extends PureCrossModule {
-        def ivyDeps = Agg(Deps.zioPrelude)
-        def moduleDeps = Seq(shared.model, core)
-      }
-      object codecs extends PureCrossModule {
-        def moduleDeps =
-          Seq(coreCodecs, model, shared.model, shared.codecs, ff.tapir)
-      }
-      object endpoints extends PureCrossModule {
-        def ivyDeps = Agg(Deps.tapirCore, Deps.tapirZIOJson)
-        def moduleDeps = Seq(model, codecs, coreEndpoints)
-      }
-      object client extends CommonJSModule {
-        def moduleDeps = Seq(endpoints.js)
-      }
-      object components extends CommonJSModule {
-        def ivyDeps = Agg(
-          Deps.laminar,
-          Deps.laminextCore,
-          Deps.laminextUI,
-          Deps.laminextTailwind,
-          Deps.laminextValidationCore
-        )
-        def moduleDeps = Seq(ff.ui)
-      }
-    }
-
-    object query extends CommonProjects {
-      object api extends CommonModule {
-        def ivyDeps = Agg(Deps.zio, Deps.tapirZIOHttp4sServer)
-        def moduleDeps = Seq(repo, query.endpoints.jvm)
-      }
-      object repo extends CommonModule {
-        def ivyDeps = Agg(Deps.zio)
-        def moduleDeps = Seq(model.jvm, codecs.jvm, ff.mongo)
-      }
-      object projection extends CommonModule {
-        def moduleDeps = Seq(repo, ff.akkaPersistence)
-      }
-    }
-
-    object command extends CommonProjects {
-      object api extends CommonModule {
-        def ivyDeps = Agg(Deps.zio, Deps.tapirZIOHttp4sServer)
-        def moduleDeps = Seq(entity, command.endpoints.jvm)
-      }
-      object entity extends CommonModule {
-        def moduleDeps = Seq(model.jvm, codecs.jvm, ff.akkaPersistence)
-      }
-    }
+  trait MdrDomainModule extends DomainModule {
+    override def modelModules = Seq(core)
+    override def codecsModules = Seq(codecs)
+    override def endpointsModules = Seq(endpoints)
+    override def repoModules = Seq(ff.mongo)
   }
-
-  object proof extends DomainModule
-  object parameters extends DomainModule
-  object users extends DomainModule
+  object proof extends MdrDomainModule
+  object parameters extends MdrDomainModule
+  object users extends MdrDomainModule
 }
 
-object server extends CommonModule {
+object app extends CommonJSModule with SbtModule {
+  def ivyDeps = Agg(
+    Deps.zio,
+    Deps.laminar,
+    Deps.zioJson,
+    Deps.waypoint,
+    Deps.urlDsl,
+    Deps.laminextCore,
+    Deps.laminextUI,
+    Deps.laminextTailwind,
+    Deps.laminextValidationCore,
+    Deps.tapirSttpClient,
+    Deps.sttpClientCore
+  )
+
+  def moduleDeps = Seq(
+    core.js,
+    ff.ui,
+    domain.parameters.query.client,
+    domain.parameters.command.client,
+    domain.users.query.client,
+    domain.users.command.client,
+    domain.proof.query.client,
+    domain.proof.command.client,
+    endpoints.js
+  )
+}
+
+object server extends CommonModule with SbtModule {
   def moduleDeps = Seq(
     core.jvm,
     domain.parameters.query.api,

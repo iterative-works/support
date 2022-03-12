@@ -118,6 +118,6 @@ object Page:
       errorMessage: Option[String]
   ) extends Page("500", "Unexpected error", Some(Directory))
 
-  import mdr.pdb.json.Codecs.given
+  import mdr.pdb.codecs.Codecs.given
   given JsonEncoder[Page] = DeriveJsonEncoder.gen[Page]
   given JsonDecoder[Page] = DeriveJsonDecoder.gen[Page]
