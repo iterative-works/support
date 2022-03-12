@@ -36,14 +36,18 @@ object support {
 
     trait PlatformModule extends CommonModule {
       def platform: String
-      def millSourcePath = outer.millSourcePath
-      def ivyDeps = outer.ivyDeps() ++ (platform match {
+      override def millSourcePath = outer.millSourcePath
+      override def ivyDeps = outer.ivyDeps() ++ (platform match {
         case "js" => jsDeps()
         case _    => jvmDeps()
       })
-      def moduleDeps = outer.moduleDeps.collect {
-        case m: CrossPlatformModule => m.platformModule(platform)
-        case m: JavaModule          => m
+      override def moduleDeps = outer.moduleDeps.collect {
+        case m: CrossPlatformModule =>
+          platform match {
+            case "js" => m.js
+            case _    => m.jvm
+          }
+        case m: JavaModule => m
       }
     }
 
@@ -55,53 +59,35 @@ object support {
       def platform = "jvm"
     }
 
-    def platformModule(platform: String): JavaModule
+    val js: JsModule
+    val jvm: JvmModule
   }
 
   trait PureCrossModule extends CrossPlatformModule {
-    object js extends JsModule
-    object jvm extends JvmModule
-
-    def platformModule(platform: String): JavaModule = platform match {
-      case "js" => js
-      case _    => jvm
-    }
+    override object js extends JsModule
+    override object jvm extends JvmModule
   }
 
   trait PureCrossSbtModule extends CrossPlatformModule {
-    object js extends JsModule with SbtModule
-    object jvm extends JvmModule with SbtModule
-
-    def platformModule(platform: String): JavaModule = platform match {
-      case "js" => js
-      case _    => jvm
-    }
+    override object js extends JsModule with SbtModule
+    override object jvm extends JvmModule with SbtModule
   }
 
   trait FullCrossSbtModule extends CrossPlatformModule {
-    trait FullSources extends PlatformModule {
-      def sources = T.sources(
+    trait FullSources extends JavaModule { self: PlatformModule =>
+      override def sources = T.sources(
         millSourcePath / platform / "src" / "main" / "scala",
         millSourcePath / "shared" / "src" / "main" / "scala"
       )
 
-      def resources = T.sources(
+      override def resources = T.sources(
         millSourcePath / platform / "src" / "main" / "resources",
         millSourcePath / "shared" / "src" / "main" / "resources"
       )
     }
 
-    object js extends JsModule with FullSources {
-      def platform = "js"
-    }
-    object jvm extends JvmModule with FullSources {
-      def platform = "jvm"
-    }
-
-    def platformModule(platform: String): JavaModule = platform match {
-      case "js" => js
-      case _    => jvm
-    }
+    override object js extends JsModule with FullSources
+    override object jvm extends JvmModule with FullSources
   }
 
 }
