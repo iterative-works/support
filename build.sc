@@ -1,5 +1,7 @@
 import mill._, scalalib._, scalajslib._
 
+import scalajslib.api.ModuleKind
+
 import $file.fiftyforms.{build => ff}, ff.support._
 import $file.fiftyforms.{domain => dmn}, dmn.DomainModule
 
@@ -52,6 +54,8 @@ object app extends CommonJSModule with SbtModule {
     domain.proof.command.client,
     endpoints.js
   )
+
+  def moduleKind = ModuleKind.ESModule
 }
 
 object server extends CommonModule with SbtModule {

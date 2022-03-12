@@ -47,16 +47,20 @@ object support {
       }
     }
 
+    trait JsModule extends PlatformModule with CommonJSModule {
+      def platform = "js"
+    }
+
+    trait JvmModule extends PlatformModule {
+      def platform = "jvm"
+    }
+
     def platformModule(platform: String): JavaModule
   }
 
   trait PureCrossModule extends CrossPlatformModule {
-    object js extends PlatformModule {
-      def platform = "js"
-    }
-    object jvm extends PlatformModule {
-      def platform = "jvm"
-    }
+    object js extends JsModule
+    object jvm extends JvmModule
 
     def platformModule(platform: String): JavaModule = platform match {
       case "js" => js
@@ -65,12 +69,8 @@ object support {
   }
 
   trait PureCrossSbtModule extends CrossPlatformModule {
-    object js extends PlatformModule with SbtModule {
-      def platform = "js"
-    }
-    object jvm extends PlatformModule with SbtModule {
-      def platform = "jvm"
-    }
+    object js extends JsModule with SbtModule
+    object jvm extends JvmModule with SbtModule
 
     def platformModule(platform: String): JavaModule = platform match {
       case "js" => js
@@ -79,7 +79,7 @@ object support {
   }
 
   trait FullCrossSbtModule extends CrossPlatformModule {
-    trait FullPlatformModule extends PlatformModule {
+    trait FullSources extends PlatformModule {
       def sources = T.sources(
         millSourcePath / platform / "src" / "main" / "scala",
         millSourcePath / "shared" / "src" / "main" / "scala"
@@ -91,10 +91,10 @@ object support {
       )
     }
 
-    object js extends FullPlatformModule {
+    object js extends JsModule with FullSources {
       def platform = "js"
     }
-    object jvm extends FullPlatformModule {
+    object jvm extends JvmModule with FullSources {
       def platform = "jvm"
     }
 
