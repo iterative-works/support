@@ -3,8 +3,8 @@ package api
 
 import endpoints.Endpoints
 import repo.UsersRepository
-import fiftyforms.tapir.CustomTapir
-import fiftyforms.tapir.InternalServerError
+import works.iterative.tapir.CustomTapir
+import works.iterative.tapir.InternalServerError
 
 object UsersApi extends CustomTapir:
 

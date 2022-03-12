@@ -4,8 +4,8 @@ package client
 import endpoints.Endpoints
 
 import zio.*
-import fiftyforms.tapir.CustomTapir
-import fiftyforms.tapir.BaseUri
+import works.iterative.tapir.CustomTapir
+import works.iterative.tapir.BaseUri
 
 trait UsersRepository:
   def matching(criteria: Criteria): Task[List[UserInfo]]

@@ -10,7 +10,7 @@ import mdr.pdb.app.components.PageLink
 import mdr.pdb.app.pages.detail.components.DetailOsoby
 import mdr.pdb.parameters.*
 import mdr.pdb.app.pages.detail.components.SeznamParametru
-import fiftyforms.ui.components.tailwind.Color
+import works.iterative.ui.components.tailwind.Color
 
 object DetailPageConnector {
   trait AppState extends AppPage.AppState {

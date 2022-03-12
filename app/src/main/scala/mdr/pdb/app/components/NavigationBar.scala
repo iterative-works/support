@@ -1,9 +1,9 @@
 package mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.CustomAttrs.ariaCurrent
-import fiftyforms.ui.components.tailwind.Icons
-import fiftyforms.ui.components.tailwind.Avatar
+import works.iterative.ui.components.tailwind.CustomAttrs.ariaCurrent
+import works.iterative.ui.components.tailwind.Icons
+import works.iterative.ui.components.tailwind.Avatar
 import mdr.pdb.users.query.UserInfo
 import io.laminext.syntax.core.*
 

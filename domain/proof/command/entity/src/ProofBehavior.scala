@@ -11,7 +11,7 @@ import akka.actor.typed.ActorRef
 import akka.pattern.StatusReply
 import akka.Done
 
-import fiftyforms.akka.*
+import works.iterative.akka.*
 import akka.actor.typed.ActorSystem
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.cluster.sharding.typed.scaladsl.EntityContext

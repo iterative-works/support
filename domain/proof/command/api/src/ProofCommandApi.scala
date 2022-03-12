@@ -3,8 +3,8 @@ package api
 
 import endpoints.Endpoints
 import entity.ProofCommandBus
-import fiftyforms.tapir.CustomTapir
-import fiftyforms.tapir.InternalServerError
+import works.iterative.tapir.CustomTapir
+import works.iterative.tapir.InternalServerError
 
 object ProofCommandApi extends CustomTapir:
 

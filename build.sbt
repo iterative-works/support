@@ -44,8 +44,7 @@ lazy val endpoints = crossProject(JSPlatform, JVMPlatform)
   .in(file("endpoints"))
   .dependsOn(core, codecs, `tapir-support`)
 
-// TODO: move all from fiftyforms to iterative works
-lazy val ui = (project in file("fiftyforms/ui"))
+lazy val ui = (project in file("iw/ui"))
   .enablePlugins(ScalaJSPlugin)
   .settings(
     IWDeps.useZIO(Test),
@@ -60,13 +59,13 @@ lazy val ui = (project in file("fiftyforms/ui"))
   )
 
 lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
-  .in(file("fiftyforms/tapir"))
+  .in(file("iw/tapir"))
   .settings(IWDeps.tapirCore, IWDeps.tapirZIOJson, IWDeps.zioJson)
   .jsSettings(IWDeps.tapirSttpClient)
   .jvmSettings(IWDeps.tapirZIO, IWDeps.tapirZIOHttp4sServer)
 
 lazy val `mongo-support` = project
-  .in(file("fiftyforms/mongo"))
+  .in(file("iw/mongo"))
   .settings(
     IWDeps.useZIO(Test),
     IWDeps.zioJson,
@@ -76,7 +75,7 @@ lazy val `mongo-support` = project
   )
 
 lazy val `akka-persistence-support` = project
-  .in(file("fiftyforms/akka-persistence"))
+  .in(file("iw/akka-persistence"))
   .settings(
     IWDeps.useZIO(Test),
     IWDeps.zioJson,

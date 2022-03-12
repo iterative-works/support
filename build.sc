@@ -2,18 +2,18 @@ import mill._, scalalib._, scalajslib._
 
 import scalajslib.api.ModuleKind
 
-import $file.fiftyforms.{build => ff}, ff.support._
-import $file.fiftyforms.{domain => dmn}, dmn.DomainModule
+import $file.iw.{build => iw}, iw.support._
+import $file.iw.{domain => dmn}, dmn.DomainModule
 
 object core extends PureCrossSbtModule
 
 object codecs extends PureCrossSbtModule {
   def ivyDeps = Agg(Deps.zioJson)
-  def moduleDeps = Seq(core, ff.tapir)
+  def moduleDeps = Seq(core, iw.tapir)
 }
 
 object endpoints extends PureCrossSbtModule {
-  def moduleDeps = Seq(core, codecs, ff.tapir)
+  def moduleDeps = Seq(core, codecs, iw.tapir)
 }
 
 object domain extends Module {
@@ -21,7 +21,7 @@ object domain extends Module {
     override def modelModules = Seq(core)
     override def codecsModules = Seq(codecs)
     override def endpointsModules = Seq(endpoints)
-    override def repoModules = Seq(ff.mongo)
+    override def repoModules = Seq(iw.mongo)
   }
   object proof extends MdrDomainModule
   object parameters extends MdrDomainModule
@@ -45,7 +45,7 @@ object app extends CommonJSModule with SbtModule {
 
   def moduleDeps = Seq(
     core.js,
-    ff.ui,
+    iw.ui,
     domain.parameters.query.client,
     domain.parameters.command.client,
     domain.users.query.client,

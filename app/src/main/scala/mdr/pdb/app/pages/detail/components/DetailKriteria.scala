@@ -1,10 +1,10 @@
 package mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.CustomAttrs
-import fiftyforms.ui.components.tailwind.Icons
+import works.iterative.ui.components.tailwind.CustomAttrs
+import works.iterative.ui.components.tailwind.Icons
 import java.time.LocalDate
-import fiftyforms.ui.components.tailwind.Color
+import works.iterative.ui.components.tailwind.Color
 
 object DetailKriteria:
   case class ViewModel(

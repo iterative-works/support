@@ -1,11 +1,11 @@
 package mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.Color
-import fiftyforms.ui.components.tailwind.list.StackedList
-import fiftyforms.ui.components.tailwind.list.ListRow
-import fiftyforms.ui.components.tailwind.list.RowTag
-import fiftyforms.ui.components.tailwind.list.RowNext
+import works.iterative.ui.components.tailwind.Color
+import works.iterative.ui.components.tailwind.list.StackedList
+import works.iterative.ui.components.tailwind.list.ListRow
+import works.iterative.ui.components.tailwind.list.RowTag
+import works.iterative.ui.components.tailwind.list.RowNext
 import java.time.LocalDate
 
 object SeznamKriterii:

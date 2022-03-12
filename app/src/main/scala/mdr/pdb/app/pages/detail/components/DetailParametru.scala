@@ -1,7 +1,7 @@
 package mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.Color
+import works.iterative.ui.components.tailwind.Color
 
 object DetailParametru:
   case class ViewModel(

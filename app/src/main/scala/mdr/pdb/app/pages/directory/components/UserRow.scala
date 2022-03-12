@@ -2,7 +2,7 @@ package mdr.pdb.app.pages.directory.components
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.airstream.core.Signal
-import fiftyforms.ui.components.tailwind.Avatar
+import works.iterative.ui.components.tailwind.Avatar
 
 object UserRow:
   case class ViewModel(

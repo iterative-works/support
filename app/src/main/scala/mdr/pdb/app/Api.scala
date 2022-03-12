@@ -9,7 +9,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
-import fiftyforms.tapir.{CustomTapir, BaseUri}
+import works.iterative.tapir.{CustomTapir, BaseUri}
 import endpoints.Endpoints
 
 trait Api:

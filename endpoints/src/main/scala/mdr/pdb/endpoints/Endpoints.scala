@@ -1,7 +1,7 @@
 package mdr.pdb
 package endpoints
 
-import fiftyforms.tapir.CustomTapir
+import works.iterative.tapir.CustomTapir
 import sttp.tapir.Codec.PlainCodec
 import mdr.pdb.codecs.TapirCodecs
 

@@ -1,7 +1,7 @@
 package mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.list.{
+import works.iterative.ui.components.tailwind.list.{
   StackedList,
   ListRow,
   RowTag,
@@ -9,8 +9,8 @@ import fiftyforms.ui.components.tailwind.list.{
   IconText,
   RowNext
 }
-import fiftyforms.ui.components.tailwind.Color
-import fiftyforms.ui.components.tailwind.LinkSupport.*
+import works.iterative.ui.components.tailwind.Color
+import works.iterative.ui.components.tailwind.LinkSupport.*
 
 object SeznamParametru:
   type ViewModel = List[DetailParametru.ViewModel]

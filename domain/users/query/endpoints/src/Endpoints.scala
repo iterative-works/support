@@ -1,8 +1,8 @@
 package mdr.pdb.users.query
 package endpoints
 
-import fiftyforms.tapir.CustomTapir
-import fiftyforms.tapir.ServerError
+import works.iterative.tapir.CustomTapir
+import works.iterative.tapir.ServerError
 import mdr.pdb.users.query.codecs.Codecs
 
 object Endpoints

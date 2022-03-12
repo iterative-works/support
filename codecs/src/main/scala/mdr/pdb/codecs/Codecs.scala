@@ -2,7 +2,7 @@ package mdr.pdb
 package codecs
 
 import zio.json.*
-import fiftyforms.tapir.CustomTapir
+import works.iterative.tapir.CustomTapir
 
 trait Codecs extends JsonCodecs with TapirCodecs
 

@@ -1,7 +1,7 @@
 package mdr.pdb.app.pages.directory.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.Icons
+import works.iterative.ui.components.tailwind.Icons
 
 object SearchForm:
   sealed trait Action

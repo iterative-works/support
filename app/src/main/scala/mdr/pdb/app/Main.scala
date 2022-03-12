@@ -16,7 +16,7 @@ import zio.json.*
 import mdr.pdb.users.query.UserInfo
 import mdr.pdb.app.state.AppState
 import sttp.client3.*
-import fiftyforms.tapir.{CustomTapir, BaseUri}
+import works.iterative.tapir.{CustomTapir, BaseUri}
 import mdr.pdb.users.query.client.UsersRepositoryLive
 import mdr.pdb.proof.command.client.ProofCommandApiLive
 

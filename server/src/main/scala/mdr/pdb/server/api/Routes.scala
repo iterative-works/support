@@ -14,7 +14,7 @@ import mdr.pdb.proof.command.api.ProofCommandApi
 import org.http4s.HttpRoutes
 
 object Routes extends CustomTapir:
-  import fiftyforms.tapir.InternalServerError
+  import works.iterative.tapir.InternalServerError
 
   val alive: ZServerEndpoint[AppEnv, Any] =
     Endpoints.alive.zServerLogic(_ => ZIO.succeed("ok"))

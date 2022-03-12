@@ -7,7 +7,7 @@ import zio.config.*
 import org.mongodb.scala.*
 import org.mongodb.scala.model.Filters.*
 import org.bson.json.JsonObject
-import fiftyforms.mongo.MongoJsonRepository
+import works.iterative.mongo.MongoJsonRepository
 
 // TODO: extract common mongo repo config, just nest under mongo / <aggregateRoot>
 case class MongoProofConfig(db: String, collection: String)

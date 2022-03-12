@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import com.raquo.waypoint.Router
 import mdr.pdb.app.Page
 import mdr.pdb.app.Action
-import fiftyforms.ui.components.tailwind.Loading
+import works.iterative.ui.components.tailwind.Loading
 import io.laminext.syntax.core.*
 
 object PageLayout:

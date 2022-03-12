@@ -15,7 +15,7 @@ import akka.Done
 import scala.concurrent.Future
 
 import zio.*
-import fiftyforms.akka.UnhandledEvent
+import works.iterative.akka.UnhandledEvent
 import akka.projection.jdbc.scaladsl.JdbcHandler
 import akka.projection.ProjectionId
 import akka.projection.slick.SlickProjection

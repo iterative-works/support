@@ -2,12 +2,12 @@ package mdr.pdb.app.pages.detail.components
 
 import com.raquo.laminar.api.L.{*, given}
 import io.laminext.syntax.core.*
-import fiftyforms.ui.components.tailwind.CustomAttrs
-import fiftyforms.ui.components.tailwind.form.*
+import works.iterative.ui.components.tailwind.CustomAttrs
+import works.iterative.ui.components.tailwind.form.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import fiftyforms.services.files.components.tailwind.FilePicker
-import fiftyforms.services.files.File
+import works.iterative.services.files.components.tailwind.FilePicker
+import works.iterative.services.files.File
 
 object UpravDukazForm:
   sealed trait Event

@@ -1,7 +1,7 @@
 package mdr.pdb.app.components
 
 import com.raquo.laminar.api.L.{*, given}
-import fiftyforms.ui.components.tailwind.LinkSupport.*
+import works.iterative.ui.components.tailwind.LinkSupport.*
 import mdr.pdb.app.Page
 import mdr.pdb.app.Action
 import com.raquo.waypoint.Router

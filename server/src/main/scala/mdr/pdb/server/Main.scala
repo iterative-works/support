@@ -7,7 +7,7 @@ import zio.logging.backend.SLF4J
 import mdr.pdb.users.query.repo.*
 import mdr.pdb.proof.query.repo.*
 import mdr.pdb.proof.command.entity.*
-import fiftyforms.mongo.*
+import works.iterative.mongo.*
 import org.mongodb.scala.MongoClient
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors

@@ -2,9 +2,9 @@ package mdr.pdb
 package proof
 package query.endpoints
 
-import fiftyforms.tapir.CustomTapir
+import works.iterative.tapir.CustomTapir
 import mdr.pdb.proof.codecs.Codecs
-import fiftyforms.tapir.ServerError
+import works.iterative.tapir.ServerError
 import zio.json.JsonCodec
 import zio.json.DeriveJsonCodec
 
