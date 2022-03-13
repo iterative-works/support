@@ -5,6 +5,7 @@ import com.raquo.domtypes.generic.defs.attrs.AriaAttrs
 import com.raquo.laminar.api.L.svg.{*, given}
 import com.raquo.laminar.builders.SvgBuilders
 import com.raquo.laminar.keys.ReactiveSvgAttr
+import works.iterative.ui.components.tailwind.Macros
 
 // TODO: fix sizes, colors, hover and stuff, normalize and amend on call site
 object Icons:
@@ -16,7 +17,7 @@ object Icons:
 
     inline def bell(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         fill := "none",
         viewBox := "0 0 24 24",
@@ -32,7 +33,7 @@ object Icons:
 
     inline def `check-circle`(size: Int = defaultSize) =
       svg(
-        cls := s"w-${size} h-${size}",
+        cls := Macros.size(size),
         fill := "none",
         stroke := "currentColor",
         viewBox := "0 0 24 24",
@@ -47,7 +48,7 @@ object Icons:
 
     inline def `document-add`(size: Int = defaultSize) =
       svg(
-        cls := s"w-${size} h-${size}",
+        cls := Macros.size(size),
         fill := "none",
         stroke := "currentColor",
         viewBox := "0 0 24 24",
@@ -62,7 +63,7 @@ object Icons:
 
     inline def `external-link`(size: Int = defaultSize) =
       svg(
-        cls := s"w-${size} h-${size}",
+        cls := Macros.size(size),
         fill := "none",
         stroke := "currentColor",
         viewBox := "0 0 24 24",
@@ -77,7 +78,7 @@ object Icons:
 
     inline def menu(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         fill := "none",
         viewBox := "0 0 24 24",
@@ -93,7 +94,7 @@ object Icons:
 
     inline def `status-offline`(size: Int = defaultSize) =
       svg(
-        cls := s"w-${size} h-${size}",
+        cls := Macros.size(size),
         fill := "none",
         stroke := "currentColor",
         viewBox := "0 0 24 24",
@@ -109,7 +110,7 @@ object Icons:
 
     inline def user(size: Int = defaultSize) =
       svg(
-        cls := s"w-${size} h-${size}",
+        cls := Macros.size(size),
         fill := "none",
         stroke := "currentColor",
         viewBox := "0 0 24 24",
@@ -125,7 +126,7 @@ object Icons:
 
     inline def x(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         fill := "none",
         viewBox := "0 0 24 24",
@@ -146,7 +147,7 @@ object Icons:
 
     inline def users(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -158,7 +159,7 @@ object Icons:
 
     inline def `location-marker`(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -172,7 +173,7 @@ object Icons:
 
     inline def calendar(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -186,7 +187,7 @@ object Icons:
 
     inline def `chevron-right`(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -200,7 +201,7 @@ object Icons:
 
     inline def search(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -214,7 +215,7 @@ object Icons:
 
     inline def filter(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -228,7 +229,7 @@ object Icons:
 
     inline def `arrow-narrow-left`(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -242,7 +243,7 @@ object Icons:
 
     inline def home(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size}",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",
@@ -254,7 +255,7 @@ object Icons:
 
     inline def paperclip(size: Int = defaultSize) =
       svg(
-        cls := s"h-${size} w-${size} text-gray-400",
+        cls := Macros.size(size),
         xmlns := "http://www.w3.org/2000/svg",
         viewBox := "0 0 20 20",
         fill := "currentColor",

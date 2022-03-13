@@ -8,24 +8,25 @@ object support {
 
   trait CommonModule extends ScalaModule {
     def scalaVersion = "3.1.1"
-    def scalacOptions = Seq(
-      "-encoding",
-      "utf8",
-      "-deprecation",
-      "-explain-types",
-      "-explain",
-      "-feature",
-      "-language:experimental.macros",
-      "-language:higherKinds",
-      "-language:implicitConversions",
-      "-unchecked",
-      "-Xfatal-warnings",
-      "-Ykind-projector"
-    )
+    def scalacOptions = T {
+      super.scalacOptions() ++ Seq(
+        "-encoding",
+        "utf8",
+        "-deprecation",
+        "-explain-types",
+        "-feature",
+        "-language:experimental.macros",
+        "-language:higherKinds",
+        "-language:implicitConversions",
+        "-unchecked",
+        "-Xfatal-warnings",
+        "-Ykind-projector"
+      )
+    }
   }
 
   trait CommonJSModule extends CommonModule with ScalaJSModule {
-    def scalaJSVersion = "1.8.0"
+    def scalaJSVersion = "1.9.0"
   }
 
   trait CrossPlatformModule extends Module { outer =>
