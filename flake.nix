@@ -1,5 +1,5 @@
 {
-  description = "MDR Personální databáze";
+  description = "IW support";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
