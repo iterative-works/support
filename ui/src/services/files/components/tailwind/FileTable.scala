@@ -35,7 +35,7 @@ def FileTable(
         cls("font-medium cursor-pointer"),
         onClick.mapTo(()) --> toggleSelection,
         cls(if selected then "text-green-900" else "text-gray-200"),
-        Icons.outline.`check-circle`().amend(svg.cls := "mx-auto"),
+        Icons.outline.`check-circle`("w-6 h-6 mx-auto"),
         span(cls("sr-only"), if selected then "Vybráno" else "Nevybráno")
       ),
       td(
@@ -53,7 +53,7 @@ def FileTable(
           cls(
             "flex items-center space-x-4 text-indigo-600 hover:text-indigo-900"
           ),
-          Icons.outline.`external-link`(),
+          Icons.outline.`external-link`("w-6 h-6"),
           "Otevřít"
         )
       )

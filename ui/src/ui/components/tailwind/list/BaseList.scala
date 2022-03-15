@@ -138,5 +138,5 @@ trait NavigableList[RowData: Navigable, Page](using router: Router[Page])
   override protected def farRight: Modifier[HtmlElement] =
     div(
       cls := "flex-shrink-0",
-      Icons.solid.`chevron-right`().amend(svg.cls := "text-gray-400")
+      Icons.solid.`chevron-right`("w-6 h-6 text-gray-400")
     )

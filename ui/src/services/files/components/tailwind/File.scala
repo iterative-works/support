@@ -12,9 +12,7 @@ given Renderable[File] with
         cls("pl-3 pr-4 py-3 flex items-center justify-between text-sm"),
         div(
           cls("w-0 flex-1 flex items-center"),
-          Icons.solid
-            .paperclip()
-            .amend(svg.cls := "flex-shrink-0 text-gray-400"),
+          Icons.solid.paperclip("w-5 h-5 flex-shrink-0 text-gray-400"),
           span(cls("ml-2 flex-1 w-0 truncate"), m.name)
         ),
         a(

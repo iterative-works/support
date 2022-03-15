@@ -7,5 +7,5 @@ object RowNext:
   def render: HtmlElement =
     div(
       cls := "flex-shrink-0",
-      Icons.solid.`chevron-right`().amend(svg.cls := "text-gray-400")
+      Icons.solid.`chevron-right`("h-5 w-5 text-gray-400")
     )

@@ -14,6 +14,7 @@ object support {
         "utf8",
         "-deprecation",
         "-explain-types",
+        "-explain",
         "-feature",
         "-language:experimental.macros",
         "-language:higherKinds",

@@ -11,7 +11,7 @@ class Avatar($avatarImg: Signal[Option[String]]):
     div(
       cls := s"rounded-full text-indigo-200 bg-indigo-500 flex items-center justify-center",
       cls := Macros.size(size),
-      Icons.outline.user(size - 2)
+      Icons.outline.user(Macros.size(size - 2))
     )
 
   inline def avatarImage(size: Int): Signal[HtmlElement] =
