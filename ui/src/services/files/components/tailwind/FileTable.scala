@@ -4,6 +4,10 @@ package components.tailwind
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import works.iterative.ui.components.tailwind.Icons
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.time.ZoneId
+import java.util.Locale
 
 def FileTable(
     files: Signal[List[File]],
@@ -19,7 +23,9 @@ def FileTable(
     )
     tr(
       th(baseM, span(cls("sr-only"), "Vybrat")),
-      th(baseM, textH, "Název"),
+      th(baseM, textH, "Soubor"),
+      th(baseM, textH, "Kategorie"),
+      th(baseM, textH, "Vytvořen"),
       th(baseM, cls("relative"), span(cls("sr-only"), "Otevřít"))
     )
 
@@ -28,6 +34,12 @@ def FileTable(
       idx: Int,
       selected: Boolean
   )(toggleSelection: Observer[Unit]): HtmlElement =
+    val dateTimeFormat =
+      DateTimeFormatter
+        .ofLocalizedDateTime(FormatStyle.SHORT)
+        // TODO: locale
+        // .withLocale(Locale("cs", "CZ"))
+        .withZone(ZoneId.of("CET"))
     val baseC = cls("px-6 py-4 whitespace-nowrap text-sm")
     tr(
       cls(if idx % 2 == 0 then "bg-gray-50" else "bg-white"),
@@ -42,6 +54,18 @@ def FileTable(
         baseC,
         cls("font-medium text-gray-900"),
         f.name,
+        onClick.mapTo(()) --> toggleSelection
+      ),
+      td(
+        baseC,
+        cls("font-medium text-gray-600"),
+        f.category,
+        onClick.mapTo(()) --> toggleSelection
+      ),
+      td(
+        baseC,
+        cls("font-medium text-gray-600 text-right"),
+        dateTimeFormat.format(f.created),
         onClick.mapTo(()) --> toggleSelection
       ),
       td(

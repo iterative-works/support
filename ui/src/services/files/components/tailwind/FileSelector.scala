@@ -21,7 +21,7 @@ object FileSelector:
     selectionUpdates.onNext(AvailableFilesRequested)
     div(
       cls(
-        "inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle"
+        "inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-7xl sm:align-middle"
       ),
       role("dialog"),
       customHtmlAttr("aria.modal", BooleanAsTrueFalseStringCodec)(true),

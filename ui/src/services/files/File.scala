@@ -1,3 +1,5 @@
 package works.iterative.services.files
 
-case class File(url: String, name: String)
+import java.time.Instant
+
+case class File(url: String, name: String, category: String, created: Instant)
