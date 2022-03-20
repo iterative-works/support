@@ -13,12 +13,9 @@ object FileSelector:
 
   def apply(
       initialFiles: List[File],
-      availableFilesStream: EventStream[List[File]]
+      availableFiles: Signal[List[File]]
   )(selectionUpdates: Observer[Event]): HtmlElement =
     val selectedFiles = Var[Set[File]](initialFiles.to(Set))
-    val availableFiles = availableFilesStream.startWithNone
-    // Request the files to display
-    selectionUpdates.onNext(AvailableFilesRequested)
     div(
       cls(
         "inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-7xl sm:align-middle"
@@ -39,9 +36,7 @@ object FileSelector:
             )
           )
         ),
-        child <-- availableFiles
-          .split(_ => ())((_, _, af) => FileTable(af, selectedFiles))
-          .map(_.getOrElse(Loading))
+        FileTable(availableFiles, selectedFiles)
       ),
       div(
         cls("bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"),

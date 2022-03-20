@@ -9,11 +9,10 @@ object FilePicker:
   sealed trait DoneEvent extends Event
   case class SelectionUpdated(files: Set[File]) extends DoneEvent
   case object SelectionCancelled extends DoneEvent
-  case object AvailableFilesRequested extends Event
 
   def apply(
       currentFiles: Signal[List[File]],
-      availableFilesStream: EventStream[List[File]]
+      availableFiles: Signal[List[File]]
   )(selectionUpdates: Observer[Event]): HtmlElement =
     val (updatesStream, updatesObserver) = EventStream.withObserver[Event]
     val selectorOpen = Var[Boolean](false)
@@ -53,7 +52,7 @@ object FilePicker:
           overlay,
           browserCenteringModalTrick,
           child <-- currentFiles.map(
-            FileSelector(_, availableFilesStream)(updatesObserver)
+            FileSelector(_, availableFiles)(updatesObserver)
           )
         )
       )
