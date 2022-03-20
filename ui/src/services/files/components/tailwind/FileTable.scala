@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.ZoneId
 import java.util.Locale
+import ui.components.tailwind.TimeUtils
 
 def FileTable(
     files: Signal[List[File]],
@@ -34,12 +35,6 @@ def FileTable(
       idx: Int,
       selected: Boolean
   )(toggleSelection: Observer[Unit]): HtmlElement =
-    val dateTimeFormat =
-      DateTimeFormatter
-        .ofLocalizedDateTime(FormatStyle.SHORT)
-        // TODO: locale
-        // .withLocale(Locale("cs", "CZ"))
-        .withZone(ZoneId.of("CET"))
     val baseC = cls("px-6 py-4 whitespace-nowrap text-sm")
     tr(
       cls(if idx % 2 == 0 then "bg-gray-50" else "bg-white"),
@@ -65,7 +60,7 @@ def FileTable(
       td(
         baseC,
         cls("font-medium text-gray-600 text-right"),
-        dateTimeFormat.format(f.created),
+        TimeUtils.formatDateTime(f.created),
         onClick.mapTo(()) --> toggleSelection
       ),
       td(
