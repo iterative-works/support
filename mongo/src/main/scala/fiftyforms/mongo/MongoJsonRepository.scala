@@ -29,7 +29,7 @@ class MongoJsonRepository[Elem, Key, Criteria](
     toFilter: Criteria => Bson,
     idFilter: Elem => (String, Key)
 )(using JsonCodec[Elem]) {
-  def matching(criteria: Criteria): Task[Seq[Elem]] =
+  def matching(criteria: Criteria): Task[List[Elem]] =
     val filter = toFilter(criteria)
     val query = collection.find(filter)
 
@@ -38,7 +38,7 @@ class MongoJsonRepository[Elem, Key, Criteria](
       proof <- ZIO.collect(result)(j =>
         ZIO.fromOption(j.getJson.fromJson[Elem].toOption)
       )
-    yield proof
+    yield proof.to(List)
 
   def put(elem: Elem): Task[Unit] =
     Task.async(cb =>
