@@ -16,7 +16,11 @@ object MongoConfig:
     import ConfigDescriptor.*
     nested("MONGO")(string("URI").default("mongodb://localhost:27017"))
       .to[MongoConfig]
-  val fromEnv = ZConfig.fromSystemEnv(configDesc)
+  val fromEnv = ZConfig.fromSystemEnv(
+    configDesc,
+    keyDelimiter = Some('_'),
+    valueDelimiter = Some(',')
+  )
 
 extension (m: MongoClient.type)
   def layer: RLayer[MongoConfig, MongoClient] =
