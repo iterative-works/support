@@ -11,6 +11,12 @@ object RowTag:
 
     p(
       cls := "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
-      cls(colorClass(color)),
+      // cls(colorClass(color)),
+      cls := (color match {
+        case Color.red   => "text-red-800 bg-red-100"
+        case Color.amber => "text-amber-800 bg-amber-100"
+        case Color.green => "text-green-800 bg-green-100"
+        case _           => "text-gray-800 bg-gray-100"
+      }),
       text
     )
