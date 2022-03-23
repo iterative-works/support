@@ -4,18 +4,21 @@ package list
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom
 import com.raquo.laminar.builders.HtmlTag
+import com.raquo.laminar.nodes.ReactiveHtmlElement
 
-object ListRow:
-  case class ViewModel(
-      title: String,
-      topRight: Modifier[HtmlElement],
-      bottomLeft: Modifier[HtmlElement],
-      bottomRight: Modifier[HtmlElement],
-      farRight: Modifier[HtmlElement],
-      linkMods: Option[Modifier[Anchor]] = None
-  )
+trait AsListRow[A]:
+  extension (a: A) def asListRow: ListRow
 
-  def content(m: ViewModel): Modifier[HtmlElement] =
+final case class ListRow(
+    title: String,
+    topRight: Modifier[HtmlElement],
+    bottomLeft: Modifier[HtmlElement],
+    bottomRight: Modifier[HtmlElement],
+    farRight: Modifier[HtmlElement],
+    linkMods: Option[Modifier[Anchor]] = None
+) extends Component[org.scalajs.dom.html.LI]:
+
+  def content: Modifier[HtmlElement] =
     Seq(
       cls := "block hover:bg-gray-50",
       div(
@@ -26,29 +29,27 @@ object ListRow:
             cls := "flex items-center justify-between",
             p(
               cls := "text-sm font-medium text-indigo-600 truncate",
-              m.title
+              title
             ),
             div(
               cls := "ml-2 flex-shrink-0 flex",
-              m.topRight
+              topRight
             )
           ),
           div(
             cls := "mt-2 sm:flex sm:justify-between",
-            m.bottomLeft,
-            m.bottomRight
+            bottomLeft,
+            bottomRight
           )
         ),
-        m.farRight
+        farRight
       )
     )
 
-  def apply($m: Signal[ViewModel]): HtmlElement =
+  def element: ReactiveHtmlElement[org.scalajs.dom.html.LI] =
+    val c = content
     li(
-      child <-- $m.map { m =>
-        val c = content(m)
-        m.linkMods match
-          case Some(m) => a(m, c)
-          case _       => div(c)
-      }
+      linkMods match
+        case Some(m) => a(m, c)
+        case _       => div(c)
     )

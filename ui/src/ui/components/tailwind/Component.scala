@@ -1,4 +1,4 @@
-package ui
+package works.iterative.ui.components.tailwind
 
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom
