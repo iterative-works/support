@@ -8,6 +8,10 @@ import org.mongodb.scala.model.Filters.*
 import org.bson.json.JsonObject
 import org.mongodb.scala.model.ReplaceOptions
 import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.gridfs.GridFSBucket
+import java.io.File
+import java.nio.ByteBuffer
+import com.mongodb.client.gridfs.model.GridFSUploadOptions
 
 case class MongoConfig(uri: String)
 
@@ -28,21 +32,21 @@ extension (m: MongoClient.type)
       .serviceWithZIO[MongoConfig](c => Task.attempt(MongoClient(c.uri)))
       .toLayer
 
-class MongoJsonRepository[Elem, Key, Criteria](
+class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     collection: MongoCollection[JsonObject],
     toFilter: Criteria => Bson,
     idFilter: Elem => (String, Key)
-)(using JsonCodec[Elem]):
+):
   def matching(criteria: Criteria): Task[List[Elem]] =
     val filter = toFilter(criteria)
     val query = collection.find(filter)
 
     for
       result <- ZIO.fromFuture(_ => query.toFuture)
-      proof <- ZIO.collect(result)(j =>
+      elems <- ZIO.collect(result)(j =>
         ZIO.fromOption(j.getJson.fromJson[Elem].toOption)
       )
-    yield proof.to(List)
+    yield elems.to(List)
 
   def put(elem: Elem): Task[Unit] =
     Task.async(cb =>
@@ -54,3 +58,31 @@ class MongoJsonRepository[Elem, Key, Criteria](
         )
         .subscribe(_ => cb(Task.unit), t => cb(Task.fail(t)))
     )
+
+class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
+    bucket: GridFSBucket,
+    toFilter: Criteria => Bson
+):
+
+  def put(name: String, file: Array[Byte], metadata: Metadata): Task[Unit] =
+    ZIO
+      .fromFuture(_ =>
+        bucket
+          .uploadFromObservable(
+            name,
+            Observable(Seq(ByteBuffer.wrap(file))),
+            GridFSUploadOptions().metadata(Document(metadata.toJson))
+          )
+          .toFuture
+      )
+      .unit
+
+  def find(id: String): Task[Option[Array[Byte]]] =
+    ZIO
+      .fromFuture(_ => bucket.downloadToObservable(id).toFuture)
+      .map(_.headOption.map(_.array))
+
+  def matching(criteria: Criteria): Task[List[String]] =
+    ZIO
+      .fromFuture(_ => bucket.find(toFilter(criteria)).toFuture)
+      .map(_.map(_.getFilename).to(List))
