@@ -32,7 +32,7 @@ class MongoJsonRepository[Elem, Key, Criteria](
     collection: MongoCollection[JsonObject],
     toFilter: Criteria => Bson,
     idFilter: Elem => (String, Key)
-)(using JsonCodec[Elem]) {
+)(using JsonCodec[Elem]):
   def matching(criteria: Criteria): Task[List[Elem]] =
     val filter = toFilter(criteria)
     val query = collection.find(filter)
@@ -54,4 +54,3 @@ class MongoJsonRepository[Elem, Key, Criteria](
         )
         .subscribe(_ => cb(Task.unit), t => cb(Task.fail(t)))
     )
-}
