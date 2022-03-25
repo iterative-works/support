@@ -12,6 +12,8 @@ import org.mongodb.scala.gridfs.GridFSBucket
 import java.io.File
 import java.nio.ByteBuffer
 import com.mongodb.client.gridfs.model.GridFSUploadOptions
+import java.time.Instant
+import org.bson.types.ObjectId
 
 case class MongoConfig(uri: String)
 
@@ -59,6 +61,12 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
         .subscribe(_ => cb(Task.unit), t => cb(Task.fail(t)))
     )
 
+case class MongoFile(
+  id: String,
+  name: String,
+  created: Instant
+)
+
 class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
     bucket: GridFSBucket,
     toFilter: Criteria => Bson
@@ -79,10 +87,10 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
 
   def find(id: String): Task[Option[Array[Byte]]] =
     ZIO
-      .fromFuture(_ => bucket.downloadToObservable(id).toFuture)
+      .fromFuture(_ => bucket.downloadToObservable(ObjectId(id)).toFuture)
       .map(_.headOption.map(_.array))
 
-  def matching(criteria: Criteria): Task[List[String]] =
+  def matching(criteria: Criteria): Task[List[MongoFile]] =
     ZIO
       .fromFuture(_ => bucket.find(toFilter(criteria)).toFuture)
-      .map(_.map(_.getFilename).to(List))
+      .map(_.map(f => MongoFile(f.getObjectId.toString, f.getFilename, f.getUploadDate.toInstant)).to(List))
