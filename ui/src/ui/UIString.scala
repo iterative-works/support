@@ -11,9 +11,12 @@ opaque type UIString = String
 object UIString:
   def apply(s: String): UIString = s
 
-extension (ui: UIString) inline def toNode: TextNode = TextNode(ui)
+  extension (ui: UIString) inline def toNode: TextNode = TextNode(ui)
 
-extension (s: String) inline def ui: UIString = UIString(s)
+  extension (s: String) inline def ui: UIString = UIString(s)
 
-given Conversion[UIString, TextNode] with
-  def apply(ui: UIString): TextNode = ui.toNode
+  given Conversion[UIString, TextNode] with
+    def apply(ui: UIString): TextNode = ui.toNode
+  
+  given Conversion[UIString, String] with
+    inline def apply(ui: UIString): String = ui

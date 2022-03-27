@@ -6,6 +6,7 @@ import sttp.tapir.client.sttp.WebSocketToPipe
 import scala.concurrent.Future
 import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
+import scala.concurrent.ExecutionContext
 
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   self: CustomTapir =>
@@ -19,4 +20,14 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
       backend: Backend,
       wsToPipe: WebSocketToPipe[Any]
   ): I => Future[O] =
-    toClientThrowErrors(endpoint, baseUri.toUri, backend)
+    val req = toRequestThrowErrors(endpoint, baseUri.toUri)
+    (i: I) => {
+      val resp = backend.responseMonad.map(backend.send(req(i).followRedirects(false)))(_.body)
+      resp.onComplete {
+        case scala.util.Failure(e: RuntimeException) if e.getMessage == "Unexpected redirect" =>
+          // Reload window on redirect, as it means that we need to log in again
+          org.scalajs.dom.window.location.reload(true)
+        case _ => ()
+      }(using ExecutionContext.global)
+      resp
+    }
