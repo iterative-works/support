@@ -13,7 +13,8 @@ object FileSelector:
 
   def apply(
       initialFiles: List[File],
-      availableFiles: Signal[List[File]]
+      availableFiles: Signal[List[File]],
+      headerActions: Option[HtmlElement] = None
   )(selectionUpdates: Observer[Event]): HtmlElement =
     val selectedFiles = Var[Set[File]](initialFiles.to(Set))
     div(
@@ -26,7 +27,7 @@ object FileSelector:
       div(
         cls("bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4"),
         div(
-          cls("sm:flex sm:items-start"),
+          cls("sm:flex sm:items-start sm:justify-between"),
           div(
             cls("mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left"),
             h3(
@@ -34,9 +35,10 @@ object FileSelector:
               idAttr("modal-headline"),
               "Výběr souborů"
             )
-          )
+          ),
+          headerActions
         ),
-        FileTable(availableFiles, selectedFiles)
+        FileTable(availableFiles, Some(selectedFiles))
       ),
       div(
         cls("bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"),

@@ -12,9 +12,10 @@ import ui.components.tailwind.TimeUtils
 
 def FileTable(
     files: Signal[List[File]],
-    selectedFiles: Var[Set[File]]
+    maybeSelection: Option[Var[Set[File]]] = None
 ): HtmlElement =
   val scope = customHtmlAttr("scope", StringAsIsCodec)
+  val selectedFiles = maybeSelection.getOrElse(Var(Set.empty))
 
   def headerRow: HtmlElement =
     val col = scope("col")
@@ -23,7 +24,7 @@ def FileTable(
       "text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
     )
     tr(
-      th(baseM, span(cls("sr-only"), "Vybrat")),
+      maybeSelection.map(_ => th(baseM, span(cls("sr-only"), "Vybrat"))),
       th(baseM, textH, "Soubor"),
       th(baseM, textH, "Kategorie"),
       th(baseM, textH, "Vytvořen"),
@@ -38,12 +39,14 @@ def FileTable(
     val baseC = cls("px-6 py-4 whitespace-nowrap text-sm")
     tr(
       cls(if idx % 2 == 0 then "bg-gray-50" else "bg-white"),
-      td(
-        cls("font-medium cursor-pointer"),
-        onClick.mapTo(()) --> toggleSelection,
-        cls(if selected then "text-green-900" else "text-gray-200"),
-        Icons.outline.`check-circle`("w-6 h-6 mx-auto"),
-        span(cls("sr-only"), if selected then "Vybráno" else "Nevybráno")
+      maybeSelection.map(_ =>
+        td(
+          cls("font-medium cursor-pointer"),
+          onClick.mapTo(()) --> toggleSelection,
+          cls(if selected then "text-green-900" else "text-gray-200"),
+          Icons.outline.`check-circle`("w-6 h-6 mx-auto"),
+          span(cls("sr-only"), if selected then "Vybráno" else "Nevybráno")
+        )
       ),
       td(
         baseC,

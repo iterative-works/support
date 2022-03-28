@@ -12,7 +12,8 @@ object FilePicker:
 
   def apply(
       currentFiles: Signal[List[File]],
-      availableFiles: Signal[List[File]]
+      availableFiles: Signal[List[File]],
+      headerActions: Option[HtmlElement] = None
   )(selectionUpdates: Observer[Event]): HtmlElement =
     val (updatesStream, updatesObserver) = EventStream.withObserver[Event]
     val selectorOpen = Var[Boolean](false)
@@ -52,7 +53,7 @@ object FilePicker:
           overlay,
           browserCenteringModalTrick,
           child <-- currentFiles.map(
-            FileSelector(_, availableFiles)(updatesObserver)
+            FileSelector(_, availableFiles, headerActions)(updatesObserver)
           )
         )
       )
