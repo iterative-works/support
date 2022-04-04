@@ -3,7 +3,7 @@ package services.files.components.tailwind
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.Component
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import works.iterative.ui.{*, given}
+import works.iterative.ui.UIString.{*, given}
 import org.scalajs.dom.FileList
 
 class UploadButton(upload: Observer[FileList])
