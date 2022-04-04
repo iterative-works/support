@@ -26,45 +26,38 @@ def FileTable(
     tr(
       maybeSelection.map(_ => th(baseM, span(cls("sr-only"), "Vybrat"))),
       th(baseM, textH, "Soubor"),
-      th(baseM, textH, "Kategorie"),
-      th(baseM, textH, "Vytvořen"),
-      th(baseM, cls("relative"), span(cls("sr-only"), "Otevřít"))
+      th(baseM, cls("w-40"), textH, "Vytvořen"),
+      th(baseM, cls("w-32 relative"), span(cls("sr-only"), "Otevřít"))
     )
 
   def tableRow(
-      f: File,
-      idx: Int,
-      selected: Boolean
-  )(toggleSelection: Observer[Unit]): HtmlElement =
+      selected: File => Boolean,
+      toggleSelection: File => Observer[Unit]
+  )(
+      f: File
+  ): HtmlElement =
     val baseC = cls("px-6 py-4 whitespace-nowrap text-sm")
     tr(
-      cls(if idx % 2 == 0 then "bg-gray-50" else "bg-white"),
       maybeSelection.map(_ =>
         td(
           cls("font-medium cursor-pointer"),
-          onClick.mapTo(()) --> toggleSelection,
-          cls(if selected then "text-green-900" else "text-gray-200"),
+          onClick.mapTo(()) --> toggleSelection(f),
+          cls(if selected(f) then "text-green-900" else "text-gray-200"),
           Icons.outline.`check-circle`("w-6 h-6 mx-auto"),
-          span(cls("sr-only"), if selected then "Vybráno" else "Nevybráno")
+          span(cls("sr-only"), if selected(f) then "Vybráno" else "Nevybráno")
         )
       ),
       td(
         baseC,
         cls("font-medium text-gray-900"),
         f.name,
-        onClick.mapTo(()) --> toggleSelection
-      ),
-      td(
-        baseC,
-        cls("font-medium text-gray-600"),
-        f.category,
-        onClick.mapTo(()) --> toggleSelection
+        onClick.mapTo(()) --> toggleSelection(f)
       ),
       td(
         baseC,
         cls("font-medium text-gray-600 text-right"),
         TimeUtils.formatDateTime(f.created),
-        onClick.mapTo(()) --> toggleSelection
+        onClick.mapTo(()) --> toggleSelection(f)
       ),
       td(
         baseC,
@@ -81,6 +74,26 @@ def FileTable(
       )
     )
 
+  def category(
+      renderRow: File => HtmlElement
+  )(name: String, files: List[File]): Signal[List[HtmlElement]] =
+    val isOpen = Var[Boolean](false)
+    isOpen.signal.map(o =>
+      tr(
+        cls("border-t border-gray-200"),
+        th(
+          cls("cursor-pointer"),
+          onClick.mapTo(!o) --> isOpen,
+          colSpan(if (maybeSelection.isDefined) then 4 else 3),
+          scope("colgroup"),
+          cls(
+            "bg-gray-50 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6"
+          ),
+          name
+        )
+      ) :: (if o then files.map(renderRow) else Nil)
+    )
+
   div(
     cls("flex flex-col"),
     div(cls("overflow-x-auto sm:-mx-6 lg:-mx-8")),
@@ -95,17 +108,28 @@ def FileTable(
             headerRow
           ),
           tbody(
+            cls("bg-white"),
             children <-- files
-              .map(_.zipWithIndex)
               .combineWithFn(selectedFiles)((f, sel) =>
-                f.map((file, idx) =>
-                  val active = sel.contains(file)
-                  tableRow(file, idx, active)(
-                    selectedFiles.writer
-                      .contramap(_ => if active then sel - file else sel + file)
+                val active = sel.contains
+                val renderCategory = category(
+                  tableRow(
+                    active,
+                    file =>
+                      selectedFiles.writer.contramap(_ =>
+                        if active(file) then sel - file else sel + file
+                      )
                   )
                 )
+                Signal
+                  .combineSeq(
+                    f.groupBy(_.category)
+                      .to(List)
+                      .map(renderCategory(_, _))
+                  )
+                  .map(_.flatten)
               )
+              .flatten
           )
         )
       )
