@@ -16,6 +16,9 @@ def FileTable(
 ): HtmlElement =
   val scope = customHtmlAttr("scope", StringAsIsCodec)
   val selectedFiles = maybeSelection.getOrElse(Var(Set.empty))
+  val openCategories = Var[Set[String]](
+    maybeSelection.map(_.now().map(_.category)).getOrElse(Set.empty)
+  )
 
   def headerRow: HtmlElement =
     val col = scope("col")
@@ -77,13 +80,14 @@ def FileTable(
   def category(
       renderRow: File => HtmlElement
   )(name: String, files: List[File]): Signal[List[HtmlElement]] =
-    val isOpen = Var[Boolean](false)
-    isOpen.signal.map(o =>
+    openCategories.signal.map(o =>
       tr(
         cls("border-t border-gray-200"),
         th(
           cls("cursor-pointer"),
-          onClick.mapTo(!o) --> isOpen,
+          onClick.mapTo(
+            if o.contains(name) then o - name else o + name
+          ) --> openCategories,
           colSpan(if (maybeSelection.isDefined) then 4 else 3),
           scope("colgroup"),
           cls(
@@ -91,7 +95,7 @@ def FileTable(
           ),
           name
         )
-      ) :: (if o then files.map(renderRow) else Nil)
+      ) :: (if o.contains(name) then files.map(renderRow) else Nil)
     )
 
   div(
