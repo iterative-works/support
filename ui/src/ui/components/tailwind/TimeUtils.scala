@@ -16,5 +16,15 @@ object TimeUtils:
       // .withLocale(Locale("cs", "CZ"))
       .withZone(ZoneId.of("CET"))
 
+  val dateFormat =
+    DateTimeFormatter
+      .ofLocalizedDate(FormatStyle.SHORT)
+      // TODO: locale
+      // .withLocale(Locale("cs", "CZ"))
+      .withZone(ZoneId.of("CET"))
+
   def formatDateTime(i: TemporalAccessor): String =
     dateTimeFormat.format(i)
+
+  def formatDate(i: TemporalAccessor): String =
+    dateFormat.format(i)
