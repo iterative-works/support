@@ -10,7 +10,7 @@ trait AsListRow[A]:
   extension (a: A) def asListRow: ListRow
 
 final case class ListRow(
-    title: String,
+    title: HtmlElement,
     topRight: Modifier[HtmlElement],
     bottomLeft: Modifier[HtmlElement],
     bottomRight: Modifier[HtmlElement],
