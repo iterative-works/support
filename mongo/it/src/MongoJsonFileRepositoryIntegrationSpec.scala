@@ -18,10 +18,14 @@ object MongoJsonFileRepositoryIntegrationSpec extends DefaultRunnableSpec:
       for
         repo <- ZIO
           .service[MongoJsonFileRepository[ExampleMetadata, ExampleCriteria]]
-        _ <- repo.put("test.txt", "Example content".getBytes(), ExampleMetadata("10123"))
+        _ <- repo.put(
+          "test.txt",
+          "Example content".getBytes(),
+          ExampleMetadata("10123")
+        )
         byId <- repo.find("test.txt")
         result <- repo.matching(ByOsobniCislo("10123"))
-      yield assertTrue(byId.isDefined, result.head == "test.txt")
+      yield assertTrue(byId.isDefined, result.head.name == "test.txt")
     )
   ).provideCustomLayer(layer.mapError(TestFailure.fail))
 
