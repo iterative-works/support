@@ -16,6 +16,7 @@ object IWMaterials {
     val play = "2.8.8"
     val playJson = "2.9.2"
     val scalaTest = "3.2.9"
+    val slf4j = "1.7.36"
     val slick = "3.3.3"
     val sttpClient = "3.5.0"
     val tapir = "0.20.1"
@@ -41,7 +42,7 @@ object IWMaterials {
     lazy val zio: Dep = ivy"$zioOrg::zio:${V.zio}"
 
     lazy val zioTest: Dep = zioLib("test", V.zio)
-    lazy val zioTestSbt: Dep = zioLib("test", V.zio)
+    lazy val zioTestSbt: Dep = zioLib("test-sbt", V.zio)
 
     lazy val zioConfig: Dep = zioLib("config", V.zioConfig)
     lazy val zioConfigTypesafe: Dep =
@@ -58,6 +59,8 @@ object IWMaterials {
     lazy val zioZMX: Dep = zioLib("zmx", V.zioZMX)
     lazy val zioInteropCats: Dep =
       zioLib("interop-cats", V.zioInteropCats)
+
+    lazy val catsCore: Dep = ivy"org.typelevel::cats-core::${V.cats}"
 
     /* What is the equivalent? ZIOModule with prepared test config?
   def useZIO(testConf: Configuration*): Agg[Dep] = Agg(
@@ -93,7 +96,7 @@ object IWMaterials {
     lazy val tapirCats: Dep = tapirLib("cats")
     lazy val tapirZIOHttp4sServer: Dep = tapirLib("zio-http4s-server")
 
-    private val sttpClientOrg = "com.softwaremill.sttp.client3"
+    val sttpClientOrg = "com.softwaremill.sttp.client3"
     def sttpClientLib(name: String): Dep =
       ivy"${sttpClientOrg}::${name}:${V.sttpClient}"
 
