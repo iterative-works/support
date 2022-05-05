@@ -1,4 +1,4 @@
-package ui.components.tailwind
+package works.iterative.ui.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 
