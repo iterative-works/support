@@ -6,11 +6,16 @@ import works.iterative.ui.components.tailwind.TimeUtils
 import java.time.LocalDate
 import works.iterative.ui.components.tailwind.BaseHtmlComponent
 import works.iterative.ui.components.tailwind.HtmlRenderable
+import works.iterative.ui.components.tailwind.form.ActionButtons
+import works.iterative.ui.components.tailwind.HtmlComponent
+import works.iterative.ui.components.tailwind.form.ActionButton
 
-case class LeftAlignedInCard(
+case class LeftAlignedInCard[A](
     title: String,
     subtitle: String,
-    data: List[LeftAlignedInCard.OptionalLabeledValue]
+    data: List[LeftAlignedInCard.OptionalLabeledValue],
+    // TODO: a version without actions
+    actions: List[ActionButton[A]]
 )
 
 object LeftAlignedInCard:
@@ -21,16 +26,21 @@ object LeftAlignedInCard:
 
   trait AsValue[V]:
     extension (v: V) def labeled(n: UIString): OptionalLabeledValue
+
   given optionValue[V: HtmlRenderable]: AsValue[Option[V]] with
     extension (v: Option[V])
       def labeled(n: UIString): OptionalLabeledValue =
         OptionalLabeledValue(n, v.map(_.render))
+
   given [V: HtmlRenderable]: AsValue[V] with
     extension (v: V)
       def labeled(n: UIString): OptionalLabeledValue =
         OptionalLabeledValue(n, Some(v.render))
-  given leftAlignedInCardComponent: BaseHtmlComponent[LeftAlignedInCard] with
-    extension (d: LeftAlignedInCard)
+
+  given leftAlignedInCardComponent[A](using
+      HtmlComponent[_, ActionButtons[A]]
+  ): BaseHtmlComponent[LeftAlignedInCard[A]] with
+    extension (d: LeftAlignedInCard[A])
       def element: HtmlElement =
         div(
           cls := "bg-white shadow overflow-hidden sm:rounded-lg",
@@ -53,6 +63,13 @@ object LeftAlignedInCard:
                   )
                 )
               }
+            )
+          ),
+          div(
+            cls := "border-t border-gray-200 px-4 py-5 sm:p-0",
+            div(
+              cls := "px-4 py-5 sm:px-6",
+              ActionButtons(d.actions).element
             )
           )
         )
