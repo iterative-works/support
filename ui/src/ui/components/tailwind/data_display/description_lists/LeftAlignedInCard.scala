@@ -5,42 +5,30 @@ import works.iterative.ui.UIString
 import works.iterative.ui.components.tailwind.TimeUtils
 import java.time.LocalDate
 import works.iterative.ui.components.tailwind.BaseHtmlComponent
-
-case class OptionalLabeledValue(
-    label: UIString,
-    v: Option[Modifier[HtmlElement]]
-)
-
-object OptionalLabeledValue:
-  def makeValue[V](label: UIString, v: V)(using
-      r: OptionalValueRender[V]
-  ): OptionalLabeledValue = OptionalLabeledValue(label, r.render(v))
-
-trait OptionalValueRender[V]:
-  def render(v: V): Option[Modifier[HtmlElement]]
-
-object OptionalValueRender:
-  given stringValue: OptionalValueRender[String] with
-    def render(v: String): Option[Modifier[HtmlElement]] = Some(
-      v: Modifier[HtmlElement]
-    )
-  given dateValue: OptionalValueRender[LocalDate] with
-    def render(v: LocalDate): Option[Modifier[HtmlElement]] = Some(
-      TimeUtils.formatDate(v)
-    )
-  given optionValue[T](using
-      r: OptionalValueRender[T]
-  ): OptionalValueRender[Option[T]] with
-    def render(v: Option[T]): Option[Modifier[HtmlElement]] =
-      v.flatMap(r.render)
+import works.iterative.ui.components.tailwind.HtmlRenderable
 
 case class LeftAlignedInCard(
     title: String,
     subtitle: String,
-    data: List[OptionalLabeledValue]
+    data: List[LeftAlignedInCard.OptionalLabeledValue]
 )
 
 object LeftAlignedInCard:
+  case class OptionalLabeledValue(
+      label: UIString,
+      v: Option[Modifier[HtmlElement]]
+  )
+
+  trait AsValue[V]:
+    extension (v: V) def labeled(n: UIString): OptionalLabeledValue
+  given optionValue[V: HtmlRenderable]: AsValue[Option[V]] with
+    extension (v: Option[V])
+      def labeled(n: UIString): OptionalLabeledValue =
+        OptionalLabeledValue(n, v.map(_.render))
+  given [V: HtmlRenderable]: AsValue[V] with
+    extension (v: V)
+      def labeled(n: UIString): OptionalLabeledValue =
+        OptionalLabeledValue(n, Some(v.render))
   given leftAlignedInCardComponent: BaseHtmlComponent[LeftAlignedInCard] with
     extension (d: LeftAlignedInCard)
       def element: HtmlElement =
