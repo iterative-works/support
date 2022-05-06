@@ -1,10 +1,10 @@
 package works.iterative.ui.components.tailwind.data_display.description_lists
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.HtmlComponent
 import works.iterative.ui.UIString
 import works.iterative.ui.components.tailwind.TimeUtils
 import java.time.LocalDate
+import works.iterative.ui.components.tailwind.BaseHtmlComponent
 
 case class OptionalLabeledValue(
     label: UIString,
@@ -41,7 +41,7 @@ case class LeftAlignedInCard(
 )
 
 object LeftAlignedInCard:
-  given leftAlignedInCardComponent: HtmlComponent[LeftAlignedInCard] with
+  given leftAlignedInCardComponent: BaseHtmlComponent[LeftAlignedInCard] with
     extension (d: LeftAlignedInCard)
       def element: HtmlElement =
         div(

@@ -14,7 +14,7 @@ class StackedList[Item: AsListRow]:
     ul(
       role := "list",
       cls := "divide-y divide-gray-200",
-      items.map(d => d.asListRow)
+      items.map(d => d.asListRow.element)
     )
 
   def withMod(
@@ -24,7 +24,7 @@ class StackedList[Item: AsListRow]:
       role := "list",
       cls := "divide-y divide-gray-200",
       mods,
-      items.map(d => d.asListRow)
+      items.map(d => d.asListRow.element)
     )
 
   def grouped(items: List[Item], groupBy: Item => String): List[HtmlElement] =

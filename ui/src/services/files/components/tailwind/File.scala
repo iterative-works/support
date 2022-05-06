@@ -3,11 +3,11 @@ package components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.Icons
-import works.iterative.ui.components.tailwind.Renderable
+import works.iterative.ui.components.tailwind.HtmlRenderable
 
-given Renderable[File] with
+given HtmlRenderable[File] with
   extension (m: File)
-    def toHtml: HtmlElement =
+    def render: HtmlElement =
       li(
         cls("pl-3 pr-4 py-3 flex items-center justify-between text-sm"),
         div(

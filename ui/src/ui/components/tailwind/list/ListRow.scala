@@ -16,40 +16,44 @@ final case class ListRow(
     bottomRight: Modifier[HtmlElement],
     farRight: Modifier[HtmlElement],
     linkMods: Option[Modifier[Anchor]] = None
-) extends Component[org.scalajs.dom.html.LI]:
+)
 
-  def content: Modifier[HtmlElement] =
-    Seq(
-      cls := "block hover:bg-gray-50",
-      div(
-        cls := "px-4 py-4 sm:px-6 items-center flex",
-        div(
-          cls := "min-w-0 flex-1 pr-4",
+object ListRow:
+
+  given HtmlComponent[org.scalajs.dom.html.LI, ListRow] with
+    extension (r: ListRow)
+      def content: Modifier[HtmlElement] =
+        Seq(
+          cls := "block hover:bg-gray-50",
           div(
-            cls := "flex items-center justify-between",
-            p(
-              cls := "text-sm font-medium text-indigo-600 truncate",
-              title
-            ),
+            cls := "px-4 py-4 sm:px-6 items-center flex",
             div(
-              cls := "ml-2 flex-shrink-0 flex",
-              topRight
-            )
-          ),
-          div(
-            cls := "mt-2 sm:flex sm:justify-between",
-            bottomLeft,
-            bottomRight
+              cls := "min-w-0 flex-1 pr-4",
+              div(
+                cls := "flex items-center justify-between",
+                p(
+                  cls := "text-sm font-medium text-indigo-600 truncate",
+                  r.title
+                ),
+                div(
+                  cls := "ml-2 flex-shrink-0 flex",
+                  r.topRight
+                )
+              ),
+              div(
+                cls := "mt-2 sm:flex sm:justify-between",
+                r.bottomLeft,
+                r.bottomRight
+              )
+            ),
+            r.farRight
           )
-        ),
-        farRight
-      )
-    )
+        )
 
-  def element: ReactiveHtmlElement[org.scalajs.dom.html.LI] =
-    val c = content
-    li(
-      linkMods match
-        case Some(m) => a(m, c)
-        case _       => div(c)
-    )
+      def element: ReactiveHtmlElement[org.scalajs.dom.html.LI] =
+        val c = content
+        li(
+          r.linkMods match
+            case Some(m) => a(m, c)
+            case _       => div(c)
+        )
