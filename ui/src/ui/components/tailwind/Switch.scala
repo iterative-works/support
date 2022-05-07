@@ -1,9 +1,10 @@
-package ui.components.tailwind
+package works.iterative.ui.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
+import works.iterative.ui.UIString
 
 object Switch {
-  def apply(name: String, toggle: Var[Boolean]): HtmlElement =
+  def apply(toggle: Var[Boolean], name: Option[UIString] = None): HtmlElement =
     div(
       cls := "flex items-center",
       button(
@@ -26,10 +27,12 @@ object Switch {
           _.sample(toggle.signal).map(a => !a)
         ) --> toggle.writer
       ),
-      span(
-        cls := "ml-3",
-        idAttr := "active-only-label",
-        span(cls := "text-sm font-medium text-gray-900", name)
+      name.map(n =>
+        span(
+          cls := "ml-3",
+          idAttr := "active-only-label",
+          span(cls := "text-sm font-medium text-gray-900", n)
+        )
       )
     )
 }
