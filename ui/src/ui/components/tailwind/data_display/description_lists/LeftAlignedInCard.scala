@@ -65,11 +65,15 @@ object LeftAlignedInCard:
               }
             )
           ),
-          div(
-            cls := "border-t border-gray-200 px-4 py-5 sm:p-0",
-            div(
-              cls := "px-4 py-5 sm:px-6",
-              ActionButtons(d.actions).element
+          if d.actions.nonEmpty then
+            Some(
+              div(
+                cls := "border-t border-gray-200 px-4 py-5 sm:p-0",
+                div(
+                  cls := "px-4 py-5 sm:px-6",
+                  ActionButtons(d.actions).element
+                )
+              )
             )
-          )
+          else None
         )
