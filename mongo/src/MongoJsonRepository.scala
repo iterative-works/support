@@ -45,8 +45,15 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
 
     for
       result <- ZIO.fromFuture(_ => query.toFuture)
-      elems <- ZIO.collect(result)(j =>
-        ZIO.fromOption(j.getJson.fromJson[Elem].toOption)
+      decoded = result.map(r => r.getJson -> r.getJson.fromJson[Elem])
+      failed = decoded.collect { case (r, Left(msg)) =>
+        s"Unable to decode json : $msg\nJson value:\n$r\n"
+      }
+      elems = decoded.collect { case (_, Right(e)) =>
+        e
+      }
+      _ <- ZIO.logWarning(
+        s"Errors while reading json entries from MongoDB:\n${failed.mkString("\n")}"
       )
     yield elems.to(List)
 
@@ -62,9 +69,9 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     )
 
 case class MongoFile(
-  id: String,
-  name: String,
-  created: Instant
+    id: String,
+    name: String,
+    created: Instant
 )
 
 class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
@@ -93,4 +100,12 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
   def matching(criteria: Criteria): Task[List[MongoFile]] =
     ZIO
       .fromFuture(_ => bucket.find(toFilter(criteria)).toFuture)
-      .map(_.map(f => MongoFile(f.getObjectId.toString, f.getFilename, f.getUploadDate.toInstant)).to(List))
+      .map(
+        _.map(f =>
+          MongoFile(
+            f.getObjectId.toString,
+            f.getFilename,
+            f.getUploadDate.toInstant
+          )
+        ).to(List)
+      )
