@@ -18,14 +18,14 @@ object MongoJsonFileRepositoryIntegrationSpec extends DefaultRunnableSpec:
       for
         repo <- ZIO
           .service[MongoJsonFileRepository[ExampleMetadata, ExampleCriteria]]
+        fname = "Příliš žluťoučký kůň úpěl ďábelské ódy.txt"
         _ <- repo.put(
-          "test.txt",
+          fname,
           "Example content".getBytes(),
           ExampleMetadata("10123")
         )
-        byId <- repo.find("test.txt")
         result <- repo.matching(ByOsobniCislo("10123"))
-      yield assertTrue(byId.isDefined, result.head.name == "test.txt")
+      yield assertTrue(result.head.name == fname)
     )
   ).provideCustomLayer(layer.mapError(TestFailure.fail))
 
@@ -38,7 +38,7 @@ object MongoJsonFileRepositoryIntegrationSpec extends DefaultRunnableSpec:
     import org.mongodb.scala.gridfs.GridFSBucket
     MongoConfig.fromEnv >>> MongoClient.layer >>> (for
       client <- ZIO.service[MongoClient]
-      bucket <- Task.attempt(
+      bucket <- ZIO.attempt(
         GridFSBucket(client.getDatabase("test"), "testfiles")
       )
     yield new MongoJsonFileRepository[ExampleMetadata, ExampleCriteria](
