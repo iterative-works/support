@@ -5,17 +5,17 @@ case class ItemList(
 )
 
 case class ItemProp(
-    text: String,
+    text: OneLine,
     icon: Option[Icon] = None
 )
 
 case class ListSection(
-    title: String,
+    title: OneLine,
     items: List[ListItem]
 )
 
 case class ListItem(
-    title: String,
+    title: OneLine,
     href: String,
     label: Option[Label] = None,
     leftProps: List[ItemProp] = Nil,

@@ -24,7 +24,7 @@ object WithRightJustifiedSecondColumn:
           else ""
         ),
         prop.icon.map(_.element),
-        prop.text
+        prop.text.toString
       )
 
   val rightProp: HtmlComponent[org.scalajs.dom.html.Div, ItemProp] =
@@ -32,7 +32,7 @@ object WithRightJustifiedSecondColumn:
       div(
         cls("mt-2 flex items-center text-sm text-gray-500 sm:mt-0"),
         prop.icon.map(_.element),
-        prop.text
+        prop.text.toString
       )
 
   given HtmlComponent[Paragraph, Label] =
@@ -69,7 +69,7 @@ object WithRightJustifiedSecondColumn:
                 cls := "flex items-center justify-between",
                 p(
                   cls := "text-sm font-medium text-indigo-600 truncate",
-                  i.title
+                  i.title.toString
                 ),
                 div(
                   cls := "ml-2 flex-shrink-0 flex",
@@ -105,7 +105,7 @@ object WithRightJustifiedSecondColumn:
               cls(
                 "z-10 sticky top-0 border-t border-b border-gray-200 bg-gray-50 px-6 py-1 text-sm font-medium text-gray-500"
               ),
-              i.title
+              i.title.toString
             ),
             ul(
               role := "list",
