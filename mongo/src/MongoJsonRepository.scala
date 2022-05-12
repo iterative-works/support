@@ -52,9 +52,11 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
       elems = decoded.collect { case (_, Right(e)) =>
         e
       }
-      _ <- ZIO.logWarning(
-        s"Errors while reading json entries from MongoDB:\n${failed.mkString("\n")}"
-      )
+      _ <- ZIO
+        .logWarning(
+          s"Errors while reading json entries from MongoDB:\n${failed.mkString("\n")}"
+        )
+        .when(failed.nonEmpty)
     yield elems.to(List)
 
   def put(elem: Elem): Task[Unit] =
