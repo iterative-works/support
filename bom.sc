@@ -15,6 +15,7 @@ object IWMaterials {
     val pac4j = "5.2.0"
     val play = "2.8.8"
     val playJson = "2.9.2"
+    val refined = "0.9.29"
     val scalaTest = "3.2.9"
     val slf4j = "1.7.36"
     val slick = "3.3.3"
@@ -61,6 +62,8 @@ object IWMaterials {
       zioLib("interop-cats", V.zioInteropCats)
 
     lazy val catsCore: Dep = ivy"org.typelevel::cats-core::${V.cats}"
+
+    lazy val refined: Dep = ivy"eu.timepit::refined::${V.refined}"
 
     /* What is the equivalent? ZIOModule with prepared test config?
   def useZIO(testConf: Configuration*): Agg[Dep] = Agg(

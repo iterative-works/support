@@ -1,21 +1,24 @@
-package works.iterative.ui.model
+package works.iterative
+package ui.model
+
+import core.*
 
 case class ItemList(
     items: List[ListSection]
 )
 
 case class ItemProp(
-    text: OneLine,
+    text: PlainOneLine,
     icon: Option[Icon] = None
 )
 
 case class ListSection(
-    title: OneLine,
+    title: PlainOneLine,
     items: List[ListItem]
 )
 
 case class ListItem(
-    title: OneLine,
+    title: PlainOneLine,
     href: String,
     label: Option[Label] = None,
     leftProps: List[ItemProp] = Nil,

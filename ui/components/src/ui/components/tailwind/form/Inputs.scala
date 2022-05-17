@@ -1,26 +1,37 @@
 package works.iterative
 package ui.components.tailwind.form
 
-import com.raquo.laminar.api.L.{textArea => ta, *, given}
-import works.iterative.ui.components.tailwind.HtmlComponent
+import com.raquo.laminar.api.L.{*, given}
+import scala.scalajs.js
 import com.raquo.laminar.nodes.ReactiveHtmlElement
-import works.iterative.ui.model.Paragraph
-import works.iterative.ui.model.FormItem
-import org.scalajs.dom.html
+import java.time.LocalDate
 
 object Inputs:
 
-  def textArea(
-      updates: Observer[Option[Paragraph]]
-  ): HtmlComponent[html.TextArea, FormItem[Paragraph]] =
-    (i: FormItem[Paragraph]) =>
-      ta(
-        idAttr := i.id,
-        name := i.id,
-        rows := 5,
-        cls := "max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md",
-        value(i.value.toString),
-        onInput.mapToValue.setAsValue --> updates.contramap((v: String) =>
-          Option(v).map(_.trim).filter(_.nonEmpty).map(Paragraph(_))
-        )
-      )
+  private def inp[V](
+      prop: Property[V],
+      updates: Observer[Validated[V]],
+      inputType: String,
+      mods: Option[Modifier[Input]] = None
+  )(using codec: FormCodec[V]): Input =
+    input(
+      idAttr := prop.id,
+      name := prop.name,
+      tpe := inputType,
+      cls := "block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md",
+      prop.value.map(v => value(codec.toForm(v))),
+      onInput.mapToValue.setAsValue.map(v => codec.toValue(v)) --> updates
+    )
+
+  class PlainInput[V](using FormCodec[V]) extends FormInput[V]:
+    override def render(
+        prop: Property[V],
+        updates: Observer[Validated[V]]
+    ): Input = inp(prop, updates, "text")
+
+  class OptionDateInput extends FormInput[Option[LocalDate]]:
+    override def render(
+        prop: Property[Option[LocalDate]],
+        updates: Observer[Validated[Option[LocalDate]]]
+    ): Input =
+      inp(prop, updates, "date", Some(autoComplete("date")))

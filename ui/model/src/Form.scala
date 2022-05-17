@@ -1,16 +1,18 @@
 package works.iterative
 package ui.model
 
+import core.*
+
 case class FormItem[Value](
     id: String,
-    label: OneLine,
-    description: Option[Paragraph],
+    label: PlainOneLine,
+    description: Option[PlainMultiLine],
     value: Value
 )
 
 case class FormSection(
-    header: OneLine,
-    description: Option[Paragraph],
+    header: PlainOneLine,
+    description: Option[PlainMultiLine],
     items: List[FormItem[_]]
 )
 

@@ -25,17 +25,17 @@ object LeftAlignedInCard:
   )
 
   trait AsValue[V]:
-    extension (v: V) def labeled(n: UIString): OptionalLabeledValue
+    def toLabeled(n: UIString, v: V): OptionalLabeledValue
+    extension (v: V)
+      def labeled(n: UIString): OptionalLabeledValue = toLabeled(n, v)
 
   given optionValue[V: HtmlRenderable]: AsValue[Option[V]] with
-    extension (v: Option[V])
-      def labeled(n: UIString): OptionalLabeledValue =
-        OptionalLabeledValue(n, v.map(_.render))
+    def toLabeled(n: UIString, v: Option[V]): OptionalLabeledValue =
+      OptionalLabeledValue(n, v.map(_.render))
 
   given [V: HtmlRenderable]: AsValue[V] with
-    extension (v: V)
-      def labeled(n: UIString): OptionalLabeledValue =
-        OptionalLabeledValue(n, Some(v.render))
+    def toLabeled(n: UIString, v: V): OptionalLabeledValue =
+      OptionalLabeledValue(n, Some(v.render))
 
   given leftAlignedInCardComponent[A](using
       HtmlComponent[_, ActionButtons[A]]
