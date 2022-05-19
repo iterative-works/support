@@ -10,6 +10,7 @@ import works.iterative.ui.components.tailwind.form.ActionButtons
 import works.iterative.ui.components.tailwind.HtmlComponent
 import works.iterative.ui.components.tailwind.form.ActionButton
 
+// TODO: drop UI string, use MessageId, use builder like FormBuilder
 case class LeftAlignedInCard[A](
     title: String,
     subtitle: String,

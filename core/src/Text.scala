@@ -45,6 +45,21 @@ object PlainMultiLine:
   def optDirect(text: String): Option[PlainMultiLine] =
     Text.nonEmpty(text)
 
+  given string2plainMultiline: Conversion[String, Option[PlainMultiLine]] with
+    def apply(text: String): Option[PlainMultiLine] = optDirect(text)
+
+  given optString2PlainMultiline
+      : Conversion[Option[String], Option[PlainMultiLine]] with
+    def apply(text: Option[String]): Option[PlainMultiLine] =
+      text.flatMap(optDirect)
+
+  given plainMultiLine2String: Conversion[PlainMultiLine, String] with
+    def apply(p: PlainMultiLine): String = p.toString
+
+  given optionPlainMultiLine2OptionString
+      : Conversion[Option[PlainMultiLine], Option[String]] with
+    def apply(p: Option[PlainMultiLine]): Option[String] = p.map(_.toString)
+
   extension (p: PlainMultiLine) def toString: String = p
 
 opaque type PlainOneLine = String
