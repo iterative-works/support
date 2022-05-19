@@ -97,7 +97,7 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
   def find(id: String): Task[Option[Array[Byte]]] =
     ZIO
       .fromFuture(_ => bucket.downloadToObservable(ObjectId(id)).toFuture)
-      .map(_.headOption.map(_.array))
+      .map(r => if r.isEmpty then None else Some(r.map(_.array).reduce(_ ++ _)))
 
   def matching(criteria: Criteria): Task[List[MongoFile]] =
     ZIO
