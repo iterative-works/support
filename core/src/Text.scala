@@ -88,6 +88,9 @@ object PlainOneLine:
 
   def firstLineEmpty(text: String): PlainOneLine = firstLine(text, "")
 
+  given string2FirstLineEmpty: Conversion[String, PlainOneLine] =
+    firstLineEmpty(_)
+
   extension (p: PlainOneLine) def toString: String = p
 
 opaque type Markdown = String
