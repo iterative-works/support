@@ -4,6 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom
 import java.time.LocalDate
 import works.iterative.core.PlainMultiLine
+import java.time.Instant
 
 trait HtmlRenderable[A]:
   def toHtml(a: A): Modifier[HtmlElement]
@@ -16,6 +17,9 @@ object HtmlRenderable:
   given dateValue: HtmlRenderable[LocalDate] with
     def toHtml(v: LocalDate): Modifier[HtmlElement] =
       TimeUtils.formatDate(v)
+  given instantValue: HtmlRenderable[Instant] with
+    def toHtml(v: Instant): Modifier[HtmlElement] =
+      TimeUtils.formatDateTime(v)
   given plainMultiLineValue: HtmlRenderable[PlainMultiLine] with
     def toHtml(v: PlainMultiLine): Modifier[HtmlElement] =
       pre(v.toString)
