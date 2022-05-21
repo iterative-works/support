@@ -29,7 +29,17 @@ trait TailwindSupport:
       "text-red-800",
       "text-amber-800",
       "text-green-800",
+      "text-yellow-800",
       "bg-red-100",
       "bg-amber-100",
-      "bg-green-100"
+      "bg-green-100",
+      "bg-yellow-100",
+      "hover:bg-red-100",
+      "hover:bg-amber-100",
+      "hover:bg-green-100",
+      "hover:bg-yellow-100",
+      "bg-green-50",
+      "bg-amber-50",
+      "bg-red-50",
+      "bg-yellow-50"
     )

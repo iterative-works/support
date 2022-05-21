@@ -22,4 +22,8 @@ object HtmlRenderable:
       TimeUtils.formatDateTime(v)
   given plainMultiLineValue: HtmlRenderable[PlainMultiLine] with
     def toHtml(v: PlainMultiLine): Modifier[HtmlElement] =
-      pre(v.toString)
+      p(
+        v.split("\n")
+          .map(t => Seq(com.raquo.laminar.nodes.TextNode(t), br()))
+          .flatten: _*
+      )

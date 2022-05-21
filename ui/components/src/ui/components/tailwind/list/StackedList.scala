@@ -96,8 +96,10 @@ object StackedListWithRightJustifiedSecondColumn:
       text
     )
 
-  def link(mods: Modifier[Anchor])(content: HtmlElement): HtmlElement =
-    a(cls("block hover:bg-gray-50"), mods, content)
+  def link(mods: Modifier[Anchor], classes: String = "hover:bg-gray-50")(
+      content: HtmlElement
+  ): HtmlElement =
+    a(cls("block"), cls(classes), mods, content)
 
   def stickyHeader(
       header: Modifier[HtmlElement],
