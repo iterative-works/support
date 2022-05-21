@@ -6,15 +6,47 @@ import works.iterative.core.MessageId
 import works.iterative.ui.components.tailwind.HtmlComponent
 import works.iterative.ui.components.tailwind.ComponentContext
 
-case class ActionButton[A](
-    name: MessageId,
-    action: A
+case class ActionButtonStyle(
+    border: String,
+    colors: String,
+    text: String,
+    focus: String,
+    extra: String
 )
 
+// TODO: enum?
+object ActionButtonStyle:
+  val default = ActionButtonStyle(
+    "border border-gray-300",
+    "bg-white text-gray-700 hover:bg-gray-50",
+    "text-sm font-medium",
+    "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+    ""
+  )
+
+case class ActionButton[A](
+    name: MessageId,
+    action: A,
+    style: ActionButtonStyle = ActionButtonStyle.default
+):
+  def element(actions: Observer[A])(using ctx: ComponentContext): HtmlElement =
+    button(
+      tpe("button"),
+      cls("first:ml-0 ml-3"),
+      cls("py-2 px-4 rounded-md shadow-sm"),
+      cls(style.border),
+      cls(style.colors),
+      cls(style.text),
+      cls(style.extra),
+      cls(style.focus),
+      ctx
+        .messages(s"action.$name.title")
+        .getOrElse(s"action.$name.title"),
+      onClick.mapTo(action) --> actions
+    )
+
 // buttons to attach under for or detail cards
-case class ActionButtons[A](
-    actions: List[ActionButton[A]]
-)
+case class ActionButtons[A](actions: List[ActionButton[A]])
 
 object ActionButtons:
   class Component[A](actions: Observer[A])(using ctx: ComponentContext)
@@ -22,17 +54,5 @@ object ActionButtons:
     override def render(v: ActionButtons[A]) =
       div(
         cls("flex justify-end"),
-        v.actions.zipWithIndex.map { case (ActionButton(name, action), idx) =>
-          button(
-            tpe("button"),
-            cls(if idx == 0 then "" else "ml-3"),
-            cls(
-              "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            ),
-            ctx
-              .messages(s"action.$name.title")
-              .getOrElse(s"action.$name.title"),
-            onClick.mapTo(action) --> actions
-          )
-        }
+        v.actions.map(_.element(actions))
       )
