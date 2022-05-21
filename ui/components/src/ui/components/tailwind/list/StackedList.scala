@@ -69,13 +69,21 @@ object StackedListWithRightJustifiedSecondColumn:
   def tag(text: String, color: Color): Tag =
     p(
       cls("px-2 inline-flex text-xs leading-5 font-semibold rounded-full"),
+      cls(
+        // TODO: color.bg(weight) does not render the weight
+        color.toCSSWithColorWeight("bg", ColorWeight.w100),
+        color.toCSSWithColorWeight("text", ColorWeight.w800)
+      ),
       text
     )
+
+  def leftProp(text: String, icon: SvgElement): LeftProp =
+    leftProp(text, Some(icon))
 
   def leftProp(text: String, icon: Option[SvgElement] = None): LeftProp =
     p(
       cls(
-        "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6"
+        "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 first:sm:ml-0 sm:ml-6"
       ),
       icon,
       text
@@ -88,12 +96,37 @@ object StackedListWithRightJustifiedSecondColumn:
       text
     )
 
-  private def item(i: Item): Div = item(i, None)
+  def link(mods: Modifier[Anchor])(content: HtmlElement): HtmlElement =
+    a(cls("block hover:bg-gray-50"), mods, content)
 
-  private def item(i: Item, extraClasses: Option[String]): Div =
+  def stickyHeader(
+      header: Modifier[HtmlElement],
+      content: Modifier[HtmlElement]
+  ): HtmlElement =
+    div(
+      cls("relative"),
+      cls("bg-white shadow overflow-hidden sm:rounded-md"),
+      h3(
+        cls("z-10 sticky top-0"),
+        cls(
+          "border-t border-b border-gray-200 px-6 py-1 bg-gray-50 text-sm font-medium text-gray-500"
+        ),
+        header
+      ),
+      content
+    )
+
+  def stickyHeaderToggle(text: String, content: Seq[HtmlElement]): HtmlElement =
+    Toggle(ctx =>
+      stickyHeader(
+        Seq[Modifier[HtmlElement]](text, ctx.trigger),
+        children <-- ctx.toggle(content)
+      )
+    )
+
+  private def item(i: Item): Div =
     div(
       cls := "px-4 py-4 sm:px-6 items-center flex",
-      extraClasses.map(cls(_)),
       div(
         cls := "min-w-0 flex-1 pr-4",
         div(
@@ -103,30 +136,11 @@ object StackedListWithRightJustifiedSecondColumn:
         ),
         div(
           cls := "mt-2 sm:flex sm:justify-between",
-          div(
-            cls("sm:flex"),
-            i.leftProps
-          ),
+          div(cls("sm:flex"), i.leftProps),
           i.rightProp
         )
       )
     )
-
-  private def headerFrame(text: String): Seq[HtmlElement] => Div =
-    content =>
-      Toggle(ctx =>
-        div(
-          cls("relative"),
-          h3(
-            cls(
-              "z-10 sticky top-0 border-t border-b border-gray-200 bg-gray-50 px-6 py-1 text-sm font-medium text-gray-500"
-            ),
-            text,
-            ctx.trigger
-          ),
-          children <-- ctx.toggle(content)
-        )
-      )
 
   private def frame: Seq[HtmlElement] => Div =
     el =>
@@ -135,11 +149,5 @@ object StackedListWithRightJustifiedSecondColumn:
         ul(role("list"), cls("divide-y divide-gray-200"), el)
       )
 
-  def apply[A](f: this.type => A => Item): Items[A] =
-    Items(frame, item).contramap(f(this))
-
-  def grouped[A](f: this.type => A => Item): GroupedItems[String, A] =
-    GroupedItems(
-      frame,
-      k => Items(headerFrame(k), item(_, Some("relative"))).contramap(f(this))
-    )
+  def apply[A](f: A => Item): Items[A] =
+    Items(frame, item).contramap(f)
