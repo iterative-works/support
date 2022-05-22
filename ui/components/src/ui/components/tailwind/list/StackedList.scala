@@ -5,7 +5,6 @@ import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import works.iterative.ui.components.headless.Items
-import works.iterative.ui.components.headless.GroupedItems
 import works.iterative.ui.components.headless.Toggle
 
 class StackedList[Item: AsListRow]:
