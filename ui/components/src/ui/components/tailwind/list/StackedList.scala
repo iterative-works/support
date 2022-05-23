@@ -59,10 +59,26 @@ object StackedListWithRightJustifiedSecondColumn:
       rightProp: Option[RightProp] = None
   )
 
-  def title(text: String): Title =
+  def title(text: String, mod: Option[Modifier[HtmlElement]] = None): Title =
     p(
       cls := "text-sm font-medium text-indigo-600 truncate",
+      mod,
       text
+    )
+
+  case class TagInfo(text: String, color: Color)
+
+  def tag(t: Signal[TagInfo]): Tag =
+    p(
+      cls("px-2 inline-flex text-xs leading-5 font-semibold rounded-full"),
+      cls <-- t.map(c => {
+        // TODO: color.bg(weight) does not render the weight
+        List(
+          c.color.toCSSWithColorWeight("bg", ColorWeight.w100),
+          c.color.toCSSWithColorWeight("text", ColorWeight.w800)
+        ).mkString(" ")
+      }),
+      child.text <-- t.map(_.text)
     )
 
   def tag(text: String, color: Color): Tag =
@@ -86,6 +102,12 @@ object StackedListWithRightJustifiedSecondColumn:
       ),
       icon,
       text
+    )
+
+  def rightProp(text: Signal[String]): RightProp =
+    div(
+      cls("mt-2 flex items-center text-sm text-gray-500 sm:mt-0"),
+      child.text <-- text
     )
 
   def rightProp(text: String, icon: Option[SvgElement] = None): RightProp =
