@@ -4,6 +4,7 @@ import com.raquo.laminar.api.L.{*, given}
 
 object FormHeader:
   case class ViewModel(header: String, description: String)
+  @deprecated("use LabelsOnLeft.header")
   def apply(m: ViewModel): HtmlElement =
     div(
       h3(cls := "text-lg leading-6 font-medium text-gray-900", m.header),

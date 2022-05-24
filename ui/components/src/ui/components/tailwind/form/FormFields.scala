@@ -5,6 +5,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom
 
 object FormFields:
+  @deprecated("use LabelsOnLeft.fields")
   def apply(
       mods: Modifier[ReactiveHtmlElement[dom.HTMLElement]]*
   ): HtmlElement =

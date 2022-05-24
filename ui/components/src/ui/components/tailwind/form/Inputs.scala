@@ -13,7 +13,7 @@ object Inputs:
       updates: Observer[Validated[V]],
       inputType: String,
       mods: Option[Modifier[Input]] = None
-  )(using codec: FormCodec[V]): Input =
+  )(using codec: FormCodec[V, String]): Input =
     input(
       idAttr := prop.id,
       name := prop.name,
@@ -23,7 +23,7 @@ object Inputs:
       onInput.mapToValue.setAsValue.map(v => codec.toValue(v)) --> updates
     )
 
-  class PlainInput[V](using FormCodec[V]) extends FormInput[V]:
+  class PlainInput[V](using FormCodec[V, String]) extends FormInput[V]:
     override def render(
         prop: Property[V],
         updates: Observer[Validated[V]]

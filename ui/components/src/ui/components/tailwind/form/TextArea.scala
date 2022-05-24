@@ -7,7 +7,7 @@ import org.scalajs.dom.html
 
 class TextArea[V](
     initialRows: Int = 5
-)(using codec: FormCodec[V])
+)(using codec: FormCodec[V, String])
     extends FormInput[V]:
   override def render(
       prop: Property[V],
