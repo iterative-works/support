@@ -100,7 +100,7 @@ object StackedListWithRightJustifiedSecondColumn:
       cls(
         "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 first:sm:ml-0 sm:ml-6"
       ),
-      icon,
+      icon.map(_.amend(svg.cls("mr-1.5"))),
       text
     )
 
