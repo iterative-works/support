@@ -32,18 +32,19 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
       baseUri: BaseUri,
       backend: Backend,
       wsToPipe: WebSocketToPipe[Any]
-  ): I => Future[O] =
+  ): I => Task[O] =
     val req = toRequestThrowErrors(endpoint, baseUri.toUri)
-    (i: I) => {
-      val resp = backend.responseMonad.map(
-        backend.send(req(i).followRedirects(false))
-      )(_.body)
-      resp.onComplete {
-        case scala.util.Failure(e: RuntimeException)
-            if e.getMessage == "Unexpected redirect" =>
-          // Reload window on redirect, as it means that we need to log in again
-          org.scalajs.dom.window.location.reload(true)
-        case _ => ()
-      }(using ExecutionContext.global)
-      resp
-    }
+    (i: I) =>
+      ZIO.fromFuture { implicit ec =>
+        val resp = backend.responseMonad.map(
+          backend.send(req(i).followRedirects(false))
+        )(_.body)
+        resp.onComplete {
+          case scala.util.Failure(e: RuntimeException)
+              if e.getMessage == "Unexpected redirect" =>
+            // Reload window on redirect, as it means that we need to log in again
+            org.scalajs.dom.window.location.reload(true)
+          case _ => ()
+        }
+        resp
+      }

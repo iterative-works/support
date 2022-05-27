@@ -104,6 +104,7 @@ object IWMaterials {
       ivy"${sttpClientOrg}::${name}:${V.sttpClient}"
 
     lazy val sttpClientCore: Dep = sttpClientLib("core")
+    lazy val sttpClientZIO: Dep = sttpClientLib("httpclient-backend-zio")
 
     lazy val http4sBlazeServer: Dep =
       ivy"org.http4s::http4s-blaze-server:${V.http4s}"
