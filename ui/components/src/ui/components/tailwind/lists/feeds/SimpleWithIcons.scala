@@ -8,6 +8,7 @@ import java.time.temporal.TemporalAccessor
 import java.text.DateFormat
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
 import java.time.format.DateTimeFormatter
+import java.time.ZoneId
 
 object SimpleWithIcons:
   def simpleDate(i: TemporalAccessor): HtmlElement =
@@ -15,24 +16,31 @@ object SimpleWithIcons:
       customHtmlAttr(
         "datetime",
         StringAsIsCodec
-      ) := DateTimeFormatter.ISO_LOCAL_DATE.format(i),
+      ) := DateTimeFormatter.ISO_LOCAL_DATE
+        .withZone(ZoneId.of("CET"))
+        .format(i),
       TimeUtils.formatDate(i)
     )
 
   def item(
       icon: SvgElement,
       text: HtmlElement,
-      date: HtmlElement
+      date: HtmlElement,
+      last: Boolean
   ): HtmlElement =
     li(
       div(
         cls("relative pb-8"),
-        span(
-          cls(
-            "absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-          ),
-          aria.hidden := true
-        ),
+        if !last then
+          Some(
+            span(
+              cls(
+                "absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+              ),
+              aria.hidden := true
+            )
+          )
+        else None,
         div(
           cls("relative flex space-x-3"),
           div(
@@ -52,4 +60,4 @@ object SimpleWithIcons:
       )
     )
   def apply(items: Seq[HtmlElement]): HtmlElement =
-    div(cls("flow-root"), ul(role("list"), cls("-mb-8")), items)
+    div(cls("flow-root"), ul(role("list"), cls("-mb-8"), items))
