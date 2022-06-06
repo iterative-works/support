@@ -11,7 +11,7 @@ class Avatar($avatarImg: Signal[Option[String]]):
       iconClasses: String
   ): HtmlElement =
     div(
-      cls := s"rounded-full text-indigo-200 bg-indigo-500 flex items-center justify-center",
+      cls := s"rounded-full text-indigo-200 bg-indigo-600 flex items-center justify-center",
       cls := extraClasses,
       Icons.outline.user(iconClasses)
     )
