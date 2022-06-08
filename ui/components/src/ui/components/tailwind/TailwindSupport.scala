@@ -46,6 +46,7 @@ trait TailwindSupport:
       "bg-amber-50",
       "bg-red-50",
       "bg-yellow-50",
+      "bg-gray-600",
       "bg-red-600",
       "bg-orange-600",
       "bg-amber-600",
