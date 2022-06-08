@@ -50,7 +50,7 @@ object SimpleCards:
 
   def body(
       title: HtmlElement,
-      subtitle: String,
+      subtitle: HtmlElement,
       button: Option[Button] = None
   ): HtmlElement = div(
     cls := "flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate",
