@@ -7,7 +7,6 @@ import com.raquo.laminar.api.L.SvgElement
 import com.raquo.laminar.builders.SvgBuilders
 import com.raquo.laminar.keys.ReactiveSvgAttr
 import com.raquo.domtypes.generic.codecs.StringAsIsCodec
-import works.iterative.ui.model.Icon
 import com.raquo.laminar.nodes.ReactiveSvgElement
 
 object Icons:
@@ -355,12 +354,4 @@ object Icons:
       )
 
   end solid
-
-  class IconComponent(extraClasses: String)
-      extends SvgComponent[org.scalajs.dom.svg.Element, Icon]:
-    def render(i: Icon): SvgElement =
-      import Icon.*
-      i match
-        case Bell => outline.bell(extraClasses)
-
 end Icons
