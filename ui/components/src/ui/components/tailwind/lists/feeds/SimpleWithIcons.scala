@@ -59,5 +59,6 @@ object SimpleWithIcons:
         )
       )
     )
+
   def apply(items: Seq[HtmlElement]): HtmlElement =
     div(cls("flow-root"), ul(role("list"), cls("-mb-8"), items))

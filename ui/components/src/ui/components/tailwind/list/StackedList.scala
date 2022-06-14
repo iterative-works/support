@@ -47,28 +47,25 @@ object StackedList:
     )
 
 object StackedListWithRightJustifiedSecondColumn:
-  opaque type Title = ReactiveHtmlElement[dom.html.Paragraph]
-  opaque type Tag = ReactiveHtmlElement[dom.html.Paragraph]
-  opaque type LeftProp = ReactiveHtmlElement[dom.html.Paragraph]
-  opaque type RightProp = Div
-
+  case class TagInfo(text: String, color: Color)
   case class Item(
-      title: Title,
-      tag: Tag,
-      leftProps: Seq[LeftProp] = Nil,
-      rightProp: Option[RightProp] = None
+      title: String | HtmlElement,
+      tag: Option[TagInfo | HtmlElement] = None,
+      leftProps: Seq[HtmlElement] = Nil,
+      rightProp: Option[HtmlElement] = None
   )
 
-  def title(text: String, mod: Option[Modifier[HtmlElement]] = None): Title =
+  def title(
+      text: String,
+      mod: Option[Modifier[HtmlElement]] = None
+  ): HtmlElement =
     p(
       cls := "text-sm font-medium text-indigo-600 truncate",
       mod,
       text
     )
 
-  case class TagInfo(text: String, color: Color)
-
-  def tag(t: Signal[TagInfo]): Tag =
+  def tag(t: Signal[TagInfo]): HtmlElement =
     p(
       cls("px-2 inline-flex text-xs leading-5 font-semibold rounded-full"),
       cls <-- t.map(c => {
@@ -81,7 +78,7 @@ object StackedListWithRightJustifiedSecondColumn:
       child.text <-- t.map(_.text)
     )
 
-  def tag(text: String, color: Color): Tag =
+  def tag(text: String, color: Color): HtmlElement =
     p(
       cls("px-2 inline-flex text-xs leading-5 font-semibold rounded-full"),
       cls(
@@ -92,10 +89,10 @@ object StackedListWithRightJustifiedSecondColumn:
       text
     )
 
-  def leftProp(text: String, icon: SvgElement): LeftProp =
+  def leftProp(text: String, icon: SvgElement): HtmlElement =
     leftProp(text, Some(icon))
 
-  def leftProp(text: String, icon: Option[SvgElement] = None): LeftProp =
+  def leftProp(text: String, icon: Option[SvgElement] = None): HtmlElement =
     p(
       cls(
         "mt-2 flex items-center text-sm text-gray-500 sm:mt-0 first:sm:ml-0 sm:ml-6"
@@ -104,13 +101,13 @@ object StackedListWithRightJustifiedSecondColumn:
       text
     )
 
-  def rightProp(text: Signal[String]): RightProp =
+  def rightProp(text: Signal[String]): HtmlElement =
     div(
       cls("mt-2 flex items-center text-sm text-gray-500 sm:mt-0"),
       child.text <-- text
     )
 
-  def rightProp(text: String, icon: Option[SvgElement] = None): RightProp =
+  def rightProp(text: String, icon: Option[SvgElement] = None): HtmlElement =
     div(
       cls("mt-2 flex items-center text-sm text-gray-500 sm:mt-0"),
       icon,
@@ -128,7 +125,6 @@ object StackedListWithRightJustifiedSecondColumn:
   ): HtmlElement =
     div(
       cls("relative"),
-      cls("bg-white shadow overflow-hidden sm:rounded-md"),
       h3(
         cls("z-10 sticky top-0"),
         cls(
@@ -154,8 +150,17 @@ object StackedListWithRightJustifiedSecondColumn:
         cls := "min-w-0 flex-1 pr-4",
         div(
           cls := "flex items-center justify-between",
-          i.title,
-          div(cls := "ml-2 flex-shrink-0 flex", i.tag)
+          i.title match
+            case t: String      => title(t)
+            case e: HtmlElement => e
+          ,
+          div(
+            cls := "ml-2 flex-shrink-0 flex",
+            i.tag.map {
+              case t: TagInfo     => tag(t.text, t.color)
+              case e: HtmlElement => e
+            }
+          )
         ),
         div(
           cls := "mt-2 sm:flex sm:justify-between",

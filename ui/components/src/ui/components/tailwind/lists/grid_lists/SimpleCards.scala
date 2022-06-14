@@ -34,7 +34,7 @@ object SimpleCards:
 
   def titleLink(
       clicked: Option[Observer[Unit]] = None,
-      classes: String = "text-gray-900 font-meduim hover:text-gray-600 truncate"
+      classes: String = "text-gray-900 font-medium hover:text-gray-600 truncate"
   )(text: String, link: String): HtmlElement =
     a(
       href(link),
@@ -44,7 +44,7 @@ object SimpleCards:
     )
 
   def title(
-      classes: String = "text-gray-900 font-meduim hover:text-gray-600 truncate"
+      classes: String = "text-gray-900 font-medium hover:text-gray-600 truncate"
   )(text: String): HtmlElement =
     div(cls(classes), text)
 
