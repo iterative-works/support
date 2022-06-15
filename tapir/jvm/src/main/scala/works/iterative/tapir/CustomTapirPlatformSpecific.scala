@@ -16,37 +16,48 @@ import java.net.http.HttpClient
 import java.net.CookieHandler
 import java.net.CookieManager
 import java.net.HttpCookie
+import java.net.URI
 
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
   self: CustomTapir =>
 
   type Backend = SttpBackend[Task, ZioStreams & WebSockets]
 
-  val clientLayer: RLayer[zio.System & BaseUri, Backend] =
+  private def addSession(
+      session: String
+  ): HttpClient.Builder => HttpClient.Builder =
+    _.cookieHandler(new CookieHandler {
+      override def get(
+          x: URI,
+          y: java.util.Map[String, java.util.List[String]]
+      ): java.util.Map[String, java.util.List[String]] =
+        import scala.jdk.CollectionConverters.*
+        Map(
+          "Cookie" -> List(s"pac4jSessionId=$session").asJava
+        ).asJava
+      override def put(
+          x: URI,
+          y: java.util.Map[String, java.util.List[String]]
+      ): Unit = ()
+    })
+
+  private def optionallyAddSession(
+      session: Option[String]
+  ): HttpClient.Builder => HttpClient.Builder =
+    session match {
+      case Some(s) => addSession(s)
+      case None    => identity
+    }
+
+  val clientLayer: RLayer[zio.System, Backend] =
     ZLayer {
       for
-        baseUri <- ZIO.service[BaseUri]
         sessionId <- zio.System.env("SESSION")
-        result <- Task.attempt[HttpClient.Builder => HttpClient.Builder] {
-
-          val addCookie: Option[HttpClient.Builder => HttpClient.Builder] =
-            for
-              uri <- baseUri.toUri.map(_.toJavaUri)
-              v <- sessionId
-            yield
-              val mgr = new CookieManager()
-              mgr.getCookieStore.add(
-                baseUri.toUri.map(_.toJavaUri).orNull,
-                HttpCookie("pac4jSession", v)
-              )
-              _.cookieHandler(mgr)
-
-          addCookie.getOrElse(identity)
-        }
+        result <- ZIO.succeed(optionallyAddSession(sessionId))
       yield result
-    }.flatMap(ch =>
+    }.flatMap(sessionMod =>
       HttpClientZioBackend.layerUsingClient(
-        ch.get
+        sessionMod.get
           .apply(
             HttpClient
               .newBuilder()
