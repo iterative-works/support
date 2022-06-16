@@ -21,16 +21,17 @@ enum Color(name: String):
 
   inline def toCSSNoColorWeight(prefix: String): String =
     s"${prefix}-${name}"
+
   inline def toCSSWithColorWeight(
       prefix: String,
       weight: ColorWeight
   ): String =
     s"${prefix}-${name}-${weight.toCSS}"
+
   inline def toCSS(prefix: String)(weight: ColorWeight): String =
-    weight match {
-      case `w__` => toCSSNoColorWeight(prefix)
-      case _     => toCSSWithColorWeight(prefix, weight)
-    }
+    if weight == ColorWeight.w__ then toCSSNoColorWeight(prefix)
+    else toCSSWithColorWeight(prefix, weight)
+
   inline def bg: ColorWeight => String = toCSS("bg")(_)
   inline def text: ColorWeight => String = toCSS("text")(_)
   inline def decoration: ColorWeight => String = toCSS("decoration")(_)
