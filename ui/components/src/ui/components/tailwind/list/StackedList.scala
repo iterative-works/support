@@ -48,11 +48,14 @@ object StackedList:
 
 object StackedListWithRightJustifiedSecondColumn:
   case class TagInfo(text: String, color: Color)
+  case class ItemProps(
+      leftProps: Seq[HtmlElement] = Nil,
+      rightProp: Option[HtmlElement] = None
+  )
   case class Item(
       title: String | HtmlElement,
       tag: Option[TagInfo | HtmlElement] = None,
-      leftProps: Seq[HtmlElement] = Nil,
-      rightProp: Option[HtmlElement] = None
+      props: Option[ItemProps | HtmlElement] = None
   )
 
   def title(
@@ -162,11 +165,15 @@ object StackedListWithRightJustifiedSecondColumn:
             }
           )
         ),
-        div(
-          cls := "mt-2 sm:flex sm:justify-between",
-          div(cls("sm:flex"), i.leftProps),
-          i.rightProp
-        )
+        i.props.map {
+          case ip: ItemProps =>
+            div(
+              cls := "mt-2 sm:flex sm:justify-between",
+              div(cls("sm:flex"), ip.leftProps),
+              ip.rightProp
+            )
+          case e: HtmlElement => e
+        }
       )
     )
 
