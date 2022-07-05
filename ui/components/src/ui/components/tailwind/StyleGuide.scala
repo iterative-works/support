@@ -9,5 +9,5 @@ trait StyleGuide:
 object StyleGuide:
   object default extends StyleGuide:
     override def card: Setter[HtmlElement] = cls(
-      "bg-white shadow px-4 py-5 sm:rounded-md sm:p-6 overflow-hidden"
+      "bg-white shadow sm:rounded-md overflow-hidden"
     )
