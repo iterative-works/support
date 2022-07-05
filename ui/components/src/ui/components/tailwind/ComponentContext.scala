@@ -5,3 +5,4 @@ import works.iterative.core.MessageCatalogue
 
 trait ComponentContext:
   def messages: MessageCatalogue
+  def style: StyleGuide

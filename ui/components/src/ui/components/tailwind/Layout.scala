@@ -4,5 +4,5 @@ package ui.components.tailwind
 import com.raquo.laminar.api.L.{*, given}
 
 object Layout:
-  def card(content: Modifier[HtmlElement]*): Div =
-    div(cls("bg-white shadow overflow-hidden sm:rounded-md"), content)
+  def card(content: Modifier[HtmlElement]*)(using cctx: ComponentContext): Div =
+    div(cctx.style.card, content)
