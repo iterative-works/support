@@ -177,11 +177,11 @@ object StackedListWithRightJustifiedSecondColumn:
       )
     )
 
-  private def frame: Seq[HtmlElement] => Div =
+  private def frame: ReactiveHtmlElement[dom.html.UList] => Div =
     el =>
       div(
         cls("bg-white shadow overflow-hidden sm:rounded-md"),
-        ul(role("list"), cls("divide-y divide-gray-200"), el)
+        el.amend(cls("divide-y divide-gray-200"))
       )
 
   def apply[A](f: A => Item): Items[A] =

@@ -5,6 +5,8 @@ import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.Color
 import works.iterative.ui.components.tailwind.ColorWeight
 import works.iterative.ui.components.headless.Items
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+import org.scalajs.dom
 
 object SimpleCards:
 
@@ -78,14 +80,8 @@ object SimpleCards:
   def frame(
       gap: String = "gap-5 sm:gap-6",
       cols: String = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-  )(items: Seq[HtmlElement]): HtmlElement =
-    ul(
-      role := "list",
-      cls := "mt-3 grid",
-      cls(gap),
-      cls(cols),
-      items
-    )
+  )(el: ReactiveHtmlElement[dom.html.UList]): HtmlElement =
+    el.amend(cls := "mt-3 grid", cls(gap), cls(cols))
 
   def apply[A](f: A => Item): Items[A] =
     Items(frame(), item).contramap(f)
