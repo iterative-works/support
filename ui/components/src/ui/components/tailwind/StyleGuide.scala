@@ -15,6 +15,7 @@ trait StyleGuide:
   def label: String
   def cardContent: String
   def card: String
+  def input: String
 
 object StyleGuide:
   object default extends StyleGuide:
@@ -23,6 +24,9 @@ object StyleGuide:
     override val cardContent: String = "px-4 py-5 sm:p-6"
     override val card: String =
       "bg-white shadow sm:rounded-md overflow-hidden"
+    override val input: String =
+      "shadow-sm block focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
+
     override object button extends ButtonStyles:
       private def common(extra: String) =
         s"inline-flex items-center px-4 py-2 $extra border rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
