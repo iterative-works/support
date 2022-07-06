@@ -5,4 +5,4 @@ import com.raquo.laminar.api.L.{*, given}
 
 object Layout:
   def card(content: Modifier[HtmlElement]*)(using cctx: ComponentContext): Div =
-    div(cctx.style.card, content)
+    div(cls(cctx.style.card), content)
