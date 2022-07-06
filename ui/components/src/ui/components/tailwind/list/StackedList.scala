@@ -146,7 +146,7 @@ object StackedListWithRightJustifiedSecondColumn:
       )
     )
 
-  private def item(i: Item): Div =
+  def item(i: Item): Div =
     div(
       cls := "px-4 py-4 sm:px-6 items-center flex",
       div(
