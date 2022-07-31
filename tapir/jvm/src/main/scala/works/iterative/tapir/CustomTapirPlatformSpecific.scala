@@ -49,7 +49,7 @@ trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
       case None    => identity
     }
 
-  val clientLayer: RLayer[zio.System, Backend] =
+  val clientLayer: TaskLayer[Backend] =
     ZLayer {
       for
         sessionId <- zio.System.env("SESSION")

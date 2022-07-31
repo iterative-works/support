@@ -17,6 +17,6 @@ object UIString:
 
   given Conversion[UIString, TextNode] with
     def apply(ui: UIString): TextNode = ui.toNode
-  
+
   given Conversion[UIString, String] with
     inline def apply(ui: UIString): String = ui

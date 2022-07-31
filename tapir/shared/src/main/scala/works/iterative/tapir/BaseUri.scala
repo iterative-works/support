@@ -2,11 +2,11 @@ package works.iterative.tapir
 
 import sttp.model.Uri
 
-opaque type BaseUri = Option[Uri]
+case class BaseUri(value: Option[Uri])
 
 object BaseUri:
 
-  def apply(optU: Option[Uri]): BaseUri = optU
-  def apply(u: Uri): BaseUri = Some(u)
+  def apply(optU: Option[Uri]): BaseUri = BaseUri(optU)
+  def apply(u: Uri): BaseUri = BaseUri(Some(u))
 
-  extension (v: BaseUri) def toUri: Option[Uri] = v
+  extension (v: BaseUri) def toUri: Option[Uri] = v.value

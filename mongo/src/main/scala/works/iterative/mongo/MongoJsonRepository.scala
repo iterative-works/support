@@ -30,9 +30,9 @@ object MongoConfig:
 
 extension (m: MongoClient.type)
   def layer: RLayer[MongoConfig, MongoClient] =
-    ZIO
-      .serviceWithZIO[MongoConfig](c => Task.attempt(MongoClient(c.uri)))
-      .toLayer
+    ZLayer {
+      ZIO.serviceWithZIO[MongoConfig](c => ZIO.attempt(MongoClient(c.uri)))
+    }
 
 class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     collection: MongoCollection[JsonObject],
@@ -60,14 +60,14 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     yield elems.to(List)
 
   def put(elem: Elem): Task[Unit] =
-    Task.async(cb =>
+    ZIO.async(cb =>
       collection
         .replaceOne(
           equal.tupled(idFilter(elem)),
           JsonObject(elem.toJson),
           ReplaceOptions().upsert(true)
         )
-        .subscribe(_ => cb(Task.unit), t => cb(Task.fail(t)))
+        .subscribe(_ => cb(ZIO.unit), t => cb(ZIO.fail(t)))
     )
 
 case class MongoFile(

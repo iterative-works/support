@@ -5,7 +5,7 @@ import zio.test.*
 import zio.json.*
 import Assertion.*
 
-object MongoJsonRepositoryIntegrationSpec extends DefaultRunnableSpec:
+object MongoJsonRepositoryIntegrationSpec extends ZIOSpecDefault:
   case class Example(id: String, value: String)
   sealed trait ExampleCriteria
   case object All extends ExampleCriteria
@@ -30,16 +30,18 @@ object MongoJsonRepositoryIntegrationSpec extends DefaultRunnableSpec:
     import org.bson.json.JsonObject
     import org.mongodb.scala.bson.conversions.Bson
     import org.mongodb.scala.bson.Document
-    MongoConfig.fromEnv >>> MongoClient.layer >>> (for
-      client <- ZIO.service[MongoClient]
-      coll <- Task.attempt(
-        client.getDatabase("test").getCollection[JsonObject]("example")
-      )
-    yield new MongoJsonRepository[Example, String, ExampleCriteria](
-      coll, {
-        _ match
-          case ById(id) => equal("id", id)
-          case All      => Document()
-      },
-      e => ("id", e.id)
-    )).toLayer
+    MongoConfig.fromEnv >>> MongoClient.layer >>> ZLayer {
+      (for
+        client <- ZIO.service[MongoClient]
+        coll <- ZIO.attempt(
+          client.getDatabase("test").getCollection[JsonObject]("example")
+        )
+      yield new MongoJsonRepository[Example, String, ExampleCriteria](
+        coll, {
+          _ match
+            case ById(id) => equal("id", id)
+            case All      => Document()
+        },
+        e => ("id", e.id)
+      ))
+    }

@@ -9,7 +9,7 @@ object Display:
 
   enum DisplayClass:
     case block, `inline-block`, `inline`, flex, `inline-flex`, table,
-    `inline-table`, `table-caption`
+      `inline-table`, `table-caption`
 
   object ShowUpFrom:
     inline def apply(
