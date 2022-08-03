@@ -11,7 +11,6 @@ import sttp.client3.SttpBackend
 import sttp.client3.httpclient.zio.HttpClientZioBackend
 import sttp.capabilities.zio.ZioStreams
 import sttp.client3.SttpBackendOptions
-import sttp.client3.httpclient.HttpClientBackend
 import java.net.http.HttpClient
 import java.net.CookieHandler
 import java.net.CookieManager
