@@ -15,6 +15,18 @@ trait FormCodec[V, A]:
   def toValue(r: A): Validated[V]
 
 object FormCodec:
+  given FormCodec[String, String] with
+    def toForm(v: String): String = v
+    def toValue(r: String): Validated[String] = Validation.fromPredicateWith(
+      InvalidValue("error.empty.string")
+    )(r)(t => Option(t).map(_.trim).exists(_.nonEmpty))
+
+  given FormCodec[Option[String], String] with
+    def toForm(v: Option[String]): String = v.getOrElse("")
+    def toValue(r: String): Validated[Option[String]] = Validation.succeed(
+      Option(r).map(_.trim).filter(_.nonEmpty)
+    )
+
   given FormCodec[PlainMultiLine, String] with
     override def toForm(v: PlainMultiLine): String = v.toString
     override def toValue(r: String): Validated[PlainMultiLine] =

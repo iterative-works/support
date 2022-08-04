@@ -18,6 +18,8 @@ trait FormInput[V]:
       this.render(property, updates.contramap(_.flatMap(v)))
 
 object FormInput:
+  given stringInput: FormInput[String] = Inputs.PlainInput()
+  given optionStringInput: FormInput[Option[String]] = Inputs.PlainInput()
   given plainMultiLineInput: FormInput[PlainMultiLine] = TextArea()
   given optionPlainMultiLineInput: FormInput[Option[PlainMultiLine]] =
     TextArea()
