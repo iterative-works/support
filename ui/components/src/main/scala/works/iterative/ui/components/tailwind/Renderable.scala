@@ -11,6 +11,8 @@ trait HtmlRenderable[A]:
   extension (a: A) def render: Modifier[HtmlElement] = toHtml(a)
 
 object HtmlRenderable:
+  given elementValue: HtmlRenderable[HtmlElement] with
+    def toHtml(a: HtmlElement): Modifier[HtmlElement] = a
   given stringValue: HtmlRenderable[String] with
     def toHtml(v: String): Modifier[HtmlElement] =
       com.raquo.laminar.nodes.TextNode(v)
