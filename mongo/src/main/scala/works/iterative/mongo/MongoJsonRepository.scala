@@ -39,10 +39,9 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     toFilter: Criteria => Bson,
     idFilter: Elem => (String, Key)
 ):
-  def matching(criteria: Criteria): Task[List[Elem]] =
-    val filter = toFilter(criteria)
-    val query = collection.find(filter)
-
+  def performQuery(
+      query: FindObservable[JsonObject]
+  ): Task[List[Elem]] =
     for
       result <- ZIO.fromFuture(_ => query.toFuture)
       decoded = result.map(r => r.getJson -> r.getJson.fromJson[Elem])
@@ -58,6 +57,11 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
         )
         .when(failed.nonEmpty)
     yield elems.to(List)
+
+  def matching(criteria: Criteria): Task[List[Elem]] =
+    val filter = toFilter(criteria)
+    val query = collection.find(filter)
+    performQuery(query)
 
   def put(elem: Elem): Task[Unit] =
     ZIO.async(cb =>
