@@ -39,12 +39,12 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     toFilter: Criteria => Bson,
     idFilter: Elem => (String, Key)
 ):
-  def performQuery(
+  def performCustomQuery[Target](
       query: FindObservable[JsonObject]
-  ): Task[List[Elem]] =
+  )(using JsonDecoder[Target]): Task[List[Target]] =
     for
       result <- ZIO.fromFuture(_ => query.toFuture)
-      decoded = result.map(r => r.getJson -> r.getJson.fromJson[Elem])
+      decoded = result.map(r => r.getJson -> r.getJson.fromJson[Target])
       failed = decoded.collect { case (r, Left(msg)) =>
         s"Unable to decode json : $msg\nJson value:\n$r\n"
       }
@@ -57,6 +57,9 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
         )
         .when(failed.nonEmpty)
     yield elems.to(List)
+
+  def performQuery(query: FindObservable[JsonObject]): Task[List[Elem]] =
+    performCustomQuery[Elem](query)
 
   def matching(criteria: Criteria): Task[List[Elem]] =
     val filter = toFilter(criteria)
