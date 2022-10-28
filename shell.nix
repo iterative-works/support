@@ -1,13 +1,6 @@
-{ pkgs ? import <nixpkgs> {
-  overlays = [
-    (final: prev: rec {
-      jre = prev.adoptopenjdk-hotspot-bin-11;
-      jdk = jre;
-    })
-  ];
-} }:
-
-with pkgs;
-mkShell {
-  buildInputs = [ jre ammonite coursier bloop mill sbt scalafmt nodejs-16_x ];
-}
+(import (let lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+in fetchTarball {
+  url =
+    "https://github.com/edolstra/flake-compat/archive/${lock.nodes.flake-compat.locked.rev}.tar.gz";
+  sha256 = lock.nodes.flake-compat.locked.narHash;
+}) { src = ./.; }).shellNix
