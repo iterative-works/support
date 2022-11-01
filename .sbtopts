@@ -1,0 +1,1 @@
+-mem 2048 -J-XX:+UseG1GC

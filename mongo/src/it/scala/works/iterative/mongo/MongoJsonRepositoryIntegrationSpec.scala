@@ -22,9 +22,9 @@ object MongoJsonRepositoryIntegrationSpec extends ZIOSpecDefault:
         result <- repo.matching(ById("1"))
       yield assertTrue(result.head.value == "test")
     )
-  ).provideCustomLayer(layer.mapError(TestFailure.fail))
+  ).provide(layer) @@ TestAspect.ifEnvSet("MONGO_URI")
 
-  val layer =
+  val layer: TaskLayer[MongoJsonRepository[Example, String, ExampleCriteria]] =
     import org.mongodb.scala.*
     import org.mongodb.scala.model.Filters.*
     import org.bson.json.JsonObject

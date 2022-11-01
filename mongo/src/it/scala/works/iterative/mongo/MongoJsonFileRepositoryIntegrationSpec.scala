@@ -27,9 +27,10 @@ object MongoJsonFileRepositoryIntegrationSpec extends ZIOSpecDefault:
         result <- repo.matching(ByOsobniCislo("10123"))
       yield assertTrue(result.head.name == fname)
     )
-  ).provideCustomLayer(layer.mapError(TestFailure.fail))
+  ).provide(layer) @@ TestAspect.ifEnvSet("MONGO_URI")
 
-  val layer =
+  val layer
+      : TaskLayer[MongoJsonFileRepository[ExampleMetadata, ExampleCriteria]] =
     import org.mongodb.scala.*
     import org.mongodb.scala.model.Filters.*
     import org.bson.json.JsonObject
