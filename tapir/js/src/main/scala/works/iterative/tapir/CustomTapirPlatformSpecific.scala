@@ -8,17 +8,17 @@ import scala.concurrent.Future
 import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
 import scala.concurrent.ExecutionContext
-import sttp.client3.FetchBackend
 import sttp.client3.FetchOptions
 import org.scalajs.dom
+import sttp.client3.impl.zio.FetchZioBackend
 
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   self: CustomTapir =>
 
-  type Backend = SttpBackend[Future, WebSockets]
+  type Backend = SttpBackend[Task, WebSockets]
 
   val clientLayer: ULayer[Backend] = ZLayer.succeed(
-    FetchBackend(
+    FetchZioBackend(
       FetchOptions(
         Some(dom.RequestCredentials.`same-origin`),
         Some(dom.RequestMode.`same-origin`)
@@ -34,17 +34,9 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
       wsToPipe: WebSocketToPipe[Any]
   ): I => Task[O] =
     val req = toRequestThrowErrors(endpoint, baseUri.toUri)
-    (i: I) =>
-      ZIO.fromFuture { implicit ec =>
-        val resp = backend.responseMonad.map(
-          backend.send(req(i).followRedirects(false))
-        )(_.body)
-        resp.onComplete {
-          case scala.util.Failure(e: RuntimeException)
-              if e.getMessage == "Unexpected redirect" =>
-            // Reload window on redirect, as it means that we need to log in again
-            org.scalajs.dom.window.location.reload(true)
-          case _ => ()
-        }
-        resp
-      }
+    req(_).followRedirects(false).send(backend).map(_.body).tapError {
+      case e: RuntimeException if e.getMessage == "Unexpected redirect" =>
+        // Reload window on redirect, as it means that we need to log in again
+        ZIO.attempt(org.scalajs.dom.window.location.reload(true))
+      case _ => ZIO.unit
+    }

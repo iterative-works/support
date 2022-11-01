@@ -17,15 +17,15 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
     IWDeps.tapirCore,
     IWDeps.tapirZIOJson,
     IWDeps.useZIOJson,
-    IWDeps.tapirSttpClient
+    IWDeps.tapirSttpClient,
+    IWDeps.sttpClientLib("zio")
   )
   .jvmSettings(
     IWDeps.tapirZIO,
     IWDeps.tapirZIOHttp4sServer,
     IWDeps.useZIOJson,
-    IWDeps.sttpClientLib("async-http-client-backend-zio"),
-    IWDeps.zioLib("interop-reactivestreams", "2.0.0"),
-    IWDeps.zioLib("nio", "2.0.0"),
+    IWDeps.zioInteropReactiveStreams,
+    IWDeps.zioNIO,
     excludeDependencies += // Gets transitively dragged in by zio-nio, conflicting with _3
       ExclusionRule("org.scala-lang.modules", "scala-collection-compat_2.13")
   )
@@ -106,9 +106,12 @@ lazy val `ui-components` = (project in file("ui/components"))
   .dependsOn(`ui-model`.js)
 
 lazy val root = (project in file("."))
-  .settings(name := "iw-support", publish / skip := true)
-  // Auto activates for all projects, but make sure we have required dependencies
   .enablePlugins(IWScalaProjectPlugin, GitVersioning)
+  .settings(
+    name := "iw-support",
+    publish / skip := true,
+    git.useGitDescribe := true
+  )
   .aggregate(
     core.js,
     core.jvm,
