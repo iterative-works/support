@@ -1,5 +1,7 @@
 ThisBuild / scalaVersion := scala3Version
 
+ThisBuild / organization := "works.iterative.support"
+
 publishToIW
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
