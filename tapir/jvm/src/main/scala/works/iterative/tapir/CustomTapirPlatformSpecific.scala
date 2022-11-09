@@ -48,22 +48,19 @@ trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
       case None    => identity
     }
 
-  val clientLayer: TaskLayer[Backend] =
-    ZLayer {
-      for
-        sessionId <- zio.System.env("SESSION")
-        result <- ZIO.succeed(optionallyAddSession(sessionId))
-      yield result
-    }.flatMap(sessionMod =>
-      HttpClientZioBackend.layerUsingClient(
-        sessionMod.get
-          .apply(
-            HttpClient
-              .newBuilder()
-              .followRedirects(HttpClient.Redirect.NEVER)
-          )
-          .build()
+  def clientSessionLayer(sessionId: Option[String]): TaskLayer[Backend] =
+    HttpClientZioBackend.layerUsingClient(
+      optionallyAddSession(sessionId)(
+        HttpClient
+          .newBuilder()
+          .followRedirects(HttpClient.Redirect.NEVER)
       )
+        .build()
+    )
+
+  val clientLayer: TaskLayer[Backend] =
+    ZLayer(zio.System.env("SESSION")).flatMap(sessionId =>
+      clientSessionLayer(sessionId.get)
     )
 
   def makeClient[I, E, O](
