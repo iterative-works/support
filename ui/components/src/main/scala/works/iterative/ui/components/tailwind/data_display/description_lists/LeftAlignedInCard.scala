@@ -10,6 +10,7 @@ import works.iterative.ui.components.tailwind.form.ActionButtons
 import works.iterative.ui.components.tailwind.HtmlComponent
 import works.iterative.ui.components.tailwind.form.ActionButton
 import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.tailwind.Icons
 
 type ValueContent = String | Node
 type OptionalValueContent = ValueContent | Option[ValueContent]
@@ -40,7 +41,8 @@ case class LeftAlignedInCard[A](
     title: String,
     subtitle: String,
     data: List[LabeledValue],
-    actions: Option[Modifier[HtmlElement]]
+    actions: Option[Modifier[HtmlElement]] = None,
+    close: Option[Modifier[HtmlElement]] = None
 ):
 
   private def renderDataRow(value: LabeledValue): Option[HtmlElement] =
@@ -57,7 +59,20 @@ case class LeftAlignedInCard[A](
 
   def element: HtmlElement =
     div(
-      cls := "bg-white shadow overflow-hidden sm:rounded-lg",
+      cls := "relative bg-white shadow overflow-hidden sm:rounded-lg",
+      close.map(mods =>
+        div(
+          cls("absolute top-0 right-0 hidden pt-4 pr-4 sm:block"),
+          button(
+            cls(
+              "rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            ),
+            mods,
+            span(cls("sr-only"), "Close"),
+            Icons.outline.x("h-6 w-6", "1.5")
+          )
+        )
+      ),
       div(
         cls := "px-4 py-5 sm:px-6",
         h3(cls := "text-lg leading-6 font-medium text-gray-900", title),

@@ -152,7 +152,7 @@ object Icons:
         )
       )
 
-    inline def x(extraClasses: String): SvgElement =
+    inline def x(extraClasses: String, sw: String = "2"): SvgElement =
       svg(
         cls(extraClasses),
         xmlns("http://www.w3.org/2000/svg"),
@@ -163,7 +163,7 @@ object Icons:
         path(
           strokeLineCap("round"),
           strokeLineJoin("round"),
-          strokeWidth("2"),
+          strokeWidth(sw),
           d("M6 18L18 6M6 6l12 12")
         )
       )
