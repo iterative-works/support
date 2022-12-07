@@ -106,11 +106,10 @@ lazy val `ui-components` = (project in file("ui/components"))
   .dependsOn(`ui-model`.js)
 
 lazy val root = (project in file("."))
-  .enablePlugins(IWScalaProjectPlugin, GitVersioning)
+  .enablePlugins(IWScalaProjectPlugin)
   .settings(
     name := "iw-support",
-    publish / skip := true,
-    git.useGitDescribe := true
+    publish / skip := true
   )
   .aggregate(
     core.js,
