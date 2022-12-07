@@ -9,71 +9,71 @@ import works.iterative.ui.components.tailwind.HtmlRenderable
 import works.iterative.ui.components.tailwind.form.ActionButtons
 import works.iterative.ui.components.tailwind.HtmlComponent
 import works.iterative.ui.components.tailwind.form.ActionButton
+import works.iterative.ui.components.tailwind.ComponentContext
+
+type ValueContent = String | Node
+type OptionalValueContent = ValueContent | Option[ValueContent]
+
+case class LabeledValue(label: String, body: OptionalValueContent):
+  def content: Option[Node] = body match
+    case Some(s: String) => Some(s)
+    case Some(m: Node)   => Some(m)
+    case s: String       => Some(s)
+    case m: Node         => Some(m)
+    case _               => None
+
+object LabeledValue:
+  given renderableToLabeledValue[V: HtmlRenderable](using
+      cctx: ComponentContext
+  ): Conversion[(String, V), LabeledValue] with
+    def apply(v: (String, V)) =
+      LabeledValue(cctx.messages(v._1), Some(v._2.render))
+
+  given optionalRenderableToLabeledValue[V: HtmlRenderable](using
+      cctx: ComponentContext
+  ): Conversion[(String, Option[V]), LabeledValue] with
+    def apply(v: (String, Option[V])) =
+      LabeledValue(cctx.messages(v._1), v._2.map(_.render))
 
 // TODO: drop UI string, use MessageId, use builder like FormBuilder
 case class LeftAlignedInCard[A](
     title: String,
     subtitle: String,
-    data: List[LeftAlignedInCard.OptionalLabeledValue],
-    // TODO: a version without actions
-    actions: List[ActionButton[A]]
-)
+    data: List[LabeledValue],
+    actions: Option[Modifier[HtmlElement]]
+):
 
-object LeftAlignedInCard:
-  case class OptionalLabeledValue(
-      label: UIString,
-      v: Option[Modifier[HtmlElement]]
-  )
-
-  trait AsValue[V]:
-    def toLabeled(n: UIString, v: V): OptionalLabeledValue
-    extension (v: V)
-      def labeled(n: UIString): OptionalLabeledValue = toLabeled(n, v)
-
-  given optionValue[V: HtmlRenderable]: AsValue[Option[V]] with
-    def toLabeled(n: UIString, v: Option[V]): OptionalLabeledValue =
-      OptionalLabeledValue(n, v.map(_.render))
-
-  given [V: HtmlRenderable]: AsValue[V] with
-    def toLabeled(n: UIString, v: V): OptionalLabeledValue =
-      OptionalLabeledValue(n, Some(v.render))
-
-  given leftAlignedInCardComponent[A](using
-      HtmlComponent[_, ActionButtons[A]]
-  ): BaseHtmlComponent[LeftAlignedInCard[A]] =
-    (d: LeftAlignedInCard[A]) =>
+  private def renderDataRow(value: LabeledValue): Option[HtmlElement] =
+    value.content.map(c =>
       div(
-        cls := "bg-white shadow overflow-hidden sm:rounded-lg",
-        div(
-          cls := "px-4 py-5 sm:px-6",
-          h3(cls := "text-lg leading-6 font-medium text-gray-900", d.title),
-          p(cls := "mt-1 max-w-2xl text-sm text-gray-500", d.subtitle)
-        ),
+        cls := "py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6",
+        dt(cls := "text-sm font-medium text-gray-500", value.label),
+        dd(
+          cls := "mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2",
+          c
+        )
+      )
+    )
+
+  def element: HtmlElement =
+    div(
+      cls := "bg-white shadow overflow-hidden sm:rounded-lg",
+      div(
+        cls := "px-4 py-5 sm:px-6",
+        h3(cls := "text-lg leading-6 font-medium text-gray-900", title),
+        p(cls := "mt-1 max-w-2xl text-sm text-gray-500", subtitle)
+      ),
+      div(
+        cls := "border-t border-gray-200 px-4 py-5 sm:p-0",
+        dl(
+          cls := "sm:divide-y sm:divide-gray-200",
+          data.map(renderDataRow).collect { case Some(el) => el }
+        )
+      ),
+      actions.map(acts =>
         div(
           cls := "border-t border-gray-200 px-4 py-5 sm:p-0",
-          dl(
-            cls := "sm:divide-y sm:divide-gray-200",
-            d.data.collect { case OptionalLabeledValue(label, Some(body)) =>
-              div(
-                cls := "py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6",
-                dt(cls := "text-sm font-medium text-gray-500", label),
-                dd(
-                  cls := "mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2",
-                  body
-                )
-              )
-            }
-          )
-        ),
-        if d.actions.nonEmpty then
-          Some(
-            div(
-              cls := "border-t border-gray-200 px-4 py-5 sm:p-0",
-              div(
-                cls := "px-4 py-5 sm:px-6",
-                ActionButtons(d.actions).element
-              )
-            )
-          )
-        else None
+          div(cls := "px-4 py-5 sm:px-6", acts)
+        )
       )
+    )

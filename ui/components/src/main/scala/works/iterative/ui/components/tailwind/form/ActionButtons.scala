@@ -39,9 +39,7 @@ case class ActionButton[A](
       cls(style.text),
       cls(style.extra),
       cls(style.focus),
-      ctx
-        .messages(s"action.$name.title")
-        .getOrElse(s"action.$name.title"),
+      ctx.messages(s"action.$name.title"),
       onClick.mapTo(action) --> actions
     )
 

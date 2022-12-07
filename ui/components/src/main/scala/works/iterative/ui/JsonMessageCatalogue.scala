@@ -10,8 +10,8 @@ import java.text.MessageFormat
 trait JsonMessageCatalogue extends MessageCatalogue:
   def messages: js.Dictionary[String]
 
-  override def apply(id: MessageId): Option[String] =
+  override def get(id: MessageId): Option[String] =
     messages.get(id.toString)
 
-  override def apply(msg: UserMessage): Option[String] =
-    apply(msg.id).map(_.format(msg.args: _*))
+  override def get(msg: UserMessage): Option[String] =
+    get(msg.id).map(_.format(msg.args: _*))
