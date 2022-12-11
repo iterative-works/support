@@ -9,6 +9,23 @@ object Alert:
     case Warning extends Kind(Color.yellow, Icons.solid.exclamation(_))
     case Success extends Kind(Color.green, Icons.solid.`check-circle`(_))
 
+  def success(title: String | HtmlElement) = Alert(Kind.Success, title)
+
+  def success(title: String | HtmlElement, content: String | HtmlElement) =
+    Alert(Kind.Success, title, Some(content))
+
+  def warning(title: String | HtmlElement) = Alert(Kind.Warning, title)
+
+  def warning(title: String | HtmlElement, content: String | HtmlElement) =
+    Alert(Kind.Warning, title, Some(content))
+
+  def error(title: String | HtmlElement) = Alert(Kind.Error, title)
+
+  def error(title: String | HtmlElement, content: String | HtmlElement) =
+    Alert(Kind.Error, title, Some(content))
+
+  given Conversion[Alert, HtmlElement] = _.element
+
 import Alert.*
 
 case class Alert(
