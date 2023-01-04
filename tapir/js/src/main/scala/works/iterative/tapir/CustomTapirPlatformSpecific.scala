@@ -7,6 +7,7 @@ import sttp.tapir.client.sttp.WebSocketToPipe
 import scala.concurrent.Future
 import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
+import sttp.capabilities.zio.ZioStreams
 import scala.concurrent.ExecutionContext
 import sttp.client3.FetchOptions
 import org.scalajs.dom
@@ -15,7 +16,7 @@ import sttp.client3.impl.zio.FetchZioBackend
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   self: CustomTapir =>
 
-  type Backend = SttpBackend[Task, WebSockets]
+  type Backend = SttpBackend[Task, _]
 
   val clientLayer: ULayer[Backend] = ZLayer.succeed(
     FetchZioBackend(

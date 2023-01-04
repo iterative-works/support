@@ -20,7 +20,7 @@ import java.net.URI
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
   self: CustomTapir =>
 
-  type Backend = SttpBackend[Task, ZioStreams & WebSockets]
+  type Backend = SttpBackend[Task, _]
 
   private def addSession(
       session: String
