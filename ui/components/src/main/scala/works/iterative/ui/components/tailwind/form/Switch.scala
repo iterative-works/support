@@ -36,12 +36,16 @@ class Switch[V](using codec: FormCodec[V, Boolean], ctx: ComponentContext)
           _.sample(currentValue.signal).map(v => !v)
         ) --> currentValue
       ),
-      span(
-        cls := "ml-3",
-        idAttr := "active-only-label",
-        span(
-          cls := "text-sm font-medium text-gray-900",
-          ctx.messages(property.name)
+      ctx.messages
+        .get(property.name)
+        .map(name =>
+          span(
+            cls := "ml-3",
+            idAttr := "active-only-label",
+            span(
+              cls := "text-sm font-medium text-gray-900",
+              name
+            )
+          )
         )
-      )
     )
