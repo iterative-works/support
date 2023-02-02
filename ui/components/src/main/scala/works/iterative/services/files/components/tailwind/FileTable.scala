@@ -95,7 +95,8 @@ def FileTable(
           ),
           name
         )
-      ) :: (if o.contains(name) then files.map(renderRow) else Nil)
+      ) :: (if o.contains(name) then files.sortBy(_.name).map(renderRow)
+            else Nil)
     )
 
   div(
@@ -129,6 +130,7 @@ def FileTable(
                   .combineSeq(
                     f.groupBy(_.category)
                       .to(List)
+                      .sortBy(_._1)
                       .map(renderCategory(_, _))
                   )
                   .map(_.flatten)
