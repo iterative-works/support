@@ -9,6 +9,7 @@ import java.time.format.FormatStyle
 import java.time.ZoneId
 import java.util.Locale
 import works.iterative.ui.components.tailwind.TimeUtils
+import works.iterative.core.CzechSupport
 
 def FileTable(
     files: Signal[List[File]],
@@ -95,7 +96,8 @@ def FileTable(
           ),
           name
         )
-      ) :: (if o.contains(name) then files.sortBy(_.name).map(renderRow)
+      ) :: (if o.contains(name) then
+              files.sortBy(_.name)(CzechSupport.czechOrdering).map(renderRow)
             else Nil)
     )
 
@@ -130,7 +132,7 @@ def FileTable(
                   .combineSeq(
                     f.groupBy(_.category)
                       .to(List)
-                      .sortBy(_._1)
+                      .sortBy(_._1)(CzechSupport.czechOrdering)
                       .map(renderCategory(_, _))
                   )
                   .map(_.flatten)

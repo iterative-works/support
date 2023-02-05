@@ -5,7 +5,7 @@ ThisBuild / organization := "works.iterative.support"
 publishToIW
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
-  .crossType(CrossType.Pure)
+  .crossType(CrossType.Full)
   .settings(name := "iw-support-core")
   .in(file("core"))
   .settings(IWDeps.zioPrelude)
