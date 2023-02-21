@@ -41,7 +41,7 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
 ):
   def performCustomQuery[Target](
       query: FindObservable[JsonObject]
-  )(using JsonDecoder[Target]): Task[List[Target]] =
+  )(using JsonDecoder[Target]): UIO[List[Target]] = {
     for
       result <- ZIO.fromFuture(_ => query.toFuture)
       decoded = result.map(r => r.getJson -> r.getJson.fromJson[Target])
@@ -57,16 +57,17 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
         )
         .when(failed.nonEmpty)
     yield elems.to(List)
+  }.orDie
 
-  def performQuery(query: FindObservable[JsonObject]): Task[List[Elem]] =
+  def performQuery(query: FindObservable[JsonObject]): UIO[List[Elem]] =
     performCustomQuery[Elem](query)
 
-  def matching(criteria: Criteria): Task[List[Elem]] =
+  def matching(criteria: Criteria): UIO[List[Elem]] =
     val filter = toFilter(criteria)
     val query = collection.find(filter)
     performQuery(query)
 
-  def put(elem: Elem): Task[Unit] =
+  def put(elem: Elem): UIO[Unit] =
     ZIO.async(cb =>
       collection
         .replaceOne(
@@ -74,7 +75,7 @@ class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
           JsonObject(elem.toJson),
           ReplaceOptions().upsert(true)
         )
-        .subscribe(_ => cb(ZIO.unit), t => cb(ZIO.fail(t)))
+        .subscribe(_ => cb(ZIO.unit), t => cb(ZIO.die(t)))
     )
 
 case class MongoFile(
@@ -88,7 +89,7 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
     toFilter: Criteria => Bson
 ):
 
-  def put(name: String, file: Array[Byte], metadata: Metadata): Task[Unit] =
+  def put(name: String, file: Array[Byte], metadata: Metadata): UIO[Unit] =
     ZIO
       .fromFuture(_ =>
         bucket
@@ -100,13 +101,15 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
           .toFuture
       )
       .unit
+      .orDie
 
-  def find(id: String): Task[Option[Array[Byte]]] =
+  def find(id: String): UIO[Option[Array[Byte]]] =
     ZIO
       .fromFuture(_ => bucket.downloadToObservable(ObjectId(id)).toFuture)
       .map(r => if r.isEmpty then None else Some(r.map(_.array).reduce(_ ++ _)))
+      .orDie
 
-  def matching(criteria: Criteria): Task[List[MongoFile]] =
+  def matching(criteria: Criteria): UIO[List[MongoFile]] =
     ZIO
       .fromFuture(_ => bucket.find(toFilter(criteria)).toFuture)
       .map(
@@ -118,3 +121,4 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
           )
         ).to(List)
       )
+      .orDie
