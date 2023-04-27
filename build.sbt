@@ -67,13 +67,15 @@ lazy val `akka-persistence-support` = project
     IWDeps.akka.profiles.eventsourcedJdbcProjection
   )
 
-lazy val ui = (project in file("ui"))
-  .enablePlugins(ScalaJSPlugin)
+lazy val ui = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Full).in(file("ui"))
   .settings(name := "iw-support-ui")
   .settings(
     IWDeps.useZIO(Test),
-    IWDeps.laminar,
     IWDeps.useZIOJson,
+    IWDeps.zioPrelude
+  )
+  .jsSettings(
+    IWDeps.laminar,
     IWDeps.waypoint,
     IWDeps.urlDsl,
     IWDeps.laminextCore,
@@ -81,29 +83,9 @@ lazy val ui = (project in file("ui"))
     IWDeps.laminextTailwind,
     IWDeps.laminextValidationCore
   )
-
-lazy val `ui-model` = crossProject(JSPlatform, JVMPlatform)
-  .crossType(CrossType.Pure)
-  .in(file("ui/model"))
-  .settings(name := "iw-support-ui-model")
-  .dependsOn(core)
-
-lazy val `ui-components` = (project in file("ui/components"))
-  .enablePlugins(ScalaJSPlugin)
-  .settings(name := "iw-support-ui-components")
-  .settings(
-    IWDeps.useZIO(Test),
-    IWDeps.zioPrelude,
-    IWDeps.laminar,
-    IWDeps.useZIOJson,
-    IWDeps.waypoint,
-    IWDeps.urlDsl,
-    IWDeps.laminextCore,
-    IWDeps.laminextUI,
-    IWDeps.laminextTailwind,
-    IWDeps.laminextValidationCore
-  )
-  .dependsOn(`ui-model`.js)
+  .jvmSettings(
+    libraryDependencies += "org.apache.poi" % "poi-ooxml" % "5.2.1"
+  ).dependsOn(core)
 
 lazy val root = (project in file("."))
   .enablePlugins(IWScalaProjectPlugin)
@@ -120,8 +102,6 @@ lazy val root = (project in file("."))
     `tapir-support`.jvm,
     `mongo-support`,
     `akka-persistence-support`,
-    ui,
-    `ui-model`.js,
-    `ui-model`.jvm,
-    `ui-components`
+    ui.js,
+    ui.jvm
   )
