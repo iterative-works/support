@@ -3,6 +3,7 @@ package core
 
 // Type-wise naive solution for specifying user messages.
 // A mechanism that will check the message for correct formatting and validate parameters is needed
+// TODO: make UserMessage serializable
 case class UserMessage(id: MessageId, args: Any*)
 
 object UserMessage:
