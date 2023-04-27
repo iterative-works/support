@@ -1,0 +1,1 @@
+This folder is intended as a place to quickly prototype features that should end up in the shared library.
