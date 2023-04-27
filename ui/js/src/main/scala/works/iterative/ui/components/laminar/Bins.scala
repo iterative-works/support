@@ -1,7 +1,7 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.experimental.ColorDef
+import works.iterative.ui.model.color.ColorDef
 import com.raquo.laminar.builders.HtmlTag
 
 case class Bin[Source, +Value](

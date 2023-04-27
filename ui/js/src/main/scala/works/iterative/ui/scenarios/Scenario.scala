@@ -13,8 +13,8 @@ import scala.scalajs.js
 import works.iterative.core.MessageCatalogue
 import works.iterative.ui.components.tailwind.ComponentContext
 import works.iterative.ui.components.tailwind.StyleGuide
-import works.iterative.ui.components.tailwind.experimental.Color
-import works.iterative.ui.components.tailwind.experimental.ColorWeight
+import works.iterative.ui.model.color.Color
+import works.iterative.ui.model.color.ColorWeight
 
 object Scenario:
   type Id = String
