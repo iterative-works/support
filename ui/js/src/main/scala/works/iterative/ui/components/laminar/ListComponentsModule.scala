@@ -2,7 +2,7 @@ package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.ComponentContext
-import works.iterative.ui.components.tailwind.experimental.ColorKind
+import works.iterative.ui.model.color.ColorKind
 import works.iterative.ui.components.tailwind.laminar.LaminarExtensions.given
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html.Paragraph

@@ -3,12 +3,12 @@ package works.iterative.ui.components.laminar
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.laminar.LaminarExtensions.given
-import works.iterative.ui.components.tailwind.experimental.ColorDef
+import works.iterative.ui.model.color.ColorDef
 import com.raquo.laminar.builders.HtmlTag
 import org.scalajs.dom.html.UList
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import works.iterative.ui.components.tailwind.ComponentContext
-import works.iterative.ui.components.tailwind.experimental.ColorKind
+import works.iterative.ui.model.color.ColorKind
 
 trait DashboardComponentsModule:
   def dashboard: DashboardComponents
