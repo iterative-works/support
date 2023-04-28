@@ -7,9 +7,26 @@ trait ButtonComponentsModule:
   def buttons: ButtonComponents
 
   trait ButtonComponents:
+    def primaryButton(
+        id: String,
+        text: String,
+        icon: Option[SvgElement] = None
+    )(
+        mods: Modifier[HtmlElement]*
+    ): HtmlElement
+
+    def secondaryButton(
+        id: String,
+        text: String,
+        icon: Option[SvgElement] = None
+    )(
+        mods: Modifier[HtmlElement]*
+    ): HtmlElement
+
     def inlineButton(id: String, icon: SvgElement)(
         mods: Modifier[HtmlElement]*
     ): HtmlElement
+
     def iconButton(id: String, icon: SvgElement)(
         mods: Modifier[HtmlElement]*
     ): HtmlElement
@@ -23,6 +40,34 @@ trait DefaultButtonComponentsModule(using ctx: ComponentContext)
       ctx.messages
         .opt(s"form.button.${id}.screenReaderHelp")
         .map(sr => span(cls := "sr-only", sr))
+
+    override def primaryButton(
+        id: String,
+        text: String,
+        icon: Option[SvgElement] = None
+    )(mods: Modifier[HtmlElement]*): HtmlElement =
+      button(
+        tpe := "submit",
+        cls := "disabled:bg-indigo-300 ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+        icon,
+        text,
+        mods
+      )
+
+    override def secondaryButton(
+        id: String,
+        text: String,
+        icon: Option[SvgElement] = None
+    )(mods: Modifier[HtmlElement]*): HtmlElement =
+      button(
+        tpe("button"),
+        cls(
+          "ml-2 bg-white inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        ),
+        icon,
+        text,
+        mods
+      )
 
     override def inlineButton(id: String, icon: SvgElement)(
         mods: Modifier[HtmlElement]*

@@ -2,6 +2,7 @@ package works.iterative.ui.components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 
+@deprecated("Use ModalComponentsModule", "2023-04-28")
 object Modal:
   def render(elem: HtmlElement, close: Modifier[HtmlElement]): HtmlElement =
     // This sequence tricks browser into displaying modal content centered
