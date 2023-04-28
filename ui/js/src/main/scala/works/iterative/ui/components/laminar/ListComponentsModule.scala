@@ -14,7 +14,7 @@ trait ListComponentsModule:
   def list: ListComponents
 
   trait ListComponents(using ComponentContext):
-    def label(text: String, color: ColorKind): ReactiveHtmlElement[Paragraph]
+    def label(text: String, color: ColorKind): HtmlElement
     def item(
         title: String,
         subtitle: Option[String],
@@ -29,19 +29,13 @@ trait ListComponentsModule:
 
 trait DefaultListComponentsModule(using ComponentContext)
     extends ListComponentsModule:
+  self: GenericComponentsModule =>
+
   override val list: ListComponents = new ListComponents:
     override def label(
         text: String,
         color: ColorKind
-    ): ReactiveHtmlElement[Paragraph] =
-      p(
-        cls(
-          "px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-        ),
-        color(800).text,
-        color(100).bg,
-        text
-      )
+    ): HtmlElement = generic.tag(text, color)
 
     override def item(
         title: String,
