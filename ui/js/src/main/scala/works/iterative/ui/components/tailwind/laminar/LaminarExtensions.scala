@@ -3,6 +3,7 @@ package laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.model.color.Color
+import works.iterative.core.UserMessage
 
 object LaminarExtensions:
   given colorToCSS: Conversion[Color, Modifier[HtmlElement]] with
@@ -17,3 +18,8 @@ object LaminarExtensions:
   given colorSignalToSVGCSS: Conversion[Signal[Color], Modifier[SvgElement]]
     with
     def apply(c: Signal[Color]) = svg.cls <-- c.map(_.toCSS)
+
+  inline given userMessageToModifier(using
+      ctx: ComponentContext
+  ): Conversion[UserMessage, Modifier[HtmlElement]] with
+    inline def apply(msg: UserMessage) = ctx.messages(msg)

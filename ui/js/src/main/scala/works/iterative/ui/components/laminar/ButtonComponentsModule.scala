@@ -9,7 +9,7 @@ trait ButtonComponentsModule:
   trait ButtonComponents:
     def primaryButton(
         id: String,
-        text: String,
+        text: Modifier[HtmlElement],
         icon: Option[SvgElement] = None
     )(
         mods: Modifier[HtmlElement]*
@@ -17,7 +17,7 @@ trait ButtonComponentsModule:
 
     def secondaryButton(
         id: String,
-        text: String,
+        text: Modifier[HtmlElement],
         icon: Option[SvgElement] = None
     )(
         mods: Modifier[HtmlElement]*
@@ -43,7 +43,7 @@ trait DefaultButtonComponentsModule(using ctx: ComponentContext)
 
     override def primaryButton(
         id: String,
-        text: String,
+        text: Modifier[HtmlElement],
         icon: Option[SvgElement] = None
     )(mods: Modifier[HtmlElement]*): HtmlElement =
       button(
@@ -56,7 +56,7 @@ trait DefaultButtonComponentsModule(using ctx: ComponentContext)
 
     override def secondaryButton(
         id: String,
-        text: String,
+        text: Modifier[HtmlElement],
         icon: Option[SvgElement] = None
     )(mods: Modifier[HtmlElement]*): HtmlElement =
       button(
