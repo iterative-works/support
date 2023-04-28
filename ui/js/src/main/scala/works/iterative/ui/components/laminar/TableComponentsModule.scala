@@ -17,9 +17,11 @@ trait TableComponentsModule:
         body: Modifier[HtmlElement]*
     ): HtmlElement
 
-    def headerRow(cells: HtmlElement*): HtmlElement
+    def headerRow(mods: Modifier[HtmlElement]*)(
+        cells: HtmlElement*
+    ): HtmlElement
 
-    def dataRow(cells: HtmlElement*): HtmlElement
+    def dataRow(mods: Modifier[HtmlElement]*)(cells: HtmlElement*): HtmlElement
 
     def headerCell(content: Modifier[HtmlElement]): HtmlElement
 
@@ -68,7 +70,9 @@ trait DefaultTableComponentsModule extends TableComponentsModule:
         tbody(cls("divide-y divide-gray-200"), body)
       )
 
-    override def headerRow(cells: HtmlElement*): HtmlElement =
+    override def headerRow(
+        mods: Modifier[HtmlElement]*
+    )(cells: HtmlElement*): HtmlElement =
       tr(
         cells.zipWithIndex.map((c, i) =>
           if i == 0 then c.amend(cls("py-3.5 pl-4 pr-3 sm:pl-0"))
@@ -78,8 +82,11 @@ trait DefaultTableComponentsModule extends TableComponentsModule:
         )
       )
 
-    override def dataRow(cells: HtmlElement*): HtmlElement =
+    override def dataRow(
+        mods: Modifier[HtmlElement]*
+    )(cells: HtmlElement*): HtmlElement =
       tr(
+        mods,
         cells.zipWithIndex.map((c, i) =>
           if i == 0 then c.amend(cls("py-4 pl-4 pr-3 sm:pl-0"))
           else if i == cells.length - 1 then
