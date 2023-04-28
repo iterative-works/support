@@ -23,3 +23,8 @@ object LaminarExtensions:
       ctx: ComponentContext
   ): Conversion[UserMessage, Modifier[HtmlElement]] with
     inline def apply(msg: UserMessage) = ctx.messages(msg)
+
+  inline given userMessageToString(using
+      ctx: ComponentContext
+  ): Conversion[UserMessage, String] with
+    inline def apply(msg: UserMessage) = ctx.messages(msg)

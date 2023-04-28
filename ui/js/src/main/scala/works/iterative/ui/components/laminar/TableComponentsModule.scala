@@ -29,7 +29,7 @@ trait TableComponentsModule:
 
 trait DefaultTableComponentsModule extends TableComponentsModule:
 
-  override val tables: TableComponents = new TableComponents:
+  override lazy val tables: TableComponents = new TableComponents:
 
     override def tableSection(
         title: Modifier[HtmlElement],

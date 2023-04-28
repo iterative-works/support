@@ -34,7 +34,7 @@ trait DefaultPageComponentsModule(using ComponentContext)
         children: Modifier[HtmlElement]*
     ): HtmlElement =
       div(
-        cls("max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8"),
+        cls("max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 overflow-y-auto"),
         children
       )
 

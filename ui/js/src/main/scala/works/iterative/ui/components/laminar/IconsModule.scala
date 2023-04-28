@@ -14,6 +14,7 @@ trait IconsModule:
     def `search-solid`(mods: Modifier[SvgElement]*): SvgElement
     def `filter-solid`(mods: Modifier[SvgElement]*): SvgElement
     def `document-chart-bar-outline`(mods: Modifier[SvgElement]*): SvgElement
+    def `paper-clip-solid`(mods: Modifier[SvgElement]*): SvgElement
 
 trait DefaultIconsModule(using ComponentContext) extends IconsModule:
   override val icons: Icons = new Icons:
@@ -105,5 +106,19 @@ trait DefaultIconsModule(using ComponentContext) extends IconsModule:
           strokeLineCap := "round",
           strokeLineJoin := "round",
           d := "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25M9 16.5v.75m3-3v3M15 12v5.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+        )
+      )
+
+    override def `paper-clip-solid`(mods: Modifier[SvgElement]*): SvgElement =
+      svg(
+        withDefault(mods, cls := "h-5 w-5"),
+        cls := "flex-shrink-0 text-gray-400",
+        viewBox := "0 0 20 20",
+        fill := "currentColor",
+        aria.hidden := true,
+        path(
+          fillRule := "evenodd",
+          d := "M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z",
+          clipRule := "evenodd"
         )
       )
