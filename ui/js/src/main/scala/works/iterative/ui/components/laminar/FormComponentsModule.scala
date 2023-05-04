@@ -5,8 +5,6 @@ import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.ComponentContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.raquo.laminar.keys.ReactiveProp
-import com.raquo.domtypes.jsdom.defs.events.TypedTargetEvent
 import org.scalajs.dom.html
 import com.raquo.laminar.modifiers.KeyUpdater
 

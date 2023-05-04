@@ -1,12 +1,9 @@
 package works.iterative.ui.components.tailwind
 
-import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
-import com.raquo.domtypes.generic.defs.attrs.AriaAttrs
+import com.raquo.laminar.codecs.BooleanAsTrueFalseStringCodec
 import com.raquo.laminar.api.L.svg.{*, given}
 import com.raquo.laminar.api.L.SvgElement
-import com.raquo.laminar.builders.SvgBuilders
-import com.raquo.laminar.keys.ReactiveSvgAttr
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.nodes.ReactiveSvgElement
 
 object Icons:
@@ -16,7 +13,7 @@ object Icons:
   inline def spinner(extraClasses: String): SvgElement =
     svg(
       cls(extraClasses),
-      customSvgAttr("role", StringAsIsCodec) := "status",
+      svgAttr("role", StringAsIsCodec, None) := "status",
       cls := "inline mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-indigo-600",
       viewBox := "0 0 100 101",
       fill := "none",

@@ -3,7 +3,6 @@ package list
 
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom
-import com.raquo.laminar.builders.HtmlTag
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 trait AsListRow[A]:

@@ -2,8 +2,8 @@ package works.iterative.ui.components.tailwind
 package list
 
 import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.tags.HtmlTag
 import org.scalajs.dom
-import com.raquo.laminar.builders.HtmlTag
 
 object IconText:
   case class ViewModel(text: HtmlElement, icon: SvgElement)

@@ -42,7 +42,7 @@ trait ScenarioMain(
     identity[String],
     routeFallback = _ => scenarios.head.id
   )(
-    windowEvents.onPopState,
+    windowEvents(_.onPopState),
     unsafeWindowOwner
   )
 
@@ -64,12 +64,12 @@ trait ScenarioMain(
             cls(
               "flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4"
             ),
-            nav(
+            navTag(
               cls("flex flex-1 flex-col"),
               ul(
                 role("list"),
                 cls("flex flex-1 flex-col gap-y-7"),
-                children <-- router.$currentPage.map(id =>
+                children <-- router.currentPageSignal.map(id =>
                   scenarios.map(s =>
                     li(
                       a(
@@ -92,13 +92,13 @@ trait ScenarioMain(
             )
           )
         ),
-        com.raquo.laminar.api.L.main(
+        mainTag(
           cls("h-full pl-72"),
           div(
             cls(
               "h-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8"
             ),
-            child <-- router.$currentPage.map(scenarioMap(_).element)
+            child <-- router.currentPageSignal.map(scenarioMap(_).element)
           )
         )
       )

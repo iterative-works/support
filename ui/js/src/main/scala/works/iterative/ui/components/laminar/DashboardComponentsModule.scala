@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.laminar.LaminarExtensions.given
 import works.iterative.ui.model.color.ColorDef
-import com.raquo.laminar.builders.HtmlTag
+import com.raquo.laminar.tags.HtmlTag
 import org.scalajs.dom.html.UList
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import works.iterative.ui.components.tailwind.ComponentContext
@@ -22,7 +22,7 @@ trait DashboardComponentsModule:
         label: String,
         initials: Div,
         children: Modifier[HtmlElement]
-    ): Li
+    ): LI
     def cardInitials(
         initials: String,
         color: Signal[ColorKind],
@@ -71,7 +71,7 @@ trait DefaultDashboardComponentsModule(using ComponentContext)
         label: String,
         initials: Div,
         children: Modifier[HtmlElement]
-    ): Li =
+    ): LI =
       li(
         div(
           cls("col-span-1 flex shadow-sm rounded-md"),

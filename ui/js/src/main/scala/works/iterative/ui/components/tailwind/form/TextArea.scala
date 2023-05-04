@@ -32,7 +32,7 @@ object TextArea:
     textArea(
       changeBus.events.map(numberOfLines) --> rowNo,
       changeBus.events --> updates,
-      name := fieldName,
+      nameAttr := fieldName,
       rows <-- rowNo.signal.map(_ + 2),
       mods,
       currentValue.map(value(_)),

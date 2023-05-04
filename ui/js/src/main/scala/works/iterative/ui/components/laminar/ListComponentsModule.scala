@@ -6,7 +6,6 @@ import works.iterative.ui.model.color.ColorKind
 import works.iterative.ui.components.tailwind.laminar.LaminarExtensions.given
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html.Paragraph
-import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
 import com.raquo.laminar.nodes.TextNode
 
 trait ListComponentsModule:
@@ -20,7 +19,7 @@ trait ListComponentsModule:
         subtitle: Option[String],
         right: Modifier[HtmlElement] = emptyMod,
         avatar: Option[Modifier[HtmlElement]] = None
-    ): Li
+    ): LI
     def unordered(
         children: Modifier[HtmlElement]
     ): ReactiveHtmlElement[org.scalajs.dom.html.UList]
@@ -42,7 +41,7 @@ trait DefaultListComponentsModule(using ComponentContext)
         subtitle: Option[String],
         right: Modifier[HtmlElement] = emptyMod,
         avatar: Option[Modifier[HtmlElement]] = None
-    ): Li =
+    ): LI =
       li(
         cls("group"),
         div(
@@ -102,7 +101,7 @@ trait DefaultListComponentsModule(using ComponentContext)
       )
 
     override def navigation(sections: Modifier[HtmlElement]): HtmlElement =
-      nav(
+      navTag(
         cls("flex-1 min-h-0 overflow-y-auto"),
         sections
       )

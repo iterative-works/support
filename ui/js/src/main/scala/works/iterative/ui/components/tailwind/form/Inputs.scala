@@ -16,7 +16,7 @@ object Inputs:
   )(using codec: FormCodec[V, String]): Input =
     input(
       idAttr := prop.id,
-      name := prop.name,
+      nameAttr := prop.name,
       tpe := inputType,
       cls := "block max-w-lg w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md",
       prop.value.map(v => value(codec.toForm(v))),

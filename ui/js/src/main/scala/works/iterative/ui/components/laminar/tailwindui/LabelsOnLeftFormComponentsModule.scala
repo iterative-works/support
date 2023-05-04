@@ -6,8 +6,6 @@ import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.ComponentContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.raquo.laminar.keys.ReactiveProp
-import com.raquo.domtypes.jsdom.defs.events.TypedTargetEvent
 import org.scalajs.dom.html
 import com.raquo.laminar.modifiers.KeyUpdater
 
@@ -98,7 +96,7 @@ trait LabelsOnLeftFormComponentsModule(using ctx: ComponentContext)
           ),
           input(
             tpe := "search",
-            name := "search",
+            nameAttr := "search",
             idAttr := id,
             cls := "focus:ring-pink-500 focus:border-pink-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md",
             placeholderText
@@ -145,7 +143,7 @@ trait LabelsOnLeftFormComponentsModule(using ctx: ComponentContext)
         labelText,
         input(
           idAttr(id),
-          name(id),
+          nameAttr(id),
           autoComplete("date"),
           tpe("date"),
           cls(

@@ -32,7 +32,7 @@ class Switch[V](using codec: FormCodec[V, Boolean], ctx: ComponentContext)
             if v then "translate-x-5" else "translate-x-0"
           )
         ),
-        composeEvents(onClick)(
+        onClick.compose(
           _.sample(currentValue.signal).map(v => !v)
         ) --> currentValue
       ),

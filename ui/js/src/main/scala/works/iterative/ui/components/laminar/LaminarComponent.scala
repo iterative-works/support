@@ -20,7 +20,7 @@ abstract class LaminarComponent[M, A, E](
 
     val actions$ = actions.events.recover(handleFailure)
 
-    val processor$ = actions$.foldLeft(zero) { case ((m, _), a) =>
+    val processor$ = actions$.scanLeft(zero) { case ((m, _), a) =>
       handle(a, m)
     }
 

@@ -2,7 +2,6 @@ package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.ComponentContext
-import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
 import works.iterative.ui.components.tailwind.CustomAttrs
 
 trait IconsModule:

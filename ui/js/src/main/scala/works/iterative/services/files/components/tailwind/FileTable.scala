@@ -2,7 +2,7 @@ package works.iterative.services.files
 package components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import com.raquo.laminar.codecs.StringAsIsCodec
 import works.iterative.ui.components.tailwind.Icons
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -15,7 +15,7 @@ def FileTable(
     files: Signal[List[File]],
     maybeSelection: Option[Var[Set[File]]] = None
 ): HtmlElement =
-  val scope = customHtmlAttr("scope", StringAsIsCodec)
+  val scope = htmlAttr("scope", StringAsIsCodec)
   val selectedFiles = maybeSelection.getOrElse(Var(Set.empty))
   val openCategories = Var[Set[String]](
     maybeSelection.map(_.now().map(_.category)).getOrElse(Set.empty)

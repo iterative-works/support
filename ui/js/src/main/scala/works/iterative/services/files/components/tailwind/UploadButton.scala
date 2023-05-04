@@ -35,7 +35,7 @@ object UploadButton:
           input(
             cls := "cursor-pointer hidden",
             tpe := "file",
-            name := "files",
+            nameAttr := "files",
             multiple := true,
             inContext(thisNode => onInput.mapTo(thisNode.ref.files) --> upload)
           )
