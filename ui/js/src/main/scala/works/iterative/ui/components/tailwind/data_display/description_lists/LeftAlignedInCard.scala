@@ -11,17 +11,18 @@ import works.iterative.ui.components.tailwind.HtmlComponent
 import works.iterative.ui.components.tailwind.form.ActionButton
 import works.iterative.ui.components.tailwind.ComponentContext
 import works.iterative.ui.components.tailwind.Icons
+import scala.reflect.ClassTag
 
-type ValueContent = String | Node
+type ValueContent = String | Modifier[HtmlElement]
 type OptionalValueContent = ValueContent | Option[ValueContent]
 
 case class LabeledValue(label: String, body: OptionalValueContent):
-  def content: Option[Node] = body match
-    case Some(s: String) => Some(s)
-    case Some(m: Node)   => Some(m)
-    case s: String       => Some(s)
-    case m: Node         => Some(m)
-    case _               => None
+  def content: Option[Modifier[HtmlElement]] = body match
+    case Some(s: String)                => Some(s)
+    case Some(m: Modifier[HtmlElement]) => Some(m)
+    case s: String                      => Some(s)
+    case m: Modifier[_] => Some(m.asInstanceOf[Modifier[HtmlElement]])
+    case _              => None
 
 object LabeledValue:
   given renderableToLabeledValue[V: HtmlRenderable](using
