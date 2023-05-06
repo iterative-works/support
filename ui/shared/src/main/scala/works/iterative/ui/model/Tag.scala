@@ -1,10 +1,16 @@
 package works.iterative.ui.model
 
-import works.iterative.ui.model.color.ColorKind
-
-/** Representation of colored string value.
+/** Representation of a label or tag.
   *
-  * Used generally to represent tags or "labels", eg. some kind of status or
-  * categorization.
+  * The UI renderer will recognize this value as tag and render accordingly. The
+  * value is used to determine both the color of the tag and the text displayed.
+  *
+  * @param value
+  *   the value of the tag
   */
-final case class Tag(value: String, color: ColorKind = ColorKind.gray)
+opaque type Tag = String
+
+object Tag:
+  def apply(value: String): Tag = value
+
+  extension (tag: Tag) def value: String = tag

@@ -1,37 +1,15 @@
 package works.iterative.ui.components.laminar
+package tailwind
+package ui
 
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
 
 trait TableComponentsModule:
-  def tables: TableComponents
 
-  trait TableComponents:
+  object tables:
+
     def tableSection(
-        title: Modifier[HtmlElement],
-        subtitle: Option[Modifier[HtmlElement]] = None,
-        actions: Modifier[HtmlElement]*
-    )(table: Modifier[HtmlElement]*): HtmlElement
-
-    def simpleTable(header: Modifier[HtmlElement]*)(
-        body: Modifier[HtmlElement]*
-    ): HtmlElement
-
-    def headerRow(mods: Modifier[HtmlElement]*)(
-        cells: HtmlElement*
-    ): HtmlElement
-
-    def dataRow(mods: Modifier[HtmlElement]*)(cells: HtmlElement*): HtmlElement
-
-    def headerCell(content: Modifier[HtmlElement]): HtmlElement
-
-    def dataCell(content: Modifier[HtmlElement]): HtmlElement
-
-trait DefaultTableComponentsModule extends TableComponentsModule:
-
-  override lazy val tables: TableComponents = new TableComponents:
-
-    override def tableSection(
         title: Modifier[HtmlElement],
         subtitle: Option[Modifier[HtmlElement]] = None,
         actions: Modifier[HtmlElement]*
@@ -61,7 +39,7 @@ trait DefaultTableComponentsModule extends TableComponentsModule:
         )
       )
 
-    override def simpleTable(header: Modifier[HtmlElement]*)(
+    def simpleTable(header: Modifier[HtmlElement]*)(
         body: Modifier[HtmlElement]*
     ): HtmlElement =
       table(
@@ -70,7 +48,7 @@ trait DefaultTableComponentsModule extends TableComponentsModule:
         tbody(cls("divide-y divide-gray-200"), body)
       )
 
-    override def headerRow(
+    def headerRow(
         mods: Modifier[HtmlElement]*
     )(cells: HtmlElement*): HtmlElement =
       tr(
@@ -82,7 +60,7 @@ trait DefaultTableComponentsModule extends TableComponentsModule:
         )
       )
 
-    override def dataRow(
+    def dataRow(
         mods: Modifier[HtmlElement]*
     )(cells: HtmlElement*): HtmlElement =
       tr(
@@ -95,13 +73,13 @@ trait DefaultTableComponentsModule extends TableComponentsModule:
         )
       )
 
-    override def headerCell(content: Modifier[HtmlElement]): HtmlElement =
+    def headerCell(content: Modifier[HtmlElement]): HtmlElement =
       th(
         cls("text-left text-sm font-semibold text-gray-900"),
         content
       )
 
-    override def dataCell(content: Modifier[HtmlElement]): HtmlElement =
+    def dataCell(content: Modifier[HtmlElement]): HtmlElement =
       td(
         cls("whitespace-nowrap text-sm text-gray-500"),
         content

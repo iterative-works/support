@@ -1,4 +1,4 @@
-package works.iterative.ui.model.color
+package works.iterative.ui.components.laminar.tailwind.color
 
 /** Defines what color should be used, without specifying the area or weight.
   */

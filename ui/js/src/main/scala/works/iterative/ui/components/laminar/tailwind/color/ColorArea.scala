@@ -1,4 +1,4 @@
-package works.iterative.ui.model.color
+package works.iterative.ui.components.laminar.tailwind.color
 
 /** Defines the area the color should apply to, eg. background, text, border,
   * etc.

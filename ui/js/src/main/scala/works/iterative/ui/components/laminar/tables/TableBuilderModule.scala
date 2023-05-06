@@ -3,7 +3,7 @@ package works.iterative.ui.components.laminar.tables
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.laminar.HtmlTabular
 import works.iterative.ui.model.tables.Tabular
-import works.iterative.ui.components.laminar.TableComponentsModule
+import works.iterative.ui.components.laminar.tailwind.ui.TableComponentsModule
 import works.iterative.core.UserMessage
 import works.iterative.ui.components.tailwind.laminar.LaminarExtensions.given
 import works.iterative.ui.components.tailwind.ComponentContext

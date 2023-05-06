@@ -1,36 +1,14 @@
 package works.iterative.ui.components.laminar
+package tailwind
+package ui
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.ComponentContext
 
 trait PageComponentsModule:
 
-  val page: PageComponents
-
-  trait PageComponents:
+  object page:
     def container(
-        children: Modifier[HtmlElement]*
-    ): HtmlElement
-
-    def singleColumn(
-        header: Modifier[HtmlElement]
-    )(children: Modifier[HtmlElement]*): HtmlElement
-
-    def pageHeader(
-        title: Modifier[HtmlElement],
-        right: Modifier[HtmlElement] = emptyMod,
-        subtitle: Option[Modifier[HtmlElement]] = None
-    ): HtmlElement
-
-    /** Visage for clickable text, like links
-      */
-    def clickable: Modifier[HtmlElement]
-
-trait DefaultPageComponentsModule(using ComponentContext)
-    extends PageComponentsModule:
-
-  override val page: PageComponents = new PageComponents:
-    override def container(
         children: Modifier[HtmlElement]*
     ): HtmlElement =
       div(
@@ -38,7 +16,7 @@ trait DefaultPageComponentsModule(using ComponentContext)
         children
       )
 
-    override def singleColumn(
+    def singleColumn(
         header: Modifier[HtmlElement]
     )(children: Modifier[HtmlElement]*): HtmlElement =
       div(
@@ -47,7 +25,7 @@ trait DefaultPageComponentsModule(using ComponentContext)
         children
       )
 
-    override def pageHeader(
+    def pageHeader(
         title: Modifier[HtmlElement],
         right: Modifier[HtmlElement],
         subtitle: Option[Modifier[HtmlElement]] = None
@@ -67,5 +45,5 @@ trait DefaultPageComponentsModule(using ComponentContext)
         )
       )
 
-    override def clickable: Modifier[HtmlElement] =
+    def clickable: Modifier[HtmlElement] =
       cls("text-sm font-medium text-indigo-600 hover:text-indigo-400")

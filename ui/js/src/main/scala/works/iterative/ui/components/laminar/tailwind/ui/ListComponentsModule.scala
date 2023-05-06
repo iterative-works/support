@@ -1,42 +1,23 @@
 package works.iterative.ui.components.laminar
+package tailwind
+package ui
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.ComponentContext
-import works.iterative.ui.model.color.ColorKind
-import works.iterative.ui.components.tailwind.laminar.LaminarExtensions.given
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html.Paragraph
 import com.raquo.laminar.nodes.TextNode
+import works.iterative.ui.components.laminar.tailwind.color.ColorKind
 
 trait ListComponentsModule:
+  self: BadgeComponentsModule =>
 
-  def list: ListComponents
-
-  trait ListComponents(using ComponentContext):
-    def label(text: String, color: ColorKind): HtmlElement
-    def item(
-        title: String,
-        subtitle: Option[String],
-        right: Modifier[HtmlElement] = emptyMod,
-        avatar: Option[Modifier[HtmlElement]] = None
-    ): LI
-    def unordered(
-        children: Modifier[HtmlElement]
-    ): ReactiveHtmlElement[org.scalajs.dom.html.UList]
-    def listSection(header: String, list: HtmlElement): Div
-    def navigation(sections: Modifier[HtmlElement]): HtmlElement
-
-trait DefaultListComponentsModule(using ComponentContext)
-    extends ListComponentsModule:
-  self: GenericComponentsModule =>
-
-  override val list: ListComponents = new ListComponents:
-    override def label(
+  object list:
+    def label(
         text: String,
         color: ColorKind
-    ): HtmlElement = generic.tag(text, color)
+    ): HtmlElement = badges.pill(text, color)
 
-    override def item(
+    def item(
         title: String,
         subtitle: Option[String],
         right: Modifier[HtmlElement] = emptyMod,
@@ -76,7 +57,7 @@ trait DefaultListComponentsModule(using ComponentContext)
         )
       )
 
-    override def unordered(
+    def unordered(
         children: Modifier[HtmlElement]
     ): ReactiveHtmlElement[org.scalajs.dom.html.UList] =
       ul(
@@ -85,7 +66,7 @@ trait DefaultListComponentsModule(using ComponentContext)
         children
       )
 
-    override def listSection(
+    def listSection(
         header: String,
         list: HtmlElement
     ): Div =
@@ -100,7 +81,7 @@ trait DefaultListComponentsModule(using ComponentContext)
         list
       )
 
-    override def navigation(sections: Modifier[HtmlElement]): HtmlElement =
+    def navigation(sections: Modifier[HtmlElement]): HtmlElement =
       navTag(
         cls("flex-1 min-h-0 overflow-y-auto"),
         sections

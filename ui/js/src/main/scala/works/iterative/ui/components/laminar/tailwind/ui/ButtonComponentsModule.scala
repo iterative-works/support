@@ -1,20 +1,17 @@
 package works.iterative.ui.components.laminar
-package tailwindui
+package tailwind
+package ui
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.ComponentContext
 
-trait TailwindUIButtonComponentsModule(using ctx: ComponentContext)
-    extends ButtonComponentsModule:
+trait ButtonComponentsModule:
 
-  override val buttons = new ButtonComponents:
+  object buttons:
 
-    private inline def srHelp(id: String): Modifier[HtmlElement] =
-      ctx.messages
-        .opt(s"form.button.${id}.screenReaderHelp")
-        .map(sr => span(cls := "sr-only", sr))
+    private inline def srHelp(text: String): Modifier[HtmlElement] =
+      span(cls := "sr-only", text)
 
-    override def primaryButton(
+    def primaryButton(
         id: String,
         text: Modifier[HtmlElement],
         icon: Option[SvgElement] = None,
@@ -28,7 +25,7 @@ trait TailwindUIButtonComponentsModule(using ctx: ComponentContext)
         mods
       )
 
-    override def secondaryButton(
+    def secondaryButton(
         id: String,
         text: Modifier[HtmlElement],
         icon: Option[SvgElement] = None,
@@ -44,7 +41,7 @@ trait TailwindUIButtonComponentsModule(using ctx: ComponentContext)
         mods
       )
 
-    override def inlineButton(id: String, icon: SvgElement)(
+    def inlineButton(id: String, icon: SvgElement)(
         mods: Modifier[HtmlElement]*
     ): HtmlElement =
       button(
@@ -54,12 +51,12 @@ trait TailwindUIButtonComponentsModule(using ctx: ComponentContext)
         icon
       )
 
-    override def iconButton(id: String, icon: SvgElement)(
+    def iconButton(id: String, icon: SvgElement, srText: Option[String] = None)(
         mods: Modifier[HtmlElement]*
     ): HtmlElement =
       button(
         tpe := "button",
         cls := "inline-flex justify-center px-3.5 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500",
         icon,
-        srHelp(id)
+        srText.map(srHelp(_))
       )

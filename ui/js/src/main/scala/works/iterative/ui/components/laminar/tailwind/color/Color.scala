@@ -1,4 +1,6 @@
-package works.iterative.ui.model.color
+package works.iterative.ui.components.laminar.tailwind.color
+
+import com.raquo.laminar.api.L.{*, given}
 
 /** Complete color definition that can be rendered to CSS.
   *
@@ -9,6 +11,18 @@ case class Color(area: ColorArea, color: ColorDef):
 
 object Color:
   import ColorDef.given
+
+  given colorToCSS: Conversion[Color, HtmlMod] with
+    def apply(c: Color) = cls(c.toCSS)
+
+  given colorToSVGCSS: Conversion[Color, SvgMod] with
+    def apply(c: Color) = svg.cls(c.toCSS)
+
+  given colorSignalToCSS: Conversion[Signal[Color], HtmlMod] with
+    def apply(c: Signal[Color]) = cls <-- c.map(_.toCSS)
+
+  given colorSignalToSVGCSS: Conversion[Signal[Color], SvgMod] with
+    def apply(c: Signal[Color]) = svg.cls <-- c.map(_.toCSS)
 
   def current = ColorDef(ColorKind.current)
   def inherit = ColorDef(ColorKind.inherit)

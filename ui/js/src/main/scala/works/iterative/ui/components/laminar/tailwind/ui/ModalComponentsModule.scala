@@ -1,24 +1,13 @@
 package works.iterative.ui.components.laminar
+package tailwind
+package ui
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.ComponentContext
 
 trait ModalComponentsModule:
-
-  def modal: ModalComponents
-
-  trait ModalComponents:
+  object modal:
     def modalDialog(
-        content: HtmlElement,
-        onClose: Modifier[HtmlElement]
-    ): HtmlElement
-
-trait DefaultModalComponentsModule(using ctx: ComponentContext)
-    extends ModalComponentsModule:
-
-  override val modal: ModalComponents = new ModalComponents:
-
-    override def modalDialog(
         content: HtmlElement,
         closeMod: Modifier[HtmlElement]
     ): HtmlElement =

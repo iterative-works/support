@@ -5,18 +5,7 @@ import works.iterative.ui.components.tailwind.ComponentContext
 import works.iterative.ui.components.tailwind.CustomAttrs
 
 trait IconsModule:
-  def icons: Icons
-
-  trait Icons:
-    def avatarPlaceholder(mods: Modifier[SvgElement]*): SvgElement
-    def close(mods: Modifier[SvgElement]*): SvgElement
-    def `search-solid`(mods: Modifier[SvgElement]*): SvgElement
-    def `filter-solid`(mods: Modifier[SvgElement]*): SvgElement
-    def `document-chart-bar-outline`(mods: Modifier[SvgElement]*): SvgElement
-    def `paper-clip-solid`(mods: Modifier[SvgElement]*): SvgElement
-
-trait DefaultIconsModule(using ComponentContext) extends IconsModule:
-  override val icons: Icons = new Icons:
+  object icons:
     import svg.*
 
     object aria:
@@ -46,7 +35,7 @@ trait DefaultIconsModule(using ComponentContext) extends IconsModule:
         )
       )
 
-    override def close(mods: Modifier[SvgElement]*): SvgElement =
+    def close(mods: Modifier[SvgElement]*): SvgElement =
       svg(
         withDefault(mods, cls := "h-2 w-2"),
         stroke := "currentColor",
@@ -59,7 +48,7 @@ trait DefaultIconsModule(using ComponentContext) extends IconsModule:
         )
       )
 
-    override def `search-solid`(mods: Modifier[SvgElement]*): SvgElement =
+    def `search-solid`(mods: Modifier[SvgElement]*): SvgElement =
       svg(
         withDefault(mods, cls("h-5 w-5 text-gray-400")),
         xmlns("http://www.w3.org/2000/svg"),
@@ -75,7 +64,7 @@ trait DefaultIconsModule(using ComponentContext) extends IconsModule:
         )
       )
 
-    override def `filter-solid`(mods: Modifier[SvgElement]*): SvgElement =
+    def `filter-solid`(mods: Modifier[SvgElement]*): SvgElement =
       svg(
         withDefault(mods, cls("h-5 w-5 text-gray-400")),
         xmlns("http://www.w3.org/2000/svg"),
@@ -91,7 +80,7 @@ trait DefaultIconsModule(using ComponentContext) extends IconsModule:
         )
       )
 
-    override def `document-chart-bar-outline`(
+    def `document-chart-bar-outline`(
         mods: Modifier[SvgElement]*
     ): SvgElement =
       svg(
@@ -108,7 +97,7 @@ trait DefaultIconsModule(using ComponentContext) extends IconsModule:
         )
       )
 
-    override def `paper-clip-solid`(mods: Modifier[SvgElement]*): SvgElement =
+    def `paper-clip-solid`(mods: Modifier[SvgElement]*): SvgElement =
       svg(
         withDefault(mods, cls := "h-5 w-5"),
         cls := "flex-shrink-0 text-gray-400",

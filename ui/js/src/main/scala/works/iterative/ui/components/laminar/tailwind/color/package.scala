@@ -1,4 +1,4 @@
-package works.iterative.ui.model
+package works.iterative.ui.components.laminar.tailwind
 
 /** We need a generic Color model that can be used both on server and on client.
   *
