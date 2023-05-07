@@ -15,3 +15,4 @@ trait TailwindUICatalogueModule
     with ModalComponentsModule
     with PageComponentsModule
     with TableComponentsModule
+    with DetailComponentsModule
