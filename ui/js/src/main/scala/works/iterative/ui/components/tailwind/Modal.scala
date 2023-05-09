@@ -33,7 +33,7 @@ object Modal:
       )
 
     div(
-      cls("fixed inset-0 z-20 overflow-y-auto"),
+      cls("fixed inset-0 z-50 overflow-y-auto"),
       div(
         cls("text-center sm:block sm:p-0"),
         overlay,
