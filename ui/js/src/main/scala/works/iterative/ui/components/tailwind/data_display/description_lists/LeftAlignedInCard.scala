@@ -26,13 +26,13 @@ case class LabeledValue(label: String, body: OptionalValueContent):
 
 object LabeledValue:
   given renderableToLabeledValue[V: HtmlRenderable](using
-      cctx: ComponentContext
+      cctx: ComponentContext[_]
   ): Conversion[(String, V), LabeledValue] with
     def apply(v: (String, V)) =
       LabeledValue(cctx.messages(v._1), Some(v._2.render))
 
   given optionalRenderableToLabeledValue[V: HtmlRenderable](using
-      cctx: ComponentContext
+      cctx: ComponentContext[_]
   ): Conversion[(String, Option[V]), LabeledValue] with
     def apply(v: (String, Option[V])) =
       LabeledValue(cctx.messages(v._1), v._2.map(_.render))

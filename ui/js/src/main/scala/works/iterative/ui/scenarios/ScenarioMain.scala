@@ -49,7 +49,8 @@ trait ScenarioMain(
   def main(args: Array[String]): Unit =
     given MessageCatalogue = messageCatalogue
 
-    given ComponentContext with
+    given ComponentContext[Unit] with
+      val app: Unit = ()
       val messages: MessageCatalogue = messageCatalogue
       val style: StyleGuide = StyleGuide.default
 

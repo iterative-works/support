@@ -8,7 +8,7 @@ opaque type TableHeaderResolver = String => String
 object TableHeaderResolver extends LowPriorityTableHeaderResolverImplicits:
   def apply(resolver: String => String): TableHeaderResolver = resolver
 
-  given (using ctx: ComponentContext): TableHeaderResolver =
+  given (using ctx: ComponentContext[_]): TableHeaderResolver =
     name => ctx.messages(name)
 
   given (using cat: MessageCatalogue): TableHeaderResolver =

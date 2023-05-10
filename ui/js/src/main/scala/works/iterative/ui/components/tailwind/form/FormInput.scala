@@ -25,5 +25,7 @@ object FormInput:
     TextArea()
   given optionLocalDateInput: FormInput[Option[LocalDate]] =
     Inputs.OptionDateInput()
-  given optionBooleanInput(using ComponentContext): FormInput[Option[Boolean]] =
+  given optionBooleanInput(using
+      ComponentContext[_]
+  ): FormInput[Option[Boolean]] =
     Switch()

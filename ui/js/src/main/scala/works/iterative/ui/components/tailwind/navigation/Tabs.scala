@@ -9,7 +9,7 @@ object Tabs:
   def apply[T](tabs: Seq[(MessageId, T)], selected: Signal[MessageId])(
       updates: Observer[T]
   )(using
-      ctx: ComponentContext
+      ctx: ComponentContext[_]
   ): HtmlElement =
     val m = tabs
       .map { case (t, v) =>

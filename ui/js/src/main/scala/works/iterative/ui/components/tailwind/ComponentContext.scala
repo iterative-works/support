@@ -3,16 +3,17 @@ package ui.components.tailwind
 
 import works.iterative.core.MessageCatalogue
 
-trait ComponentContext:
+trait ComponentContext[App]:
+  def app: App
   def messages: MessageCatalogue
   def style: StyleGuide
 
-  def nested(prefixes: String*): ComponentContext =
-    ComponentContext.Nested(this, prefixes)
+  def nested(prefixes: String*): ComponentContext[App] =
+    ComponentContext.Nested[App](this, prefixes)
 
 object ComponentContext:
-  case class Nested(parent: ComponentContext, prefixes: Seq[String])
-      extends ComponentContext:
+  case class Nested[App](parent: ComponentContext[App], prefixes: Seq[String])
+      extends ComponentContext[App]:
     export parent.{messages => _, *}
 
     override lazy val messages: MessageCatalogue =
