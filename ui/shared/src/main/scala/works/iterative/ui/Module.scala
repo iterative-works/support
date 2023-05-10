@@ -7,4 +7,5 @@ trait Module[Model, Action, Effect]:
   def handle(action: Action, model: Model): (Model, Option[Effect])
   // Optionally define how to handle failures.
   // To be used by implementations to allow module to display error messages.
-  def handleFailure: PartialFunction[Throwable, Option[Action]]
+  def handleFailure: PartialFunction[Throwable, Option[Action]] =
+    PartialFunction.empty
