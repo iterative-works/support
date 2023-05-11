@@ -3,14 +3,15 @@ package laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.core.UserMessage
+import io.laminext.syntax.core.*
 
 object LaminarExtensions:
-  inline given userMessageToModifier(using
-      ctx: ComponentContext[_]
-  ): Conversion[UserMessage, Modifier[HtmlElement]] with
-    inline def apply(msg: UserMessage) = ctx.messages(msg)
+  extension (msg: UserMessage)
+    inline def asElement(using ctx: ComponentContext[_]): HtmlElement =
+      span(msg.asMod)
 
-  inline given userMessageToString(using
-      ctx: ComponentContext[_]
-  ): Conversion[UserMessage, String] with
-    inline def apply(msg: UserMessage) = ctx.messages(msg)
+    inline def asString(using ctx: ComponentContext[_]): String =
+      ctx.messages(msg)
+
+    inline def asMod(using ctx: ComponentContext[_]): Mod[HtmlElement] =
+      nodeSeq(dataAttr("msgid")(msg.id.toString()), ctx.messages(msg))
