@@ -15,3 +15,7 @@ object LaminarExtensions:
 
     inline def asMod(using ctx: ComponentContext[_]): Mod[HtmlElement] =
       nodeSeq(dataAttr("msgid")(msg.id.toString()), ctx.messages(msg))
+
+  given (using ComponentContext[_]): HtmlRenderable[UserMessage] with
+    def toHtml(msg: UserMessage): Modifier[HtmlElement] =
+      msg.asElement
