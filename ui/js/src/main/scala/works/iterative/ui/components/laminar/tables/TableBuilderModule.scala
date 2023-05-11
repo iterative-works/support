@@ -9,21 +9,20 @@ import works.iterative.ui.components.tailwind.ComponentContext
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html
 
+trait TableUIFactory:
+  def table(headerRows: ReactiveHtmlElement[html.TableRow]*)(
+      bodyRows: ReactiveHtmlElement[html.TableRow]*
+  ): ReactiveHtmlElement[html.Table]
+  def headerRow(mod: HtmlMod)(
+      headerCells: ReactiveHtmlElement[html.TableCell]*
+  ): ReactiveHtmlElement[html.TableRow]
+  def dataRow(mod: HtmlMod)(
+      dataCells: ReactiveHtmlElement[html.TableCell]*
+  ): ReactiveHtmlElement[html.TableRow]
+  def headerCell(content: HtmlMod): ReactiveHtmlElement[html.TableCell]
+  def dataCell(content: HtmlMod): ReactiveHtmlElement[html.TableCell]
+
 trait HtmlTableBuilderModule:
-
-  trait TableUIFactory:
-    def table(headerRows: ReactiveHtmlElement[html.TableRow]*)(
-        bodyRows: ReactiveHtmlElement[html.TableRow]*
-    ): ReactiveHtmlElement[html.Table]
-    def headerRow(mod: HtmlMod)(
-        headerCells: ReactiveHtmlElement[html.TableCell]*
-    ): ReactiveHtmlElement[html.TableRow]
-    def dataRow(mod: HtmlMod)(
-        dataCells: ReactiveHtmlElement[html.TableCell]*
-    ): ReactiveHtmlElement[html.TableRow]
-    def headerCell(content: HtmlMod): ReactiveHtmlElement[html.TableCell]
-    def dataCell(content: HtmlMod): ReactiveHtmlElement[html.TableCell]
-
   def tableHeaderResolver: TableHeaderResolver
   def tableUIFactory: TableUIFactory
 
