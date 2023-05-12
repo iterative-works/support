@@ -13,20 +13,24 @@ trait FormUIFactory:
       content: HtmlMod*
   ): HtmlElement
 
-  def label(labelText: String, forId: Option[String] = None)(
+  def label(
+      labelText: String,
+      forId: Option[String] = None,
+      required: Boolean = false
+  )(
       mods: HtmlMod*
   ): ReactiveHtmlElement[html.Label]
 
   def field(label: HtmlMod)(content: HtmlMod*): HtmlElement
 
-  def submit(label: HtmlMod): HtmlElement
+  def submit(label: HtmlMod)(mods: HtmlMod*): HtmlElement
 
   def validationError(text: HtmlMod): HtmlElement
 
-  def input(
-      name: String,
-      id: Option[String] = None,
-      placeholder: Option[String] = None
-  )(
-      mods: HtmlMod*
-  ): ReactiveHtmlElement[html.Input]
+  def fieldHelp(text: HtmlMod): HtmlElement
+
+  def helpTextMods: HtmlMod
+
+  def errorTextMods: HtmlMod
+
+  def input(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement

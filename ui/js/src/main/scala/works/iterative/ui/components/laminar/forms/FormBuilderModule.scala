@@ -1,65 +1,33 @@
 package works.iterative.ui.components.laminar.forms
 
-import zio.prelude.*
+import zio.prelude.Validation
+import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom.html
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import works.iterative.core.UserMessage
+import works.iterative.core.PlainMultiLine
+import com.raquo.airstream.core.Signal
+import works.iterative.ui.components.tailwind.HtmlRenderable.given
+import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.core.MessageCatalogue
 
-trait InputField[A]:
-  def render: ReactiveHtmlElement[html.Input]
-
-case class InvalidValue(name: String, message: String => UserMessage)
-
-type Validated[A] = Validation[InvalidValue, A]
-
-sealed trait Form[A]:
-  def value: Validated[A]
-
-object Form:
-  case class Input(name: String) extends Form[String]:
-    override def value: Validated[String] =
-      Validation.fail(
-        InvalidValue(name, UserMessage("error.value.required", _))
-      )
-
-trait FormBuilderModule:
-  def formMessagesResolver: FormMessagesResolver
-  def formUIFactory: FormUIFactory
+trait FormBuilderModule(using fctx: FormBuilderContext):
   def buildForm[A](form: Form[A], submit: Observer[A]): HtmlFormBuilder[A] =
     HtmlFormBuilder[A](form, submit)
 
   case class HtmlFormBuilder[A](form: Form[A], submit: Observer[A]):
-    def renderForm[A](form: Form[A]): HtmlElement = form match
-      case i @ Form.Input(name) =>
-        val userLabel = formMessagesResolver.label(name)
-        formUIFactory.field(
-          formUIFactory.label(userLabel)()
-        )(
-          formUIFactory.input(
-            name,
-            placeholder = formMessagesResolver.placeholder(name)
-          )(),
-          i.value.fold(
-            msgs =>
-              msgs
-                .map(msg =>
-                  formUIFactory.validationError(
-                    formMessagesResolver.message(msg.message(userLabel))
-                  )
-                )
-                .toList,
-            _ => List.empty[HtmlMod]
+    def build(initialValue: Option[A]): FormComponent[A] =
+      val f = form.build(initialValue)
+      new FormComponent[A]:
+        override val validated: Signal[Validated[A]] = f.validated
+        override val element: HtmlElement =
+          fctx.formUIFactory.form(
+            onSubmit.preventDefault.compose(_.sample(f.validated).collect {
+              case Validation.Success(_, value) => value
+            }) --> submit
+          )(f.element)(
+            fctx.formUIFactory.submit(
+              fctx.formMessagesResolver.label("submit")
+            )(disabled <-- f.validated.map(_.fold(_ => true, _ => false)))
           )
-        )
-
-    def build: HtmlElement =
-      formUIFactory.form(
-        onSubmit.preventDefault.map(_ => form.value).collect {
-          case Validation.Success(_, value) => value
-        } --> submit
-      )(renderForm(form))(
-        formUIFactory.submit(
-          formMessagesResolver.label("submit")
-        )
-      )
