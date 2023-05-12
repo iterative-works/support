@@ -19,6 +19,8 @@ trait FormUIFactory:
 
   def field(label: HtmlMod)(content: HtmlMod*): HtmlElement
 
+  def submit(label: HtmlMod): HtmlElement
+
   def input(
       name: String,
       id: Option[String] = None,

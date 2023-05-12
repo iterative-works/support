@@ -33,4 +33,8 @@ trait FormBuilderModule:
     def build: HtmlElement =
       formUIFactory.form(
         onSubmit.preventDefault.mapTo(()) --> submit
-      )(renderForm(form))()
+      )(renderForm(form))(
+        formUIFactory.submit(
+          formMessagesResolver.label("submit")
+        )
+      )
