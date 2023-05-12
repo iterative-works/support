@@ -19,15 +19,16 @@ trait FormBuilderModule(using fctx: FormBuilderContext):
   case class HtmlFormBuilder[A](form: Form[A], submit: Observer[A]):
     def build(initialValue: Option[A]): FormComponent[A] =
       val f = form.build(initialValue)
-      new FormComponent[A]:
-        override val validated: Signal[Validated[A]] = f.validated
-        override val element: HtmlElement =
-          fctx.formUIFactory.form(
-            onSubmit.preventDefault.compose(_.sample(f.validated).collect {
-              case Validation.Success(_, value) => value
-            }) --> submit
-          )(f.element)(
-            fctx.formUIFactory.submit(
-              fctx.formMessagesResolver.label("submit")
-            )(disabled <-- f.validated.map(_.fold(_ => true, _ => false)))
+      f.wrap(
+        fctx.formUIFactory.form(
+          onSubmit.preventDefault.compose(_.sample(f.validated).collect {
+            case Validation.Success(_, value) => value
+          }) --> submit
+        )(_)(
+          fctx.formUIFactory.submit(
+            fctx.formMessagesResolver.label("submit")
+          )(
+            disabled <-- f.validated.map(_.fold(_ => true, _ => false))
           )
+        )
+      )
