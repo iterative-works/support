@@ -21,6 +21,8 @@ trait FormUIFactory:
 
   def submit(label: HtmlMod): HtmlElement
 
+  def validationError(text: HtmlMod): HtmlElement
+
   def input(
       name: String,
       id: Option[String] = None,

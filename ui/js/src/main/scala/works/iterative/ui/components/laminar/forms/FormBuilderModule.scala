@@ -9,7 +9,9 @@ import works.iterative.core.UserMessage
 trait InputField[A]:
   def render: ReactiveHtmlElement[html.Input]
 
-type Validated[A] = Validation[UserMessage, A]
+case class InvalidValue(name: String, message: String => UserMessage)
+
+type Validated[A] = Validation[InvalidValue, A]
 
 sealed trait Form[A]:
   def value: Validated[A]
@@ -17,7 +19,9 @@ sealed trait Form[A]:
 object Form:
   case class Input(name: String) extends Form[String]:
     override def value: Validated[String] =
-      Validation.fail(UserMessage("error.invalid.value"))
+      Validation.fail(
+        InvalidValue(name, UserMessage("error.value.required", _))
+      )
 
 trait FormBuilderModule:
   def formMessagesResolver: FormMessagesResolver
@@ -27,14 +31,26 @@ trait FormBuilderModule:
 
   case class HtmlFormBuilder[A](form: Form[A], submit: Observer[A]):
     def renderForm[A](form: Form[A]): HtmlElement = form match
-      case Form.Input(name) =>
+      case i @ Form.Input(name) =>
+        val userLabel = formMessagesResolver.label(name)
         formUIFactory.field(
-          formUIFactory.label(formMessagesResolver.label(name))()
+          formUIFactory.label(userLabel)()
         )(
           formUIFactory.input(
             name,
             placeholder = formMessagesResolver.placeholder(name)
-          )()
+          )(),
+          i.value.fold(
+            msgs =>
+              msgs
+                .map(msg =>
+                  formUIFactory.validationError(
+                    formMessagesResolver.message(msg.message(userLabel))
+                  )
+                )
+                .toList,
+            _ => List.empty[HtmlMod]
+          )
         )
 
     def build: HtmlElement =

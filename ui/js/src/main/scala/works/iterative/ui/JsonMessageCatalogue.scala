@@ -5,6 +5,7 @@ import core.{MessageCatalogue, MessageId}
 import scala.scalajs.js
 import works.iterative.core.UserMessage
 import java.text.MessageFormat
+import scala.util.Try
 
 // TODO: support hierarchical json structure
 trait JsonMessageCatalogue extends MessageCatalogue:
@@ -16,4 +17,9 @@ trait JsonMessageCatalogue extends MessageCatalogue:
 
   override def get(msg: UserMessage): Option[String] =
     assume(messages != null, "Message catalogue must not be null")
-    get(msg.id).map(_.format(msg.args: _*))
+    get(msg.id).map(m =>
+      Try(m.format(msg.args*)).fold(
+        t => s"error formatting [${msg.id.toString()}]: '$m': ${t.getMessage}",
+        identity
+      )
+    )

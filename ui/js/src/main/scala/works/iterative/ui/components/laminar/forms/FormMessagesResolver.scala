@@ -2,11 +2,13 @@ package works.iterative.ui.components.laminar.forms
 
 import works.iterative.core.MessageCatalogue
 import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.core.UserMessage
 
 trait FormMessagesResolver:
   def label(name: String): String
   def help(name: String): Option[String]
   def placeholder(name: String): Option[String]
+  def message(msg: UserMessage): String
 
 object FormMessagesResolver:
   given (using ctx: ComponentContext[_]): FormMessagesResolver =
@@ -17,6 +19,9 @@ object FormMessagesResolver:
 
 class MessageCatalogueFormMessagesResolver(using cat: MessageCatalogue)
     extends FormMessagesResolver:
-  def label(name: String): String = cat(name)
-  def help(name: String): Option[String] = cat.get(s"$name.help")
-  def placeholder(name: String): Option[String] = cat.get(s"$name.placeholder")
+  override def label(name: String): String = cat(name)
+  override def help(name: String): Option[String] = cat.get(s"$name.help")
+  override def placeholder(name: String): Option[String] =
+    cat.get(s"$name.placeholder")
+
+  override def message(msg: UserMessage): String = cat(msg)
