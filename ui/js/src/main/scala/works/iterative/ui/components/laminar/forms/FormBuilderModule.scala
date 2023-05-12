@@ -1,24 +1,31 @@
 package works.iterative.ui.components.laminar.forms
 
+import zio.prelude.*
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom.html
 import com.raquo.laminar.nodes.ReactiveHtmlElement
+import works.iterative.core.UserMessage
 
 trait InputField[A]:
   def render: ReactiveHtmlElement[html.Input]
 
-sealed trait Form[A]
+type Validated[A] = Validation[UserMessage, A]
+
+sealed trait Form[A]:
+  def value: Validated[A]
 
 object Form:
-  case class Input(name: String) extends Form[String]
+  case class Input(name: String) extends Form[String]:
+    override def value: Validated[String] =
+      Validation.fail(UserMessage("error.invalid.value"))
 
 trait FormBuilderModule:
   def formMessagesResolver: FormMessagesResolver
   def formUIFactory: FormUIFactory
-  def buildForm[A](form: Form[A], submit: Observer[Unit]): HtmlFormBuilder[A] =
+  def buildForm[A](form: Form[A], submit: Observer[A]): HtmlFormBuilder[A] =
     HtmlFormBuilder[A](form, submit)
 
-  case class HtmlFormBuilder[A](form: Form[A], submit: Observer[Unit]):
+  case class HtmlFormBuilder[A](form: Form[A], submit: Observer[A]):
     def renderForm[A](form: Form[A]): HtmlElement = form match
       case Form.Input(name) =>
         formUIFactory.field(
@@ -32,7 +39,9 @@ trait FormBuilderModule:
 
     def build: HtmlElement =
       formUIFactory.form(
-        onSubmit.preventDefault.mapTo(()) --> submit
+        onSubmit.preventDefault.map(_ => form.value).collect {
+          case Validation.Success(_, value) => value
+        } --> submit
       )(renderForm(form))(
         formUIFactory.submit(
           formMessagesResolver.label("submit")
