@@ -1,7 +1,7 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 trait FormComponents(using ctx: ComponentContext[_])
     extends LocalDateSelectModule:

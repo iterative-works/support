@@ -1,10 +1,13 @@
-package works.iterative.ui.components.tailwind
-package laminar
+package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.core.UserMessage
 import io.laminext.syntax.core.*
 import works.iterative.core.MessageId
+import com.raquo.laminar.modifiers.RenderableNode
+import com.raquo.laminar.nodes.ChildNode.Base
+import works.iterative.ui.components.ComponentContext
+import works.iterative.ui.components.laminar.HtmlRenderable
 
 object LaminarExtensions:
   extension (msg: UserMessage)

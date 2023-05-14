@@ -3,7 +3,7 @@ package ui.components.tailwind.navigation
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.core.MessageId
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 object Tabs:
   def apply[T](tabs: Seq[(MessageId, T)], selected: Signal[MessageId])(

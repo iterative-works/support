@@ -2,7 +2,7 @@ package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

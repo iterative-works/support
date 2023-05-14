@@ -7,8 +7,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import works.iterative.ui.JsonMessageCatalogue
 import works.iterative.core.MessageCatalogue
-import works.iterative.ui.components.tailwind.ComponentContext
-import works.iterative.ui.components.tailwind.StyleGuide
+import works.iterative.ui.components.ComponentContext
 import ui.components.tailwind.TailwindSupport
 import com.raquo.waypoint.*
 
@@ -52,7 +51,6 @@ trait ScenarioMain(
     given ComponentContext[Unit] with
       val app: Unit = ()
       val messages: MessageCatalogue = messageCatalogue
-      val style: StyleGuide = StyleGuide.default
 
     def container: HtmlElement =
       div(

@@ -3,7 +3,7 @@ package works.iterative.ui.components.tailwind.form
 import com.raquo.laminar.api.L.{*, given}
 
 import zio.prelude.Validation
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 class Switch[V](using codec: FormCodec[V, Boolean], ctx: ComponentContext[_])
     extends FormInput[V]:

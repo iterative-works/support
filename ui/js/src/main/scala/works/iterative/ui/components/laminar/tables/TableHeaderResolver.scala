@@ -1,6 +1,6 @@
 package works.iterative.ui.components.laminar.tables
 
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 import works.iterative.core.MessageCatalogue
 
 opaque type TableHeaderResolver = String => String

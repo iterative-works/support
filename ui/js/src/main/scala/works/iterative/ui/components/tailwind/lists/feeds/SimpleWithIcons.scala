@@ -3,7 +3,7 @@ package ui.components.tailwind.lists.feeds
 
 import com.raquo.laminar.api.L.{*, given}
 import java.time.Instant
-import works.iterative.ui.components.tailwind.TimeUtils
+import works.iterative.ui.TimeUtils
 import java.time.temporal.TemporalAccessor
 import java.text.DateFormat
 import com.raquo.laminar.codecs.StringAsIsCodec

@@ -1,4 +1,4 @@
-package works.iterative.ui.components.tailwind
+package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.codecs.{StringAsIsCodec, BooleanAsTrueFalseStringCodec}

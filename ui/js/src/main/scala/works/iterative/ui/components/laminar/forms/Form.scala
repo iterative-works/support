@@ -2,7 +2,7 @@ package works.iterative.ui.components.laminar.forms
 
 import zio.prelude.*
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.HtmlRenderable.given
+import works.iterative.ui.components.laminar.HtmlRenderable.given
 
 sealed trait Form[A] extends FormBuilder[A]
 

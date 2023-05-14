@@ -4,7 +4,7 @@ package ui.components.tailwind.form
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.core.MessageId
 import works.iterative.ui.components.tailwind.HtmlComponent
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 case class ActionButtonStyle(
     border: String,

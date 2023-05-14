@@ -1,12 +1,11 @@
 package works.iterative
-package ui.components.tailwind
+package ui.components
 
 import works.iterative.core.MessageCatalogue
 
 trait ComponentContext[App]:
   def app: App
   def messages: MessageCatalogue
-  def style: StyleGuide
 
   def nested(prefixes: String*): ComponentContext[App] =
     ComponentContext.Nested[App](this, prefixes)

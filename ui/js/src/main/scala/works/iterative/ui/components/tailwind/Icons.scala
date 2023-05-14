@@ -1,4 +1,5 @@
-package works.iterative.ui.components.tailwind
+package works.iterative.ui.components
+package tailwind
 
 import com.raquo.laminar.codecs.BooleanAsTrueFalseStringCodec
 import com.raquo.laminar.api.L.svg.{*, given}
@@ -8,7 +9,7 @@ import com.raquo.laminar.nodes.ReactiveSvgElement
 
 object Icons:
   object aria:
-    val hidden = CustomAttrs.svg.ariaHidden
+    val hidden = laminar.CustomAttrs.svg.ariaHidden
 
   inline def spinner(extraClasses: String): SvgElement =
     svg(

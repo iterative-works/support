@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.ZoneId
 import java.util.Locale
-import works.iterative.ui.components.tailwind.TimeUtils
+import works.iterative.ui.TimeUtils
 import works.iterative.core.CzechSupport
 
 def FileTable(

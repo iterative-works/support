@@ -1,6 +1,6 @@
 package works.iterative.ui.components.laminar.forms
 
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 trait SectionDescriptor:
   def title: String

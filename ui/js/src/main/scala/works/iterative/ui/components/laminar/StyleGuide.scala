@@ -1,5 +1,5 @@
 package works.iterative
-package ui.components.tailwind
+package ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 

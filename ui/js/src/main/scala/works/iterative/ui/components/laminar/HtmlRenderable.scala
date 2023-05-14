@@ -1,4 +1,4 @@
-package works.iterative.ui.components.tailwind
+package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom
@@ -6,7 +6,7 @@ import java.time.LocalDate
 import works.iterative.core.PlainMultiLine
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import works.iterative.ui.components.tailwind.CustomAttrs.datetime
+import works.iterative.ui.TimeUtils
 
 trait HtmlRenderable[A]:
   def toHtml(a: A): Modifier[HtmlElement]
@@ -22,12 +22,15 @@ object HtmlRenderable:
 
   given dateValue: HtmlRenderable[LocalDate] with
     def toHtml(v: LocalDate): Modifier[HtmlElement] =
-      timeTag(datetime(TimeUtils.formatHtmlDate(v)), TimeUtils.formatDate(v))
+      timeTag(
+        CustomAttrs.datetime(TimeUtils.formatHtmlDate(v)),
+        TimeUtils.formatDate(v)
+      )
 
   given instantValue: HtmlRenderable[Instant] with
     def toHtml(v: Instant): Modifier[HtmlElement] =
       timeTag(
-        datetime(TimeUtils.formatHtmlDateTime(v)),
+        CustomAttrs.datetime(TimeUtils.formatHtmlDateTime(v)),
         TimeUtils.formatDateTime(v)
       )
 

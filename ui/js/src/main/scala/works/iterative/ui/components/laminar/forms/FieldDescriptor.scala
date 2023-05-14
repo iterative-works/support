@@ -1,7 +1,7 @@
 package works.iterative.ui.components.laminar.forms
 
 import works.iterative.core.PlainMultiLine
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 trait FieldDescriptor:
   def id: FieldId
