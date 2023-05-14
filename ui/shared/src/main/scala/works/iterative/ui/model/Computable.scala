@@ -2,6 +2,7 @@ package works.iterative.ui.model
 
 import works.iterative.core.UserMessage
 import java.time.Instant
+import zio.prelude.Covariant
 
 /** A class representing the states of a model that needs computation
   */
@@ -46,3 +47,12 @@ object Computable:
   case class Failed(error: UserMessage) extends Computable[Nothing]:
     override def update[B](m: B): Computable[B] = Ready(m)
     override def started: Computable[Nothing] = Computing(Instant.now())
+
+  given Covariant[Computable] with
+    def map[A, B](f: A => B): Computable[A] => Computable[B] =
+      _ match
+        case Uninitialized             => Uninitialized
+        case Computing(start)          => Computing(start)
+        case Ready(model)              => Ready(f(model))
+        case Failed(error)             => Failed(error)
+        case Recomputing(start, model) => Recomputing(start, f(model))
