@@ -10,6 +10,7 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html
 
 trait TableUIFactory:
+  def container(table: ReactiveHtmlElement[html.Table]): HtmlElement
   def table(headerRows: ReactiveHtmlElement[html.TableRow]*)(
       bodyRows: ReactiveHtmlElement[html.TableRow]*
   ): ReactiveHtmlElement[html.Table]
@@ -54,22 +55,24 @@ trait HtmlTableBuilderModule:
 
     def build: HtmlElement =
       val tab = summon[HtmlTabular[A]]
-      tableUIFactory.table(
-        tableUIFactory.headerRow(headerRowMod)(
-          tab.columns.map(_.name).map { n =>
-            tableUIFactory.headerCell(
-              Seq[HtmlMod](headerCellMod(n), tableHeaderResolver(n))
-            )
-          }*
-        )
-      )(
-        data.zipWithIndex.map((d, idx) =>
-          tableUIFactory.dataRow(dataRowMod(d, idx))(
-            tab.columns
-              .map(c => c.name -> c.get(d))
-              .map { (n, v) =>
-                tableUIFactory.dataCell(Seq(v, dataCellMod(n, d)))
-              }*
+      tableUIFactory.container(
+        tableUIFactory.table(
+          tableUIFactory.headerRow(headerRowMod)(
+            tab.columns.map(_.name).map { n =>
+              tableUIFactory.headerCell(
+                Seq[HtmlMod](headerCellMod(n), tableHeaderResolver(n))
+              )
+            }*
           )
-        )*
+        )(
+          data.zipWithIndex.map((d, idx) =>
+            tableUIFactory.dataRow(dataRowMod(d, idx))(
+              tab.columns
+                .map(c => c.name -> c.get(d))
+                .map { (n, v) =>
+                  tableUIFactory.dataCell(Seq(v, dataCellMod(n, d)))
+                }*
+            )
+          )*
+        )
       )
