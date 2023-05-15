@@ -10,8 +10,10 @@ abstract class LaminarComponent[M, A, +E, +O: HasEffectHook](
 ) extends Module[M, A, E]:
   def render(m: Signal[M], actions: Observer[A]): O
 
+  /** Event bus for this component's actions. */
+  val actions = new EventBus[A]
+
   val view: O =
-    val actions = new EventBus[A]
 
     val zero @ (_, effect) = init
 
