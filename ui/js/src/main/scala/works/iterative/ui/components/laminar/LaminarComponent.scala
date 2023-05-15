@@ -3,12 +3,14 @@ package components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
 
-abstract class LaminarComponent[M, A, E](
+/** Hook the action -> effect cycle into a component.
+  */
+abstract class LaminarComponent[M, A, +E, +O: HasEffectHook](
     effectHandler: EffectHandler[E, A]
 ) extends Module[M, A, E]:
-  def render(m: Signal[M], actions: Observer[A]): HtmlElement
+  def render(m: Signal[M], actions: Observer[A]): O
 
-  val element: HtmlElement =
+  val view: O =
     val actions = new EventBus[A]
 
     val zero @ (_, effect) = init
