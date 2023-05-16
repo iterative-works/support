@@ -34,3 +34,9 @@ trait FormUIFactory:
   def errorTextMods: HtmlMod
 
   def input(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
+
+  def fileInput(title: String, icon: Option[SvgElement] = None)(
+      buttonMods: HtmlMod*
+  )(
+      inputMods: Mod[ReactiveHtmlElement[org.scalajs.dom.HTMLInputElement]]*
+  ): HtmlElement

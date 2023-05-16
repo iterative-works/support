@@ -3,6 +3,7 @@ package works.iterative.ui.components.laminar.forms
 import zio.prelude.*
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.airstream.core.Signal
+import works.iterative.core.Validated
 
 trait FormComponent[A]:
   def validated: Signal[Validated[A]]

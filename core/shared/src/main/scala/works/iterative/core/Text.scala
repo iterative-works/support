@@ -16,9 +16,9 @@ object Text:
 
   def validateNonEmpty[T](text: T)(using
       ev: T =:= String
-  ): Validation[MessageId, T] =
-    Validation.fromPredicateWith[MessageId, T](
-      "validation.text.empty"
+  ): Validated[T] =
+    Validation.fromPredicateWith[UserMessage, T](
+      UserMessage("validation.text.empty")
     )(text)(t => ev(t).nonEmpty)
 
   def firstNewLine(t: String): Int =
@@ -36,10 +36,10 @@ object Text:
 opaque type PlainMultiLine = String
 
 object PlainMultiLine:
-  def apply(text: String): Validation[MessageId, PlainMultiLine] =
+  def apply(text: String): Validated[PlainMultiLine] =
     Text.validateNonEmpty(text)
 
-  def opt(text: String): Validation[Nothing, Option[PlainMultiLine]] =
+  def opt(text: String): Validated[Option[PlainMultiLine]] =
     Validation.succeed(optDirect(text))
 
   def optDirect(text: String): Option[PlainMultiLine] =
@@ -60,23 +60,23 @@ object PlainMultiLine:
       : Conversion[Option[PlainMultiLine], Option[String]] with
     def apply(p: Option[PlainMultiLine]): Option[String] = p.map(_.toString)
 
-  extension (p: PlainMultiLine) def toString: String = p
+  extension (p: PlainMultiLine) def asString: String = p
 
 opaque type PlainOneLine = String
 
 object PlainOneLine:
-  def validateOneLine(text: PlainOneLine): Validation[MessageId, PlainOneLine] =
-    Validation.fromPredicateWith[MessageId, PlainOneLine](
-      "validation.text.oneline"
+  def validateOneLine(text: PlainOneLine): Validated[PlainOneLine] =
+    Validation.fromPredicateWith[UserMessage, PlainOneLine](
+      UserMessage("validation.text.oneline")
     )(text)(!Text.hasNewLine(_))
 
-  def apply(text: String): Validation[MessageId, PlainOneLine] =
+  def apply(text: String): Validated[PlainOneLine] =
     for
       _ <- Text.validateNonEmpty(text)
       _ <- validateOneLine(text)
     yield text
 
-  def opt(text: String): Validation[MessageId, Option[PlainOneLine]] =
+  def opt(text: String): Validated[Option[PlainOneLine]] =
     for _ <- validateOneLine(text)
     yield Text.nonEmpty(text)
 
@@ -96,10 +96,10 @@ object PlainOneLine:
 opaque type Markdown = String
 
 object Markdown:
-  def apply(text: String): Validation[MessageId, Markdown] =
+  def apply(text: String): Validated[Markdown] =
     Text.validateNonEmpty(text)
 
-  def opt(text: String): Validation[Nothing, Option[Markdown]] =
+  def opt(text: String): Validated[Option[Markdown]] =
     Validation.succeed(optDirect(text))
 
   def optDirect(text: String): Option[Markdown] =
