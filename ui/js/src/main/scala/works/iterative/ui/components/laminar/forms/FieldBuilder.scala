@@ -114,7 +114,7 @@ object FieldBuilder:
       validation: Option[String] => Validated[A]
   )(using fctx: FormBuilderContext)
       extends FormComponent[A]:
-    private val rawValue: Var[Option[String]] = Var(None)
+    private val rawValue: Var[Option[String]] = Var(initialValue)
 
     override val validated: Signal[Validated[A]] =
       rawValue.signal.map(validation)
