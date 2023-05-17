@@ -16,6 +16,12 @@ import scala.util.NotGiven
 import org.scalajs.dom.FileList
 import works.iterative.core.FileSupport
 
+case class ChoiceOption[A](id: String, label: String, value: A)
+
+case class Choice[A](
+    options: List[ChoiceOption[A]]
+)
+
 trait FieldBuilder[A]:
   def required: Boolean
   def build(
@@ -108,6 +114,38 @@ object FieldBuilder:
           }
         )
 
+  given choiceInput[A](using Choice[A], FormBuilderContext): FieldBuilder[A] =
+    new FieldBuilder[A]:
+      override def required: Boolean = true
+      override def build(
+          fieldDescriptor: FieldDescriptor,
+          initialValue: Option[A]
+      ): FormComponent[A] =
+        ChoiceField(
+          fieldDescriptor,
+          initialValue,
+          Validations.requiredA(fieldDescriptor.label)(_),
+          summon[Choice[A]].options
+        )
+
+  given optionalChoiceInput[A, B](using Choice[A], FormBuilderContext)(using
+      ev: B <:< Option[A]
+  ): FieldBuilder[Option[A]] =
+    new FieldBuilder[Option[A]]:
+      override def required: Boolean = false
+      override def build(
+          fieldDescriptor: FieldDescriptor,
+          initialValue: Option[Option[A]]
+      ): FormComponent[Option[A]] =
+        ChoiceField(
+          fieldDescriptor,
+          initialValue,
+          a => Validation.succeed(a.flatten),
+          ChoiceOption("", "", None) :: summon[Choice[A]].options.map(o =>
+            o.copy(value = Some(o.value))
+          )
+        )
+
   class InputField[A](
       desc: FieldDescriptor,
       initialValue: Option[String] = None,
@@ -185,6 +223,32 @@ object FieldBuilder:
       )
     )
 
+  class ChoiceField[A](
+      desc: FieldDescriptor,
+      initialValue: Option[A],
+      validation: Option[A] => Validated[A],
+      options: List[ChoiceOption[A]]
+  )(using fctx: FormBuilderContext)
+      extends FormComponent[A]:
+    private val rawValue: Var[Option[String]] = Var(
+      initialValue.flatMap(i => options.find(_.value == i).map(_.id))
+    )
+
+    override val validated: Signal[Validated[A]] =
+      rawValue.signal
+        .debugWithName("raw choice value")
+        .debugLog()
+        .map(_.flatMap(i => options.find(_.id == i).map(_.value)))
+        .map(validation)
+
+    override val elements: Seq[HtmlElement] =
+      renderSelect(
+        desc,
+        initialValue.flatMap(i => options.find(_.value == i).map(_.id)),
+        options.map(o => (o.id, o.label)),
+        rawValue.writer.contramapSome
+      )
+
   def renderFileInputField(desc: FieldDescriptor, observer: Observer[FileList])(
       using fctx: FormBuilderContext
   ): Seq[HtmlElement] =
@@ -199,5 +263,30 @@ object FieldBuilder:
               onInput.mapTo(thisNode.ref.files) --> observer
             )
           )
+      )
+    )
+
+  def renderSelect(
+      desc: FieldDescriptor,
+      initialValue: Option[String],
+      options: List[(String, String)],
+      observer: Observer[String]
+  )(using
+      fctx: FormBuilderContext
+  ): Seq[HtmlElement] =
+    Seq(
+      div(
+        select(
+          idAttr(desc.idString),
+          nameAttr(desc.name),
+          cls(
+            "mt-2 block w-full sm:max-w-xs rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          ),
+          initialValue.map(L.value(_)),
+          options.map(o =>
+            option(selected(initialValue.contains(o._1)), value(o._1), o._2)
+          ),
+          onChange.mapToValue.setAsValue --> observer
+        )
       )
     )

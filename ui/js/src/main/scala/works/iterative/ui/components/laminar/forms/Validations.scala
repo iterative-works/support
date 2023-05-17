@@ -10,3 +10,8 @@ object Validations:
     case Some(value) if value.trim.nonEmpty => Validation.succeed(value)
     case _ =>
       Validation.fail(UserMessage("error.value.required", label))
+
+  def requiredA[A](label: String): Option[A] => Validated[A] =
+    case Some(value) => Validation.succeed(value)
+    case _ =>
+      Validation.fail(UserMessage("error.value.required", label))
