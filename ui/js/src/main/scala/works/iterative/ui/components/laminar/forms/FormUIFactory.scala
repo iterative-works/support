@@ -35,7 +35,7 @@ trait FormUIFactory:
 
   def input(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
 
-  def fileInput(title: String, icon: Option[SvgElement] = None)(
+  def fileInput(title: String)(
       buttonMods: HtmlMod*
   )(
       inputMods: Mod[ReactiveHtmlElement[org.scalajs.dom.HTMLInputElement]]*

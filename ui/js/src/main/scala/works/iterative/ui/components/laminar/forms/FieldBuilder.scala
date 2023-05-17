@@ -192,6 +192,9 @@ object FieldBuilder:
       div(
         fctx.formUIFactory
           .fileInput(desc.placeholder.getOrElse(desc.label))()(
+            multiple(false),
+            nameAttr(desc.name),
+            idAttr(desc.idString),
             inContext(thisNode =>
               onInput.mapTo(thisNode.ref.files) --> observer
             )
