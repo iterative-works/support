@@ -9,7 +9,7 @@ trait FieldDescriptor:
   def name: String
   def label: String
   def help: Option[PlainMultiLine]
-  def placeholder: Option[PlainMultiLine]
+  def placeholder: Option[String]
 
 object FieldDescriptor:
   def apply(fieldId: FieldId)(using ctx: ComponentContext[_]): FieldDescriptor =
@@ -20,5 +20,5 @@ object FieldDescriptor:
       override def label: String = ctx.messages(fieldId)
       override def help: Option[PlainMultiLine] =
         ctx.messages.get(fieldId + ".help")
-      override def placeholder: Option[PlainMultiLine] =
+      override def placeholder: Option[String] =
         ctx.messages.get(fieldId + ".placeholder")

@@ -191,7 +191,7 @@ object FieldBuilder:
     Seq(
       div(
         fctx.formUIFactory
-          .fileInput(desc.label)()(
+          .fileInput(desc.placeholder.getOrElse(desc.label))()(
             inContext(thisNode =>
               onInput.mapTo(thisNode.ref.files) --> observer
             )
