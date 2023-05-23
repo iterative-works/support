@@ -8,8 +8,13 @@ import com.raquo.laminar.modifiers.RenderableNode
 import com.raquo.laminar.nodes.ChildNode.Base
 import works.iterative.ui.components.ComponentContext
 import works.iterative.ui.components.laminar.HtmlRenderable
+import com.raquo.airstream.custom.CustomStreamSource
+import com.raquo.airstream.custom.CustomSource
+import zio.IsSubtypeOfError
 
-object LaminarExtensions:
+object LaminarExtensions extends I18NExtensions with ZIOInteropExtensions
+
+trait I18NExtensions:
   extension (msg: UserMessage)
     inline def asElement(using ctx: ComponentContext[_]): HtmlElement =
       span(msg.asMod)
@@ -31,3 +36,52 @@ object LaminarExtensions:
   given (using ComponentContext[_]): HtmlRenderable[UserMessage] with
     def toHtml(msg: UserMessage): Modifier[HtmlElement] =
       msg.asElement
+
+trait ZIOInteropExtensions:
+  import zio.{ZIO, Runtime, Unsafe, Fiber, Cause}
+
+  extension [R, E, O](effect: ZIO[R, E, O])
+    def toEventStream(using runtime: Runtime[R])(using
+        ev: E IsSubtypeOfError Throwable
+    ): EventStream[O] =
+      var fiberRuntime: Fiber.Runtime[E, O] = null
+      EventStream.fromCustomSource(
+        start = (fireValue, fireError, getStartIndex, getIsStarted) =>
+          Unsafe.unsafe { implicit unsafe =>
+            fiberRuntime = runtime.unsafe.fork(effect)
+            fiberRuntime.unsafe.addObserver(exit =>
+              exit.foldExit(cause => fireError(cause.squash), fireValue)
+            )
+          },
+        stop = _ =>
+          if fiberRuntime != null then
+            Unsafe.unsafe { implicit unsafe =>
+              runtime.unsafe.run(fiberRuntime.interrupt).ignore
+            }
+            fiberRuntime = null
+          else ()
+      )
+
+    def toEventStreamWith(mapError: E => Throwable)(using
+        runtime: Runtime[R]
+    ): EventStream[O] =
+      var fiberRuntime: Fiber.Runtime[E, O] = null
+      EventStream.fromCustomSource(
+        start = (fireValue, fireError, getStartIndex, getIsStarted) =>
+          Unsafe.unsafe { implicit unsafe =>
+            fiberRuntime = runtime.unsafe.fork(effect)
+            fiberRuntime.unsafe.addObserver(exit =>
+              exit.foldExit(
+                cause => fireError(cause.squashWith(mapError)),
+                fireValue
+              )
+            )
+          },
+        stop = _ =>
+          if fiberRuntime != null then
+            Unsafe.unsafe { implicit unsafe =>
+              runtime.unsafe.run(fiberRuntime.interrupt).ignore
+            }
+            fiberRuntime = null
+          else ()
+      )
