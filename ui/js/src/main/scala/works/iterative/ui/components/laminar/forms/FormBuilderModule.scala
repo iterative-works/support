@@ -12,12 +12,14 @@ import works.iterative.ui.components.laminar.HtmlRenderable.given
 import works.iterative.ui.components.ComponentContext
 import works.iterative.core.MessageCatalogue
 
-trait FormBuilderModule(using fctx: FormBuilderContext):
+trait FormBuilderModule:
   def buildForm[A](form: Form[A], submit: Observer[A]): HtmlFormBuilder[A] =
     HtmlFormBuilder[A](form, submit)
 
   case class HtmlFormBuilder[A](form: Form[A], submit: Observer[A]):
-    def build(initialValue: Option[A]): FormComponent[A] =
+    def build(initialValue: Option[A])(using
+        fctx: FormBuilderContext
+    ): FormComponent[A] =
       val f = form.build(initialValue)
       f.wrap(
         fctx.formUIFactory.form(
