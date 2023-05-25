@@ -121,11 +121,12 @@ object FieldBuilder:
           fieldDescriptor: FieldDescriptor,
           initialValue: Option[A]
       ): FormComponent[A] =
+        val options = summon[Choice[A]].options
         ChoiceField(
           fieldDescriptor,
-          initialValue,
+          Some(initialValue.getOrElse(options.head.value)),
           Validations.requiredA(fieldDescriptor.label)(_),
-          summon[Choice[A]].options
+          options
         )
 
   given optionalChoiceInput[A, B](using Choice[A], FormBuilderContext)(using
