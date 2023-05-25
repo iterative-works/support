@@ -4,6 +4,7 @@ import zio.prelude.*
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.airstream.core.Signal
 import works.iterative.core.Validated
+import app.tulz.tuplez.Composition
 
 trait FormComponent[A]:
   def validated: Signal[Validated[A]]
@@ -28,13 +29,10 @@ object FormComponent:
       FormComponent(fc.validated, Seq(wrapper(fc.elements)))
     def map[B](f: A => B): FormComponent[B] =
       FormComponent(fc.validated.map(_.map(f)), fc.elements)
-
-  given AssociativeBoth[FormComponent] with
-    override def both[A, B](
-        fa: => FormComponent[A],
-        fb: => FormComponent[B]
-    ): FormComponent[(A, B)] =
+    def zip[B <: Tuple](other: FormComponent[B]): FormComponent[A *: B] =
       FormComponent(
-        Signal.combineWithFn(fa.validated, fb.validated)(Validation.validate),
-        fa.elements ++ fb.elements
+        Signal
+          .combineWithFn(fc.validated, other.validated)(Validation.validate)
+          .map(_.map(_ *: _)),
+        fc.elements ++ other.elements
       )
