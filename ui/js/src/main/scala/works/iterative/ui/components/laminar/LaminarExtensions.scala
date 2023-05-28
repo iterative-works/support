@@ -16,24 +16,29 @@ object LaminarExtensions extends I18NExtensions with ZIOInteropExtensions
 
 trait I18NExtensions:
   extension (msg: UserMessage)
-    inline def asElement(using ctx: ComponentContext[_]): HtmlElement =
+    inline def asElement(using ctx: ComponentContext[?]): HtmlElement =
       span(msg.asMod)
 
     inline def asOptionalElement(using
-        ctx: ComponentContext[_]
+        ctx: ComponentContext[?]
     ): Option[HtmlElement] =
       ctx.messages.get(msg).map(t => span(msgAttrs(msg.id, t)))
 
-    inline def asString(using ctx: ComponentContext[_]): String =
+    inline def asString(using ctx: ComponentContext[?]): String =
       ctx.messages(msg)
 
-    inline def asMod(using ctx: ComponentContext[_]): Mod[HtmlElement] =
+    inline def asOptionalString(using
+        ctx: ComponentContext[?]
+    ): Option[String] =
+      ctx.messages.get(msg)
+
+    inline def asMod(using ctx: ComponentContext[?]): Mod[HtmlElement] =
       msgAttrs(msg.id, ctx.messages(msg))
 
     private inline def msgAttrs(id: MessageId, text: String): HtmlMod =
       nodeSeq(dataAttr("msgid")(id.toString()), text)
 
-  given (using ComponentContext[_]): HtmlRenderable[UserMessage] with
+  given (using ComponentContext[?]): HtmlRenderable[UserMessage] with
     def toHtml(msg: UserMessage): Modifier[HtmlElement] =
       msg.asElement
 
