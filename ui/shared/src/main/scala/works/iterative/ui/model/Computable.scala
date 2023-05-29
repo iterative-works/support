@@ -56,3 +56,9 @@ object Computable:
         case Ready(model)              => Ready(f(model))
         case Failed(error)             => Failed(error)
         case Recomputing(start, model) => Recomputing(start, f(model))
+
+  extension [A](c: Computable[A])
+    def toOption: Option[A] = c match
+      case Ready(model)              => Some(model)
+      case Recomputing(start, model) => Some(model)
+      case _                         => None
