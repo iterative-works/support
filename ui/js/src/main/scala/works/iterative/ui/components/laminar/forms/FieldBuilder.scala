@@ -237,8 +237,6 @@ object FieldBuilder:
 
     override val validated: Signal[Validated[A]] =
       rawValue.signal
-        .debugWithName("raw choice value")
-        .debugLog()
         .map(_.flatMap(i => options.find(_.id == i).map(_.value)))
         .map(validation)
 
