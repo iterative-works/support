@@ -2,12 +2,11 @@ package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.raquo.laminar.keys.ReactiveProp
-import com.raquo.domtypes.jsdom.defs.events.TypedTargetEvent
-import org.scalajs.dom.html
+import org.scalajs.dom.{Event, html}
 import com.raquo.laminar.modifiers.KeyUpdater
 
 trait LocalDateSelectModule:
@@ -23,28 +22,27 @@ trait LocalDateSelectModule:
 
     // Does not work in `controlled`
     // Laminar refuses the custom prop, requries its own `value` or `checked`
-    val value: ReactiveProp[Option[LocalDate], String] =
-      customProp("value", OptLocalDateAsStringCodec)
+    val value: HtmlProp[Option[LocalDate]] =
+      htmlProp("value", OptLocalDateAsStringCodec)
 
-    val min: ReactiveProp[LocalDate, String] =
-      customProp("min", LocalDateAsStringCodec)
+    val min: HtmlProp[LocalDate] =
+      htmlProp("min", LocalDateAsStringCodec)
 
-    val max: ReactiveProp[LocalDate, String] =
-      customProp("max", LocalDateAsStringCodec)
+    val max: HtmlProp[LocalDate] =
+      htmlProp("max", LocalDateAsStringCodec)
 
-    val onInput: EventProcessor[TypedTargetEvent[html.Element], LocalDate] =
+    val onInput: EventProcessor[Event, LocalDate] =
       L.onInput.mapToValue.setAsValue.map(parseDate).collect { case Some(d) =>
         d
       }
 
-    val onOptInput
-        : EventProcessor[TypedTargetEvent[html.Element], Option[LocalDate]] =
+    val onOptInput: EventProcessor[Event, Option[LocalDate]] =
       onInput.mapToValue.setAsValue.map(parseDate)
 
   object LocalDateSelect:
     import java.time.format.DateTimeFormatter
     import java.time.LocalDate
-    import com.raquo.domtypes.generic.codecs.Codec
+    import com.raquo.laminar.codecs.Codec
 
     private val formatter: DateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd")

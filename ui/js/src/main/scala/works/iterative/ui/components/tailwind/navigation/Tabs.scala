@@ -3,13 +3,13 @@ package ui.components.tailwind.navigation
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.core.MessageId
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 object Tabs:
   def apply[T](tabs: Seq[(MessageId, T)], selected: Signal[MessageId])(
       updates: Observer[T]
   )(using
-      ctx: ComponentContext
+      ctx: ComponentContext[_]
   ): HtmlElement =
     val m = tabs
       .map { case (t, v) =>
@@ -24,7 +24,7 @@ object Tabs:
         label(forId := "tabs", cls := "sr-only", "Select a tab"),
         select(
           idAttr := "tabs",
-          name := "tabs",
+          nameAttr := "tabs",
           cls := "block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md",
           tabs.map { case (t, _) =>
             option(
@@ -40,7 +40,7 @@ object Tabs:
         cls := "hidden sm:block",
         div(
           cls := "border-b border-gray-200",
-          nav(
+          navTag(
             cls := "-mb-px flex space-x-8",
             aria.label := "Tabs",
             tabs.map { case (t, v) =>

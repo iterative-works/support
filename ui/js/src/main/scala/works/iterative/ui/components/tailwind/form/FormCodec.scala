@@ -37,7 +37,7 @@ object FormCodec:
       case Some(t) => t.toString
       case _       => ""
     override def toValue(r: String): Validated[Option[PlainMultiLine]] =
-      PlainMultiLine.opt(r)
+      PlainMultiLine.opt(r).mapError(e => InvalidValue(e))
 
   given optionLocalDateCodec: FormCodec[Option[LocalDate], String] with
     val df = DateTimeFormatter.ofPattern("yyyy-MM-dd")

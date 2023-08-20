@@ -3,7 +3,7 @@ package components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.ui.components.tailwind.Icons
-import works.iterative.ui.components.tailwind.HtmlRenderable
+import works.iterative.ui.components.laminar.HtmlRenderable
 
 given HtmlRenderable[File] with
   def toHtml(m: File): HtmlElement =

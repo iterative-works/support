@@ -3,9 +3,9 @@ package works.iterative.ui.components.tailwind.form
 import com.raquo.laminar.api.L.{*, given}
 
 import zio.prelude.Validation
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
-class Switch[V](using codec: FormCodec[V, Boolean], ctx: ComponentContext)
+class Switch[V](using codec: FormCodec[V, Boolean], ctx: ComponentContext[_])
     extends FormInput[V]:
   def render(
       property: Property[V],
@@ -32,7 +32,7 @@ class Switch[V](using codec: FormCodec[V, Boolean], ctx: ComponentContext)
             if v then "translate-x-5" else "translate-x-0"
           )
         ),
-        composeEvents(onClick)(
+        onClick.compose(
           _.sample(currentValue.signal).map(v => !v)
         ) --> currentValue
       ),

@@ -4,7 +4,7 @@ package ui.components.tailwind.form
 import com.raquo.laminar.api.L.{*, given}
 import works.iterative.core.MessageId
 import works.iterative.ui.components.tailwind.HtmlComponent
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 case class ActionButtonStyle(
     border: String,
@@ -29,7 +29,9 @@ case class ActionButton[A](
     action: A,
     style: ActionButtonStyle = ActionButtonStyle.default
 ):
-  def element(actions: Observer[A])(using ctx: ComponentContext): HtmlElement =
+  def element(actions: Observer[A])(using
+      ctx: ComponentContext[_]
+  ): HtmlElement =
     button(
       tpe("button"),
       cls("first:ml-0 ml-3"),
@@ -47,7 +49,7 @@ case class ActionButton[A](
 case class ActionButtons[A](actions: List[ActionButton[A]])
 
 object ActionButtons:
-  class Component[A](actions: Observer[A])(using ctx: ComponentContext)
+  class Component[A](actions: Observer[A])(using ctx: ComponentContext[_])
       extends HtmlComponent[org.scalajs.dom.html.Div, ActionButtons[A]]:
     override def render(v: ActionButtons[A]) =
       div(

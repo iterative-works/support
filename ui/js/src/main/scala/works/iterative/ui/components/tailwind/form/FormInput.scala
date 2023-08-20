@@ -5,7 +5,7 @@ import core.PlainMultiLine
 
 import com.raquo.laminar.api.L.{*, given}
 import java.time.LocalDate
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 trait FormInput[V]:
   def render(
@@ -25,5 +25,7 @@ object FormInput:
     TextArea()
   given optionLocalDateInput: FormInput[Option[LocalDate]] =
     Inputs.OptionDateInput()
-  given optionBooleanInput(using ComponentContext): FormInput[Option[Boolean]] =
+  given optionBooleanInput(using
+      ComponentContext[_]
+  ): FormInput[Option[Boolean]] =
     Switch()

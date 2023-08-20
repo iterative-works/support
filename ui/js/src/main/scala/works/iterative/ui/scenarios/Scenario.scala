@@ -11,10 +11,7 @@ import org.scalajs.dom.html
 
 import scala.scalajs.js
 import works.iterative.core.MessageCatalogue
-import works.iterative.ui.components.tailwind.ComponentContext
-import works.iterative.ui.components.tailwind.StyleGuide
-import works.iterative.ui.model.color.Color
-import works.iterative.ui.model.color.ColorWeight
+import works.iterative.ui.components.ComponentContext
 
 object Scenario:
   type Id = String
@@ -27,30 +24,30 @@ trait Scenario:
 
   def label: String
 
-  def element(using ComponentContext): HtmlElement
+  def element(using ComponentContext[_]): HtmlElement
 
 trait ScenarioExample:
   def title: String
-  def element(using ComponentContext): HtmlElement
+  def element(using ComponentContext[_]): HtmlElement
 
 object ScenarioExample:
   def apply(
       t: String,
-      elem: ComponentContext ?=> HtmlElement
+      elem: ComponentContext[_] ?=> HtmlElement
   ): ScenarioExample =
     new ScenarioExample:
       override val title: String = t
-      override def element(using ComponentContext): HtmlElement = elem
+      override def element(using ComponentContext[_]): HtmlElement = elem
 
 trait ScenarioExamples:
   self: Scenario =>
 
   protected def examples(using
       ScenarioContext,
-      ComponentContext
+      ComponentContext[_]
   ): List[ScenarioExample]
 
-  override def element(using ComponentContext): HtmlElement =
+  override def element(using ComponentContext[_]): HtmlElement =
     val eventBus: EventBus[Any] = EventBus[Any]()
 
     given sc: ScenarioContext = new ScenarioContext:

@@ -21,7 +21,7 @@ object Toggle:
     val state: Var[Boolean] = Var(initialValue)
     children(
       Ctx(
-        composeEvents(onClick)(_.sample(state).map(v => !v)) --> state,
+        onClick.compose(_.sample(state).map(v => !v)) --> state,
         el =>
           state.signal.map {
             case true => el

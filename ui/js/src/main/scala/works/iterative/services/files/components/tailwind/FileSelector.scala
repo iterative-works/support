@@ -2,14 +2,14 @@ package works.iterative.services.files
 package components.tailwind
 
 import com.raquo.laminar.api.L.{*, given}
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import com.raquo.laminar.codecs.StringAsIsCodec
 import works.iterative.ui.components.tailwind.Icons
 import works.iterative.ui.components.tailwind.Loading
 import io.laminext.syntax.core.{*, given}
-import com.raquo.domtypes.generic.codecs.BooleanAsTrueFalseStringCodec
+import com.raquo.laminar.codecs.BooleanAsTrueFalseStringCodec
 
 object FileSelector:
-  import FilePicker._
+  import FilePicker.*
 
   def apply(
       initialFiles: List[File],
@@ -22,7 +22,7 @@ object FileSelector:
         "inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-7xl sm:align-middle"
       ),
       role("dialog"),
-      customHtmlAttr("aria.modal", BooleanAsTrueFalseStringCodec)(true),
+      htmlAttr("aria.modal", BooleanAsTrueFalseStringCodec)(true),
       aria.labelledBy("modal-headline"),
       div(
         cls("bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4"),
@@ -50,7 +50,7 @@ object FileSelector:
               "focus:shadow-outline-green inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium leading-6 text-white shadow-sm transition duration-150 ease-in-out hover:bg-indigo-500 focus:border-indigo-700 focus:outline-none sm:text-sm sm:leading-5"
             ),
             "Potvrdit",
-            composeEvents(onClick)(
+            onClick.compose(
               _.sample(selectedFiles)
                 .map(SelectionUpdated(_))
             ) --> selectionUpdates

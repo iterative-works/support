@@ -3,17 +3,17 @@ package ui.components.tailwind.lists.feeds
 
 import com.raquo.laminar.api.L.{*, given}
 import java.time.Instant
-import works.iterative.ui.components.tailwind.TimeUtils
+import works.iterative.ui.TimeUtils
 import java.time.temporal.TemporalAccessor
 import java.text.DateFormat
-import com.raquo.domtypes.generic.codecs.StringAsIsCodec
+import com.raquo.laminar.codecs.StringAsIsCodec
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
 
 object SimpleWithIcons:
   def simpleDate(i: TemporalAccessor): HtmlElement =
-    time(
-      customHtmlAttr(
+    timeTag(
+      htmlAttr(
         "datetime",
         StringAsIsCodec
       ) := DateTimeFormatter.ISO_LOCAL_DATE
@@ -28,19 +28,17 @@ object SimpleWithIcons:
       date: HtmlElement,
       last: Boolean
   ): HtmlElement =
+    val lastDivider: Modifier[HtmlElement] =
+      span(
+        cls(
+          "absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+        ),
+        aria.hidden := true
+      )
     li(
       div(
         cls("relative pb-8"),
-        if !last then
-          Some(
-            span(
-              cls(
-                "absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-              ),
-              aria.hidden := true
-            )
-          )
-        else None,
+        if !last then lastDivider else emptyMod,
         div(
           cls("relative flex space-x-3"),
           div(

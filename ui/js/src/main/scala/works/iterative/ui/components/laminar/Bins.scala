@@ -1,13 +1,11 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.model.color.ColorDef
-import com.raquo.laminar.builders.HtmlTag
+import com.raquo.laminar.tags.HtmlTag
 
 case class Bin[Source, +Value](
     label: String,
     description: Option[String | HtmlElement],
-    color: ColorDef,
     valueOf: Source => Value
 ):
   def map[NewValue](
