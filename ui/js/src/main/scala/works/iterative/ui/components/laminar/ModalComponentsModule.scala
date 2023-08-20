@@ -1,7 +1,7 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.ComponentContext
+import works.iterative.ui.components.ComponentContext
 
 trait ModalComponentsModule:
 
@@ -13,7 +13,7 @@ trait ModalComponentsModule:
         onClose: Modifier[HtmlElement]
     ): HtmlElement
 
-trait DefaultModalComponentsModule(using ctx: ComponentContext)
+trait DefaultModalComponentsModule(using ctx: ComponentContext[_])
     extends ModalComponentsModule:
 
   override val modal: ModalComponents = new ModalComponents:

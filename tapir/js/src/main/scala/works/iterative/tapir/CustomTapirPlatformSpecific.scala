@@ -36,8 +36,10 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   ): I => Task[O] =
     val req = toRequestThrowErrors(endpoint, baseUri.toUri)
     req(_).followRedirects(false).send(backend).map(_.body).tapError {
+      // TODO: remove this handler from here, the app should decide what to do on auth failure
+      // Which is what the redirect here is
       case e: RuntimeException if e.getMessage == "Unexpected redirect" =>
         // Reload window on redirect, as it means that we need to log in again
-        ZIO.attempt(org.scalajs.dom.window.location.reload(true))
+        ZIO.attempt(org.scalajs.dom.window.location.reload())
       case _ => ZIO.unit
     }

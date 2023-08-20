@@ -1,8 +1,6 @@
 package works.iterative.ui.components.tailwind.experimental
 
 import scala.util.NotGiven
-import com.raquo.domtypes.generic.Modifier
-import org.scalajs.dom.SVGElement
 
 opaque type ColorWeight = String
 
