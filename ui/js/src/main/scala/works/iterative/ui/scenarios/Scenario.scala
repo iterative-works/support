@@ -2,15 +2,9 @@ package works.iterative.ui
 package scenarios
 
 import com.raquo.laminar.api.L
-
-import scala.scalajs.js.annotation.{JSExportTopLevel, JSImport}
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom
-import org.scalajs.dom.html
-
-import scala.scalajs.js
-import works.iterative.core.MessageCatalogue
 import works.iterative.ui.components.ComponentContext
 
 object Scenario:

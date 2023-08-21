@@ -1,8 +1,6 @@
 package works.iterative.ui.components.laminar.forms
 
 import zio.test.*
-import works.iterative.core.MessageCatalogue
-import works.iterative.ui.components.ComponentContext
 
 object FormZipSpec extends ZIOSpecDefault:
   def spec = suite("Form using zip operator")(

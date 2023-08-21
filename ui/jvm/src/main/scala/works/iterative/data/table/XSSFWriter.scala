@@ -4,14 +4,12 @@ import zio.*
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.ss.usermodel.CellStyle
 import java.time.LocalDate
-import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.xssf.usermodel.XSSFCell
-import org.apache.poi.ss.usermodel.Hyperlink
 import org.apache.poi.common.usermodel.HyperlinkType
 
 case class ExternalLink(
@@ -77,14 +75,14 @@ class ColumnSpecsTableRowWriter[T](specs: List[ColumnSpec[T, _]])
   override def writeDataCells(
       row: XSSFRow,
       value: T
-  )(using styles: TableCellStyles) =
+  )(using styles: TableCellStyles): UIO[Unit] =
     ZIO.succeed {
       specs.zipWithIndex.map { case (spec, i) =>
         val cell = row.createCell(i)
         spec.set(cell, value)
         styles.byName(spec.id).foreach(cell.setCellStyle)
       }
-    }
+    }.unit
 
   override def columnSizes: List[Int] =
     specs.map(_.width).toList

@@ -2,8 +2,6 @@ package works.iterative.ui.components.laminar.modules.listpage
 
 import works.iterative.core.UserMessage
 import works.iterative.ui.model.Computable
-import works.iterative.ui.services.UserNotificationService
-import works.iterative.ui.ZIOEffectHandler
 
 trait ListPageModel[T]:
 

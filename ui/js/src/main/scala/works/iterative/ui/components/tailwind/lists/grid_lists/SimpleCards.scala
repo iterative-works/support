@@ -1,7 +1,7 @@
 package works.iterative
 package ui.components.tailwind.lists.grid_lists
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.tailwind.Color
 import works.iterative.ui.components.tailwind.ColorWeight
 import works.iterative.ui.components.headless.Items

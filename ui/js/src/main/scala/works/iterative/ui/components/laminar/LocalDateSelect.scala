@@ -1,12 +1,10 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.ComponentContext
+import com.raquo.laminar.api.L.*
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import org.scalajs.dom.{Event, html}
+import org.scalajs.dom.Event
 import com.raquo.laminar.modifiers.KeyUpdater
 
 trait LocalDateSelectModule:

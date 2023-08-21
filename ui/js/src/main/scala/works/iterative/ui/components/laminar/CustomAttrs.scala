@@ -1,6 +1,6 @@
 package works.iterative.ui.components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.codecs.{StringAsIsCodec, BooleanAsTrueFalseStringCodec}
 
 object CustomAttrs {
@@ -11,7 +11,7 @@ object CustomAttrs {
   val datetime = htmlAttr("datetime", StringAsIsCodec)
 
   object svg {
-    import com.raquo.laminar.api.L.svg.{*, given}
+    import com.raquo.laminar.api.L.svg.*
     val ariaHidden =
       svgAttr("aria-hidden", BooleanAsTrueFalseStringCodec, None)
   }

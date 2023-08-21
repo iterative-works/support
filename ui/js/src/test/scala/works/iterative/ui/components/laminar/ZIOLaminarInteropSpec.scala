@@ -3,7 +3,6 @@ package works.iterative.ui.components.laminar
 import zio.*
 import zio.test.*
 import com.raquo.airstream.core.EventStream
-import com.raquo.airstream.core.Observer
 import com.raquo.airstream.ownership.Owner
 
 object ZIOLaminarInteropSpec extends ZIOSpecDefault:

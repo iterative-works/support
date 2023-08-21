@@ -3,7 +3,6 @@ package works.iterative.ui.components.tailwind
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import com.raquo.laminar.nodes.ReactiveSvgElement
 import org.scalajs.dom
-import com.raquo.airstream.core.EventStream
 
 trait HtmlComponent[Ref <: dom.html.Element, -A]:
   extension (a: A) def element: ReactiveHtmlElement[Ref] = render(a)

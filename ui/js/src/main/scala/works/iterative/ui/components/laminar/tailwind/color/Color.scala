@@ -1,6 +1,6 @@
 package works.iterative.ui.components.laminar.tailwind.color
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 /** Complete color definition that can be rendered to CSS.
   *
@@ -10,8 +10,6 @@ case class Color(area: ColorArea, color: ColorDef):
   def toCSS: String = s"${area.name}-${color.toCSS}"
 
 object Color:
-  import ColorDef.given
-
   given colorToCSS: Conversion[Color, HtmlMod] with
     def apply(c: Color) = cls(c.toCSS)
 

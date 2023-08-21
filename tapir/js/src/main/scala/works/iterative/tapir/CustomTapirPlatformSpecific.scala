@@ -4,11 +4,9 @@ import zio.*
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
-import scala.concurrent.Future
 import sttp.client3.SttpBackend
 import sttp.capabilities.WebSockets
 import sttp.capabilities.zio.ZioStreams
-import scala.concurrent.ExecutionContext
 import sttp.client3.FetchOptions
 import org.scalajs.dom
 import sttp.client3.impl.zio.FetchZioBackend

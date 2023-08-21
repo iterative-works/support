@@ -1,8 +1,7 @@
 package works.iterative.ui.components.laminar.modules.listpage
 
 import zio.prelude.*
-import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.ComponentContext
+import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.laminar.ComputableComponent
 import works.iterative.ui.components.laminar.HtmlTabular
 import io.laminext.syntax.core.*
@@ -11,9 +10,7 @@ import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 trait ListPageView[T: HtmlTabular]:
   self: ListPageModel[T] with HtmlTableBuilderModule =>
 
-  class View(model: Signal[Model], actions: Observer[Action])(using
-      ctx: ComponentContext[_]
-  ):
+  class View(model: Signal[Model], actions: Observer[Action]):
 
     val element: HtmlElement =
       ComputableComponent(div)(

@@ -1,7 +1,7 @@
 package works.iterative.ui
 package components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 /** Hook the action -> effect cycle into a component.
   */

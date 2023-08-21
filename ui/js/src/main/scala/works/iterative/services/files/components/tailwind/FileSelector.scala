@@ -1,11 +1,7 @@
 package works.iterative.services.files
 package components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
-import com.raquo.laminar.codecs.StringAsIsCodec
-import works.iterative.ui.components.tailwind.Icons
-import works.iterative.ui.components.tailwind.Loading
-import io.laminext.syntax.core.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.codecs.BooleanAsTrueFalseStringCodec
 
 object FileSelector:

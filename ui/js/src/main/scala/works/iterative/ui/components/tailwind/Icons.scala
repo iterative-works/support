@@ -1,8 +1,7 @@
 package works.iterative.ui.components
 package tailwind
 
-import com.raquo.laminar.codecs.BooleanAsTrueFalseStringCodec
-import com.raquo.laminar.api.L.svg.{*, given}
+import com.raquo.laminar.api.L.svg.*
 import com.raquo.laminar.api.L.SvgElement
 import com.raquo.laminar.codecs.StringAsIsCodec
 import com.raquo.laminar.nodes.ReactiveSvgElement

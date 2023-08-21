@@ -1,7 +1,7 @@
 package works.iterative
 package ui.components.headless
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom
 

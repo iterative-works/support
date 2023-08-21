@@ -9,7 +9,6 @@ import org.bson.json.JsonObject
 import org.mongodb.scala.model.ReplaceOptions
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.gridfs.GridFSBucket
-import java.io.File
 import java.nio.ByteBuffer
 import com.mongodb.client.gridfs.model.GridFSUploadOptions
 import java.time.Instant

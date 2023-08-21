@@ -1,7 +1,7 @@
 package works.iterative.ui.components.tailwind
 package list
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.tags.HtmlTag
 import org.scalajs.dom
 

@@ -3,8 +3,6 @@ package ui.components.tailwind.form
 
 import zio.prelude.Validation
 
-import scala.scalajs.js
-
 import core.PlainMultiLine
 import java.time.format.DateTimeFormatter
 import java.time.LocalDate

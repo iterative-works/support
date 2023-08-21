@@ -1,9 +1,8 @@
 package works.iterative.ui.components.laminar.forms
 
 import zio.prelude.Validation
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.laminar.HtmlRenderable.given
-import app.tulz.tuplez.Composition
 
 sealed trait Form[A] extends FormBuilder[A]
 
@@ -24,8 +23,6 @@ object Form:
   case class Zip[A, B <: Tuple](
       left: Form[A],
       right: Form[B]
-  )(using
-      fctx: FormBuilderContext
   ) extends Form[A *: B]:
     override def build(
         initialValue: Option[A *: B]
@@ -34,9 +31,7 @@ object Form:
       val rightComponent = right.build(initialValue.map(_.tail))
       leftComponent.zip(rightComponent)
 
-  case class BiMap[A, B](form: Form[A], f: A => B, g: B => A)(using
-      fctx: FormBuilderContext
-  ) extends Form[B]:
+  case class BiMap[A, B](form: Form[A], f: A => B, g: B => A) extends Form[B]:
     override def build(initialValue: Option[B]): FormComponent[B] =
       form.build(initialValue.map(g)).map(f)
 

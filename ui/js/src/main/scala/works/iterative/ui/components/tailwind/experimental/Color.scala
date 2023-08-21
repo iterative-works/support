@@ -1,7 +1,5 @@
 package works.iterative.ui.components.tailwind.experimental
 
-import scala.util.NotGiven
-
 opaque type ColorWeight = String
 
 extension (c: ColorWeight) def value: String = c
@@ -128,8 +126,6 @@ case class Color(area: ColorArea, color: ColorDef):
   def toCSS: String = s"${area.name}-${color.toCSS}"
 
 object Color:
-  import ColorDef.given
-
   def current = ColorDef(ColorKind.current)
   def inherit = ColorDef(ColorKind.inherit)
   def transp = ColorDef(ColorKind.transp)

@@ -1,11 +1,8 @@
 package works.iterative.ui
 package components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
-
 import zio.*
-import com.raquo.airstream.core.Observer
-import scala.annotation.implicitNotFound
+import com.raquo.laminar.api.L.*
 
 trait EffectHandler[E, A]:
   def apply(
@@ -42,8 +39,8 @@ class LaminarZIOEffectHandler[Env, E, A](handler: ZIOEffectHandler[Env, E, A])(
       actions: Observer[A]
   ): Modifier[HtmlElement] =
     onMountCallback(ctx =>
-      effects.foreach { effect =>
-        Unsafe.unsafe { implicit unsafe =>
+      val _ = effects.foreach { effect =>
+        val _ = Unsafe.unsafe { implicit unsafe =>
           runtime.unsafe
             .runToFuture(
               handler.handle(effect).either.runForeach {

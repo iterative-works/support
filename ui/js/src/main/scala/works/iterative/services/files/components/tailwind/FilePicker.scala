@@ -1,8 +1,7 @@
 package works.iterative.services.files
 package components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
-import io.laminext.syntax.core.{*, given}
+import com.raquo.laminar.api.L.*
 
 object FilePicker:
   sealed trait Event

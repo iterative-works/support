@@ -1,6 +1,6 @@
 package services.files.components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import works.iterative.ui.UIString
 import org.scalajs.dom.FileList

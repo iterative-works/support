@@ -1,23 +1,22 @@
 package works.iterative.ui.scenarios
 
-import scala.scalajs.js.annotation.{JSExportTopLevel, JSImport}
-import com.raquo.laminar.api.L.{*, given}
-import org.scalajs.dom
-
-import scala.scalajs.js
-import works.iterative.ui.JsonMessageCatalogue
-import works.iterative.core.MessageCatalogue
-import works.iterative.ui.components.ComponentContext
-import ui.components.tailwind.TailwindSupport
+import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.*
+import org.scalajs.dom
+import ui.components.tailwind.TailwindSupport
+import works.iterative.core.MessageCatalogue
+import works.iterative.ui.JsonMessageCatalogue
+import works.iterative.ui.components.ComponentContext
 
+import scala.annotation.unused
+import scala.scalajs.js
 import scala.scalajs.js.Dictionary
 
 trait ScenarioMain(
     prefix: String,
     scenarios: List[Scenario],
     messages: js.Any,
-    css: js.Any
+    @unused css: js.Any
 ) extends TailwindSupport:
 
   val scenarioMap: Map[Scenario.Id, Scenario] =
@@ -45,9 +44,7 @@ trait ScenarioMain(
     unsafeWindowOwner
   )
 
-  def main(args: Array[String]): Unit =
-    given MessageCatalogue = messageCatalogue
-
+  def main(@unused args: Array[String]): Unit =
     given ComponentContext[Unit] with
       val app: Unit = ()
       val messages: MessageCatalogue = messageCatalogue
@@ -103,4 +100,4 @@ trait ScenarioMain(
       )
 
     val appContainer = dom.document.querySelector("#app")
-    render(appContainer, container)
+    val _ = render(appContainer, container)

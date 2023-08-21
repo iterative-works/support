@@ -1,17 +1,9 @@
 package works.iterative.ui.components.tailwind.data_display.description_lists
 
-import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.UIString
-import works.iterative.ui.TimeUtils
-import java.time.LocalDate
-import works.iterative.ui.components.tailwind.BaseHtmlComponent
-import works.iterative.ui.components.laminar.HtmlRenderable
-import works.iterative.ui.components.tailwind.form.ActionButtons
-import works.iterative.ui.components.tailwind.HtmlComponent
-import works.iterative.ui.components.tailwind.form.ActionButton
+import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.ComponentContext
+import works.iterative.ui.components.laminar.HtmlRenderable
 import works.iterative.ui.components.tailwind.Icons
-import scala.reflect.ClassTag
 
 type ValueContent = String | Modifier[HtmlElement]
 type OptionalValueContent = ValueContent | Option[ValueContent]

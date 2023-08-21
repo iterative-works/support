@@ -2,7 +2,7 @@ package works.iterative.ui.components
 package tailwind
 package form
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
 
 case class ComboBox(

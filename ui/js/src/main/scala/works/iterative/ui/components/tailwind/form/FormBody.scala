@@ -1,6 +1,6 @@
 package works.iterative.ui.components.tailwind.form
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 object FormBody:
   @deprecated("use specific form's 'body' method (see LabelsOnLeft)")

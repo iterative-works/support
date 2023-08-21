@@ -1,6 +1,6 @@
 package works.iterative.ui.components.laminar.forms
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html
 
