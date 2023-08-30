@@ -1,7 +1,7 @@
 package works.iterative
 package ui.components.tailwind.navigation
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import works.iterative.core.MessageId
 import works.iterative.ui.components.ComponentContext
 

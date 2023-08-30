@@ -1,7 +1,7 @@
 package works.iterative
 package ui.components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 object Alert:
   enum Kind(val color: Color, val icon: String => SvgElement):

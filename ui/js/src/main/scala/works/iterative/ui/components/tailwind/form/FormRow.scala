@@ -1,6 +1,6 @@
 package works.iterative.ui.components.tailwind.form
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 case class FormRow(id: String, label: String, content: Modifier[Div])
 

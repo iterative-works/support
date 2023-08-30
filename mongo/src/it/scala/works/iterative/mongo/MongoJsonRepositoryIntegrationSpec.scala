@@ -28,7 +28,6 @@ object MongoJsonRepositoryIntegrationSpec extends ZIOSpecDefault:
     import org.mongodb.scala.*
     import org.mongodb.scala.model.Filters.*
     import org.bson.json.JsonObject
-    import org.mongodb.scala.bson.conversions.Bson
     import org.mongodb.scala.bson.Document
     MongoConfig.fromEnv >>> MongoClient.layer >>> ZLayer {
       (for

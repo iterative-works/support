@@ -3,8 +3,6 @@ package works.iterative.ui.model
 import works.iterative.core.UserMessage
 import java.time.Instant
 import zio.prelude.Covariant
-import zio.prelude.ForEach
-import zio.prelude.IdentityBoth
 
 /** A class representing the states of a model that needs computation
   */

@@ -1,6 +1,6 @@
 package works.iterative.ui.components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 object Display:
 

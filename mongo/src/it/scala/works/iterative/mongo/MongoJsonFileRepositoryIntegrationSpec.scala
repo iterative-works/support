@@ -4,7 +4,6 @@ import zio.*
 import zio.test.*
 import zio.json.*
 import Assertion.*
-import java.io.File
 
 object MongoJsonFileRepositoryIntegrationSpec extends ZIOSpecDefault:
   case class ExampleMetadata(osobniCislo: String)
@@ -33,9 +32,6 @@ object MongoJsonFileRepositoryIntegrationSpec extends ZIOSpecDefault:
       : TaskLayer[MongoJsonFileRepository[ExampleMetadata, ExampleCriteria]] =
     import org.mongodb.scala.*
     import org.mongodb.scala.model.Filters.*
-    import org.bson.json.JsonObject
-    import org.mongodb.scala.bson.conversions.Bson
-    import org.mongodb.scala.bson.Document
     import org.mongodb.scala.gridfs.GridFSBucket
     MongoConfig.fromEnv >>> MongoClient.layer >>> ZLayer(
       for

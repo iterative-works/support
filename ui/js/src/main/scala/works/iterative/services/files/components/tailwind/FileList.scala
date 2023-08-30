@@ -1,8 +1,7 @@
 package works.iterative.services.files
 package components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
-import works.iterative.ui.components.tailwind.Icons
+import com.raquo.laminar.api.L.*
 
 def FileList(files: List[File]): HtmlElement =
   ul(

@@ -3,7 +3,7 @@ package ui.components.tailwind.form
 
 import core.PlainMultiLine
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import java.time.LocalDate
 import works.iterative.ui.components.ComponentContext
 

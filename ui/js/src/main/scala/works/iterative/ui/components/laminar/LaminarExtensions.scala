@@ -1,15 +1,9 @@
 package works.iterative.ui.components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
-import works.iterative.core.UserMessage
+import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
-import works.iterative.core.MessageId
-import com.raquo.laminar.modifiers.RenderableNode
-import com.raquo.laminar.nodes.ChildNode.Base
+import works.iterative.core.{MessageId, UserMessage}
 import works.iterative.ui.components.ComponentContext
-import works.iterative.ui.components.laminar.HtmlRenderable
-import com.raquo.airstream.custom.CustomStreamSource
-import com.raquo.airstream.custom.CustomSource
 import zio.IsSubtypeOfError
 
 object LaminarExtensions extends I18NExtensions with ZIOInteropExtensions
@@ -43,7 +37,7 @@ trait I18NExtensions:
       msg.asElement
 
 trait ZIOInteropExtensions:
-  import zio.{ZIO, Runtime, Unsafe, Fiber, Cause}
+  import zio.{Fiber, Runtime, Unsafe, ZIO}
 
   extension [R, E, O](effect: ZIO[R, E, O])
     def toEventStream(using runtime: Runtime[R])(using

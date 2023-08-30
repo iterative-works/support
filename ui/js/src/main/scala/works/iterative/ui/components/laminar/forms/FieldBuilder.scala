@@ -1,20 +1,14 @@
 package works.iterative.ui.components.laminar.forms
 
-import zio.prelude.Validation
-import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L.{*, given}
-import org.scalajs.dom.html
-import com.raquo.laminar.nodes.ReactiveHtmlElement
-import works.iterative.core.UserMessage
-import works.iterative.core.PlainMultiLine
 import com.raquo.airstream.core.Signal
-import works.iterative.ui.components.laminar.HtmlRenderable.given
-import works.iterative.ui.components.ComponentContext
-import works.iterative.core.MessageCatalogue
-import works.iterative.core.Validated
-import scala.util.NotGiven
+import com.raquo.laminar.api.L
+import com.raquo.laminar.api.L.*
+import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.FileList
-import works.iterative.core.FileSupport
+import works.iterative.core.{FileSupport, UserMessage, Validated}
+import zio.prelude.Validation
+
+import scala.util.NotGiven
 
 case class ChoiceOption[A](id: String, label: String, value: A)
 

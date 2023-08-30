@@ -2,7 +2,7 @@ package works.iterative
 package ui.components.tailwind.form
 
 import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 object LabelsOnLeft:
 

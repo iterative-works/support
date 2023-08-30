@@ -1,6 +1,6 @@
 package works.iterative.ui.components.tailwind.form
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 object FormHeader:
   case class ViewModel(header: String, description: String)

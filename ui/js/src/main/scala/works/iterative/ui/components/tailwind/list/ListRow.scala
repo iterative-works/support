@@ -1,7 +1,7 @@
 package works.iterative.ui.components.tailwind
 package list
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import org.scalajs.dom
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 

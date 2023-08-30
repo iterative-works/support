@@ -1,15 +1,11 @@
 package works.iterative.services.files
 package components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.codecs.StringAsIsCodec
-import works.iterative.ui.components.tailwind.Icons
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.time.ZoneId
-import java.util.Locale
-import works.iterative.ui.TimeUtils
 import works.iterative.core.CzechSupport
+import works.iterative.ui.TimeUtils
+import works.iterative.ui.components.tailwind.Icons
 
 def FileTable(
     files: Signal[List[File]],

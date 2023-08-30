@@ -4,7 +4,6 @@ package ui
 import core.{MessageCatalogue, MessageId}
 import scala.scalajs.js
 import works.iterative.core.UserMessage
-import java.text.MessageFormat
 import scala.util.Try
 
 // TODO: support hierarchical json structure

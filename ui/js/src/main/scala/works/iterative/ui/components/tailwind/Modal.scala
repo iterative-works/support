@@ -1,6 +1,6 @@
 package works.iterative.ui.components.tailwind
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 @deprecated("Use ModalComponentsModule", "2023-04-28")
 object Modal:

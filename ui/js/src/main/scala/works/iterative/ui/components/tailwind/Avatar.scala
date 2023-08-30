@@ -2,8 +2,7 @@ package works.iterative.ui.components
 package tailwind
 
 import laminar.CustomAttrs.ariaHidden
-import com.raquo.laminar.api.L.{*, given}
-import com.raquo.laminar.codecs.BooleanAsTrueFalseStringCodec
+import com.raquo.laminar.api.L.*
 
 // TODO: macros for size
 class Avatar($avatarImg: Signal[Option[String]]):

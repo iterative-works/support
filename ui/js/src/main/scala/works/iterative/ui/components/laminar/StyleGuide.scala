@@ -1,8 +1,6 @@
 package works.iterative
 package ui.components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
-
 trait ButtonStyles:
   def basic: String
   def primary: String

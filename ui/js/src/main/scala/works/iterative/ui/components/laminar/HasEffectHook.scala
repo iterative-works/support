@@ -1,6 +1,6 @@
 package works.iterative.ui.components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 /** A way to add effect processor to component.
   *

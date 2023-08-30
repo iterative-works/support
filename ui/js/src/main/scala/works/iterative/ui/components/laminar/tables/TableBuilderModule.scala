@@ -1,11 +1,7 @@
 package works.iterative.ui.components.laminar.tables
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.laminar.HtmlTabular
-import works.iterative.ui.model.tables.Tabular
-import works.iterative.core.UserMessage
-import works.iterative.ui.components.laminar.LaminarExtensions.given
-import works.iterative.ui.components.ComponentContext
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.html
 

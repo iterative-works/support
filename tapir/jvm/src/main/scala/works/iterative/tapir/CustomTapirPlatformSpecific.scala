@@ -6,15 +6,10 @@ import sttp.tapir.ztapir.ZTapir
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
 import sttp.tapir.client.sttp.SttpClientInterpreter
-import sttp.capabilities.WebSockets
 import sttp.client3.SttpBackend
 import sttp.client3.httpclient.zio.HttpClientZioBackend
-import sttp.capabilities.zio.ZioStreams
-import sttp.client3.SttpBackendOptions
 import java.net.http.HttpClient
 import java.net.CookieHandler
-import java.net.CookieManager
-import java.net.HttpCookie
 import java.net.URI
 
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:

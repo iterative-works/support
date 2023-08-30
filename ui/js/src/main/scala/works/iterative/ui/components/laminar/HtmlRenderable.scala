@@ -1,11 +1,9 @@
 package works.iterative.ui.components.laminar
 
-import com.raquo.laminar.api.L.{*, given}
-import org.scalajs.dom
+import com.raquo.laminar.api.L.*
 import java.time.LocalDate
 import works.iterative.core.PlainMultiLine
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import works.iterative.ui.TimeUtils
 
 trait HtmlRenderable[A]:

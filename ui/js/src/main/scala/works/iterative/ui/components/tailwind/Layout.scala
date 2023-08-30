@@ -2,7 +2,7 @@ package works.iterative
 package ui.components
 package tailwind
 
-import com.raquo.laminar.api.L.{*, given}
+import com.raquo.laminar.api.L.*
 
 object Layout:
   def card(content: Modifier[HtmlElement]*)(using

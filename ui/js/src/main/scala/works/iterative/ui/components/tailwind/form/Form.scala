@@ -1,7 +1,6 @@
 package works.iterative.ui.components.tailwind.form
 
-import com.raquo.laminar.api.L.{*, given}
-import org.scalajs.dom
+import com.raquo.laminar.api.L.*
 import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 object Form:

@@ -1,19 +1,7 @@
 package works.iterative.ui.components.laminar.forms
 
+import works.iterative.core.{Email, PlainMultiLine, Validated}
 import zio.prelude.Validation
-import com.raquo.laminar.api.L
-import com.raquo.laminar.api.L.{*, given}
-import org.scalajs.dom.html
-import com.raquo.laminar.nodes.ReactiveHtmlElement
-import works.iterative.core.UserMessage
-import works.iterative.core.PlainMultiLine
-import com.raquo.airstream.core.Signal
-import works.iterative.ui.components.laminar.HtmlRenderable.given
-import works.iterative.ui.components.ComponentContext
-import works.iterative.core.MessageCatalogue
-import works.iterative.core.Validated
-import scala.util.NotGiven
-import works.iterative.core.Email
 
 trait InputCodec[A]:
   def encode(a: A): String

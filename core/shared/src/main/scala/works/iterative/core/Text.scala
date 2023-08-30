@@ -1,7 +1,6 @@
 package works.iterative
 package core
 
-import scala.jdk.OptionConverters.given
 import zio.prelude.Validation
 
 /* UserText represents different, more specific variants of String to be able to
