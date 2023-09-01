@@ -14,3 +14,7 @@ object Validated:
         _.trim.nonEmpty
       )
       .map(_.trim)
+
+  def positiveInt(lkey: String)(value: Int): Validated[Int] =
+    Validation
+      .fromPredicateWith(UserMessage(s"error.positive.$lkey"))(value)(_ > 0)
