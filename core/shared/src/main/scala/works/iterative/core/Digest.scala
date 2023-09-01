@@ -1,6 +1,6 @@
 package works.iterative.core
 
-import works.iterative.core.service.DigestGenerator
+import works.iterative.core.service.DigestService
 
 import zio.*
 
@@ -19,5 +19,5 @@ object Digest:
   def compute(
       algorithm: DigestAlgorithm,
       value: Array[Byte]
-  ): URIO[DigestGenerator, Digest] =
-    DigestGenerator.generateDigest(algorithm, value)
+  ): URIO[DigestService, Digest] =
+    DigestService.digest(algorithm, value)

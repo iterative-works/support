@@ -9,5 +9,8 @@ case class UserMessage(id: MessageId, args: Any*):
     s"${id}[${args.mkString(", ")}]"
 
 object UserMessage:
+  def withMessage(id: MessageId)(t: Throwable): UserMessage =
+    UserMessage(id, t.getMessage())
+
   given Conversion[MessageId, UserMessage] with
     def apply(id: MessageId): UserMessage = UserMessage(id)
