@@ -7,3 +7,5 @@ object UserName:
   def apply(value: String): Validated[UserName] =
     // Validate that the value is not empty
     Validated.nonEmptyString("user.name")(value)
+
+  def unsafe(value: String): UserName = value

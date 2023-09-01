@@ -5,7 +5,7 @@ package works.iterative.core
   * we should be able to do without resorting to external services. This handle
   * is to be used in all user-generated content, like comments, reviews, etc.
   */
-final case class UserHandle private (
+final case class UserHandle(
     userId: UserId,
     userName: UserName
 )

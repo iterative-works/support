@@ -2,6 +2,7 @@ package works.iterative.core
 
 import java.time.Instant
 import scala.Conversion
+import zio.*
 
 /** A moment in time, represented as an instant
   *
@@ -13,6 +14,12 @@ opaque type Moment = Instant
 
 object Moment:
   def apply(value: Instant): Moment = value
+
+  def now: UIO[Moment] =
+    for now <- Clock.instant
+    yield Moment(now)
+
   extension (m: Moment) def toInstant: Instant = m
+
   given Conversion[Instant, Moment] = Moment(_)
   given Conversion[Moment, Instant] = _.toInstant
