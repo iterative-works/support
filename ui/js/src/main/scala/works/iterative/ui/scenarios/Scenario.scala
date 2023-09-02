@@ -41,6 +41,11 @@ trait ScenarioExamples:
       ComponentContext[_]
   ): List[ScenarioExample]
 
+  def example(name: String)(
+      elem: ComponentContext[_] ?=> HtmlElement
+  ): ScenarioExample =
+    ScenarioExample(name, elem)
+
   override def element(using ComponentContext[_]): HtmlElement =
     val eventBus: EventBus[Any] = EventBus[Any]()
 
@@ -52,10 +57,10 @@ trait ScenarioExamples:
       eventBus.events --> { e =>
         org.scalajs.dom.console.log(s"action: ${e.toString}")
       },
-      examples.map(se => example(se.title, se.element))
+      examples.map(se => renderExample(se.title, se.element))
     )
 
-  def example(t: String, c: HtmlElement): Div =
+  private def renderExample(t: String, c: HtmlElement): Div =
     div(
       cls("bg-white overflow-hidden shadow rounded-lg"),
       div(

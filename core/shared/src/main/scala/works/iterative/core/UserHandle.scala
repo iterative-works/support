@@ -16,3 +16,6 @@ object UserHandle:
       id <- UserId(userId)
       name <- UserName(userName)
     yield UserHandle(id, name)
+
+  def unsafe(userId: String, userName: String): UserHandle =
+    UserHandle(UserId.unsafe(userId), UserName.unsafe(userName))
