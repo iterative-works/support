@@ -7,6 +7,8 @@ object Language:
   val EN: Language = "en"
   val DE: Language = "de"
 
+  extension (l: Language) def value: String = l
+
 case class LanguagePreference(inOrder: List[Language])
 
 object LanguagePreference:
