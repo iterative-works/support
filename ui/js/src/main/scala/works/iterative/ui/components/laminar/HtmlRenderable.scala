@@ -35,3 +35,9 @@ object HtmlRenderable:
   given plainMultiLineValue: HtmlRenderable[PlainMultiLine] with
     def toHtml(v: PlainMultiLine): Modifier[HtmlElement] =
       p(cls("whitespace-pre-wrap"), v.toString)
+
+  given optionRenderable[A](using
+      r: HtmlRenderable[A]
+  ): HtmlRenderable[Option[A]] with
+    def toHtml(v: Option[A]): Modifier[HtmlElement] =
+      v.map(r.toHtml)
