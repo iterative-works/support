@@ -59,7 +59,14 @@ object HtmlRenderable:
         iterable
           .map(inner.toHtml)
           .toSeq
-          .map(i => li(cls("after:content-[',_'] last:after:content-none"), i))*
+          .map(i =>
+            li(
+              cls(
+                "inline-block first:ml-0 ml-2 after:content-[','] last:after:content-none"
+              ),
+              i
+            )
+          )*
       )
 
   given userMessageRenderable(using
