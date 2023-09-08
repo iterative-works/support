@@ -3,6 +3,8 @@ package works.iterative.ui.model
 import works.iterative.core.UserMessage
 import java.time.Instant
 import zio.prelude.Covariant
+import zio.prelude.Validation
+import works.iterative.core.Validated
 
 /** A class representing the states of a model that needs computation
   */
@@ -11,9 +13,31 @@ sealed trait Computable[+Model]:
     */
   def update[B >: Model](m: B): Computable[B]
 
+  def update[B >: Model](m: Validated[B]): Computable[B] =
+    m match
+      case Validation.Success(_, model)  => update(model)
+      case Validation.Failure(_, errors) => fail(errors.head)
+
+  /** Fail the computation */
+  def fail(error: UserMessage): Computable[Nothing] = Computable.Failed(error)
+
   /** Mark the computation as started
     */
   def started: Computable[Model]
+
+  def isFailed: Boolean = this match
+    case Computable.Failed(_) => true
+    case _                    => false
+
+  def isDefined: Boolean = this match
+    case Computable.Ready(_)          => true
+    case Computable.Recomputing(_, _) => true
+    case _                            => false
+
+  def isComputing: Boolean = this match
+    case Computable.Computing(_)      => true
+    case Computable.Recomputing(_, _) => true
+    case _                            => false
 
 object Computable:
   /** The initial state of a computable model

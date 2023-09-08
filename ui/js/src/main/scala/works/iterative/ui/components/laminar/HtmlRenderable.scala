@@ -41,3 +41,9 @@ object HtmlRenderable:
   ): HtmlRenderable[Option[A]] with
     def toHtml(v: Option[A]): Modifier[HtmlElement] =
       v.map(r.toHtml)
+
+  given signalRenderable[A](using
+      r: HtmlRenderable[A]
+  ): HtmlRenderable[Signal[A]] with
+    def toHtml(v: Signal[A]): Modifier[HtmlElement] =
+      child <-- v.map(a => div(r.toHtml(a)))
