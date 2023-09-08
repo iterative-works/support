@@ -9,3 +9,5 @@ object UserId:
     Validated.nonEmptyString("user.id")(value)
 
   def unsafe(value: String): UserId = value
+
+  extension (u: UserId) def value: String = u

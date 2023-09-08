@@ -5,6 +5,9 @@ import java.time.LocalDate
 import works.iterative.core.PlainMultiLine
 import java.time.Instant
 import works.iterative.ui.TimeUtils
+import works.iterative.core.UserMessage
+import works.iterative.ui.components.ComponentContext
+import LaminarExtensions.*
 
 trait HtmlRenderable[A]:
   def toHtml(a: A): Modifier[HtmlElement]
@@ -47,3 +50,20 @@ object HtmlRenderable:
   ): HtmlRenderable[Signal[A]] with
     def toHtml(v: Signal[A]): Modifier[HtmlElement] =
       child <-- v.map(a => div(r.toHtml(a)))
+
+  given iterableRenderable[A, T[X] <: Iterable[X]](using
+      inner: HtmlRenderable[A]
+  ): HtmlRenderable[T[A]] with
+    def toHtml(iterable: T[A]): HtmlMod =
+      ul(
+        iterable
+          .map(inner.toHtml)
+          .toSeq
+          .map(i => li(cls("after:content-[',_'] last:after:content-none"), i))*
+      )
+
+  given userMessageRenderable(using
+      ComponentContext[?]
+  ): HtmlRenderable[UserMessage] with
+    def toHtml(msg: UserMessage): HtmlMod =
+      msg.asElement
