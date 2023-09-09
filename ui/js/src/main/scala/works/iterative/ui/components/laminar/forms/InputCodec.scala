@@ -20,3 +20,10 @@ object InputCodec:
   given InputCodec[Email] with
     def encode(a: Email): String = a.value
     def decode(s: String): Validated[Email] = Email(s)
+
+  given optionalInputCodec[A](using codec: InputCodec[A]): InputCodec[Option[A]]
+    with
+    def encode(a: Option[A]): String = a.map(codec.encode).getOrElse("")
+    def decode(s: String): Validated[Option[A]] =
+      if s.isEmpty then Validation.succeed(None)
+      else codec.decode(s).map(Some(_))
