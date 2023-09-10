@@ -7,18 +7,16 @@ import zio.stream.ZStream
 trait ListPageZIOHandler[T: Tag]:
   self: ListPageModel[T] =>
 
-  type HandlerEnv = ListPageZIOHandler.Env[T]
-
-  class Handler(onVisitDetail: T => UIO[Unit])
-      extends ZIOEffectHandler[HandlerEnv, Effect, Action]:
-    override def handle(e: Effect): ZStream[HandlerEnv, Throwable, Action] =
+  class Handler(itemsHandler: ListPageHandler[T], onVisitDetail: T => UIO[Unit])
+      extends ZIOEffectHandler[Any, Effect, Action]:
+    override def handle(e: Effect): ZStream[Any, Throwable, Action] =
       e match
         case Effect.LoadItems =>
           fromZIO(
-            ListPageHandler.loadItems[T]().map(Action.SetItems(_))
+            itemsHandler.loadItems().map(Action.SetItems(_))
           )
         case Effect.ReportError(msg) =>
-          fromZIOUnit(ListPageHandler.reportError[T](msg))
+          fromZIOUnit(itemsHandler.reportError(msg))
         case Effect.VisitDetail(item) =>
           fromZIOUnit(onVisitDetail(item))
 
