@@ -11,6 +11,9 @@ import works.iterative.ui.components.ComponentContext
 import scala.annotation.unused
 import scala.scalajs.js
 import scala.scalajs.js.Dictionary
+import works.iterative.ui.components.Modal
+import works.iterative.ui.components.ZIODispatcher
+import works.iterative.core.auth.UserInfo
 
 trait ScenarioMain(
     prefix: String,
@@ -45,9 +48,14 @@ trait ScenarioMain(
   )
 
   def main(@unused args: Array[String]): Unit =
-    given ComponentContext[Unit] with
-      val app: Unit = ()
+    given ComponentContext[Nothing] with
+      val currentUser: Signal[Option[UserInfo]] = Val(None)
       val messages: MessageCatalogue = messageCatalogue
+      val modal: Modal = new Modal:
+        override def open(content: HtmlElement): Unit = ()
+        override def close(): Unit = ()
+      val dispatcher: ZIODispatcher[Nothing] =
+        _ => ()
 
     def container: HtmlElement =
       div(
