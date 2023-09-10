@@ -1,4 +1,5 @@
 package works.iterative.core
+import auth.UserId
 
 /** A simple object to hold unique user identification together with "humane"
   * identification Usually we need to display the user's name in the UI, which

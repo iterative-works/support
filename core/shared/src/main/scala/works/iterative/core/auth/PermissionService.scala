@@ -13,7 +13,7 @@ object PermissionTarget:
   def apply(namespace: String, id: String): PermissionTarget =
     require(
       namespace.trim.nonEmpty && id.trim.nonEmpty,
-      "Both namespece and id must be defined"
+      "Both namespace and id must be defined"
     )
     require(
       namespace.indexOf(':') == -1 && id.indexOf(':') == -1,
