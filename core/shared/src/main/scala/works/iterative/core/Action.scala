@@ -12,3 +12,6 @@ object Action:
   def apply(op: String, target: String): Validated[Action] =
     for t <- PermissionTarget(target)
     yield Action(PermissionOp(op), t)
+
+  def unsafe(op: String, target: String): Action =
+    apply(PermissionOp(op), PermissionTarget.unsafe(target))
