@@ -4,6 +4,9 @@ ThisBuild / organization := "works.iterative.support"
 
 publishToIW
 
+lazy val fixSilencerDoc =
+  libraryDependencies += "com.github.ghik" %% "silencer-lib" % "1.4.2" % Provided cross CrossVersion.for3Use2_13
+
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .settings(name := "iw-support-core")
@@ -51,16 +54,20 @@ lazy val codecs = crossProject(JSPlatform, JVMPlatform)
 
 lazy val `mongo-support` = project
   .in(file("mongo"))
-  .configs(IntegrationTest)
   .settings(name := "iw-support-mongo")
   .settings(
-    Defaults.itSettings,
-    IWDeps.useZIO(Test, IntegrationTest),
+    fixSilencerDoc,
+    IWDeps.useZIO(),
     IWDeps.useZIOJson,
     IWDeps.zioConfig,
     libraryDependencies += ("org.mongodb.scala" %% "mongo-scala-driver" % "4.2.3")
       .cross(CrossVersion.for3Use2_13)
   )
+
+lazy val `mongo-support-it` = project
+  .in(file("mongo/it"))
+  .settings(publish / skip := true)
+  .dependsOn(`mongo-support`)
 
 lazy val `akka-persistence-support` = project
   .in(file("akka-persistence"))
@@ -98,6 +105,29 @@ lazy val ui = crossProject(JSPlatform, JVMPlatform)
   )
   .dependsOn(core)
 
+lazy val http = (project in file("server/http"))
+  .settings(name := "iw-support-server-http")
+  .settings(
+    fixSilencerDoc,
+    IWDeps.useZIO(),
+    IWDeps.zioConfig,
+    IWDeps.zioConfigTypesafe,
+    IWDeps.zioConfigMagnolia,
+    IWDeps.zioLoggingSlf4j,
+    // TODO: use IWDeps.zioInteropCats with next iw-support version (0.3.19+)
+    libraryDependencies += "dev.zio" %% "zio-interop-cats" % "23.0.0.8",
+    IWDeps.tapirCore,
+    IWDeps.tapirZIO,
+    IWDeps.tapirZIOJson,
+    IWDeps.tapirLib("files"),
+    IWDeps.tapirZIOHttp4sServer,
+    IWDeps.http4sBlazeServer,
+    IWDeps.http4sPac4J,
+    IWDeps.pac4jOIDC,
+    IWDeps.logbackClassic
+  )
+  .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
+
 lazy val root = (project in file("."))
   .enablePlugins(IWScalaProjectPlugin)
   .settings(
@@ -114,5 +144,6 @@ lazy val root = (project in file("."))
     `mongo-support`,
     `akka-persistence-support`,
     ui.js,
-    ui.jvm
+    ui.jvm,
+    http
   )
