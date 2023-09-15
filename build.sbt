@@ -8,7 +8,15 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .settings(name := "iw-support-core")
   .in(file("core"))
-  .settings(IWDeps.zioPrelude)
+  .settings(
+    IWDeps.zioPrelude,
+    IWDeps.zioJson,
+    // TODO: use zio-optics when derivation is available
+    libraryDependencies ++= Seq(
+      "dev.optics" %%% "monocle-core" % "3.2.0",
+      "dev.optics" %%% "monocle-macro" % "3.2.0"
+    )
+  )
 
 lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
   .in(file("tapir"))
@@ -67,7 +75,9 @@ lazy val `akka-persistence-support` = project
     IWDeps.akka.profiles.eventsourcedJdbcProjection
   )
 
-lazy val ui = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Full).in(file("ui"))
+lazy val ui = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("ui"))
   .settings(name := "iw-support-ui")
   .settings(
     IWDeps.useZIO(Test),
@@ -85,7 +95,8 @@ lazy val ui = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Full).in
   )
   .jvmSettings(
     libraryDependencies += "org.apache.poi" % "poi-ooxml" % "5.2.1"
-  ).dependsOn(core)
+  )
+  .dependsOn(core)
 
 lazy val root = (project in file("."))
   .enablePlugins(IWScalaProjectPlugin)

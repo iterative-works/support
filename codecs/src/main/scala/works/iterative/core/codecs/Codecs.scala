@@ -16,11 +16,11 @@ trait Codecs extends JsonCodecs with TapirCodecs
 
 trait JsonCodecs:
 
-  def fromValidation[T](v: Validation[MessageId, T]): Either[String, T] =
-    v.mapError(_.toString).toEither.left.map(_.mkString(","))
+  def fromValidation[T](v: Validation[UserMessage, T]): Either[String, T] =
+    v.mapError(_.id).toEither.left.map(_.mkString(","))
 
   private def textCodec[T](
-      f: String => Validation[MessageId, T]
+      f: String => Validation[UserMessage, T]
   ): JsonCodec[T] =
     JsonCodec.string.transformOrFail(f andThen fromValidation, _.toString)
 
