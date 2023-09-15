@@ -123,8 +123,7 @@ lazy val http = (project in file("server/http"))
     IWDeps.tapirZIOHttp4sServer,
     IWDeps.http4sBlazeServer,
     IWDeps.http4sPac4J,
-    IWDeps.pac4jOIDC,
-    IWDeps.logbackClassic
+    IWDeps.pac4jOIDC
   )
   .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
 
