@@ -1,3 +1,4 @@
+package works.iterative
 package ui.components.tailwind
 
 trait TailwindSupport:

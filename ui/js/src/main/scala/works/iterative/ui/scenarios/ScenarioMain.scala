@@ -4,7 +4,7 @@ import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.*
 import zio.*
 import org.scalajs.dom
-import ui.components.tailwind.TailwindSupport
+import works.iterative.ui.components.tailwind.TailwindSupport
 import works.iterative.core.MessageCatalogue
 import works.iterative.ui.JsonMessageCatalogue
 import works.iterative.ui.components.ComponentContext
