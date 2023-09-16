@@ -67,6 +67,7 @@ lazy val `mongo-support` = project
 lazy val `mongo-support-it` = project
   .in(file("mongo/it"))
   .settings(publish / skip := true)
+  .settings(IWDeps.useZIO())
   .dependsOn(`mongo-support`)
 
 lazy val `akka-persistence-support` = project
