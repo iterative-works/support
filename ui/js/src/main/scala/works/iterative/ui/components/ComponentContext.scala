@@ -2,7 +2,7 @@ package works.iterative
 package ui.components
 
 import works.iterative.core.MessageCatalogue
-import works.iterative.core.auth.UserInfo
+import works.iterative.core.auth.UserProfile
 import com.raquo.airstream.core.Signal
 
 /** Context containing services needed in all parts of the application
@@ -14,7 +14,7 @@ import com.raquo.airstream.core.Signal
 // as it needs Env
 // So for now, it is everything in one place
 trait ComponentContext[+Env]:
-  def currentUser: Signal[Option[UserInfo]]
+  def currentUser: Signal[Option[UserProfile]]
   def messages: MessageCatalogue
   def modal: Modal
   def dispatcher: ZIODispatcher[Env]

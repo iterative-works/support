@@ -14,6 +14,11 @@ import works.iterative.core.auth.CurrentUser
 import org.http4s.dsl.Http4sDsl
 import works.iterative.core.auth.UserId
 import org.http4s.server.Router
+import works.iterative.core.UserName
+import works.iterative.core.auth.UserRole
+import works.iterative.core.Email
+import works.iterative.core.Avatar
+import works.iterative.core.auth.BasicProfile
 
 trait HttpSecurity
 
@@ -69,7 +74,19 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
     service =>
       Kleisli { (r: AuthedRequest[F, List[CommonProfile]]) =>
         def loggedInUser(p: CommonProfile): CurrentUser =
-          CurrentUser(UserId.unsafe(p.getUsername))
+          import scala.jdk.CollectionConverters.*
+          CurrentUser(
+            BasicProfile(
+              UserId.unsafe(p.getUsername()),
+              Option(p.getDisplayName()).flatMap(UserName(_).toOption),
+              Option(p.getEmail()).flatMap(Email(_).toOption),
+              Option(p.getPictureUrl()).flatMap(Avatar(_).toOption),
+              Option(p.getRoles())
+                .map(_.asScala.toSet)
+                .getOrElse(Set.empty)
+                .flatMap(UserRole(_).toOption)
+            )
+          )
         r.context match {
           case profile :: _ =>
             service(AuthedRequest(loggedInUser(profile), r.req))

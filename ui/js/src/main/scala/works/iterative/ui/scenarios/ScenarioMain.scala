@@ -14,7 +14,7 @@ import scala.scalajs.js
 import scala.scalajs.js.Dictionary
 import works.iterative.ui.components.Modal
 import works.iterative.ui.components.ZIODispatcher
-import works.iterative.core.auth.UserInfo
+import works.iterative.core.auth.UserProfile
 
 trait ScenarioMain(
     prefix: String,
@@ -50,7 +50,7 @@ trait ScenarioMain(
 
   def main(@unused args: Array[String]): Unit =
     given ComponentContext[Nothing] with
-      val currentUser: Signal[Option[UserInfo]] = Val(None)
+      val currentUser: Signal[Option[UserProfile]] = Val(None)
       val messages: MessageCatalogue = messageCatalogue
       val modal: Modal = new Modal:
         override def open(content: HtmlElement): Unit = ()

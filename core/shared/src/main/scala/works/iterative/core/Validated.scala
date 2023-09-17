@@ -10,10 +10,14 @@ object Validated:
     */
   def nonEmptyString(lkey: String)(value: String): Validated[String] =
     Validation
-      .fromPredicateWith(UserMessage(s"error.empty.$lkey"))(value)(
-        _.trim.nonEmpty
+      .fromPredicateWith(UserMessage(s"error.empty.$lkey"))(value)(s =>
+        s != null && s.trim.nonEmpty
       )
       .map(_.trim)
+
+  def nonNull[A](lkey: String)(value: A): Validated[A] =
+    Validation
+      .fromPredicateWith(UserMessage(s"error.null.$lkey"))(value)(_ != null)
 
   def positiveInt(lkey: String)(value: Int): Validated[Int] =
     Validation
