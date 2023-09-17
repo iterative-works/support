@@ -35,8 +35,10 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
     IWDeps.tapirZIO,
     IWDeps.tapirZIOHttp4sServer,
     IWDeps.useZIOJson,
+    IWDeps.zioConfig,
     IWDeps.zioInteropReactiveStreams,
     IWDeps.zioNIO,
+    fixSilencerDoc,
     excludeDependencies += // Gets transitively dragged in by zio-nio, conflicting with _3
       ExclusionRule("org.scala-lang.modules", "scala-collection-compat_2.13")
   )

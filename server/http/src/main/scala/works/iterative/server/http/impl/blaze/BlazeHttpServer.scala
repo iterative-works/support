@@ -14,10 +14,13 @@ import works.iterative.server.http.impl.pac4j.Pac4jHttpSecurity
 import cats.*
 import cats.data.*
 import cats.arrow.FunctionK
+import works.iterative.tapir.BaseUri
+import org.http4s.server.Router
 
 class BlazeHttpServer(
     config: BlazeServerConfig,
-    pac4jConfig: Pac4jSecurityConfig
+    pac4jConfig: Pac4jSecurityConfig,
+    baseUri: BaseUri
 ) extends HttpServer:
   override def serve[Env](app: HttpApplication[Env]): URIO[Env, Nothing] =
     type AppTask[A] = RIO[Env, A]
@@ -74,10 +77,17 @@ class BlazeHttpServer(
 
       val eliminated: HttpRoutes[AppTask] = provideCurrentUser(securedRoutes)
 
+      def withBaseUri(routes: HttpRoutes[AppTask]): HttpRoutes[AppTask] =
+        baseUri.value match
+          case Some(u) => Router(u.toString -> routes)
+          case _       => routes
+
       BlazeServerBuilder[AppTask]
         .bindHttp(config.port, config.host)
         .withHttpApp(
-          (publicRoutes <+> pac4jSecurity.route <+> eliminated).orNotFound
+          (pac4jSecurity.route <+> withBaseUri(
+            publicRoutes <+> eliminated
+          )).orNotFound
         )
         .serve
         .compile
@@ -86,10 +96,12 @@ class BlazeHttpServer(
     }
 
 object BlazeHttpServer:
-  val layer: RLayer[BlazeServerConfig & Pac4jSecurityConfig, HttpServer] =
+  val layer
+      : RLayer[BlazeServerConfig & Pac4jSecurityConfig & BaseUri, HttpServer] =
     ZLayer {
       for
         config <- ZIO.service[BlazeServerConfig]
         pac4jConfig <- ZIO.service[Pac4jSecurityConfig]
-      yield BlazeHttpServer(config, pac4jConfig)
+        baseUri <- ZIO.service[BaseUri]
+      yield BlazeHttpServer(config, pac4jConfig, baseUri)
     }

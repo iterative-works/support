@@ -17,11 +17,6 @@ final case class SPAConfig(
     appPath: String = "app",
     /** The filename for the app */
     appIndex: String = "app.html",
-    /** Optional prefix for the SPA application.
-      *
-      * If not set, the application will be served from the root.
-      */
-    prefix: Option[String] = None,
     /** Path to the files of the SPA application.
       *
       * If not set, the application will be served from the classpath under
@@ -41,7 +36,6 @@ object SPAConfig:
     nested("SPA")(
       string("APPPATH").default("app") zip
         string("APPINDEX").default("index.html") zip
-        string("PREFIX").optional zip
         string("FILEPATH").optional zip
         string("RESOURCEPATH").default("app")
     ).to[SPAConfig]

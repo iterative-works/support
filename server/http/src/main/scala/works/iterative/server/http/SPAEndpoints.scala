@@ -7,10 +7,12 @@ import sttp.tapir.EndpointInput
 import works.iterative.core.auth.CurrentUser
 
 class SPAEndpoints[Env](config: SPAConfig):
-  private val prefix: EndpointInput[Unit] =
+  private val prefix: EndpointInput[Unit] = emptyInput
+  /*
     config.prefix.toSeq
       .flatMap(_.split("/").toSeq)
       .foldLeft(emptyInput)((i, p) => i / p)
+   */
 
   val serverEndpoints: List[ZServerEndpoint[Env & CurrentUser, Any]] =
     config.filePath match
