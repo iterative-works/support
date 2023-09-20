@@ -5,6 +5,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.typed.Cluster
 import akka.cluster.typed.Join
+import akka.NotUsed
 
 case class AkkaActorSystem(system: ActorSystem[?]):
   val joinSelf: Task[Unit] = ZIO.attempt {
@@ -12,9 +13,16 @@ case class AkkaActorSystem(system: ActorSystem[?]):
     cluster.manager ! Join(cluster.selfMember.address)
   }
 
+  given ActorSystem[?] = system
+
 object AkkaActorSystem:
-  def empty(name: String): TaskLayer[AkkaActorSystem] =
+  def empty(name: String): ZLayer[Scope, Throwable, AkkaActorSystem] =
     ZLayer(
-      for system <- ZIO.attempt(ActorSystem(Behaviors.empty, name))
-      yield AkkaActorSystem(system)
+      ZIO
+        .acquireRelease(
+          ZIO.attempt(ActorSystem(Behaviors.empty[NotUsed], name))
+        )(system => ZIO.attempt(system.terminate()).orDie)
+        .map(
+          AkkaActorSystem(_)
+        )
     )
