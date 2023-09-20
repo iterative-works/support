@@ -17,4 +17,6 @@ object Email:
       _.matches(regex)
     )
 
+  def unsafe(value: String): Email = apply(value).orThrow
+
   extension (email: Email) def value: String = email

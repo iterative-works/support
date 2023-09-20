@@ -4,6 +4,13 @@ import zio.prelude.Validation
 
 type Validated[A] = Validation[UserMessage, A]
 
+extension [A](v: Validated[A])
+  def orThrow: A =
+    v match
+      case Validation.Success(_, a) => a
+      case Validation.Failure(_, message) =>
+        throw new IllegalArgumentException(message.head.id.toString())
+
 object Validated:
   /** Validate and normalize nonempty string, returning "error.empty.$lkey" if
     * the string is empty, trimmed string otherwise
