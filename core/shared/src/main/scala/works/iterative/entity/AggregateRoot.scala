@@ -13,7 +13,7 @@ import zio.*
   * @tparam State
   *   Aggregate root state
   */
-trait AggregateRoot[Id, Command, Event, State, Error <: AggregateError]:
+trait AggregateRoot[Id, Error <: AggregateError, Command, Event, State]:
   /** Aggregate root id */
   def id: Id
 
