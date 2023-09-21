@@ -1,0 +1,14 @@
+package works.iterative.tapir
+
+import zio.*
+import sttp.tapir.PublicEndpoint
+
+opaque type Client[I, E, O] = I => IO[E, O]
+
+object Client:
+  def apply[I, E, O](f: I => IO[E, O]): Client[I, E, O] = f
+
+  extension [I, E, O](f: Client[I, E, O]) def apply(i: I): IO[E, O] = f(i)
+
+trait ClientEndpointFactory:
+  def make[I, E, O](endpoint: PublicEndpoint[I, E, O, Any]): Client[I, E, O]
