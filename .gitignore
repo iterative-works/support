@@ -88,3 +88,4 @@ out/
 # semanticdb
 *.semanticdb
 /.sbt-hydra-history
+sbt-launch.jar
