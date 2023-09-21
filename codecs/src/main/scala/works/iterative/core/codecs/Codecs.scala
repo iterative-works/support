@@ -20,7 +20,7 @@ trait JsonCodecs:
   def fromValidation[T](v: Validation[UserMessage, T]): Either[String, T] =
     v.mapError(_.id).toEither.left.map(_.mkString(","))
 
-  private def textCodec[T](
+  def textCodec[T](
       f: String => Validation[UserMessage, T]
   ): JsonCodec[T] =
     JsonCodec.string.transformOrFail(f andThen fromValidation, _.toString)
@@ -39,6 +39,8 @@ trait JsonCodecs:
   given JsonCodec[Avatar] = textCodec(Avatar.apply)
   given JsonCodec[BasicProfile] = DeriveJsonCodec.gen[BasicProfile]
 
+  given JsonCodec[FileRef] = DeriveJsonCodec.gen[FileRef]
+
 trait TapirCodecs extends CustomTapir:
   given Schema[PlainMultiLine] = Schema.string
   given Schema[PlainOneLine] = Schema.string
@@ -49,5 +51,6 @@ trait TapirCodecs extends CustomTapir:
   given Schema[Avatar] = Schema.string
   given Schema[Email] = Schema.string
   given Schema[BasicProfile] = Schema.derived[BasicProfile]
+  given Schema[FileRef] = Schema.derived[FileRef]
 
 object Codecs extends Codecs
