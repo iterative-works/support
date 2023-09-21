@@ -10,6 +10,7 @@ import sttp.capabilities.zio.ZioStreams
 import sttp.client3.FetchOptions
 import org.scalajs.dom
 import sttp.client3.impl.zio.FetchZioBackend
+import sttp.tapir.DecodeResult
 
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   self: CustomTapir =>
@@ -31,9 +32,23 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
       baseUri: BaseUri,
       backend: Backend,
       wsToPipe: WebSocketToPipe[Any]
-  ): I => Task[O] =
-    val req = toRequestThrowErrors(endpoint, baseUri.toUri)
-    req(_).followRedirects(false).send(backend).map(_.body).tapError {
+  ): I => IO[E, O] = input =>
+    val req = toRequest(endpoint, baseUri.toUri)
+    val fetch = req(input).followRedirects(false).send(backend)
+    for
+      resp <- fetch.orDie
+      body <- resp.body match
+        case DecodeResult.Value(v) => ZIO.succeed(v)
+        case err: DecodeResult.Failure =>
+          ZIO.die(
+            new RuntimeException(
+              s"Unexpected response status: ${resp.code} ${resp.statusText} - ${err}"
+            )
+          )
+      v <- ZIO.fromEither(body)
+    yield v
+/*
+    response(_).map(_.body).tapError {
       // TODO: remove this handler from here, the app should decide what to do on auth failure
       // Which is what the redirect here is
       case e: RuntimeException if e.getMessage == "Unexpected redirect" =>
@@ -41,3 +56,4 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
         ZIO.attempt(org.scalajs.dom.window.location.reload())
       case _ => ZIO.unit
     }
+ */
