@@ -2,7 +2,6 @@ package works.iterative.ui.scenarios
 
 import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.*
-import zio.*
 import org.scalajs.dom
 import works.iterative.ui.components.tailwind.TailwindSupport
 import works.iterative.core.MessageCatalogue
@@ -55,13 +54,7 @@ trait ScenarioMain(
       val modal: Modal = new Modal:
         override def open(content: HtmlElement): Unit = ()
         override def close(): Unit = ()
-      val dispatcher: ZIODispatcher[Nothing] =
-        new ZIODispatcher[Nothing]:
-          def dispatch(action: ZIO[Nothing, Nothing, Unit]): Unit = ()
-          def dispatchStream[A](
-              action: ZIO[Nothing, Nothing, A]
-          ): EventStream[A] =
-            EventStream.empty
+      val dispatcher: ZIODispatcher[Nothing] = ZIODispatcher.empty
 
     def container: HtmlElement =
       div(
