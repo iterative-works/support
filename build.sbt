@@ -42,6 +42,7 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
     excludeDependencies += // Gets transitively dragged in by zio-nio, conflicting with _3
       ExclusionRule("org.scala-lang.modules", "scala-collection-compat_2.13")
   )
+  .dependsOn(core)
 
 lazy val codecs = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)

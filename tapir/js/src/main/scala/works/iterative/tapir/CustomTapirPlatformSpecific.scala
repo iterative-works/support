@@ -1,6 +1,7 @@
 package works.iterative.tapir
 
 import zio.*
+import zio.stream.*
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
@@ -11,6 +12,9 @@ import sttp.client3.FetchOptions
 import org.scalajs.dom
 import sttp.client3.impl.zio.FetchZioBackend
 import sttp.tapir.DecodeResult
+import works.iterative.core.FileSupport
+import works.iterative.core.FileSupport.*
+import sttp.model.Part
 
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   self: CustomTapir =>
@@ -25,6 +29,12 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
       )
     )
   )
+
+  extension (f: FileRepr)
+    def toPart: Task[Part[Array[Byte]]] =
+      f.toStream.run(ZSink.collectAll).map { bytes =>
+        Part("file", bytes.toArray, fileName = Some(f.name))
+      }
 
   def makeClient[I, E, O](
       endpoint: PublicEndpoint[I, E, O, Any]

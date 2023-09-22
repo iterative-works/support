@@ -11,4 +11,7 @@ object Client:
   extension [I, E, O](f: Client[I, E, O]) def apply(i: I): IO[E, O] = f(i)
 
 trait ClientEndpointFactory:
+  def umake[I, O](
+      endpoint: PublicEndpoint[I, Unit, O, Any]
+  ): Client[I, Nothing, O]
   def make[I, E, O](endpoint: PublicEndpoint[I, E, O, Any]): Client[I, E, O]

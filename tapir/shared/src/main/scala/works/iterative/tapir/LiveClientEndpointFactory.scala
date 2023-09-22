@@ -10,6 +10,14 @@ class LiveClientEndpointFactory(using
 ) extends ClientEndpointFactory
     with CustomTapir:
 
+  override def umake[I, O](
+      endpoint: PublicEndpoint[I, Unit, O, Any]
+  ): Client[I, Nothing, O] = Client((input: I) =>
+    mkClient(endpoint)(input).orDieWith(_ =>
+      new IllegalStateException("Infallible endpoint failed")
+    )
+  )
+
   override def make[I, E, O](
       endpoint: PublicEndpoint[I, E, O, Any]
   ): Client[I, E, O] = mkClient(endpoint)

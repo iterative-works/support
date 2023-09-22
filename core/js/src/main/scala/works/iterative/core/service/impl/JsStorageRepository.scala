@@ -7,10 +7,12 @@ import zio.json.*
 
 // TODO: improve error reporting on generic repositories
 // This is good just for prototypes
-class JsStorageRepository[Value: JsonCodec](storage: Storage)
-    extends Repository[String, Value]:
+// And it cannot be used to query data, as there is no way to iterate the storage
+class JsStorageRepository[Value: JsonCodec](
+    storage: Storage
+) extends Repository[String, Value, String]:
 
-  override def find(id: String): UIO[Option[Value]] = {
+  override def load(id: String): UIO[Option[Value]] = {
     for
       raw <- ZIO.attemptBlocking(Option(storage.getItem(id)))
       data <- ZIO.foreach(raw) { r =>
@@ -23,3 +25,5 @@ class JsStorageRepository[Value: JsonCodec](storage: Storage)
 
   override def save(key: String, value: Value): UIO[Unit] =
     ZIO.attemptBlocking(storage.setItem(key, value.toJson)).orDie
+
+  override def find(id: String): UIO[List[Value]] = load(id).map(_.toList)

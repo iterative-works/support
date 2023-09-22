@@ -9,6 +9,5 @@ object InMemoryFileStore:
   val layer: ULayer[FileStore] = ZLayer.succeed {
     new FileStore:
       override def store(file: FileRepr): Op[FileRef] =
-        for ref <- FileRef(file.name, "#").toZIO
-        yield ref
+        ZIO.succeed(FileRef.unsafe(file.name, "#"))
   }
