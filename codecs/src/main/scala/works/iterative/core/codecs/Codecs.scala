@@ -6,6 +6,7 @@ import zio.json.*
 import zio.prelude.Validation
 import works.iterative.tapir.CustomTapir
 import works.iterative.core.auth.*
+import works.iterative.event.EventRecord
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
@@ -41,6 +42,13 @@ trait JsonCodecs:
 
   given JsonCodec[FileRef] = DeriveJsonCodec.gen[FileRef]
 
+  given JsonCodec[Moment] = JsonCodec.instant.transform(
+    Moment(_),
+    _.toInstant
+  )
+  given JsonCodec[UserHandle] = DeriveJsonCodec.gen[UserHandle]
+  given JsonCodec[EventRecord] = DeriveJsonCodec.gen[EventRecord]
+
 trait TapirCodecs extends CustomTapir:
   given Schema[PlainMultiLine] = Schema.string
   given Schema[PlainOneLine] = Schema.string
@@ -52,5 +60,9 @@ trait TapirCodecs extends CustomTapir:
   given Schema[Email] = Schema.string
   given Schema[BasicProfile] = Schema.derived[BasicProfile]
   given Schema[FileRef] = Schema.derived[FileRef]
+  given Schema[Moment] =
+    Schema.schemaForInstant.map(i => Some(Moment(i)))(_.toInstant)
+  given Schema[UserHandle] = Schema.derived[UserHandle]
+  given Schema[EventRecord] = Schema.derived[EventRecord]
 
 object Codecs extends Codecs

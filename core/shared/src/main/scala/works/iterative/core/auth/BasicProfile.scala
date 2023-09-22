@@ -7,7 +7,8 @@ final case class BasicProfile(
     email: Option[Email],
     avatar: Option[Avatar],
     roles: Set[UserRole]
-) extends UserProfile
+) extends UserProfile:
+  val handle: UserHandle = UserHandle(subjectId, userName)
 
 object BasicProfile:
   def apply(p: UserProfile): BasicProfile = p match

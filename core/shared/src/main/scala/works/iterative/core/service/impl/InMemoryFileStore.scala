@@ -10,4 +10,10 @@ object InMemoryFileStore:
     new FileStore:
       override def store(file: FileRepr): Op[FileRef] =
         ZIO.succeed(FileRef.unsafe(file.name, "#"))
+      override def store(
+          name: String,
+          file: Array[Byte],
+          contentType: Option[String]
+      ): Op[FileRef] =
+        ZIO.succeed(FileRef.unsafe(name, "#"))
   }
