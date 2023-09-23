@@ -16,4 +16,6 @@ object InMemoryFileStore:
           contentType: Option[String]
       ): Op[FileRef] =
         ZIO.succeed(FileRef.unsafe(name, "#"))
+      override def load(url: String): Op[Option[Array[Byte]]] =
+        ZIO.succeed(None)
   }

@@ -88,7 +88,7 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
     toFilter: Criteria => Bson
 ):
 
-  def put(name: String, file: Array[Byte], metadata: Metadata): UIO[Unit] =
+  def put(name: String, file: Array[Byte], metadata: Metadata): UIO[String] =
     ZIO
       .fromFuture(_ =>
         bucket
@@ -99,7 +99,7 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
           )
           .toFuture
       )
-      .unit
+      .map(_.toString())
       .orDie
 
   def find(id: String): UIO[Option[Array[Byte]]] =

@@ -13,6 +13,7 @@ trait FileStore:
       file: Array[Byte],
       contentType: Option[String]
   ): Op[FileRef]
+  def load(url: String): Op[Option[Array[Byte]]]
 
 object FileStore:
   type Op[A] = URIO[FileStore, A]
@@ -24,3 +25,5 @@ object FileStore:
       contentType: Option[String]
   ): Op[FileRef] =
     ZIO.serviceWithZIO(_.store(name, file, contentType))
+  def load(url: String): Op[Option[Array[Byte]]] =
+    ZIO.serviceWithZIO(_.load(url))
