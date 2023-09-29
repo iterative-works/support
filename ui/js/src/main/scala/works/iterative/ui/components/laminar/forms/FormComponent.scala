@@ -1,6 +1,5 @@
 package works.iterative.ui.components.laminar.forms
 
-import com.raquo.airstream.core.Signal
 import com.raquo.laminar.api.L.*
 import works.iterative.core.Validated
 import zio.prelude.*
@@ -22,6 +21,11 @@ object FormComponent:
     new FormComponent:
       override def validated = v
       override def elements = e
+
+  def empty: FormComponent[EmptyTuple.type] = apply(
+    Val(Validation.succeed(Tuple())),
+    Nil
+  )
 
   extension [A](fc: FormComponent[A])
     def wrap(wrapper: Seq[HtmlElement] => HtmlElement): FormComponent[A] =

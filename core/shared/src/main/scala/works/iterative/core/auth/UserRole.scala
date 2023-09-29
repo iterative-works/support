@@ -3,9 +3,6 @@ package auth
 
 opaque type UserRole = String
 
-object UserRole:
+object UserRole extends ValidatedStringFactory[UserRole](r => r):
   def apply(role: String): Validated[UserRole] =
     Validated.nonEmptyString("user.role")(role)
-  def unsafe(role: String): UserRole = role
-
-  extension (r: UserRole) def value: String = r

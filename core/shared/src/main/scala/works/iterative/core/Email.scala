@@ -4,7 +4,7 @@ import zio.prelude.*
 
 opaque type Email = String
 
-object Email:
+object Email extends ValidatedStringFactory[Email](e => e):
   def apply(value: String): Validated[Email] =
     // The regex below is taken from the HTML5 spec for "email address state" (https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address)
     // and is the most permissive regex we can use that still conforms to the spec.
@@ -16,7 +16,3 @@ object Email:
     Validation.fromPredicateWith(UserMessage("error.invalid.email"))(value)(
       _.matches(regex)
     )
-
-  def unsafe(value: String): Email = apply(value).orThrow
-
-  extension (email: Email) def value: String = email

@@ -26,6 +26,18 @@ trait JsonCodecs:
   ): JsonCodec[T] =
     JsonCodec.string.transformOrFail(f andThen fromValidation, _.toString)
 
+  def validatedStringCodec[A](
+      factory: ValidatedStringFactory[A]
+  ): JsonCodec[A] =
+    JsonCodec.string.transformOrFail(
+      factory.apply andThen fromValidation,
+      factory.getter
+    )
+
+  given fromValidatedStringCodec[A](using
+      factory: ValidatedStringFactory[A]
+  ): JsonCodec[A] = validatedStringCodec(factory)
+
   given JsonCodec[PlainMultiLine] = textCodec(PlainMultiLine.apply)
   given JsonCodec[PlainOneLine] = textCodec(PlainOneLine.apply)
   given JsonCodec[Markdown] = textCodec(Markdown.apply)
@@ -33,11 +45,10 @@ trait JsonCodecs:
   given JsonCodec[UserId] =
     JsonCodec.string.transform(auth.UserId.unsafe(_), _.value)
 
-  given JsonCodec[Email] = textCodec(Email.apply)
+  given JsonCodec[Email] = validatedStringCodec(Email)
 
-  given JsonCodec[UserName] = textCodec(UserName.apply)
-  given JsonCodec[UserRole] = textCodec(UserRole.apply)
-  given JsonCodec[Avatar] = textCodec(Avatar.apply)
+  given JsonCodec[UserRole] = validatedStringCodec(UserRole)
+  given JsonCodec[Avatar] = validatedStringCodec(Avatar)
   given JsonCodec[BasicProfile] = DeriveJsonCodec.gen[BasicProfile]
 
   given JsonCodec[FileRef] = DeriveJsonCodec.gen[FileRef]
@@ -50,6 +61,10 @@ trait JsonCodecs:
   given JsonCodec[EventRecord] = DeriveJsonCodec.gen[EventRecord]
 
 trait TapirCodecs extends CustomTapir:
+  given fromValidatedStringSchema[A](using
+      ValidatedStringFactory[A]
+  ): Schema[A] = Schema.string
+
   given Schema[PlainMultiLine] = Schema.string
   given Schema[PlainOneLine] = Schema.string
   given Schema[Markdown] = Schema.string

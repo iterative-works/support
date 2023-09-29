@@ -36,7 +36,7 @@ object FieldBuilder:
           initialValue: Option[A]
       ): FormComponent[A] =
         val codec = summon[InputCodec[A]]
-        InputField(
+        Input(
           fieldDescriptor,
           initialValue.map(codec.encode),
           Validations.required(fieldDescriptor.label)(_).flatMap(codec.decode)
@@ -52,7 +52,7 @@ object FieldBuilder:
           initialValue: Option[Option[A]]
       ): FormComponent[Option[A]] =
         val codec = summon[InputCodec[A]]
-        InputField[Option[A]](
+        Input[Option[A]](
           fieldDescriptor,
           initialValue.flatten.map(codec.encode),
           (v: Option[String]) =>
@@ -141,7 +141,7 @@ object FieldBuilder:
           )
         )
 
-  class InputField[A](
+  class Input[A](
       desc: FieldDescriptor,
       initialValue: Option[String] = None,
       validation: Option[String] => Validated[A]
@@ -153,12 +153,12 @@ object FieldBuilder:
       rawValue.signal.map(validation)
 
     override val elements: Seq[HtmlElement] =
-      renderInputField(
+      InputField(
         desc,
         initialValue,
         validated,
         rawValue.writer
-      )
+      ).elements
 
   class FileField[A](
       desc: FieldDescriptor,
@@ -172,51 +172,6 @@ object FieldBuilder:
 
     override val elements: Seq[HtmlElement] =
       renderFileInputField(desc, rawValue.writer.contramapSome)
-
-  def renderInputField(
-      desc: FieldDescriptor,
-      initialValue: Option[String],
-      validated: Signal[Validated[_]],
-      observer: Observer[Option[String]]
-  )(using fctx: FormBuilderContext): Seq[HtmlElement] =
-
-    val hadFocus: Var[Boolean] = Var(false)
-
-    val touched: Var[Boolean] = Var(false)
-
-    val hasError: Signal[Boolean] =
-      validated.combineWithFn(touched.signal)((v, t) =>
-        if t then v.fold(_ => true, _ => false) else false
-      )
-
-    val errors: Signal[List[UserMessage]] =
-      validated.combineWithFn(touched.signal)((v, t) =>
-        if t then v.fold(_.toList, _ => List.empty) else Nil
-      )
-
-    Seq(
-      div(
-        fctx.formUIFactory.input(hasError)(
-          idAttr(desc.idString),
-          nameAttr(desc.name),
-          desc.placeholder.map(placeholder(_)),
-          initialValue.map(L.value(_)),
-          onInput.mapToValue.setAsValue --> observer.contramap { (v: String) =>
-            Option(v).map(_.trim).filter(_.nonEmpty)
-          },
-          onFocus.mapTo(true) --> hadFocus.writer,
-          onBlur.mapTo(true) --> touched.writer
-        ),
-        children <-- errors
-          .map(
-            _.map[HtmlElement](msg =>
-              fctx.formUIFactory.validationError(
-                fctx.formMessagesResolver.message(msg)
-              )
-            )
-          )
-      )
-    )
 
   class ChoiceField[A](
       desc: FieldDescriptor,

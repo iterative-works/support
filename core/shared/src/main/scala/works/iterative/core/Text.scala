@@ -90,7 +90,7 @@ object PlainOneLine:
   given string2FirstLineEmpty: Conversion[String, PlainOneLine] =
     firstLineEmpty(_)
 
-  extension (p: PlainOneLine) def toString: String = p
+  extension (p: PlainOneLine) def asString: String = p
 
 opaque type Markdown = String
 
@@ -104,4 +104,4 @@ object Markdown:
   def optDirect(text: String): Option[Markdown] =
     Text.nonEmpty(text)
 
-  extension (p: Markdown) def toString: String = p
+  extension (p: Markdown) def asString: String = p
