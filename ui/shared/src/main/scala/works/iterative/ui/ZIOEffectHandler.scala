@@ -9,14 +9,16 @@ trait ZIOEffectHandler[Env, Effect, Action]:
   def fromZIO(
       zio: ZIO[Env, Throwable, Action]
   ): ZStream[Env, Throwable, Action] =
-    ZStream.fromZIO(zio)
+    ZStream.fromZIO(zio.resurrect)
 
   def fromZIOOption(
       zio: ZIO[Env, Throwable, Option[Action]]
   ): ZStream[Env, Throwable, Action] =
-    ZStream.fromZIO(zio).collect { case Some(a) => a }
+    ZStream.fromZIO(zio.resurrect).collect { case Some(a) => a }
 
   def fromZIOUnit(
       zio: ZIO[Env, Throwable, Unit]
   ): ZStream[Env, Throwable, Action] =
-    ZStream.fromZIO(zio.as(Option.empty[Action])).collect { case Some(a) => a }
+    ZStream.fromZIO(zio.as(Option.empty[Action]).resurrect).collect {
+      case Some(a) => a
+    }

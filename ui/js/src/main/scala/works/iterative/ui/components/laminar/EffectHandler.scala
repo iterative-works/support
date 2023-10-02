@@ -40,7 +40,7 @@ class LaminarZIOEffectHandler[Env, E, A](handler: ZIOEffectHandler[Env, E, A])(
   ): Modifier[HtmlElement] =
     onMountCallback(ctx =>
       val _ = effects.foreach { effect =>
-        val _ = Unsafe.unsafe { implicit unsafe =>
+        val _ = Unsafe.unsafely {
           runtime.unsafe
             .runToFuture(
               handler.handle(effect).either.runForeach {
