@@ -62,7 +62,6 @@ trait FormBuilderModule:
         cctx: ComponentContext[?]
     ): FormComponent[A] =
       import FormSchema.*
-      import works.iterative.ui.components.laminar.LaminarExtensions.*
       import works.iterative.ui.components.laminar.HtmlRenderable.given
       schema match
         case FormSchema.Unit => FormComponent.empty
