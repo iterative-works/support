@@ -1,5 +1,6 @@
 package works.iterative.ui.scenarios
 
+import zio.*
 import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.*
 import org.scalajs.dom
@@ -48,13 +49,14 @@ trait ScenarioMain(
   )
 
   def main(@unused args: Array[String]): Unit =
-    given ComponentContext[Nothing] with
+    given ComponentContext[Any] with
       val currentUser: Signal[Option[UserProfile]] = Val(None)
       val messages: MessageCatalogue = messageCatalogue
       val modal: Modal = new Modal:
         override def open(content: HtmlElement): Unit = ()
         override def close(): Unit = ()
-      val dispatcher: ZIODispatcher[Nothing] = ZIODispatcher.empty
+      val dispatcher: ZIODispatcher[Any] = ZIODispatcher.empty
+      val runtime: Runtime[Any] = Runtime.default
 
     def container: HtmlElement =
       div(

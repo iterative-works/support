@@ -1,6 +1,7 @@
 package works.iterative
 package ui.components
 
+import zio.*
 import works.iterative.core.MessageCatalogue
 import works.iterative.core.auth.UserProfile
 import com.raquo.airstream.core.Signal
@@ -18,6 +19,7 @@ trait ComponentContext[+Env]:
   def messages: MessageCatalogue
   def modal: Modal
   def dispatcher: ZIODispatcher[Env]
+  def runtime: Runtime[Env]
 
   def nested(prefixes: String*): ComponentContext[Env] =
     ComponentContext.Nested[Env](this, prefixes)

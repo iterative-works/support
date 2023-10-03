@@ -40,6 +40,18 @@ sealed trait Computable[+Model]:
     case _                            => false
 
 object Computable:
+  enum Update[+A]:
+    case Loading extends Update[Nothing]
+    case Done(value: A) extends Update[A]
+    case Failed(msg: UserMessage) extends Update[Nothing]
+
+  object Update:
+    extension [A](u: Update[A])
+      def apply(c: Computable[A]): Computable[A] = u match
+        case Update.Loading     => c.started
+        case Update.Done(v)     => c.update(v)
+        case Update.Failed(msg) => c.fail(msg)
+
   /** The initial state of a computable model
     */
   case object Uninitialized extends Computable[Nothing]:

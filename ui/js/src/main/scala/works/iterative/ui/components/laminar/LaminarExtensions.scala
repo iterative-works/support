@@ -5,6 +5,7 @@ import io.laminext.syntax.core.*
 import works.iterative.core.{MessageId, UserMessage}
 import works.iterative.ui.components.ComponentContext
 import zio.IsSubtypeOfError
+import works.iterative.ui.model.Computable
 
 object LaminarExtensions extends I18NExtensions with ZIOInteropExtensions
 
@@ -40,6 +41,14 @@ trait ZIOInteropExtensions:
   import zio.{Fiber, Runtime, Unsafe, ZIO}
 
   extension [R, E, O](effect: ZIO[R, E, O])
+    def computableUpdate(using
+        ev: E IsSubtypeOfError UserMessage
+    ): ZIO[R, Nothing, Computable.Update[O]] =
+      effect
+        .map(Computable.Update.Done(_))
+        .mapError(msg => Computable.Update.Failed(ev(msg)))
+        .merge
+
     def toEventStream(using runtime: Runtime[R])(using
         ev: E IsSubtypeOfError Throwable
     ): EventStream[O] =
