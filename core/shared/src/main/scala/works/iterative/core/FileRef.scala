@@ -15,6 +15,8 @@ case class FileRef private (
       case s                           => s"${s / (1024 * 1024 * 1024)} GB"
     }
 
+  def withBase(url: String): FileRef = copy(url = url + this.url)
+
 object FileRef:
   def apply(
       name: String,
