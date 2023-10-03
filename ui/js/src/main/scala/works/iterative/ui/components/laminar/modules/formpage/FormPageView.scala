@@ -24,6 +24,11 @@ trait FormPageView[T: Form]:
     def renderForm(
         initialValue: Option[T]
     ): Seq[HtmlElement] =
-      buildForm[T](summon[Form[T]], actions.contramap(Action.Submit(_)))
+      buildForm[T](
+        summon[Form[T]],
+        actions.contracollect[Form.Event[T]] { case Form.Event.Submitted(a) =>
+          Action.Submit(a)
+        }
+      )
         .build(initialValue)
         .elements

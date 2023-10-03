@@ -7,6 +7,13 @@ import works.iterative.ui.components.laminar.HtmlRenderable.given
 sealed trait Form[A] extends FormBuilder[A]
 
 object Form:
+  enum Event[+A]:
+    case Submitted(a: A) extends Event[A]
+    case Cancelled extends Event[Nothing]
+
+  enum Control:
+    case DisableButtons, EnableButtons
+
   case class Section[A](desc: SectionDescriptor)(content: Form[A])(using
       fctx: FormBuilderContext
   ) extends Form[A]:

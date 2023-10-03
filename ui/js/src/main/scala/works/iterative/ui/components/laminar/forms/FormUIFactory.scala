@@ -25,6 +25,8 @@ trait FormUIFactory:
 
   def submit(label: HtmlMod)(mods: HtmlMod*): HtmlElement
 
+  def cancel(label: HtmlMod)(mods: HtmlMod*): HtmlElement
+
   def validationError(text: HtmlMod): HtmlElement
 
   def fieldHelp(text: HtmlMod): HtmlElement
