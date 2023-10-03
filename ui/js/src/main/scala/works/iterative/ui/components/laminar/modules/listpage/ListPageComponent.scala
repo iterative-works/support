@@ -3,12 +3,14 @@ package works.iterative.ui.components.laminar.modules.listpage
 import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.laminar.{EffectHandler, LaminarComponent}
 import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
+import works.iterative.ui.components.ComponentContext
 
 trait ListPageComponent[T]:
   self: ListPageView[T] with ListPageModel[T] with HtmlTableBuilderModule =>
 
-  class Component(effectHandler: EffectHandler[Effect, Action])
-      extends LaminarComponent[Model, Action, Effect, HtmlElement](
+  class Component(effectHandler: EffectHandler[Effect, Action])(using
+      ComponentContext[?]
+  ) extends LaminarComponent[Model, Action, Effect, HtmlElement](
         effectHandler
       )
       with Module:

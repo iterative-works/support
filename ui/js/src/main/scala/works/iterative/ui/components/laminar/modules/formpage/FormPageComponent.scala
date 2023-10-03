@@ -5,12 +5,14 @@ import works.iterative.ui.components.laminar.EffectHandler
 import works.iterative.ui.components.laminar.LaminarComponent
 import works.iterative.ui.components.laminar.forms.FormBuilderModule
 import works.iterative.ui.components.laminar.forms.FormBuilderContext
+import works.iterative.ui.components.ComponentContext
 
 trait FormPageComponent[T]:
   self: FormPageModel[T] with FormPageView[T] with FormBuilderModule =>
 
   class Component(effectHandler: EffectHandler[Effect, Action])(using
-      fctx: FormBuilderContext
+      fctx: FormBuilderContext,
+      cctx: ComponentContext[?]
   ) extends LaminarComponent[Model, Action, Effect, HtmlElement](effectHandler)
       with Module:
     override def render(

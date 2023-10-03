@@ -6,11 +6,14 @@ import works.iterative.ui.components.laminar.ComputableComponent
 import works.iterative.ui.components.laminar.HtmlTabular
 import io.laminext.syntax.core.*
 import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
+import works.iterative.ui.components.ComponentContext
 
 trait ListPageView[T: HtmlTabular]:
   self: ListPageModel[T] with HtmlTableBuilderModule =>
 
-  class View(model: Signal[Model], actions: Observer[Action]):
+  class View(model: Signal[Model], actions: Observer[Action])(using
+      ComponentContext[?]
+  ):
 
     val element: HtmlElement =
       ComputableComponent(div)(

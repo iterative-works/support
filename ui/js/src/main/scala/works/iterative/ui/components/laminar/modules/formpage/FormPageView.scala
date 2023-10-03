@@ -5,13 +5,15 @@ import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.laminar.forms.FormBuilderModule
 import works.iterative.ui.components.laminar.forms.Form
 import works.iterative.ui.components.laminar.ComputableComponent
+import works.iterative.ui.components.ComponentContext
 import works.iterative.ui.components.laminar.forms.FormBuilderContext
 
 trait FormPageView[T: Form]:
   self: FormPageModel[T] with FormBuilderModule =>
 
   class View(model: Signal[Model], actions: Observer[Action])(using
-      fctx: FormBuilderContext
+      fctx: FormBuilderContext,
+      cctx: ComponentContext[?]
   ):
 
     val element: HtmlElement =
