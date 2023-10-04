@@ -14,7 +14,7 @@ class LiveClientEndpointFactory(using
       endpoint: PublicEndpoint[I, Unit, O, Any]
   ): Client[I, Nothing, O] = Client((input: I) =>
     mkClient(endpoint)(input).orDieWith(_ =>
-      new IllegalStateException("Infallible endpoint failed")
+      new IllegalStateException("Internal Server Error")
     )
   )
 
