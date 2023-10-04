@@ -11,8 +11,13 @@ object PermissionOp:
 
   extension (op: PermissionOp) def value: String = op
 
+trait Targetable:
+  def permissionTarget: PermissionTarget
+
 opaque type PermissionTarget = String
 object PermissionTarget:
+  given Conversion[Targetable, PermissionTarget] = _.permissionTarget
+
   def apply(target: String): Validated[PermissionTarget] =
     target.split(":", 2) match
       case Array(n, i) => apply(n, i)
@@ -44,6 +49,7 @@ object PermissionTarget:
       namespace.trim.nonEmpty && id.trim.nonEmpty,
       "Both namespace and id must be defined"
     )
+    // TODO: escape instead of complaining
     require(
       namespace.indexOf(':') == -1 && id.indexOf(':') == -1,
       "Neither namespace nor id can contain ':'"
