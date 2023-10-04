@@ -2,7 +2,7 @@ package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.*
 import java.time.LocalDate
-import works.iterative.core.PlainMultiLine
+import works.iterative.core.*
 import java.time.Instant
 import works.iterative.ui.TimeUtils
 import works.iterative.core.UserMessage
@@ -34,6 +34,10 @@ object HtmlRenderable:
         CustomAttrs.datetime(TimeUtils.formatHtmlDateTime(v)),
         TimeUtils.formatDateTime(v)
       )
+
+  given plainOneLineValue: HtmlRenderable[PlainOneLine] with
+    def toHtml(v: PlainOneLine): Modifier[HtmlElement] =
+      span(v.toString)
 
   given plainMultiLineValue: HtmlRenderable[PlainMultiLine] with
     def toHtml(v: PlainMultiLine): Modifier[HtmlElement] =
