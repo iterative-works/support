@@ -67,9 +67,22 @@ trait PermissionService:
       obj: PermissionTarget
   ): UIO[Boolean]
 
+  def isAllowed(
+      subj: UserInfo,
+      action: PermissionOp,
+      obj: PermissionTarget
+  ): UIO[Boolean] = isAllowed(Some(subj), action, obj)
+
 object PermissionService:
   def isAllowed(
       subj: Option[UserInfo],
+      action: PermissionOp,
+      obj: PermissionTarget
+  ): URIO[PermissionService, Boolean] =
+    ZIO.serviceWithZIO(_.isAllowed(subj, action, obj))
+
+  def isAllowed(
+      subj: UserInfo,
       action: PermissionOp,
       obj: PermissionTarget
   ): URIO[PermissionService, Boolean] =
