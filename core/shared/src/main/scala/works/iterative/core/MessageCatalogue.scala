@@ -41,6 +41,9 @@ trait MessageCatalogue:
   def nested(prefixes: String*): MessageCatalogue =
     NestedMessageCatalogue(this, prefixes*)
 
+  def withPrefixes(prefixes: String*): MessageCatalogue =
+    NestedMessageCatalogue(this, prefixes*)
+
 private class NestedMessageCatalogue(
     underlying: MessageCatalogue,
     prefixes: String*
@@ -67,3 +70,6 @@ private class NestedMessageCatalogue(
       }
       .headOption
       .orElse(underlying.get(msg))
+
+  override def withPrefixes(prefixes: String*): MessageCatalogue =
+    underlying.withPrefixes(prefixes*)

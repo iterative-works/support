@@ -42,6 +42,10 @@ trait JsonCodecs:
   given JsonCodec[PlainOneLine] = textCodec(PlainOneLine.apply)
   given JsonCodec[Markdown] = textCodec(Markdown.apply)
 
+  given JsonCodec[PermissionOp] =
+    JsonCodec.string.transform(PermissionOp(_), _.value)
+  given JsonCodec[PermissionTarget] = textCodec(PermissionTarget.apply)
+
   given JsonCodec[UserId] =
     JsonCodec.string.transform(auth.UserId.unsafe(_), _.value)
 
@@ -65,6 +69,8 @@ trait TapirCodecs extends CustomTapir:
       ValidatedStringFactory[A]
   ): Schema[A] = Schema.string
 
+  given Schema[PermissionOp] = Schema.string
+  given Schema[PermissionTarget] = Schema.string
   given Schema[PlainMultiLine] = Schema.string
   given Schema[PlainOneLine] = Schema.string
   given Schema[Markdown] = Schema.string

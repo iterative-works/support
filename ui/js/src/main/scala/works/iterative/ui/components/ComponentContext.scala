@@ -24,10 +24,16 @@ trait ComponentContext[+Env]:
   def nested(prefixes: String*): ComponentContext[Env] =
     ComponentContext.Nested[Env](this, prefixes)
 
+  def withPrefixes(prefixes: String*): ComponentContext[Env] =
+    ComponentContext.Nested[Env](this, prefixes)
+
 object ComponentContext:
-  case class Nested[App](parent: ComponentContext[App], prefixes: Seq[String])
-      extends ComponentContext[App]:
+  case class Nested[Env](parent: ComponentContext[Env], prefixes: Seq[String])
+      extends ComponentContext[Env]:
     export parent.{messages => _, *}
 
     override lazy val messages: MessageCatalogue =
       parent.messages.nested(prefixes*)
+
+    override def withPrefixes(prefixes: String*): ComponentContext[Env] =
+      parent.withPrefixes(prefixes*)

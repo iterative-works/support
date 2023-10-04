@@ -23,3 +23,5 @@ object Moment:
 
   given Conversion[Instant, Moment] = Moment(_)
   given Conversion[Moment, Instant] = _.toInstant
+
+  given (using ord: Ordering[Instant]): Ordering[Moment] = ord
