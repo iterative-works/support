@@ -13,6 +13,11 @@ trait EntityCreateService[Id, Init, Error <: AggregateError]:
 
   def create(initData: Init): Op[Id]
 
+trait EntityCreateWithIdService[Id, Init, Error <: AggregateError]:
+  type Op[A] = ZIO[CurrentUser, Error, A]
+
+  def create(id: Id, initData: Init): Op[Id]
+
 trait EntityService[Id, Command, Error <: AggregateError, Init <: Command]
     extends EntityCreateService[Id, Init, Error]
     with EntityUpdateService[Id, Command, Error]

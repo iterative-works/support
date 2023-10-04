@@ -38,6 +38,8 @@ object PlainMultiLine:
   def apply(text: String): Validated[PlainMultiLine] =
     Text.validateNonEmpty(text)
 
+  def unsafe(text: String): PlainMultiLine = text
+
   def opt(text: String): Validated[Option[PlainMultiLine]] =
     Validation.succeed(optDirect(text))
 
@@ -74,6 +76,8 @@ object PlainOneLine:
       _ <- Text.validateNonEmpty(text)
       _ <- validateOneLine(text)
     yield text
+
+  def unsafe(text: String): PlainOneLine = text
 
   def opt(text: String): Validated[Option[PlainOneLine]] =
     for _ <- validateOneLine(text)
