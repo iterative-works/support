@@ -4,16 +4,18 @@ import zio.*
 import works.iterative.ui.ZIOEffectHandler
 import zio.stream.ZStream
 
-trait ListPageZIOHandler[T: Tag]:
-  self: ListPageModel[T] =>
+trait ListPageZIOHandler[T: Tag, Q: Tag]:
+  self: ListPageModel[T, Q] =>
 
-  class Handler(itemsHandler: ListPageHandler[T], onVisitDetail: T => UIO[Unit])
-      extends ZIOEffectHandler[Any, Effect, Action]:
+  class Handler(
+      itemsHandler: ListPageHandler[T, Q],
+      onVisitDetail: T => UIO[Unit]
+  ) extends ZIOEffectHandler[Any, Effect, Action]:
     override def handle(e: Effect): ZStream[Any, Throwable, Action] =
       e match
-        case Effect.LoadItems =>
+        case Effect.LoadItems(q) =>
           fromZIO(
-            itemsHandler.loadItems().map(Action.SetItems(_))
+            itemsHandler.loadItems(q).map(Action.SetItems(_))
           )
         case Effect.ReportError(msg) =>
           fromZIOUnit(itemsHandler.reportError(msg))
@@ -21,4 +23,4 @@ trait ListPageZIOHandler[T: Tag]:
           fromZIOUnit(onVisitDetail(item))
 
 object ListPageZIOHandler:
-  type Env[T] = ListPageHandler[T]
+  type Env[T, Q] = ListPageHandler[T, Q]

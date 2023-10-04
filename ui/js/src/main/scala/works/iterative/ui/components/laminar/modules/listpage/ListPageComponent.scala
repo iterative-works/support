@@ -6,7 +6,7 @@ import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 import works.iterative.ui.components.ComponentContext
 
 trait ListPageComponent[T]:
-  self: ListPageView[T] with ListPageModel[T] with HtmlTableBuilderModule =>
+  self: ListPageView[T] with ListPageModel[T, ?] with HtmlTableBuilderModule =>
 
   class Component(effectHandler: EffectHandler[Effect, Action])(using
       ComponentContext[?]

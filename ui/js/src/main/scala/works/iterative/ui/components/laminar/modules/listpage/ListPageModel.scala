@@ -3,15 +3,18 @@ package works.iterative.ui.components.laminar.modules.listpage
 import works.iterative.core.UserMessage
 import works.iterative.ui.model.Computable
 
-trait ListPageModel[T]:
+trait ListPageModel[T, Q]:
+
+  def emptyQuery: Q
 
   enum Action:
+    case SetFilter(query: Q)
     case SetItems(items: List[T])
     case VisitDetail(item: T)
     case SetError(message: UserMessage)
 
   enum Effect:
-    case LoadItems
+    case LoadItems(query: Q)
     case ReportError(message: UserMessage)
     case VisitDetail(item: T)
 
@@ -21,10 +24,11 @@ trait ListPageModel[T]:
 
   trait Module extends works.iterative.ui.Module[Model, Action, Effect]:
     override def init: (Model, Option[Effect]) =
-      Model() -> Some(Effect.LoadItems)
+      Model() -> Some(Effect.LoadItems(emptyQuery))
 
     override def handle(action: Action, model: Model): (Model, Option[Effect]) =
       action match
+        case Action.SetFilter(q) => model -> Some(Effect.LoadItems(q))
         case Action.SetItems(items) =>
           model.copy(items = model.items.update(items)) -> None
         case Action.SetError(msg) =>

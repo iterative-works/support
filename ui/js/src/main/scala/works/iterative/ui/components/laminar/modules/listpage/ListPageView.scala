@@ -9,7 +9,7 @@ import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 import works.iterative.ui.components.ComponentContext
 
 trait ListPageView[T: HtmlTabular]:
-  self: ListPageModel[T] with HtmlTableBuilderModule =>
+  self: ListPageModel[T, ?] with HtmlTableBuilderModule =>
 
   class View(model: Signal[Model], actions: Observer[Action])(using
       ComponentContext[?]
