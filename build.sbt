@@ -86,6 +86,7 @@ lazy val `akka-persistence-support` = project
     IWDeps.akka.profiles.eventsourcedJdbcProjection,
     libraryDependencies += "com.github.ghik" %% "silencer-lib" % "1.4.2" % Provided cross CrossVersion.for3Use2_13
   )
+  .dependsOn(core.jvm)
 
 lazy val ui = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
