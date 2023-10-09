@@ -1,4 +1,8 @@
-package works.iterative.ui.components.laminar.modules.formpage
+package works.iterative.ui
+package components
+package laminar
+package modules
+package formpage
 
 import zio.Tag
 import works.iterative.ui.components.laminar.forms.Form
@@ -10,3 +14,4 @@ trait FormPage[T: Tag: Form, K]
     with FormPageView[T]
     with FormPageComponent[T]
     with FormBuilderModule
+    with ComputableComponents

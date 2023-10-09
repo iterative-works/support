@@ -1,17 +1,15 @@
 package works.iterative.ui
 
 import com.raquo.laminar.api.L.*
-import works.iterative.ui.components.laminar.ComputableComponent
 import works.iterative.ui.components.ComponentContext
-import works.iterative.ui.model.Computable
 import works.iterative.ui.scenarios.Scenario.Id
 import works.iterative.ui.scenarios.{Scenario, ScenarioExample, ScenarioExamples}
 
-object ComputableScenarioModule extends Scenario with ScenarioExamples:
+object ExampleScenarioModule extends Scenario with ScenarioExamples:
 
-  override val id: Id = "computable"
+  override val id: Id = "example"
 
-  override val label: String = "Computable"
+  override val label: String = "Example"
 
   override protected def examples(using
       ScenarioContext,
@@ -20,7 +18,5 @@ object ComputableScenarioModule extends Scenario with ScenarioExamples:
     List(simple)
 
   private def simple: ScenarioExample = example("ready")(
-    ComputableComponent(div)(
-      Val(Computable.Ready(span("Hello World!")))
-    ).element
+    div("Hello World!")
   )

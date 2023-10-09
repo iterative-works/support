@@ -18,20 +18,20 @@ trait Scenario:
 
   def label: String
 
-  def element(using ComponentContext[_]): HtmlElement
+  def element(using ComponentContext[_]): Node
 
 trait ScenarioExample:
   def title: String
-  def element(using ComponentContext[_]): HtmlElement
+  def element(using ComponentContext[_]): Node
 
 object ScenarioExample:
   def apply(
       t: String,
-      elem: ComponentContext[_] ?=> HtmlElement
+      elem: ComponentContext[_] ?=> Node
   ): ScenarioExample =
     new ScenarioExample:
       override val title: String = t
-      override def element(using ComponentContext[_]): HtmlElement = elem
+      override def element(using ComponentContext[_]): Node = elem
 
 trait ScenarioExamples:
   self: Scenario =>
@@ -42,11 +42,11 @@ trait ScenarioExamples:
   ): List[ScenarioExample]
 
   def example(name: String)(
-      elem: ComponentContext[_] ?=> HtmlElement
+      elem: ComponentContext[_] ?=> Node
   ): ScenarioExample =
     ScenarioExample(name, elem)
 
-  override def element(using ComponentContext[_]): HtmlElement =
+  override def element(using ComponentContext[_]): Node =
     val eventBus: EventBus[Any] = EventBus[Any]()
 
     given sc: ScenarioContext = new ScenarioContext:
@@ -60,7 +60,7 @@ trait ScenarioExamples:
       examples.map(se => renderExample(se.title, se.element))
     )
 
-  private def renderExample(t: String, c: HtmlElement): Div =
+  private def renderExample(t: String, c: Node): Div =
     div(
       cls("bg-white overflow-hidden shadow rounded-lg"),
       div(

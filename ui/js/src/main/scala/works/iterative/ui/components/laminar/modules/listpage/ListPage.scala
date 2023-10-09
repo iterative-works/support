@@ -1,7 +1,10 @@
-package works.iterative.ui.components.laminar.modules.listpage
+package works.iterative.ui
+package components
+package laminar
+package modules
+package listpage
 
 import zio.Tag
-import works.iterative.ui.components.laminar.HtmlTabular
 import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 
 trait ListPage[T: Tag: HtmlTabular, Q: Tag]
@@ -10,3 +13,4 @@ trait ListPage[T: Tag: HtmlTabular, Q: Tag]
     with ListPageView[T]
     with ListPageComponent[T]
     with HtmlTableBuilderModule
+    with ComputableComponents

@@ -1,24 +1,24 @@
-package works.iterative.ui.components.laminar.modules.listpage
+package works.iterative.ui.components
+package laminar
+package modules
+package listpage
 
 import zio.prelude.*
 import com.raquo.laminar.api.L.*
-import works.iterative.ui.components.laminar.ComputableComponent
-import works.iterative.ui.components.laminar.HtmlTabular
 import io.laminext.syntax.core.*
 import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
-import works.iterative.ui.components.ComponentContext
 
 trait ListPageView[T: HtmlTabular]:
-  self: ListPageModel[T, ?] with HtmlTableBuilderModule =>
+  self: ListPageModel[T, ?] with HtmlTableBuilderModule with ComputableComponents =>
 
   class View(model: Signal[Model], actions: Observer[Action])(using
       ComponentContext[?]
   ):
 
     val element: HtmlElement =
-      ComputableComponent(div)(
+      renderComputable(
         model.map(_.items.map(renderItem))
-      ).element
+      )
 
     private def renderItem(items: List[T]): HtmlElement =
       buildTable(items)

@@ -1,27 +1,25 @@
-package works.iterative.ui.components.laminar.modules.formpage
+package works.iterative.ui.components
+package laminar
+package modules
+package formpage
 
 import zio.prelude.*
 import com.raquo.laminar.api.L.*
-import works.iterative.ui.components.laminar.forms.FormBuilderModule
-import works.iterative.ui.components.laminar.forms.Form
-import works.iterative.ui.components.laminar.ComputableComponent
-import works.iterative.ui.components.ComponentContext
-import works.iterative.ui.components.laminar.forms.FormBuilderContext
+import works.iterative.ui.components.laminar.forms.*
 
 trait FormPageView[T: Form]:
-  self: FormPageModel[T] with FormBuilderModule =>
+  self: FormPageModel[T] with FormBuilderModule with ComputableComponents =>
 
   class View(model: Signal[Model], actions: Observer[Action])(using
-      fctx: FormBuilderContext,
-      cctx: ComponentContext[?]
+      fctx: FormBuilderContext
   ):
 
     val element: HtmlElement =
-      ComputableComponent(div)(
+      renderComputable(
         model.map(
           _.initialValue.map(renderForm).map(div(_))
         )
-      ).element
+      )
 
     def renderForm(
         initialValue: Option[T]
