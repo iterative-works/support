@@ -60,7 +60,7 @@ object Computable:
 
   /** The computation is in progress
     */
-  case class Computing(start: Instant) extends Computable[Nothing]:
+  case class Computing(start: Instant = Instant.now()) extends Computable[Nothing]:
     override def update[B](m: B): Computable[B] = Ready(m)
     override def started: Computable[Nothing] = this
 

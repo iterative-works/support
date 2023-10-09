@@ -14,9 +14,10 @@ trait HtmlUIBuilder[Node, Context]:
       id: Block.Id,
       title: Block.Title,
       subtitle: Block.Subtitle,
+      status: Block.Status,
       actions: Block.Actions,
       content: Block.Content,
-      footer: Block.Footer
+      footer: Block.Footer,
   ) extends UIElement
 
   object Block:
@@ -26,6 +27,7 @@ trait HtmlUIBuilder[Node, Context]:
     type Actions = List[Action]
     type Content = Reader[Any, Output]
     type Footer = Option[Output]
+    type Status = Vector[Output]
 
   trait Interpreter:
     def render(el: UIElement): Rendered
