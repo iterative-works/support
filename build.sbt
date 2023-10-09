@@ -111,7 +111,7 @@ lazy val ui = crossProject(JSPlatform, JVMPlatform)
   .jvmSettings(
     libraryDependencies += "org.apache.poi" % "poi-ooxml" % "5.2.1"
   )
-  .dependsOn(core)
+  .dependsOn(core, `tapir-support`)
 
 lazy val `scenarios-ui` = project
   .in(file("ui/scenarios"))
