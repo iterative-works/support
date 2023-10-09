@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.ModuleSplitStyle
+
 ThisBuild / scalaVersion := scala3Version
 
 ThisBuild / organization := "works.iterative.support"
@@ -110,6 +112,28 @@ lazy val ui = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies += "org.apache.poi" % "poi-ooxml" % "5.2.1"
   )
   .dependsOn(core)
+
+lazy val `scenarios-ui` = project
+  .in(file("ui/scenarios"))
+  .enablePlugins(org.scalajs.sbtplugin.ScalaJSPlugin)
+  .configure(IWDeps.useScalaJavaTimeAndLocales)
+  .settings(
+    scalaJSLinkerConfig := {
+      val prevConfig = scalaJSLinkerConfig.value
+      val base = (LocalRootProject / baseDirectory).value
+      prevConfig
+        .withModuleKind(ModuleKind.ESModule)
+        .withModuleSplitStyle(
+          ModuleSplitStyle.SmallModulesFor(
+            List("works.iterative")
+          )
+        )
+        .withSourceMap(true)
+        .withRelativizeSourceMapBase(Some(base.toURI()))
+    },
+    scalaJSUseMainModuleInitializer := true
+  )
+  .dependsOn(`ui`.js)
 
 lazy val http = (project in file("server/http"))
   .settings(name := "iw-support-server-http")
