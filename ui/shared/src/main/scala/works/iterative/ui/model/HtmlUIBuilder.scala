@@ -10,6 +10,11 @@ trait HtmlUIBuilder[Node, Context]:
 
   sealed trait UIElement
 
+  final case class Blocks(items: Vector[Block]) extends UIElement
+
+  object Blocks:
+    def apply(items: Block*): Blocks = Blocks(items.toVector)
+
   case class Block(
       id: Block.Id,
       title: Block.Title,
@@ -17,7 +22,7 @@ trait HtmlUIBuilder[Node, Context]:
       status: Block.Status,
       actions: Block.Actions,
       content: Block.Content,
-      footer: Block.Footer,
+      footer: Block.Footer
   ) extends UIElement
 
   object Block:
@@ -29,5 +34,5 @@ trait HtmlUIBuilder[Node, Context]:
     type Footer = Option[Output]
     type Status = Vector[Output]
 
-  trait Interpreter:
+  trait UIInterpreter:
     def render(el: UIElement): Rendered
