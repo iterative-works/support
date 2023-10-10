@@ -6,8 +6,36 @@ import works.iterative.core.{MessageId, UserMessage}
 import works.iterative.ui.components.ComponentContext
 import zio.IsSubtypeOfError
 import works.iterative.ui.model.Computable
+import works.iterative.core.auth.PermissionOp
+import works.iterative.core.auth.PermissionTarget
+import org.scalajs.dom
 
-object LaminarExtensions extends I18NExtensions with ZIOInteropExtensions
+object LaminarExtensions
+    extends I18NExtensions
+    with ZIOInteropExtensions
+    with ActionExtensions
+
+trait ActionExtensions:
+  extension (action: works.iterative.core.Action)
+    def mods: HtmlMod = nodeSeq(
+      dataAttr("action_op")(action.op.value),
+      dataAttr("action_target")(action.target.value)
+    )
+
+  extension (t: works.iterative.core.Action.type)
+    def unapply(
+        evt: org.scalajs.dom.MouseEvent
+    ): Option[(PermissionOp, PermissionTarget)] =
+      evt.target match
+        case t: dom.HTMLElement =>
+          t.closest("[data-action_op]") match
+            case el: dom.HTMLElement =>
+              for
+                act <- el.dataset.get("action_op")
+                arg <- el.dataset.get("action_target")
+              yield (PermissionOp(act), PermissionTarget.unsafe(arg))
+            case _ => None
+        case _ => None
 
 trait I18NExtensions:
   extension (msg: UserMessage)
