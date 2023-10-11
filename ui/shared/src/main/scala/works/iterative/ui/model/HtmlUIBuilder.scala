@@ -6,7 +6,12 @@ import zio.prelude.*
 trait HtmlUIBuilder[Node, Context]:
   type Ctx = Context
   type Output = Node
-  type Rendered = Ctx ?=> Output
+
+  type Render[+A] = Ctx ?=> A
+
+  type Rendered = Render[Output]
+
+  type RenderBlock = Render[Block]
 
   sealed trait UIElement
 
