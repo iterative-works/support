@@ -13,6 +13,13 @@ trait HtmlUIBuilder[Node, Context]:
 
   type RenderBlock = Render[Block]
 
+  class UIConfig(values: (String, Any)*) extends Selectable:
+    private val config = values.toMap
+    def selectDynamic(name: String): Any = config.get(name)
+
+    def set(key: String, value: Any): UIConfig =
+      UIConfig(config.updated(key, value).toSeq: _*)
+
   sealed trait UIElement
 
   final case class Blocks(items: Vector[Block]) extends UIElement
@@ -41,3 +48,4 @@ trait HtmlUIBuilder[Node, Context]:
 
   trait UIInterpreter:
     def render(el: UIElement): Rendered
+    def withConfig(config: UIConfig): UIInterpreter
