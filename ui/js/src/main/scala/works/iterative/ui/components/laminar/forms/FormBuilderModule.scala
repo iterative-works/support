@@ -91,13 +91,14 @@ trait FormBuilderModule:
             fctx.formUIFactory
               .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
           )
-        case Control(name, required, decode, validation) =>
+        case Control(name, required, decode, validation, inputType) =>
           val desc = FieldDescriptor(name)
           FieldBuilder
             .Input(
               desc,
               initialValue.map(decode(_)),
-              validation
+              validation,
+              inputType
             )
             .wrap(
               fctx.formUIFactory.field(

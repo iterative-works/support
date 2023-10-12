@@ -26,7 +26,7 @@ trait FieldBuilder[A]:
 object FieldBuilder:
 
   // TODO: use validation codec with A => raw string and raw string => Validted[A]
-  def requiredInput[A: InputCodec](using
+  def requiredInput[A: InputSchema](using
       fctx: FormBuilderContext
   ): FieldBuilder[A] =
     new FieldBuilder[A]:
@@ -35,14 +35,15 @@ object FieldBuilder:
           fieldDescriptor: FieldDescriptor,
           initialValue: Option[A]
       ): FormComponent[A] =
-        val codec = summon[InputCodec[A]]
+        val codec = summon[InputSchema[A]]
         Input(
           fieldDescriptor,
           initialValue.map(codec.encode),
-          Validations.required(fieldDescriptor.label)(_).flatMap(codec.decode)
+          Validations.required(fieldDescriptor.label)(_).flatMap(codec.decode),
+          codec.inputType
         )
 
-  def optionalInput[A: InputCodec](using
+  def optionalInput[A: InputSchema](using
       fctx: FormBuilderContext
   ): FieldBuilder[Option[A]] =
     new FieldBuilder[Option[A]]:
@@ -51,7 +52,7 @@ object FieldBuilder:
           fieldDescriptor: FieldDescriptor,
           initialValue: Option[Option[A]]
       ): FormComponent[Option[A]] =
-        val codec = summon[InputCodec[A]]
+        val codec = summon[InputSchema[A]]
         Input[Option[A]](
           fieldDescriptor,
           initialValue.flatten.map(codec.encode),
@@ -59,14 +60,16 @@ object FieldBuilder:
             v match
               case Some(s) if s.trim.nonEmpty => codec.decode(s).map(Some(_))
               case _                          => Validation.succeed(None)
+          ,
+          codec.inputType
         )
 
-  given [A: InputCodec](using
+  given [A: InputSchema](using
       fctx: FormBuilderContext,
       ev: NotGiven[A <:< Option[_]]
   ): FieldBuilder[A] = requiredInput[A]
 
-  given [A, B: InputCodec](using
+  given [A, B: InputSchema](using
       fctx: FormBuilderContext,
       ev: A <:< Option[B]
   ): FieldBuilder[Option[B]] = optionalInput[B]
@@ -144,7 +147,8 @@ object FieldBuilder:
   class Input[A](
       desc: FieldDescriptor,
       initialValue: Option[String] = None,
-      validation: Option[String] => Validated[A]
+      validation: Option[String] => Validated[A],
+      inputType: InputSchema.InputType
   )(using fctx: FormBuilderContext)
       extends FormComponent[A]:
     private val rawValue: Var[Option[String]] = Var(initialValue)
@@ -157,7 +161,8 @@ object FieldBuilder:
         desc,
         initialValue,
         validated,
-        rawValue.writer
+        rawValue.writer,
+        inputType
       ).elements
 
   class FileField[A](

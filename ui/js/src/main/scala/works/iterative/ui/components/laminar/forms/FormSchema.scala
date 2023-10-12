@@ -16,11 +16,18 @@ object FormSchema:
       name: String,
       required: Boolean,
       decode: A => String,
-      validation: Option[String] => Validated[A]
+      validation: Option[String] => Validated[A],
+      inputType: InputSchema.InputType
   ) extends FormSchema[A]
   object Control:
-    def apply[A](name: String)(using ic: InputCodec[A]): Control[A] =
-      Control(name, ic.required, ic.encode, ic.decodeOptional(name))
+    def apply[A](name: String)(using ic: InputSchema[A]): Control[A] =
+      Control(
+        name,
+        ic.required,
+        ic.encode,
+        ic.decodeOptional(name),
+        ic.inputType
+      )
   case class Section[A](name: String, content: FormSchema[A])
       extends FormSchema[A]
   case class Zip[A, B <: Tuple](left: FormSchema[A], right: FormSchema[B])
