@@ -62,7 +62,7 @@ trait ScenarioExamples:
 
   private def renderExample(t: String, c: Node): Div =
     div(
-      cls("bg-white overflow-hidden shadow rounded-lg"),
+      cls("bg-white overflow-visible shadow rounded-lg"),
       div(
         cls("px-4 py-5 sm:p-6"),
         h3(

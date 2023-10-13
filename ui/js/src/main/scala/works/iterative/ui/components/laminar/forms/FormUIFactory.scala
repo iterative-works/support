@@ -39,6 +39,8 @@ trait FormUIFactory:
 
   def textarea(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
 
+  def select(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
+
   def fileInput(title: String)(
       buttonMods: HtmlMod*
   )(

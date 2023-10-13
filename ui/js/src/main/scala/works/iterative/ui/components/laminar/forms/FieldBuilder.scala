@@ -229,7 +229,7 @@ object FieldBuilder:
   ): Seq[HtmlElement] =
     Seq(
       div(
-        select(
+        fctx.formUIFactory.select(Val(false))(
           idAttr(desc.idString),
           nameAttr(desc.name),
           cls(
