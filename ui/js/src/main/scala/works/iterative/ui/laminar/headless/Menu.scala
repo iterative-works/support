@@ -5,7 +5,6 @@ package headless
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
-import org.scalajs.dom
 
 /** Headless menu.
   *
@@ -13,7 +12,11 @@ import org.scalajs.dom
   *
   * It expects menu button, that will toggle the menu state, and show menu
   * items.
+  *
+  * Inspired by headlessui components, but lacks most of the functionality,
+  * especially the ARIA stuff.
   */
+// TODO: keyboard support, aria elements, disabled items
 object Menu:
 
   /** Global menu context */
@@ -23,7 +26,7 @@ object Menu:
     val isOpen: Signal[Boolean] = open.signal
     val close: Observer[Any] = open.writer.contramap(_ => false)
 
-  class ItemCtx(val disabled: Boolean)(using ctx: Ctx):
+  class ItemCtx(using ctx: Ctx):
     private[Menu] val active: Var[Boolean] = Var(false)
     val isActive: Signal[Boolean] = active.signal
     export ctx.close
@@ -35,29 +38,38 @@ object Menu:
       content: Render
   ): HtmlElement =
     given ctx: Ctx = Ctx()
-    content.amendThis(n =>
-      windowEvents(_.onClick).filterWith(ctx.isOpen).map(_.target).collectOpt {
-        case el: org.scalajs.dom.HTMLElement if !n.ref.contains(el) =>
-          Some(false)
-      } --> ctx.open.writer
-    )
+    content.amend(closeOnClickOutside(ctx.open))
 
   def button(but: Render)(using ctx: Ctx): HtmlElement =
     but.amend(
       aria.expanded <-- ctx.isOpen,
+      dataState <-- ctx.isOpen.map {
+        case true  => "open"
+        case false => ""
+      },
       onClick.mapTo(true) --> ctx.open.writer
     )
 
   def items(el: Render)(using ctx: Ctx): HtmlElement =
-    el.amend(cls.toggle("hidden") <-- ctx.isOpen.not)
+    el.amend(
+      cls.toggle("hidden") <-- ctx.isOpen.not,
+      dataState <-- ctx.isOpen.map {
+        case true  => "open"
+        case false => ""
+      }
+    )
 
-  def item(it: ItemRender, disabled: Boolean = false)(using
+  def item(it: ItemRender)(using
       ctx: Ctx
   ): HtmlElement =
-    given ictx: ItemCtx = ItemCtx(disabled)
+    given ictx: ItemCtx = ItemCtx()
 
     it.amend(
       onMouseEnter.mapTo(true) --> ictx.active.writer,
       onMouseLeave.mapTo(false) --> ictx.active.writer,
-      onClick.mapTo(false) --> ctx.open.writer
+      onClick.mapTo(false) --> ctx.open.writer,
+      dataState <-- ictx.isActive.map {
+        case true  => "active"
+        case false => ""
+      }
     )

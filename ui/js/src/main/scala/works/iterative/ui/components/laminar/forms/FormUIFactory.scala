@@ -35,11 +35,18 @@ trait FormUIFactory:
 
   def errorTextMods: HtmlMod
 
-  def input(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
+  def input(inError: Signal[Boolean], amendInput: Input => Input = identity)(
+      mods: HtmlMod*
+  ): HtmlElement
 
-  def textarea(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
+  def textarea(
+      inError: Signal[Boolean],
+      amendInput: TextArea => TextArea = identity
+  )(mods: HtmlMod*): HtmlElement
 
-  def select(inError: Signal[Boolean])(mods: HtmlMod*): HtmlElement
+  def select(inError: Signal[Boolean], amendInput: Select => Select = identity)(
+      mods: HtmlMod*
+  ): HtmlElement
 
   def fileInput(title: String)(
       buttonMods: HtmlMod*
