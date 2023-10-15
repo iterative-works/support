@@ -2,6 +2,7 @@ package works.iterative.ui.model
 
 import works.iterative.core.*
 import zio.prelude.*
+import com.raquo.airstream.core.Signal
 
 trait HtmlUIBuilder[Node, Context]:
   type Ctx = Context
@@ -46,10 +47,17 @@ trait HtmlUIBuilder[Node, Context]:
     type Id = String
     type Title = Output
     type Subtitle = Option[Output]
-    type Actions = List[Action]
     type Content = Reader[Any, Output]
     type Footer = Option[Output]
     type Status = Vector[Output]
+
+    enum Actions:
+      case Direct(actions: List[Action])
+      case Deferred(actions: Signal[List[Action]])
+
+    object Actions:
+      given Conversion[List[Action], Actions] = Direct(_)
+      given Conversion[Signal[List[Action]], Actions] = Deferred(_)
 
   trait UIInterpreter:
     def render(el: UIElement): Rendered
