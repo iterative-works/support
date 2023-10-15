@@ -22,12 +22,17 @@ trait HtmlUIBuilder[Node, Context]:
 
   sealed trait UIElement
 
-  final case class Blocks(items: Vector[Block]) extends UIElement
+  final case class Blocks(
+      id: String,
+      title: Option[Block.Title],
+      items: Vector[Block]
+  ) extends UIElement
 
   object Blocks:
-    def apply(items: Block*): Blocks = Blocks(items.toVector)
+    def apply(id: String, items: Block*): Blocks =
+      Blocks(id, None, items.toVector)
 
-  case class Block(
+  final case class Block(
       id: Block.Id,
       title: Block.Title,
       subtitle: Block.Subtitle,
