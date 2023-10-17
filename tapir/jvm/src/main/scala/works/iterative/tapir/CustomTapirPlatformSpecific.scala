@@ -11,11 +11,13 @@ import sttp.client3.httpclient.zio.HttpClientZioBackend
 import java.net.http.HttpClient
 import java.net.CookieHandler
 import java.net.URI
+import sttp.capabilities.zio.ZioStreams
+import sttp.capabilities.WebSockets
 
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
   self: CustomTapir =>
 
-  type Backend = SttpBackend[Task, _]
+  type Backend = SttpBackend[Task, ZioStreams & WebSockets]
 
   private def addSession(
       session: String

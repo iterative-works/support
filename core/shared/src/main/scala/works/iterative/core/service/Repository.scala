@@ -1,10 +1,14 @@
 package works.iterative.core.service
 
 import zio.*
+import zio.stream.*
 
 trait GenericLoadService[Eff[+_], -Key, +Value]:
   type Op[A] = Eff[A]
   def load(id: Key): Op[Option[Value]]
+
+trait GenericUpdateNotifyService[Eff[+_], Str[+_], Key]:
+  def updates: Eff[Str[Key]]
 
 trait GenericLoadAllService[Eff[+_], Coll[+_], -Key, +Value]:
   type Op[A] = Eff[A]
@@ -36,6 +40,9 @@ trait ReadRepository[-Key, +Value, -FilterArg]
   override def loadAll(ids: Seq[Key]): UIO[List[Value]] =
     // Inefficient implementation, meant to be overridden
     ZIO.foreach(ids)(load).map(_.flatten.toList)
+
+trait UpdateNotifyRepository[Key]
+    extends GenericUpdateNotifyService[UIO, UStream, Key]
 
 trait WriteRepository[-Key, -Value]
     extends GenericWriteRepository[UIO, Key, Value]

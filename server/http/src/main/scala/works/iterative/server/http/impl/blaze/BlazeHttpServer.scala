@@ -16,6 +16,7 @@ import cats.data.*
 import cats.arrow.FunctionK
 import works.iterative.tapir.BaseUri
 import org.http4s.server.Router
+import org.http4s.server.websocket.WebSocketBuilder2
 
 class BlazeHttpServer(
     config: BlazeServerConfig,
@@ -75,6 +76,9 @@ class BlazeHttpServer(
       val securedRoutes: HttpRoutes[SecuredTask] =
         securedInterpreter.from(app.secureEndpoints).toRoutes
 
+      val wsRoutes: WebSocketBuilder2[AppTask] => HttpRoutes[AppTask] =
+        publicInterpreter.fromWebSocket(app.wsEndpoints).toRoutes
+
       val eliminated: HttpRoutes[AppTask] = provideCurrentUser(securedRoutes)
 
       def withBaseUri(routes: HttpRoutes[AppTask]): HttpRoutes[AppTask] =
@@ -84,9 +88,9 @@ class BlazeHttpServer(
 
       BlazeServerBuilder[AppTask]
         .bindHttp(config.port, config.host)
-        .withHttpApp(
+        .withHttpWebSocketApp(wsb =>
           (pac4jSecurity.route <+> withBaseUri(
-            publicRoutes <+> eliminated
+            wsRoutes(wsb) <+> publicRoutes <+> eliminated
           )).orNotFound
         )
         .serve

@@ -19,7 +19,7 @@ import sttp.model.Part
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   self: CustomTapir =>
 
-  type Backend = SttpBackend[Task, _]
+  type Backend = SttpBackend[Task, ZioStreams & WebSockets]
 
   val clientLayer: ULayer[Backend] = ZLayer.succeed(
     FetchZioBackend(

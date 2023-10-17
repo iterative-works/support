@@ -5,4 +5,4 @@ import works.iterative.ui.components.ComponentContext
 import works.iterative.ui.model.HtmlUIBuilder
 
 object LaminarUIBuilder
-    extends HtmlUIBuilder[HtmlElement, ComponentContext[Any]]
+    extends HtmlUIBuilder[HtmlElement, ComponentContext[Any], Signal]

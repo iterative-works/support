@@ -129,7 +129,11 @@ lazy val `scenarios-ui` = project
           )
         )
         .withSourceMap(true)
-        .withRelativizeSourceMapBase(Some(base.toURI()))
+      //.withRelativizeSourceMapBase(Some(base.toURI()))
+    },
+    scalacOptions += {
+      val localRootBase = (LocalRootProject / baseDirectory).value
+      s"-scalajs-mapSourceURI:${localRootBase.toURI.toString}->/mdr/poptavky/@fs${localRootBase.toString}/",
     },
     scalaJSUseMainModuleInitializer := true
   )

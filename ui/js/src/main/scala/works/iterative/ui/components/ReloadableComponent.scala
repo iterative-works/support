@@ -1,17 +1,22 @@
 package works.iterative.ui.components
 
 import com.raquo.laminar.api.L.*
+import io.laminext.syntax.core.*
 import sttp.tapir.PublicEndpoint
 import works.iterative.core.*
 import works.iterative.tapir.ClientEndpointFactory
 import works.iterative.ui.model.Computable
 import zio.*
+import zio.stream.*
 
 case class ReloadableComponent[A, I](
     fetch: I => IO[UserMessage, A],
     init: Option[I] = None,
+    updates: Option[UIO[UStream[ReloadableComponent.Reload[A]]]] = None,
     loadSchedule: Schedule[Any, Any, ?] = Schedule.stop
 )(using runtime: Runtime[Any]):
+  import ReloadableComponent.Reload
+
   private val computable: Var[Computable[A]] = Var(Computable.Uninitialized)
   private val memo: Var[Option[I]] = Var(init)
 
@@ -24,14 +29,52 @@ case class ReloadableComponent[A, I](
     load(input)
   }
 
-  val reload: Observer[ReloadableComponent.Reload[A]] = Observer {
-    case ReloadableComponent.Reload.Once => memo.now().foreach(load)
-    case ReloadableComponent.Reload.UntilChanged(original) =>
+  val reload: Observer[Reload[A]] = Observer {
+    case Reload.Once => memo.now().foreach(load)
+    case Reload.UntilChanged(original) =>
       memo.now().foreach(reloadUntilChanged(_, original))
   }
 
-  def initMod: HtmlMod =
-    EventStream.fromValue(ReloadableComponent.Reload.Once) --> reload
+  private def eventStreamFromStreamEffect[A](
+      eff: UIO[UStream[A]]
+  ): EventStream[A] =
+    var runningFiber: Option[Fiber.Runtime[Nothing, Unit]] = None
+    EventStream
+      .fromCustomSource(
+        shouldStart = _ => true,
+        start = (fireValue, _, _, _) => {
+          runningFiber = Some(Unsafe.unsafely {
+            runtime.unsafe.fork(
+              eff.flatMap(
+                _.runForeach(v => ZIO.succeed(fireValue(v)))
+              )
+            )
+          })
+        },
+        stop = _ => {
+          runningFiber.foreach { f =>
+            Unsafe.unsafely {
+              runtime.unsafe.fork(f.interrupt)
+            }
+          }
+        }
+      )
+
+  private def updateFromZioStream(
+      upd: UIO[UStream[Reload[A]]]
+  ): HtmlMod =
+    onMountBind { _ =>
+      eventStreamFromStreamEffect(upd) --> reload
+    }
+
+  private def updateStream: HtmlMod = updates match
+    case None      => emptyMod
+    case Some(upd) => updateFromZioStream(upd)
+
+  def initMod: HtmlMod = nodeSeq(
+    EventStream.fromValue(ReloadableComponent.Reload.Once) --> reload,
+    updateStream
+  )
 
   def load(input: I): Unit = doLoad(
     input,
