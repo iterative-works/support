@@ -58,8 +58,14 @@ trait I18NExtensions:
     inline def asMod(using ctx: ComponentContext[?]): Mod[HtmlElement] =
       msgAttrs(msg.id, ctx.messages(msg))
 
-    private inline def msgAttrs(id: MessageId, text: String): HtmlMod =
-      nodeSeq(dataAttr("msgid")(id.toString()), text)
+    private inline def msgAttrs(id: MessageId, text: String)(using
+        cctx: ComponentContext[?]
+    ): HtmlMod =
+      nodeSeq(
+        dataAttr("msgid")(id.toString()),
+        dataAttr("msgprefix")(cctx.messages.currentPrefixes.mkString(",")),
+        text
+      )
 
   given (using ComponentContext[?]): HtmlRenderable[UserMessage] with
     def toHtml(msg: UserMessage): Modifier[HtmlElement] =

@@ -24,6 +24,8 @@ trait MessageCatalogue:
   def opt(msg: UserMessage, fallback: => UserMessage*): Option[String] =
     maybeResolve(msg, fallback*)(get(_: UserMessage))
 
+  def currentPrefixes: List[String] = Nil
+
   @tailrec
   private def maybeResolve[T, U](id: T, fallback: T*)(
       tryResolve: T => Option[String]
@@ -73,3 +75,6 @@ private class NestedMessageCatalogue(
 
   override def withPrefixes(prefixes: String*): MessageCatalogue =
     underlying.withPrefixes(prefixes*)
+
+  override def currentPrefixes: List[String] =
+    prefixes.toList ++ underlying.currentPrefixes
