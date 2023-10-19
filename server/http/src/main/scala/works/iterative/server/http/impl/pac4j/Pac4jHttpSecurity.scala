@@ -19,15 +19,13 @@ import works.iterative.core.auth.UserRole
 import works.iterative.core.Email
 import works.iterative.core.Avatar
 import works.iterative.core.auth.*
-import org.pac4j.oidc.profile.OidcProfile
-import com.nimbusds.jwt.JWTClaimsSet
 
 trait HttpSecurity
 
 class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
     config: Pac4jSecurityConfig,
     contextBuilder: (Request[F], Config) => Http4sWebContext[F],
-    gatherClaims: JWTClaimsSet => Set[Claim] = _ => Set.empty
+    updateProfile: (CommonProfile, BasicProfile) => BasicProfile
 ) extends HttpSecurity:
   protected val dsl: Http4sDsl[F] = new Http4sDsl[F] {}
   import dsl.*
@@ -79,19 +77,18 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
         def loggedInUser(p: CommonProfile): CurrentUser =
           import scala.jdk.CollectionConverters.*
           CurrentUser(
-            BasicProfile(
-              UserId.unsafe(p.getUsername()),
-              Option(p.getDisplayName()).flatMap(UserName(_).toOption),
-              Option(p.getEmail()).flatMap(Email(_).toOption),
-              Option(p.getPictureUrl()).flatMap(Avatar(_).toOption),
-              Option(p.getRoles())
-                .map(_.asScala.toSet)
-                .getOrElse(Set.empty)
-                .flatMap(UserRole(_).toOption),
-              p match
-                case o: OidcProfile =>
-                  gatherClaims(o.getIdToken().getJWTClaimsSet())
-                case _ => Set.empty
+            updateProfile(
+              p,
+              BasicProfile(
+                UserId.unsafe(p.getUsername()),
+                Option(p.getDisplayName()).flatMap(UserName(_).toOption),
+                Option(p.getEmail()).flatMap(Email(_).toOption),
+                Option(p.getPictureUrl()).flatMap(Avatar(_).toOption),
+                Option(p.getRoles())
+                  .map(_.asScala.toSet)
+                  .getOrElse(Set.empty)
+                  .flatMap(UserRole(_).toOption)
+              )
             )
           )
         r.context match {

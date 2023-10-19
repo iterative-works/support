@@ -19,4 +19,12 @@ final case class BasicProfile(
 object BasicProfile:
   def apply(p: UserProfile): BasicProfile = p match
     case p: BasicProfile => p
-    case _ => BasicProfile(p.subjectId, p.userName, p.email, p.avatar, p.roles)
+    case _ =>
+      BasicProfile(
+        p.subjectId,
+        p.userName,
+        p.email,
+        p.avatar,
+        p.roles,
+        p.claims
+      )

@@ -17,14 +17,14 @@ import cats.arrow.FunctionK
 import works.iterative.tapir.BaseUri
 import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
-import com.nimbusds.jwt.JWTClaimsSet
-import works.iterative.core.auth.Claim
+import org.pac4j.core.profile.CommonProfile
+import works.iterative.core.auth.BasicProfile
 
 class BlazeHttpServer(
     config: BlazeServerConfig,
     pac4jConfig: Pac4jSecurityConfig,
     baseUri: BaseUri,
-    gatherClaims: JWTClaimsSet => Set[Claim] = _ => Set.empty
+    updateProfile: (CommonProfile, BasicProfile) => BasicProfile
 ) extends HttpServer:
   override def serve[Env](app: HttpApplication[Env]): URIO[Env, Nothing] =
     type AppTask[A] = RIO[Env, A]
@@ -43,7 +43,7 @@ class BlazeHttpServer(
           )
 
       val pac4jSecurity =
-        Pac4jHttpSecurity[AppTask](pac4jConfig, contextBuilder, gatherClaims)
+        Pac4jHttpSecurity[AppTask](pac4jConfig, contextBuilder, updateProfile)
 
       def provideCurrentUser(
           routes: HttpRoutes[SecuredTask]
@@ -104,12 +104,12 @@ class BlazeHttpServer(
 
 object BlazeHttpServer:
   def layer(
-      gatherClaims: JWTClaimsSet => Set[Claim] = _ => Set.empty
+      updateProfile: (CommonProfile, BasicProfile) => BasicProfile = (_, u) => u
   ): RLayer[BlazeServerConfig & Pac4jSecurityConfig & BaseUri, HttpServer] =
     ZLayer {
       for
         config <- ZIO.service[BlazeServerConfig]
         pac4jConfig <- ZIO.service[Pac4jSecurityConfig]
         baseUri <- ZIO.service[BaseUri]
-      yield BlazeHttpServer(config, pac4jConfig, baseUri, gatherClaims)
+      yield BlazeHttpServer(config, pac4jConfig, baseUri, updateProfile)
     }
