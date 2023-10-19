@@ -18,13 +18,16 @@ import works.iterative.core.UserName
 import works.iterative.core.auth.UserRole
 import works.iterative.core.Email
 import works.iterative.core.Avatar
-import works.iterative.core.auth.BasicProfile
+import works.iterative.core.auth.*
+import org.pac4j.oidc.profile.OidcProfile
+import com.nimbusds.jwt.JWTClaimsSet
 
 trait HttpSecurity
 
 class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
     config: Pac4jSecurityConfig,
-    contextBuilder: (Request[F], Config) => Http4sWebContext[F]
+    contextBuilder: (Request[F], Config) => Http4sWebContext[F],
+    gatherClaims: JWTClaimsSet => Set[Claim] = _ => Set.empty
 ) extends HttpSecurity:
   protected val dsl: Http4sDsl[F] = new Http4sDsl[F] {}
   import dsl.*
@@ -84,7 +87,11 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
               Option(p.getRoles())
                 .map(_.asScala.toSet)
                 .getOrElse(Set.empty)
-                .flatMap(UserRole(_).toOption)
+                .flatMap(UserRole(_).toOption),
+              p match
+                case o: OidcProfile =>
+                  gatherClaims(o.getIdToken().getJWTClaimsSet())
+                case _ => Set.empty
             )
           )
         r.context match {

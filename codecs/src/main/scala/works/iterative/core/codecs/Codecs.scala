@@ -53,6 +53,7 @@ trait JsonCodecs:
 
   given JsonCodec[UserRole] = validatedStringCodec(UserRole)
   given JsonCodec[Avatar] = validatedStringCodec(Avatar)
+  given JsonCodec[Claim] = DeriveJsonCodec.gen[Claim]
   given JsonCodec[BasicProfile] = DeriveJsonCodec.gen[BasicProfile]
 
   given JsonCodec[FileRef] = DeriveJsonCodec.gen[FileRef]
@@ -79,6 +80,7 @@ trait TapirCodecs extends CustomTapir:
   given Schema[UserName] = Schema.string
   given Schema[Avatar] = Schema.string
   given Schema[Email] = Schema.string
+  given Schema[Claim] = Schema.derived[Claim]
   given Schema[BasicProfile] = Schema.derived[BasicProfile]
   given Schema[FileRef] = Schema.derived[FileRef]
   given Schema[Moment] =
