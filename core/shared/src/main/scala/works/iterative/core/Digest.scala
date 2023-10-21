@@ -1,9 +1,5 @@
 package works.iterative.core
 
-import works.iterative.core.service.DigestService
-
-import zio.*
-
 opaque type DigestAlgorithm = String
 
 object DigestAlgorithm:
@@ -15,9 +11,3 @@ final case class Digest(
     value: Array[Byte]
 )
 
-object Digest:
-  def compute(
-      algorithm: DigestAlgorithm,
-      value: Array[Byte]
-  ): URIO[DigestService, Digest] =
-    DigestService.digest(algorithm, value)

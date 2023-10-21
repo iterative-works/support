@@ -1,7 +1,7 @@
 package works.iterative.tapir
 
 import zio.*
-import sttp.tapir.PublicEndpoint
+import sttp.tapir.Endpoint
 import sttp.capabilities.zio.ZioStreams
 import sttp.capabilities.WebSockets
 import sttp.tapir.client.sttp.ws.zio.*
@@ -12,49 +12,11 @@ class LiveClientEndpointFactory(using
 ) extends ClientEndpointFactory
     with CustomTapir:
 
-  override def umake[I, O](
-      endpoint: PublicEndpoint[I, Unit, O, Any]
-  ): Client[I, Nothing, O] = Client((input: I) =>
-    mkClient(endpoint)(input).orDieWith(_ =>
-      new IllegalStateException("Internal Server Error")
-    )
-  )
-
-  override def make[I, E, O](
-      endpoint: PublicEndpoint[I, E, O, Any]
-  ): Client[I, E, O] = mkClient(endpoint)
-
-  override def stream[I, E, O](
-      endpoint: PublicEndpoint[
-        Unit,
-        E,
-        ZioStreams.Pipe[I, O],
-        ZioStreams & WebSockets
-      ]
-  ): Client[Unit, E, ZioStreams.Pipe[I, O]] =
-    mkClient(endpoint, true)
-
-  override def ustream[I, O](
-      endpoint: PublicEndpoint[
-        Unit,
-        Unit,
-        ZioStreams.Pipe[I, O],
-        ZioStreams & WebSockets
-      ]
-  ): Client[Unit, Nothing, ZioStreams.Pipe[I, O]] = Client(
-    mkClient(endpoint, true)(_).orDieWith(_ =>
-      new IllegalStateException("Internal Server Error")
-    )
-  )
-
-  private def mkClient[I, E, O](
-      endpoint: PublicEndpoint[I, E, O, ZioStreams & WebSockets],
+  override def makeSecureClient[S, I, E, O](
+      endpoint: Endpoint[S, I, E, O, ZioStreams & WebSockets],
       isWebSocket: Boolean = false
-  )(using
-      baseUri: BaseUri,
-      backend: Backend
-  ): Client[I, E, O] = Client((input: I) =>
-    val req = toRequest(
+  ): S => I => IO[E, O] = (securityInput: S) => (input: I) =>
+    val req = toSecureRequest(
       endpoint,
       if isWebSocket then
         baseUri.toUri.map(b =>
@@ -64,8 +26,10 @@ class LiveClientEndpointFactory(using
         )
       else baseUri.toUri
     )
-    val fetch = req(input).followRedirects(false).send(backend)
-    for
+
+    val fetch = req(securityInput)(input).followRedirects(false).send(backend)
+
+    val result = for
       resp <- fetch.orDie
       body <- resp.body match
         case DecodeResult.Value(v) => ZIO.succeed(v)
@@ -77,7 +41,8 @@ class LiveClientEndpointFactory(using
           )
       v <- ZIO.fromEither(body)
     yield v
-  )
+
+    result
 
 object LiveClientEndpointFactory:
   val layer: URLayer[BaseUri & CustomTapir.Backend, ClientEndpointFactory] =

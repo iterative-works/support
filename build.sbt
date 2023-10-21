@@ -23,10 +23,32 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     )
   )
 
+lazy val service = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .settings(name := "iw-support-service")
+  .in(file("service"))
+  .settings(IWDeps.useZIO())
+  .dependsOn(core)
+
+lazy val entity = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .settings(name := "iw-support-entity")
+  .in(file("entity"))
+  .settings(IWDeps.useZIO())
+  .dependsOn(core, service)
+
+lazy val `service-specs` = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .settings(name := "iw-support-service-specs")
+  .in(file("service/specs"))
+  .settings(IWDeps.useZIO(), IWDeps.useZIOTest(Compile))
+  .dependsOn(service)
+
 lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
   .in(file("tapir"))
   .settings(name := "iw-support-tapir")
   .settings(
+    IWDeps.useZIO(),
     IWDeps.tapirCore,
     IWDeps.tapirZIOJson,
     IWDeps.useZIOJson,
@@ -46,6 +68,15 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
   )
   .dependsOn(core)
 
+lazy val hashicorp = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("hashicorp"))
+  .settings(name := "iw-support-hashicorp")
+  .settings(
+    IWDeps.useZIO()
+  )
+  .dependsOn(service, `service-specs`, `tapir-support`)
+
 lazy val codecs = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("codecs"))
@@ -55,7 +86,7 @@ lazy val codecs = crossProject(JSPlatform, JVMPlatform)
     excludeDependencies += // Gets transitively dragged in by zio-nio, conflicting with _3
       ExclusionRule("org.scala-lang.modules", "scala-collection-compat_2.13")
   )
-  .dependsOn(core, `tapir-support`)
+  .dependsOn(core, entity, `tapir-support`)
 
 lazy val `mongo-support` = project
   .in(file("mongo"))
@@ -88,7 +119,7 @@ lazy val `akka-persistence-support` = project
     IWDeps.akka.profiles.eventsourcedJdbcProjection,
     libraryDependencies += "com.github.ghik" %% "silencer-lib" % "1.4.2" % Provided cross CrossVersion.for3Use2_13
   )
-  .dependsOn(core.jvm)
+  .dependsOn(core.jvm, entity.jvm)
 
 lazy val ui = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
@@ -170,6 +201,12 @@ lazy val root = (project in file("."))
   .aggregate(
     core.js,
     core.jvm,
+    entity.js,
+    entity.jvm,
+    service.js,
+    service.jvm,
+    `service-specs`.jvm,
+    hashicorp.jvm,
     codecs.js,
     codecs.jvm,
     `tapir-support`.js,

@@ -120,4 +120,10 @@ object ReloadableComponent:
     for
       given Runtime[Any] <- ZIO.runtime[Any]
       factory <- ZIO.service[ClientEndpointFactory]
-    yield new ReloadableComponent(factory.umake(endpoint).toEffect)
+    yield
+      val client = factory.makeSecureClient(endpoint)(())
+      new ReloadableComponent(
+        client(_).mapErrorCause(_ =>
+          Cause.die(IllegalStateException("Internal Server Error"))
+        )
+      )

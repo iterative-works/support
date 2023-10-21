@@ -9,6 +9,7 @@ trait GenericReadKeyValueStore[Eff[+_], -Key, +Value]:
 
 trait GenericWriteKeyValueStore[Eff[+_], -Key, -Value]:
   def put(key: Key, value: Value): Eff[Unit]
+  def remove(key: Key): Eff[Unit]
 
 trait GenericKeyValueStore[Eff[+_], -Key, Value]
     extends GenericReadKeyValueStore[Eff, Key, Value]
