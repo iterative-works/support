@@ -5,70 +5,57 @@ import sttp.tapir.Endpoint
 import sttp.capabilities.zio.ZioStreams
 import sttp.capabilities.WebSockets
 
-import scala.compiletime.{erasedValue, summonFrom}
-
-opaque type Client[I, E, O] = I => IO[E, O]
-
-object Client:
-  def apply[I, E, O](f: I => IO[E, O]): Client[I, E, O] = f
-
-  extension [I, E, O](f: Client[I, E, O])
-    def apply(i: I): IO[E, O] = f(i)
-    def toEffect: I => ZIO[Any, E, O] = i => f(i)
-
-type ClientError[E] = E match
-  case Unit => Nothing
-  case _    => E
-
-object ClientError:
-  inline def cause[E](e: Cause[E]): Cause[ClientError[E]] =
-    erasedValue[E] match
-      case _: Unit =>
-        Cause.die(throw new IllegalStateException("Internal Server Error"))
-      case _ => e.asInstanceOf[Cause[ClientError[E]]]
-
-  inline def apply[S, I, E, A](
-      client: SecureClient[S, I, E, A]
-  ): SecureClient[S, I, ClientError[E], A] =
-    s => i => client(s)(i).mapErrorCause(cause(_))
-
-opaque type SecureClient[S, I, E, O] = S => I => IO[E, O]
-
-object SecureClient:
-  def apply[S, I, E, O](f: S => I => IO[E, O]): SecureClient[S, I, E, O] = f
-
-  extension [S, I, E, O](f: SecureClient[S, I, E, O])
-    def apply(s: S): Client[I, E, O] = f(s)
-    def toEffect: S => I => ZIO[Any, E, O] = s => i => f(s)(i)
-
-type ClientResult[S, I, E, O] = S match
-  case Unit => I => IO[ClientError[E], O]
-  case _    => S => I => IO[ClientError[E], O]
-
 /** Create effectful methods to perform the endpoint operation
   *
   * Just a useful way to have something that will derive the client from the
   * endpoint using other layers, like BaseUri and provided STTP Backend.
+  *
+  * The resulting type is either
+  *   - `S => I => IO[E, O]` if the endpoint is secure and error prone
+  *   - `S => I => UIO[O]` if the endpoint is secure and infallible
+  *   - `I => IO[E, O]` if the endpoint is public and error prone
+  *   - `I => UIO[O]` if the endpoint is public and infallible
   */
 trait ClientEndpointFactory:
-  inline def makeSecure[S, I, E, O](
-      endpoint: Endpoint[S, I, E, O, Any]
-  ): S => I => IO[ClientError[E], O] =
-    inline val isWebSocket =
-      erasedValue[O] match
-        case _: ZioStreams.Pipe[I, O] => true
-        case _                        => false
+  def make[S, I, E, O](
+      endpoint: Endpoint[S, I, E, O, ZioStreams & WebSockets]
+  )(using
+      b: BaseUriExtractor[O],
+      e: ClientErrorConstructor[E],
+      m: ClientResultConstructor[S, I, e.Error, O]
+  ): m.Result
 
-    s => i => makeSecureClient(endpoint, isWebSocket)(s)(i).mapErrorCause(ClientError.cause(_))
+trait ClientResultConstructor[S, I, E, O]:
+  type Result
+  def makeResult(effect: S => I => IO[E, O]): Result
 
-  transparent inline def make[S, I, E, O](
-      endpoint: Endpoint[S, I, E, O, Any]
-  ): ClientResult[S, I, E, O] =
-    erasedValue[S] match
-      case _: Unit => makeSecure(endpoint)(().asInstanceOf[S])
-      case _ => makeSecure(endpoint)
+object ClientResultConstructor
+    extends LowProirityClientResultConstructorImplicits:
+  given publicResultConstructor[I, E, O]: ClientResultConstructor[Unit, I, E, O]
+    with
+    type Result = I => IO[E, O]
+    def makeResult(effect: Unit => I => IO[E, O]): Result = effect(())
 
-  def makeSecureClient[S, I, E, O](
-      endpoint: Endpoint[S, I, E, O, ZioStreams & WebSockets],
-      isWebSocket: Boolean = false
-  ): S => I => IO[E, O]
+trait LowProirityClientResultConstructorImplicits:
+  given secureResultConstructor[S, I, E, O]: ClientResultConstructor[S, I, E, O]
+    with
+    type Result = S => I => IO[E, O]
+    def makeResult(effect: S => I => IO[E, O]): Result = effect
+
+trait ClientErrorConstructor[-E]:
+  type Error
+  def mapErrorCause[A](effect: IO[E, A]): IO[Error, A]
+
+object ClientErrorConstructor
+    extends LowPriorityClientErrorConstructorImplicits:
+  given noErrorConstructor: ClientErrorConstructor[Unit] with
+    type Error = Nothing
+    def mapErrorCause[A](effect: IO[Unit, A]): IO[Nothing, A] =
+      effect.mapErrorCause(_ =>
+        Cause.die(throw new IllegalStateException("Internal Server Error"))
+      )
+
+trait LowPriorityClientErrorConstructorImplicits:
+  given errorConstructor[E]: ClientErrorConstructor[E] with
+    type Error = E
+    def mapErrorCause[A](effect: IO[E, A]): IO[E, A] = effect

@@ -8,6 +8,9 @@ import works.iterative.tapir.ClientEndpointFactory
 import works.iterative.ui.model.Computable
 import zio.*
 import zio.stream.*
+import works.iterative.tapir.ClientErrorConstructor
+import works.iterative.tapir.ClientResultConstructor
+import works.iterative.tapir.BaseUriExtractor
 
 case class ReloadableComponent[A, I](
     fetch: I => IO[UserMessage, A],
@@ -120,10 +123,4 @@ object ReloadableComponent:
     for
       given Runtime[Any] <- ZIO.runtime[Any]
       factory <- ZIO.service[ClientEndpointFactory]
-    yield
-      val client = factory.makeSecureClient(endpoint)(())
-      new ReloadableComponent(
-        client(_).mapErrorCause(_ =>
-          Cause.die(IllegalStateException("Internal Server Error"))
-        )
-      )
+    yield new ReloadableComponent(factory.make(endpoint))

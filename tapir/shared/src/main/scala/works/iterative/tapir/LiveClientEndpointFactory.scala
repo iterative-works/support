@@ -12,37 +12,39 @@ class LiveClientEndpointFactory(using
 ) extends ClientEndpointFactory
     with CustomTapir:
 
-  override def makeSecureClient[S, I, E, O](
-      endpoint: Endpoint[S, I, E, O, ZioStreams & WebSockets],
-      isWebSocket: Boolean = false
-  ): S => I => IO[E, O] = (securityInput: S) => (input: I) =>
-    val req = toSecureRequest(
-      endpoint,
-      if isWebSocket then
-        baseUri.toUri.map(b =>
-          b.scheme match
-            case Some("https") => b.scheme("wss")
-            case _             => b.scheme("ws")
-        )
-      else baseUri.toUri
-    )
+  def makeRequest[S, I, E, O](
+      endpoint: Endpoint[S, I, E, O, ZioStreams & WebSockets]
+  )(using ext: BaseUriExtractor[O]) = toSecureRequest(
+    endpoint,
+    ext.extractBaseUri
+  )
 
-    val fetch = req(securityInput)(input).followRedirects(false).send(backend)
+  override def make[S, I, E, O](
+      endpoint: Endpoint[S, I, E, O, ZioStreams & WebSockets]
+  )(using
+      ext: BaseUriExtractor[O],
+      em: ClientErrorConstructor[E],
+      m: ClientResultConstructor[S, I, em.Error, O]
+  ): m.Result = m.makeResult((securityInput: S) =>
+    (input: I) =>
+      val req = makeRequest(endpoint)
+      val fetch = req(securityInput)(input).followRedirects(false).send(backend)
 
-    val result = for
-      resp <- fetch.orDie
-      body <- resp.body match
-        case DecodeResult.Value(v) => ZIO.succeed(v)
-        case err: DecodeResult.Failure =>
-          ZIO.die(
-            new RuntimeException(
-              s"Unexpected response status: ${resp.code} ${resp.statusText} - ${err}"
+      val result = for
+        resp <- fetch.orDie
+        body <- resp.body match
+          case DecodeResult.Value(v) => ZIO.succeed(v)
+          case err: DecodeResult.Failure =>
+            ZIO.die(
+              new RuntimeException(
+                s"Unexpected response status: ${resp.code} ${resp.statusText} - ${err}"
+              )
             )
-          )
-      v <- ZIO.fromEither(body)
-    yield v
+        v <- ZIO.fromEither(body)
+      yield v
 
-    result
+      em.mapErrorCause(result)
+  )
 
 object LiveClientEndpointFactory:
   val layer: URLayer[BaseUri & CustomTapir.Backend, ClientEndpointFactory] =
