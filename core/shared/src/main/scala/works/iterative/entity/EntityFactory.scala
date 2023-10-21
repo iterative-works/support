@@ -1,6 +1,8 @@
-package works.iterative.core
-package service
+package works.iterative.entity
 
+import works.iterative.core.Validated
+import works.iterative.core.UserMessage
+import works.iterative.core.service.IdGenerator
 import zio.*
 
 /** Generic class for entity factories.
