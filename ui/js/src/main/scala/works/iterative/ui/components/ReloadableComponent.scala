@@ -15,7 +15,7 @@ import works.iterative.tapir.BaseUriExtractor
 case class ReloadableComponent[A, I](
     fetch: I => IO[UserMessage, A],
     init: Option[I] = None,
-    updates: Option[UIO[UStream[ReloadableComponent.Reload[A]]]] = None,
+    updates: Option[UStream[ReloadableComponent.Reload[A]]] = None,
     loadSchedule: Schedule[Any, Any, ?] = Schedule.stop
 )(using runtime: Runtime[Any]):
   import ReloadableComponent.Reload
@@ -38,8 +38,8 @@ case class ReloadableComponent[A, I](
       memo.now().foreach(reloadUntilChanged(_, original))
   }
 
-  private def eventStreamFromStreamEffect[A](
-      eff: UIO[UStream[A]]
+  private def eventStreamFromZioStream[A](
+      eff: UStream[A]
   ): EventStream[A] =
     var runningFiber: Option[Fiber.Runtime[Nothing, Unit]] = None
     EventStream
@@ -48,9 +48,7 @@ case class ReloadableComponent[A, I](
         start = (fireValue, _, _, _) => {
           runningFiber = Some(Unsafe.unsafely {
             runtime.unsafe.fork(
-              eff.flatMap(
-                _.runForeach(v => ZIO.succeed(fireValue(v)))
-              )
+              eff.runForeach(v => ZIO.succeed(fireValue(v)))
             )
           })
         },
@@ -64,10 +62,10 @@ case class ReloadableComponent[A, I](
       )
 
   private def updateFromZioStream(
-      upd: UIO[UStream[Reload[A]]]
+      upd: UStream[Reload[A]]
   ): HtmlMod =
     onMountBind { _ =>
-      eventStreamFromStreamEffect(upd) --> reload
+      eventStreamFromZioStream(upd) --> reload
     }
 
   private def updateStream: HtmlMod = updates match

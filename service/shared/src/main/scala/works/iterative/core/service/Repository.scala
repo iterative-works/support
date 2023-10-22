@@ -7,8 +7,8 @@ trait GenericLoadService[Eff[+_], -Key, +Value]:
   type Op[A] = Eff[A]
   def load(id: Key): Op[Option[Value]]
 
-trait GenericUpdateNotifyService[Eff[+_], Str[+_], Key]:
-  def updates: Eff[Str[Key]]
+trait GenericUpdateNotifyService[Str[+_], Key]:
+  def updates: Str[Key]
 
 trait GenericLoadAllService[Eff[+_], Coll[+_], -Key, +Value]:
   type Op[A] = Eff[A]
@@ -42,7 +42,7 @@ trait ReadRepository[-Key, +Value, -FilterArg]
     ZIO.foreach(ids)(load).map(_.flatten.toList)
 
 trait UpdateNotifyRepository[Key]
-    extends GenericUpdateNotifyService[UIO, UStream, Key]
+    extends GenericUpdateNotifyService[UStream, Key]
 
 trait WriteRepository[-Key, -Value]
     extends GenericWriteRepository[UIO, Key, Value]
