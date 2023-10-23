@@ -7,6 +7,8 @@ import zio.prelude.Validation
 import works.iterative.tapir.CustomTapir
 import works.iterative.core.auth.*
 import works.iterative.event.EventRecord
+import sttp.tapir.CodecFormat
+import works.iterative.core.auth.service.AuthenticationError
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
@@ -64,6 +66,11 @@ trait JsonCodecs:
   )
   given JsonCodec[UserHandle] = DeriveJsonCodec.gen[UserHandle]
   given JsonCodec[EventRecord] = DeriveJsonCodec.gen[EventRecord]
+  given JsonCodec[AccessToken] =
+    JsonCodec.string.transform(AccessToken(_), _.token)
+  given JsonCodec[AuthedUserInfo] = DeriveJsonCodec.gen[AuthedUserInfo]
+  given JsonCodec[AuthenticationError] =
+    DeriveJsonCodec.gen[AuthenticationError]
 
 trait TapirCodecs extends CustomTapir:
   given fromValidatedStringSchema[A](using
@@ -87,5 +94,11 @@ trait TapirCodecs extends CustomTapir:
     Schema.schemaForInstant.map(i => Some(Moment(i)))(_.toInstant)
   given Schema[UserHandle] = Schema.derived[UserHandle]
   given Schema[EventRecord] = Schema.derived[EventRecord]
+  given Schema[AccessToken] = Schema.string
+  given Schema[AuthedUserInfo] = Schema.derived[AuthedUserInfo]
+  given Schema[AuthenticationError] = Schema.derived[AuthenticationError]
+
+  given Codec[String, AccessToken, CodecFormat.TextPlain] =
+    Codec.string.map(AccessToken(_))(_.token)
 
 object Codecs extends Codecs

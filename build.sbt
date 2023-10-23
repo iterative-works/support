@@ -23,26 +23,19 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     )
   )
 
-lazy val service = crossProject(JSPlatform, JVMPlatform)
-  .crossType(CrossType.Full)
-  .settings(name := "iw-support-service")
-  .in(file("service"))
-  .settings(IWDeps.useZIO())
-  .dependsOn(core)
-
 lazy val entity = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .settings(name := "iw-support-entity")
   .in(file("entity"))
   .settings(IWDeps.useZIO())
-  .dependsOn(core, service)
+  .dependsOn(core)
 
 lazy val `service-specs` = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Full)
   .settings(name := "iw-support-service-specs")
-  .in(file("service/specs"))
+  .in(file("service-specs"))
   .settings(IWDeps.useZIO(), IWDeps.useZIOTest(Compile))
-  .dependsOn(service)
+  .dependsOn(core)
 
 lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
   .in(file("tapir"))
@@ -75,7 +68,7 @@ lazy val hashicorp = crossProject(JSPlatform, JVMPlatform)
   .settings(
     IWDeps.useZIO()
   )
-  .dependsOn(service, `service-specs`, `tapir-support`)
+  .dependsOn(core, `service-specs`, `tapir-support`)
 
 lazy val codecs = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
@@ -203,8 +196,6 @@ lazy val root = (project in file("."))
     core.jvm,
     entity.js,
     entity.jvm,
-    service.js,
-    service.jvm,
     `service-specs`.jvm,
     hashicorp.jvm,
     codecs.js,
