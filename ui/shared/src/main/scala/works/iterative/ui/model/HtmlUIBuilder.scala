@@ -39,6 +39,7 @@ trait HtmlUIBuilder[Node, Context, Sub[+_]]:
       status: Block.Status,
       actions: Block.Actions,
       content: Block.Content,
+      filter: Block.Filter,
       footer: Block.Footer
   ) extends UIElement
 
@@ -49,6 +50,7 @@ trait HtmlUIBuilder[Node, Context, Sub[+_]]:
     type Content = Reader[Any, Output]
     type Footer = Option[Output]
     type Status = Vector[Output]
+    type Filter = Option[Output]
 
     enum Actions:
       case Direct(actions: List[Action])

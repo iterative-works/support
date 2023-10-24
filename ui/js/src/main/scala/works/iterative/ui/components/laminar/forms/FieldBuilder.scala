@@ -233,7 +233,7 @@ object FieldBuilder:
           idAttr(desc.idString),
           nameAttr(desc.name),
           cls(
-            "mt-2 block w-full sm:max-w-xs rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            "block w-full sm:max-w-xs rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           ),
           initialValue.map(L.value(_)),
           options.map(o =>
