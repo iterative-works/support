@@ -13,11 +13,16 @@ import java.net.CookieHandler
 import java.net.URI
 import sttp.capabilities.zio.ZioStreams
 import sttp.capabilities.WebSockets
+import works.iterative.core.auth.service.AuthenticationService
+import works.iterative.core.auth.CurrentUser
+import works.iterative.core.auth.service.AuthenticationError
 
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
   self: CustomTapir =>
 
   type Backend = SttpBackend[Task, ZioStreams & WebSockets]
+
+  type ZApiEndpoint[R] = ZServerEndpoint[R & AuthenticationService, ZioStreams]
 
   private def addSession(
       session: String
@@ -72,3 +77,21 @@ trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
       .followRedirects(false)
       .send(backend)
       .map(_.body)
+
+  extension [E, I, O](endpoint: ApiEndpoint[E, I, O])
+    def apiLogic[R <: AuthenticationService](
+        logic: I => ZIO[R & CurrentUser, E | AuthenticationError, O]
+    ): ZServerEndpoint[R, ZioStreams] =
+      endpoint
+        .zServerSecurityLogic(_ => ZIO.unit)
+        .serverLogic(_ =>
+          (i: I) =>
+            ZIO.serviceWithZIO[AuthenticationService](
+              _.provideCurrentUser(logic(i))
+                .mapError {
+                  case a: AuthenticationError => ApiError.AuthFailure(a)
+                  // Well, we have E | AuthenticationError and we match AuthenticationError above, so what is left?
+                  case e => ApiError.RequestFailure(e.asInstanceOf[E])
+                }
+            )
+        )

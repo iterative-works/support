@@ -17,16 +17,20 @@ import cats.arrow.FunctionK
 import works.iterative.tapir.BaseUri
 import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2
-import org.pac4j.core.profile.CommonProfile
 import works.iterative.core.auth.BasicProfile
+import org.pac4j.oidc.profile.OidcProfile
+import works.iterative.core.auth.AuthedUserInfo
+import works.iterative.core.auth.service.AuthenticationService
 
 class BlazeHttpServer(
     config: BlazeServerConfig,
     pac4jConfig: Pac4jSecurityConfig,
     baseUri: BaseUri,
-    updateProfile: (CommonProfile, BasicProfile) => BasicProfile
+    updateProfile: (OidcProfile, BasicProfile) => BasicProfile
 ) extends HttpServer:
-  override def serve[Env](app: HttpApplication[Env]): URIO[Env, Nothing] =
+  override def serve[Env <: AuthenticationService](
+      app: HttpApplication[Env]
+  ): URIO[Env, Nothing] =
     type AppTask[A] = RIO[Env, A]
     type SecuredTask[A] = RIO[Env & CurrentUser, A]
 
@@ -37,7 +41,7 @@ class BlazeHttpServer(
             req,
             conf.getSessionStore,
             t =>
-              Unsafe.unsafe(implicit unsafe =>
+              Unsafe.unsafely(
                 runtime.unsafe.run(t).getOrThrowFiberFailure()
               )
           )
@@ -45,29 +49,32 @@ class BlazeHttpServer(
       val pac4jSecurity =
         Pac4jHttpSecurity[AppTask](pac4jConfig, contextBuilder, updateProfile)
 
+      // TODO: remove the SecuredTask and provide just the authentication when the move to AuthenticationService is done.
       def provideCurrentUser(
           routes: HttpRoutes[SecuredTask]
       ): HttpRoutes[AppTask] =
-        def secureRoutes: AuthedRoutes[CurrentUser, AppTask] = Kleisli { ctx =>
-          val currentUser = ctx.context
-          val userEnv = ZEnvironment(currentUser)
+        def secureRoutes: AuthedRoutes[AuthedUserInfo, AppTask] =
+          Kleisli { ctx =>
+            val authedUserInfo = ctx.context
+            val userEnv = ZEnvironment(CurrentUser(authedUserInfo.profile))
 
-          // Just add CurrentUser to the env, the effect does not need it anyway
-          val widenCurrentUser: AppTask ~> SecuredTask =
-            new FunctionK[AppTask, SecuredTask]:
-              override def apply[A](fa: AppTask[A]): SecuredTask[A] = fa
+            // Just add CurrentUser to the env, the effect does not need it anyway
+            val widenCurrentUser: AppTask ~> SecuredTask =
+              new FunctionK[AppTask, SecuredTask]:
+                override def apply[A](fa: AppTask[A]): SecuredTask[A] = fa
 
-          // Provide
-          val eliminateCurrentUser: SecuredTask ~> AppTask =
-            new FunctionK[SecuredTask, AppTask]:
-              override def apply[A](fa: SecuredTask[A]): AppTask[A] =
-                fa.provideSomeEnvironment[Env](env => env ++ userEnv)
+            // Provide
+            val eliminateCurrentUser: SecuredTask ~> AppTask =
+              new FunctionK[SecuredTask, AppTask]:
+                override def apply[A](fa: SecuredTask[A]): AppTask[A] =
+                  AuthenticationService.loggedIn(authedUserInfo) *> fa
+                    .provideSomeEnvironment[Env](env => env ++ userEnv)
 
-          routes
-            .run(ctx.req.mapK(widenCurrentUser))
-            .map(_.mapK(eliminateCurrentUser))
-            .mapK(eliminateCurrentUser)
-        }
+            routes
+              .run(ctx.req.mapK(widenCurrentUser))
+              .map(_.mapK(eliminateCurrentUser))
+              .mapK(eliminateCurrentUser)
+          }
 
         pac4jSecurity.secure(secureRoutes)
 
@@ -104,7 +111,7 @@ class BlazeHttpServer(
 
 object BlazeHttpServer:
   def layer(
-      updateProfile: (CommonProfile, BasicProfile) => BasicProfile = (_, u) => u
+      updateProfile: (OidcProfile, BasicProfile) => BasicProfile = (_, u) => u
   ): RLayer[BlazeServerConfig & Pac4jSecurityConfig & BaseUri, HttpServer] =
     ZLayer {
       for

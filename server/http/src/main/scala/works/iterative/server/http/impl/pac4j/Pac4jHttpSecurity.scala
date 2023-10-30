@@ -10,7 +10,6 @@ import org.pac4j.http4s.*
 import cats.effect.Sync
 
 import scala.concurrent.duration.given
-import works.iterative.core.auth.CurrentUser
 import org.http4s.dsl.Http4sDsl
 import works.iterative.core.auth.UserId
 import org.http4s.server.Router
@@ -19,13 +18,14 @@ import works.iterative.core.auth.UserRole
 import works.iterative.core.Email
 import works.iterative.core.Avatar
 import works.iterative.core.auth.*
+import org.pac4j.oidc.profile.OidcProfile
 
 trait HttpSecurity
 
 class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
     config: Pac4jSecurityConfig,
     contextBuilder: (Request[F], Config) => Http4sWebContext[F],
-    updateProfile: (CommonProfile, BasicProfile) => BasicProfile
+    updateProfile: (OidcProfile, BasicProfile) => BasicProfile
 ) extends HttpSecurity:
   protected val dsl: Http4sDsl[F] = new Http4sDsl[F] {}
   import dsl.*
@@ -69,14 +69,15 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
 
   // TODO: factor this middleware out to make this Pac4J service general
   val currentUserSecurityFilter
-      : Middleware[OptionT[F, *], AuthedRequest[F, CurrentUser], Response[
+      : Middleware[OptionT[F, *], AuthedRequest[F, AuthedUserInfo], Response[
         F
       ], AuthedRequest[F, List[CommonProfile]], Response[F]] =
     service =>
       Kleisli { (r: AuthedRequest[F, List[CommonProfile]]) =>
-        def loggedInUser(p: CommonProfile): CurrentUser =
+        def loggedInUser(p: OidcProfile): AuthedUserInfo =
           import scala.jdk.CollectionConverters.*
-          CurrentUser(
+          AuthedUserInfo(
+            AccessToken(p.getAccessToken().toString()),
             updateProfile(
               p,
               BasicProfile(
@@ -92,7 +93,7 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
             )
           )
         r.context match {
-          case profile :: _ =>
+          case (profile: OidcProfile) :: _ =>
             service(AuthedRequest(loggedInUser(profile), r.req))
           // TODO: Report error properly
           case _ => OptionT.none
@@ -114,7 +115,7 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
   def route: HttpRoutes[F] =
     Router(s"${config.callbackBase}" -> sessionManagement(routes))
 
-  def secure: AuthMiddleware[F, CurrentUser] =
+  def secure: AuthMiddleware[F, AuthedUserInfo] =
     sessionManagement
       .compose(baseSecurityFilter)
       .compose(currentUserSecurityFilter)

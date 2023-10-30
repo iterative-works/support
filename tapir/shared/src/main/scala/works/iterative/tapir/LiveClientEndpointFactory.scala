@@ -28,7 +28,10 @@ class LiveClientEndpointFactory(using
   ): m.Result = m.makeResult((securityInput: S) =>
     (input: I) =>
       val req = makeRequest(endpoint)
-      val fetch = req(securityInput)(input).followRedirects(false).send(backend)
+      val fetch = req(securityInput)(input)
+        .header("is_ajax_request", "true")
+        .followRedirects(false)
+        .send(backend)
 
       val result = for
         resp <- fetch.orDie
