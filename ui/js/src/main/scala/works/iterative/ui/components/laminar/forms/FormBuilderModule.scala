@@ -85,12 +85,14 @@ trait FormBuilderModule:
       import works.iterative.ui.components.laminar.HtmlRenderable.given
       schema match
         case FormSchema.Unit => FormComponent.empty
+
         case Section(name, inner) =>
           val desc = SectionDescriptor(name)
           buildForm(inner)(initialValue).wrap(
             fctx.formUIFactory
               .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
           )
+
         case Control(name, required, decode, validation, inputType) =>
           val desc = FieldDescriptor(name)
           FieldBuilder
@@ -109,9 +111,11 @@ trait FormBuilderModule:
                 desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
               )
             )
+
         case z @ Zip(left, right) =>
           val leftComponent = buildForm(left)(initialValue.map(z.toLeft))
           val rightComponent = buildForm(right)(initialValue.map(z.toRight))
           leftComponent.zip(rightComponent)
+
         case BiMap(inner, to, from) =>
           buildForm(inner)(initialValue.map(from)).map(to)

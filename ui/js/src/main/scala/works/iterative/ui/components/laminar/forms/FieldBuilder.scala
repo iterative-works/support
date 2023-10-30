@@ -13,7 +13,8 @@ import scala.util.NotGiven
 case class ChoiceOption[A](id: String, label: String, value: A)
 
 case class Choice[A](
-    options: List[ChoiceOption[A]]
+    options: List[ChoiceOption[A]],
+    combo: Boolean = false
 )
 
 trait FieldBuilder[A]:
@@ -118,12 +119,15 @@ object FieldBuilder:
           fieldDescriptor: FieldDescriptor,
           initialValue: Option[A]
       ): FormComponent[A] =
-        val options = summon[Choice[A]].options
+        val choice = summon[Choice[A]]
+        val options = choice.options
+        val combo = choice.combo
         ChoiceField(
           fieldDescriptor,
-          Some(initialValue.getOrElse(options.head.value)),
+          initialValue,
           Validations.requiredA(fieldDescriptor.label)(_),
-          options
+          options,
+          combo
         )
 
   given optionalChoiceInput[A, B](using Choice[A], FormBuilderContext)(using
@@ -135,13 +139,17 @@ object FieldBuilder:
           fieldDescriptor: FieldDescriptor,
           initialValue: Option[Option[A]]
       ): FormComponent[Option[A]] =
+        val choice = summon[Choice[A]]
+        val options = choice.options
+        val combo = choice.combo
         ChoiceField(
           fieldDescriptor,
           initialValue,
           a => Validation.succeed(a.flatten),
-          ChoiceOption("", "", None) :: summon[Choice[A]].options.map(o =>
+          ChoiceOption("", "", None) :: options.map(o =>
             o.copy(value = Some(o.value))
-          )
+          ),
+          combo
         )
 
   class Input[A](
@@ -182,7 +190,8 @@ object FieldBuilder:
       desc: FieldDescriptor,
       initialValue: Option[A],
       validation: Option[A] => Validated[A],
-      options: List[ChoiceOption[A]]
+      options: List[ChoiceOption[A]],
+      combo: Boolean
   )(using fctx: FormBuilderContext)
       extends FormComponent[A]:
     private val rawValue: Var[Option[String]] = Var(
@@ -195,12 +204,16 @@ object FieldBuilder:
         .map(validation)
 
     override val elements: Seq[HtmlElement] =
-      renderSelect(
+      SelectField(
         desc,
-        initialValue.flatMap(i => options.find(_.value == i).map(_.id)),
+        initialValue.flatMap(i =>
+          options.find(_.value == i).map(o => (o.id, o.label))
+        ),
         options.map(o => (o.id, o.label)),
-        rawValue.writer.contramapSome
-      )
+        validated,
+        rawValue.writer.contramapSome,
+        combo
+      ).elements
 
   def renderFileInputField(desc: FieldDescriptor, observer: Observer[FileList])(
       using fctx: FormBuilderContext
@@ -216,30 +229,5 @@ object FieldBuilder:
               onInput.mapTo(thisNode.ref.files) --> observer
             )
           )
-      )
-    )
-
-  def renderSelect(
-      desc: FieldDescriptor,
-      initialValue: Option[String],
-      options: List[(String, String)],
-      observer: Observer[String]
-  )(using
-      fctx: FormBuilderContext
-  ): Seq[HtmlElement] =
-    Seq(
-      div(
-        fctx.formUIFactory.select(Val(false))(
-          idAttr(desc.idString),
-          nameAttr(desc.name),
-          cls(
-            "block w-full sm:max-w-xs rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          ),
-          initialValue.map(L.value(_)),
-          options.map(o =>
-            option(selected(initialValue.contains(o._1)), value(o._1), o._2)
-          ),
-          onChange.mapToValue.setAsValue --> observer
-        )
       )
     )

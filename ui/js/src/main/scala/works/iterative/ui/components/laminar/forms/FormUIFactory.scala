@@ -48,8 +48,26 @@ trait FormUIFactory:
       mods: HtmlMod*
   ): HtmlElement
 
+  def combobox: FormUIFactory.ComboboxComponents
+
   def fileInput(title: String)(
       buttonMods: HtmlMod*
   )(
       inputMods: Mod[ReactiveHtmlElement[org.scalajs.dom.HTMLInputElement]]*
   ): HtmlElement
+
+object FormUIFactory:
+  trait ComboboxComponents:
+    def container(
+        inError: Signal[Boolean],
+        amendInput: Input => Input = identity
+    )(mods: HtmlMod*): HtmlElement
+
+    def button(mods: HtmlMod*): HtmlElement
+    def options(mods: HtmlMod*): HtmlElement
+
+    def option(
+        label: String,
+        isActive: Signal[Boolean],
+        isSelected: Signal[Boolean]
+    )(mods: HtmlMod*): HtmlElement
