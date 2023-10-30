@@ -47,7 +47,7 @@ trait FormBuilderModule:
             fctx.formMessagesResolver.label("submit")
           )(
             disabled <-- f.validated.combineWithFn(buttonsDisabled.signal)(
-              (v, d) => v.fold(_ => d, _ => false)
+              (v, d) => v.fold(_ => true, _ => d)
             )
           )
         )
