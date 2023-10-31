@@ -17,7 +17,7 @@ object Messages extends js.Any
 object Main
     extends ScenarioMain(
       "ui",
-      List(ComboBoxScenarioModule),
+      List(FormsScenarioModule),
       Messages,
       Css
     )
