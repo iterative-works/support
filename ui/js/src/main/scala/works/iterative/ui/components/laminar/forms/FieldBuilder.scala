@@ -10,12 +10,21 @@ import zio.prelude.Validation
 
 import scala.util.NotGiven
 
-case class ChoiceOption[A](id: String, label: String, value: A)
-
 case class Choice[A](
-    options: List[ChoiceOption[A]],
-    combo: Boolean = false
-)
+    options: List[A],
+    id: A => String,
+    label: A => String,
+    combo: Boolean = false,
+    add: Option[String => Validated[A]] = None
+):
+  def optional: Choice[Option[A]] =
+    Choice[Option[A]](
+      options = None :: options.map(Some(_)),
+      id = _.map(id).getOrElse(""),
+      label = _.map(label).getOrElse(""),
+      combo = combo,
+      add = add.map(_.andThen(_.map(Some(_))))
+    )
 
 trait FieldBuilder[A]:
   def required: Boolean
@@ -119,15 +128,10 @@ object FieldBuilder:
           fieldDescriptor: FieldDescriptor,
           initialValue: Option[A]
       ): FormComponent[A] =
-        val choice = summon[Choice[A]]
-        val options = choice.options
-        val combo = choice.combo
         ChoiceField(
           fieldDescriptor,
           initialValue,
-          Validations.requiredA(fieldDescriptor.label)(_),
-          options,
-          combo
+          Validations.requiredA(fieldDescriptor.label)(_)
         )
 
   given optionalChoiceInput[A, B](using Choice[A], FormBuilderContext)(using
@@ -140,17 +144,11 @@ object FieldBuilder:
           initialValue: Option[Option[A]]
       ): FormComponent[Option[A]] =
         val choice = summon[Choice[A]]
-        val options = choice.options
-        val combo = choice.combo
         ChoiceField(
           fieldDescriptor,
           initialValue,
-          a => Validation.succeed(a.flatten),
-          ChoiceOption("", "", None) :: options.map(o =>
-            o.copy(value = Some(o.value))
-          ),
-          combo
-        )
+          a => Validation.succeed(a.flatten)
+        )(using choice.optional)
 
   class Input[A](
       desc: FieldDescriptor,
@@ -189,30 +187,51 @@ object FieldBuilder:
   class ChoiceField[A](
       desc: FieldDescriptor,
       initialValue: Option[A],
-      validation: Option[A] => Validated[A],
-      options: List[ChoiceOption[A]],
-      combo: Boolean
+      validation: Option[A] => Validated[A]
+  )(using
+      choice: Choice[A]
   )(using fctx: FormBuilderContext)
       extends FormComponent[A]:
+    private val Choice(options, id, label, combo, add) = choice
+
+    private def findValue(i: String): Option[A] = options.find(id(_) == i)
+
     private val rawValue: Var[Option[String]] = Var(
-      initialValue.flatMap(i => options.find(_.value == i).map(_.id))
+      initialValue.map(id(_))
     )
+
+    private def selectValue(id: Option[String]): Validated[Option[A]] =
+      def constructValue(id: String): Validated[Option[A]] =
+        add.fold(Validation.succeed(None))(_(id).map(Some(_)))
+
+      def findOrConstructValue(id: String): Validated[Option[A]] =
+        findValue(id)
+          .map(v => Validation.succeed(Some(v)))
+          .getOrElse(constructValue(id))
+
+      id.fold(Validation.succeed(None))(findOrConstructValue)
 
     override val validated: Signal[Validated[A]] =
       rawValue.signal
-        .map(_.flatMap(i => options.find(_.id == i).map(_.value)))
-        .map(validation)
+        .map(selectValue)
+        .map(_.flatMap(validation))
 
     override val elements: Seq[HtmlElement] =
+      val addValue: Option[String => (String, String)] = add.map(_ => {
+        val msg = fctx.formMessagesResolver.message(
+          UserMessage(s"add.${desc.idString}")
+        )
+        v => (v, s"$msg: $v")
+      })
+
       SelectField(
         desc,
-        initialValue.flatMap(i =>
-          options.find(_.value == i).map(o => (o.id, o.label))
-        ),
-        options.map(o => (o.id, o.label)),
+        initialValue.map(i => (id(i), label(i))),
+        options.map(o => (id(o), label(o))),
         validated,
         rawValue.writer.contramapSome,
-        combo
+        combo,
+        addValue
       ).elements
 
   def renderFileInputField(desc: FieldDescriptor, observer: Observer[FileList])(

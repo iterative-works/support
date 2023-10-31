@@ -27,13 +27,20 @@ trait JsonCodecs:
   ): JsonCodec[T] =
     JsonCodec.string.transformOrFail(f andThen fromValidation, _.toString)
 
+  def validatedStringDecoder[A](
+      factory: ValidatedStringFactory[A]
+  ): JsonDecoder[A] =
+    JsonDecoder.string.mapOrFail(factory.apply andThen fromValidation)
+
+  def validatedStringEncoder[A](
+      factory: ValidatedStringFactory[A]
+  ): JsonEncoder[A] =
+    JsonEncoder.string.contramap(factory.getter)
+
   def validatedStringCodec[A](
       factory: ValidatedStringFactory[A]
   ): JsonCodec[A] =
-    JsonCodec.string.transformOrFail(
-      factory.apply andThen fromValidation,
-      factory.getter
-    )
+    JsonCodec(validatedStringEncoder(factory), validatedStringDecoder(factory))
 
   given fromValidatedStringCodec[A](using
       factory: ValidatedStringFactory[A]

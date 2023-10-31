@@ -42,7 +42,7 @@ object Form:
     override def build(initialValue: Option[B]): FormComponent[B] =
       form.build(initialValue.map(g)).map(f)
 
-  case class Input[A: FieldBuilder](desc: FieldDescriptor)(using
+  case class Input[A](desc: FieldDescriptor)(using FieldBuilder[A])(using
       fctx: FormBuilderContext
   ) extends Form[A]:
     override def build(initialValue: Option[A]): FormComponent[A] =

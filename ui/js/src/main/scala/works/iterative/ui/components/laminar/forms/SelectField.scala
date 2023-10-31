@@ -12,7 +12,8 @@ case class SelectField(
     options: List[(String, String)],
     validated: Signal[Validated[_]],
     observer: Observer[String],
-    combo: Boolean
+    combo: Boolean,
+    add: Option[String => (String, String)]
 )(using fctx: FormBuilderContext):
   val hadFocus: Var[Boolean] = Var(false)
 
@@ -49,6 +50,7 @@ case class SelectField(
         onBlur.mapTo(true) --> touched.writer
       )
     else
+      val addedOpt: Var[Option[(String, String)]] = Var(None)
       Combobox[(String, String)](initialValue)(
         fctx.formUIFactory.combobox
           .container(
@@ -67,11 +69,20 @@ case class SelectField(
               fctx.formUIFactory.combobox
                 .option(v._2, ictx.isActive, ictx.isSelected)()
             },
-            Combobox.ctx.query
-              .map(_.toLowerCase)
-              .map(v => options.filter(_._2.toLowerCase.contains(v)))
+            Combobox.ctx.query.combineWithFn(addedOpt.signal) { (v, added) =>
+              val search = v.toLowerCase()
+              val opts = (added.toList ++ options)
+                .filter(_._2.toLowerCase.contains(search))
+              add match
+                case Some(f) if opts.isEmpty && v.trim.nonEmpty =>
+                  f(v) :: opts
+                case _ => opts
+            }
               --> Combobox.ctx.itemsWriter,
-            Combobox.ctx.value.map(_.map(_._1).getOrElse("")) --> observer
+            Combobox.ctx.value.map(_.map(_._1).getOrElse("")) --> observer,
+            Combobox.ctx.value.changes.filterNot(
+              _.exists(v => options.exists(o => o._1 == v._1))
+            ) --> addedOpt.writer
           )
       )
 
