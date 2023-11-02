@@ -98,7 +98,8 @@ object FieldBuilder:
           _ match {
             case Some(files) => Validation.succeed(files.headOption)
             case None        => Validation.succeed(None)
-          }
+          },
+          multi = false
         )
 
   given fileInput(using
@@ -118,7 +119,29 @@ object FieldBuilder:
               Validation.fail(
                 UserMessage("error.file.required", fieldDescriptor.label)
               )
-          }
+          },
+          multi = false
+        )
+
+  given filesInput(using
+      FormBuilderContext
+  ): FieldBuilder[List[FileSupport.FileRepr]] =
+    new FieldBuilder[List[FileSupport.FileRepr]]:
+      override def required: Boolean = true
+      override def build(
+          fieldDescriptor: FieldDescriptor,
+          initialValue: Option[List[FileSupport.FileRepr]]
+      ): FormComponent[List[FileSupport.FileRepr]] =
+        FileField(
+          fieldDescriptor,
+          _.map(_.toList) match {
+            case Some(files) => Validation.succeed(files)
+            case None =>
+              Validation.fail(
+                UserMessage("error.file.required", fieldDescriptor.label)
+              )
+          },
+          multi = true
         )
 
   given choiceInput[A](using Choice[A], FormBuilderContext): FieldBuilder[A] =
@@ -173,7 +196,8 @@ object FieldBuilder:
 
   class FileField[A](
       desc: FieldDescriptor,
-      validation: Option[FileList] => Validated[A]
+      validation: Option[FileList] => Validated[A],
+      multi: Boolean = false
   )(using fctx: FormBuilderContext)
       extends FormComponent[A]:
     private val rawValue: Var[Option[FileList]] = Var(None)
@@ -182,7 +206,7 @@ object FieldBuilder:
       rawValue.signal.map(validation)
 
     override val elements: Seq[HtmlElement] =
-      renderFileInputField(desc, rawValue.writer.contramapSome)
+      renderFileInputField(desc, rawValue.writer.contramapSome, multi)
 
   class ChoiceField[A](
       desc: FieldDescriptor,
@@ -234,14 +258,18 @@ object FieldBuilder:
         addValue
       ).elements
 
-  def renderFileInputField(desc: FieldDescriptor, observer: Observer[FileList])(
-      using fctx: FormBuilderContext
+  def renderFileInputField(
+      desc: FieldDescriptor,
+      observer: Observer[FileList],
+      multi: Boolean = false
+  )(using
+      fctx: FormBuilderContext
   ): Seq[HtmlElement] =
     Seq(
       div(
         fctx.formUIFactory
           .fileInput(desc.placeholder.getOrElse(desc.label))()(
-            multiple(false),
+            multiple(multi),
             nameAttr(desc.name),
             idAttr(desc.idString),
             inContext(thisNode =>

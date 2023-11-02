@@ -129,7 +129,7 @@ trait TailwindUIFormUIFactory extends FormUIFactory:
   )(
       inputMods: Mod[ReactiveHtmlElement[org.scalajs.dom.HTMLInputElement]]*
   ): HtmlElement =
-    val selectedFile: Var[Option[String]] = Var(None)
+    val selectedFile: Var[List[String]] = Var(Nil)
     div(
       cls := "mt-4 sm:mt-0 sm:flex-none",
       L.label(
@@ -140,12 +140,16 @@ trait TailwindUIFormUIFactory extends FormUIFactory:
           buttons.sharedButtonMod,
           buttons.secondaryButtonMod,
           child <-- selectedFile.signal
-            .map(_.isDefined)
+            .map(_.nonEmpty)
             .switch(
               icons.`paper-clip-solid`(svg.cls("w-6 h-6 mr-2")),
               icons.upload(svg.cls("w-6 h-6 mr-2"))
             ),
-          span(child.text <-- selectedFile.signal.map(_.getOrElse(title)))
+          span(
+            child.text <-- selectedFile.signal.map(files =>
+              if files.isEmpty then title else files.mkString(", ")
+            )
+          )
         ),
         L.input(
           cls("hidden"),
@@ -154,7 +158,7 @@ trait TailwindUIFormUIFactory extends FormUIFactory:
           inContext(thisNode =>
             onInput
               .mapTo(
-                thisNode.ref.files.headOption.map(_.name)
+                thisNode.ref.files.toList.map(_.name)
               ) --> selectedFile.writer
           )
         )
