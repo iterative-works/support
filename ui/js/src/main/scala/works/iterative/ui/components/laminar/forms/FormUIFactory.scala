@@ -56,6 +56,8 @@ trait FormUIFactory:
       inputMods: Mod[ReactiveHtmlElement[org.scalajs.dom.HTMLInputElement]]*
   ): HtmlElement
 
+  def buttonSpinner(mods: HtmlMod*): HtmlElement
+
 object FormUIFactory:
   trait ComboboxComponents:
     def container(

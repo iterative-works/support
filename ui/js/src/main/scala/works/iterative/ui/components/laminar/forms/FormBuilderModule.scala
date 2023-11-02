@@ -2,6 +2,7 @@ package works.iterative.ui.components.laminar.forms
 
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.*
+import io.laminext.syntax.core.*
 import zio.prelude.Validation
 import works.iterative.ui.components.ComponentContext
 
@@ -28,6 +29,7 @@ trait FormBuilderModule:
         fctx: FormBuilderContext
     ): FormComponent[A] =
       val buttonsDisabled = Var(false)
+      val buttonsProcessing: Var[Set[String]] = Var(Set.empty)
       val f = form.build(initialValue)
       f.wrap(
         fctx.formUIFactory.form(
@@ -37,6 +39,14 @@ trait FormBuilderModule:
           control --> {
             case Form.Control.DisableButtons => buttonsDisabled.set(true)
             case Form.Control.EnableButtons  => buttonsDisabled.set(false)
+            case Form.Control.StartProcessing(id) =>
+              buttonsProcessing.update(
+                _ + id
+              )
+            case Form.Control.StopProcessing(id) =>
+              buttonsProcessing.update(
+                _ - id
+              )
           }
         )(_)(
           fctx.formUIFactory.cancel(fctx.formMessagesResolver.label("cancel"))(
@@ -48,7 +58,10 @@ trait FormBuilderModule:
           )(
             disabled <-- f.validated.combineWithFn(buttonsDisabled.signal)(
               (v, d) => v.fold(_ => true, _ => d)
-            )
+            ),
+            buttonsProcessing.signal
+              .map(_.contains("submit"))
+              .childWhenTrue(fctx.formUIFactory.buttonSpinner())
           )
         )
       )

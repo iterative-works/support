@@ -38,6 +38,9 @@ trait TailwindUIFormUIFactory extends FormUIFactory:
   override def cancel(text: HtmlMod)(mods: HtmlMod*): HtmlElement =
     buttons.secondaryButton(text, None, None, "button")(cls("mr-3"), mods)
 
+  override def buttonSpinner(mods: HtmlMod*): HtmlElement =
+    span(icons.spinner(svg.cls("ml-2 h-3 w-3")))
+
   override def validationError(text: HtmlMod): HtmlElement =
     forms.validationError(text)
 

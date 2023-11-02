@@ -12,7 +12,10 @@ object Form:
     case Cancelled extends Event[Nothing]
 
   enum Control:
-    case DisableButtons, EnableButtons
+    case DisableButtons
+    case EnableButtons
+    case StartProcessing(id: String)
+    case StopProcessing(id: String)
 
   case class Section[A](desc: SectionDescriptor)(content: Form[A])(using
       fctx: FormBuilderContext
