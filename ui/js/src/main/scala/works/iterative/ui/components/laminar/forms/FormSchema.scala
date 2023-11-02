@@ -17,6 +17,7 @@ object FormSchema:
 
   case class Control[A](
       name: String,
+      choiceList: Option[List[A]],
       required: Boolean,
       decode: A => String,
       validation: Option[String] => Validated[A],
@@ -24,9 +25,10 @@ object FormSchema:
   ) extends FormSchema[A]
 
   object Control:
-    def apply[A](name: String)(using ic: InputSchema[A]): Control[A] =
+    def apply[A](name: String, choiceList: Option[List[A]] = None)(using ic: InputSchema[A]): Control[A] =
       Control(
         name,
+        choiceList,
         ic.required,
         ic.encode,
         ic.decodeOptional(name),

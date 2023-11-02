@@ -4,6 +4,8 @@ import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.*
 import zio.prelude.Validation
 import works.iterative.ui.components.ComponentContext
+import works.iterative.core.Validated
+
 
 trait FormBuilderModule:
   def buildForm[A](
@@ -92,9 +94,19 @@ trait FormBuilderModule:
             fctx.formUIFactory
               .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
           )
-
-        case Control(name, required, decode, validation, inputType) =>
+        // Přidat choiceList: List[A]
+        case Control(name, choiceList, required, decode, validation, inputType) =>
           val desc = FieldDescriptor(name)
+          def validation(v:Option[A]) = v match
+            case Some(value) => Validated.nonNull("")(value)
+            case none => throw new Error("Chyba")
+
+          choiceList match
+            case Some(value) =>
+              given Choice[A](value, _.toString(), _.toString(), true, None)
+              FieldBuilder.ChoiceField(desc,initialValue.map(decode(_)),validation)
+          
+          
           FieldBuilder
             .Input(
               desc,
