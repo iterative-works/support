@@ -33,7 +33,11 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
   extension (f: FileRepr)
     def toPart: Task[Part[Array[Byte]]] =
       f.toStream.run(ZSink.collectAll).map { bytes =>
-        Part("file", bytes.toArray, fileName = Some(f.name))
+        Part(
+          "file",
+          bytes.toArray,
+          fileName = Some(BigInt(f.name.getBytes).toString(16))
+        )
       }
 
   def makeClient[I, E, O](
