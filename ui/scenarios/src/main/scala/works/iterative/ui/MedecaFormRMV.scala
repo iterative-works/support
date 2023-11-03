@@ -36,7 +36,7 @@ object MedecaFormRMV
             Control[PlainOneLine]("IČ") *:
             Control[PlainOneLine]("DIČ") *:
             Control[PlainOneLine]("Načíst přes ARES", onBtnClick = Some(()=>Console.println("bylo kliknuto"))) *:
-            Control[PlainOneLine]("zadatKorespon") *:
+            Control[PlainOneLine]("Zadat korespondenční adresu", checked=Some(true)) *:
             Section("Kontaktní adresa", adresaSchema) *:
             FormSchema.Unit
           ).map(Applicant.apply)(a => (a.nazev, a.ardesa, a.ic, a.dic, a.nacistARES, a.zadatKorespon, a.korespon))

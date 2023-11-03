@@ -19,6 +19,7 @@ object FormSchema:
       name: String,
       choiceList: Option[List[A]],
       onBtnClick: Option[()=>Unit],
+      checked: Option[Boolean],
       required: Boolean,
       decode: A => String,
       validation: Option[String] => Validated[A],
@@ -29,12 +30,14 @@ object FormSchema:
     def apply[A](
       name: String,
       choiceList: Option[List[A]] = None,
-      onBtnClick: Option[()=>Unit] = None
+      onBtnClick: Option[()=>Unit] = None,
+      checked: Option[Boolean] = None
       )(using ic: InputSchema[A]): Control[A] =
       Control(
         name,
         choiceList,
         onBtnClick,
+        checked,
         ic.required,
         ic.encode,
         ic.decodeOptional(name),
