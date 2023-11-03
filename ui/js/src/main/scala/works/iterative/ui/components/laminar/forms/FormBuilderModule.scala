@@ -96,33 +96,43 @@ trait FormBuilderModule:
           )
         // Přidat choiceList: List[A]
         case Control(name, choiceList, required, decode, validation, inputType) =>
+          
           val desc = FieldDescriptor(name)
-          def validation(v:Option[A]) = v match
+          def vali(v:Option[A]) = v match
             case Some(value) => Validated.nonNull("")(value)
             case none => throw new Error("Chyba")
 
           choiceList match
             case Some(value) =>
               given Choice[A](value, _.toString(), _.toString(), true, None)
-              FieldBuilder.ChoiceField(desc,initialValue.map(decode(_)),validation)
-          
-          
-          FieldBuilder
-            .Input(
-              desc,
-              initialValue.map(decode(_)),
-              validation,
-              inputType
-            )
-            .wrap(
-              fctx.formUIFactory.field(
-                fctx.formUIFactory
-                  .label(desc.label, required = required)()
-              )(
-                _,
-                desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+              FieldBuilder
+              .ChoiceField(
+                desc,
+                initialValue,
+                vali
+              ).wrap(
+                fctx.formUIFactory.field(
+                  fctx.formUIFactory.label(desc.label, required = required)()
+                )
               )
-            )
+
+            case None => 
+              FieldBuilder
+                .Input(
+                  desc,
+                  initialValue.map(decode(_)),
+                  validation,
+                  inputType
+                )
+                .wrap(
+                  fctx.formUIFactory.field(
+                    fctx.formUIFactory
+                      .label(desc.label, required = required)()
+                  )(
+                    _,
+                    desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+                  )
+                )
 
         case z @ Zip(left, right) =>
           val leftComponent = buildForm(left)(initialValue.map(z.toLeft))
