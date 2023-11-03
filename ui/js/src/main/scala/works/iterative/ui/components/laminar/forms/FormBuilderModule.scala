@@ -5,6 +5,8 @@ import com.raquo.laminar.api.L.*
 import zio.prelude.Validation
 import works.iterative.ui.components.ComponentContext
 import works.iterative.core.Validated
+import works.iterative.ui.components.laminar.tailwind.ui
+import works.iterative.ui.components.laminar.tailwind.ui.*
 
 
 trait FormBuilderModule:
@@ -85,6 +87,7 @@ trait FormBuilderModule:
     ): FormComponent[A] =
       import FormSchema.*
       import works.iterative.ui.components.laminar.HtmlRenderable.given
+      // import works.iterative.ui.components.laminar.tailwind.ui.*
       schema match
         case FormSchema.Unit => FormComponent.empty
 
@@ -95,45 +98,60 @@ trait FormBuilderModule:
               .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
           )
         // Přidat choiceList: List[A]
-        case Control(name, choiceList, required, decode, validation, inputType) =>
+        case Control(name, choiceList, onBtnClick, required, decode, validation, inputType) =>
           
           val desc = FieldDescriptor(name)
           def vali(v:Option[A]) = v match
             case Some(value) => Validated.nonNull("")(value)
             case none => throw new Error("Chyba")
 
-          choiceList match
+          onBtnClick match
             case Some(value) =>
-              given Choice[A](value, _.toString(), _.toString(), true, None)
-              FieldBuilder
-              .ChoiceField(
-                desc,
-                initialValue,
-                vali
-              ).wrap(
-                fctx.formUIFactory.field(
-                  fctx.formUIFactory.label(desc.label, required = required)()
-                )
-              )
-
-            case None => 
-              FieldBuilder
-                .Input(
-                  desc,
-                  initialValue.map(decode(_)),
-                  validation,
-                  inputType
-                )
-                .wrap(
-                  fctx.formUIFactory.field(
-                    fctx.formUIFactory
-                      .label(desc.label, required = required)()
-                  )(
-                    _,
-                    desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+              val rawValue = Var(initialValue)
+              // def vali = 
+              val validated = rawValue.signal.map(vali)
+              val htmlel = TailwindUICatalogue.buttons.button(
+                desc.label,
+                Some("testtlacitko"),
+                None,
+                "justbtn",
+                false
+                )()
+              FormComponent(validated,htmlel)
+            case None =>
+              choiceList match
+                case Some(value) =>
+                  given Choice[A](value, _.toString(), _.toString(), true, None)
+                  FieldBuilder
+                  .ChoiceField(
+                    desc,
+                    initialValue,
+                    vali
+                  ).wrap(
+                    fctx.formUIFactory.field(
+                      fctx.formUIFactory.label(desc.label, required = required)()
+                    )
                   )
-                )
 
+                case None => 
+                  FieldBuilder
+                    .Input(
+                      desc,
+                      initialValue.map(decode(_)),
+                      validation,
+                      inputType
+                    )
+                    .wrap(
+                      fctx.formUIFactory.field(
+                        fctx.formUIFactory
+                          .label(desc.label, required = required)()
+                      )(
+                        _,
+                        desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+                      )
+                    )
+
+          
         case z @ Zip(left, right) =>
           val leftComponent = buildForm(left)(initialValue.map(z.toLeft))
           val rightComponent = buildForm(right)(initialValue.map(z.toRight))

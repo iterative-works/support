@@ -35,7 +35,7 @@ object MedecaFormRMV
             Section("Kontaktní adresa", adresaSchema) *:
             Control[PlainOneLine]("IČ") *:
             Control[PlainOneLine]("DIČ") *:
-            Control[PlainOneLine]("nacistARES") *:
+            Control[PlainOneLine]("Načíst přes ARES", onBtnClick = Some(()=>Console.println("bylo kliknuto"))) *:
             Control[PlainOneLine]("zadatKorespon") *:
             Section("Kontaktní adresa", adresaSchema) *:
             FormSchema.Unit
