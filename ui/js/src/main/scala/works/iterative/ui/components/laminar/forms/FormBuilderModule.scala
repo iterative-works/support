@@ -98,7 +98,7 @@ trait FormBuilderModule:
               .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
           )
         // Přidat choiceList: List[A]
-        case Control(name, choiceList, onBtnClick, checked, required, decode, validation, inputType) =>
+        case Control(name, choiceList, onBtnClick, checked, multiChoice, required, decode, validation, inputType) =>
           
           val desc = FieldDescriptor(name)
           def vali(v:Option[A]) = v match
@@ -106,61 +106,69 @@ trait FormBuilderModule:
             case none => throw new Error("Chyba")
 
           // Určitě to vyřeším jinak, než touhle pyramidou smrti
-          checked match
-            case Some(checked) =>
+          multiChoice match
+            case Some(mc) => 
               val rawValue = Var(initialValue)
-              // def vali = 
               val validated = rawValue.signal.map(vali)
-              val htmlel = L.input(`type`:="checkbox")
-              FormComponent(validated,htmlel).wrap(fctx.formUIFactory.field(
+              val elems = mc.choiceList.map(e => div(L.input(`type`:="radio", nameAttr:="testrb"), L.label(e.toString()))).toSeq
+              FormComponent(validated,elems).wrap(fctx.formUIFactory.field(
                 fctx.formUIFactory.label(desc.label)()
               ))
             case None =>
-              onBtnClick match
-                case Some(value) =>
+              checked match
+                case Some(checked) =>
                   val rawValue = Var(initialValue)
-                  // def vali = 
                   val validated = rawValue.signal.map(vali)
-                  val htmlel = TailwindUICatalogue.buttons.button(
-                    desc.label,
-                    Some("testtlacitko"),
-                    None,
-                    "justbtn",
-                    false
-                    )()
-                  FormComponent(validated,htmlel)
+                  val htmlel = L.input(`type`:="checkbox")
+                  FormComponent(validated,htmlel).wrap(fctx.formUIFactory.field(
+                    fctx.formUIFactory.label(desc.label)()
+                  ))
                 case None =>
-                  choiceList match
+                  onBtnClick match
                     case Some(value) =>
-                      given Choice[A](value, _.toString(), _.toString(), true, None)
-                      FieldBuilder
-                      .ChoiceField(
-                        desc,
-                        initialValue,
-                        vali
-                      ).wrap(
-                        fctx.formUIFactory.field(
-                          fctx.formUIFactory.label(desc.label, required = required)()
-                        )
-                      )
-
-                    case None => 
-                      FieldBuilder
-                        .Input(
-                          desc,
-                          initialValue.map(decode(_)),
-                          validation,
-                          inputType
-                        )
-                        .wrap(
-                          fctx.formUIFactory.field(
-                            fctx.formUIFactory
-                              .label(desc.label, required = required)()
-                          )(
-                            _,
-                            desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+                      val rawValue = Var(initialValue)
+                      // def vali = 
+                      val validated = rawValue.signal.map(vali)
+                      val htmlel = TailwindUICatalogue.buttons.button(
+                        desc.label,
+                        Some("testtlacitko"),
+                        None,
+                        "justbtn",
+                        false
+                        )()
+                      FormComponent(validated,htmlel)
+                    case None =>
+                      choiceList match
+                        case Some(value) =>
+                          given Choice[A](value, _.toString(), _.toString(), true, None)
+                          FieldBuilder
+                          .ChoiceField(
+                            desc,
+                            initialValue,
+                            vali
+                          ).wrap(
+                            fctx.formUIFactory.field(
+                              fctx.formUIFactory.label(desc.label, required = required)()
+                            )
                           )
-                        )
+
+                        case None => 
+                          FieldBuilder
+                            .Input(
+                              desc,
+                              initialValue.map(decode(_)),
+                              validation,
+                              inputType
+                            )
+                            .wrap(
+                              fctx.formUIFactory.field(
+                                fctx.formUIFactory
+                                  .label(desc.label, required = required)()
+                              )(
+                                _,
+                                desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+                              )
+                            )
 
           
         case z @ Zip(left, right) =>

@@ -24,7 +24,12 @@ object MedecaFormRMV
           (
             Control[PlainOneLine]("ulice") *:
             Control[PlainOneLine]("mesto") *:
-            Control[String]("psc") *:
+            Control[String]("psc", multiChoice = Some(MultiChoice(
+              List(
+                "Test",
+                "Radio",
+                "Buttonu"
+                ), false))) *:
             Control[String]("country", Some(List("ČR", "SK", "USA"))) *:
             FormSchema.Unit
           ).map(Adresa.apply)(a => (a.ulice, a.mesto, a.psc, a.country))

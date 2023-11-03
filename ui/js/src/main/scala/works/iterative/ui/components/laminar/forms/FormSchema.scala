@@ -20,6 +20,7 @@ object FormSchema:
       choiceList: Option[List[A]],
       onBtnClick: Option[()=>Unit],
       checked: Option[Boolean],
+      multiChoice: Option[MultiChoice[A]],
       required: Boolean,
       decode: A => String,
       validation: Option[String] => Validated[A],
@@ -31,13 +32,15 @@ object FormSchema:
       name: String,
       choiceList: Option[List[A]] = None,
       onBtnClick: Option[()=>Unit] = None,
-      checked: Option[Boolean] = None
+      checked: Option[Boolean] = None,
+      multiChoice: Option[MultiChoice[A]] = None
       )(using ic: InputSchema[A]): Control[A] =
       Control(
         name,
         choiceList,
         onBtnClick,
         checked,
+        multiChoice,
         ic.required,
         ic.encode,
         ic.decodeOptional(name),
