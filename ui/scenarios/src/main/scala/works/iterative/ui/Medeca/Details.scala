@@ -29,16 +29,35 @@ final case class Zadatel(nazev: PlainOneLine, ic: String, adresa: Adresa)
 
 final case class ZadostORegistraci(zadatel: Zadatel, administrator: KontaktniOsoba, pccr: KontaktniOsoba)
 
-final case class ZadostOVykon(zadatel: Applicant, kontaktniOsoba: KontaktniOsoba)
+final case class ZadostOVykon(
+  zadatel: Applicant,
+  kontaktniOsoba: ContactPerson,
+  serviceSelect: ServiceSelect
+  )
 
-final case class ContactPerson(jmeno: PlainOneLine, prijmeni: PlainOneLine, telefon: PlainOneLine, email: PlainOneLine)
+final case class ContactPerson(
+  jmeno: PlainOneLine,
+  prijmeni: PlainOneLine,
+  telefon: PlainOneLine,
+  email: PlainOneLine
+)
 
 final case class Applicant(
   nazev: PlainOneLine,
-  ardesa: Adresa,
+  ulice: PlainOneLine,
+  mesto: PlainOneLine,
+  psc: String,
+  country: String,
   ic: PlainOneLine,
   dic: PlainOneLine,
   nacistARES: PlainOneLine,
   zadatKorespon: PlainOneLine,
-  korespon: Adresa
+  koresponUlice: PlainOneLine,
+  koresponMesto: PlainOneLine,
+  koresponPsc: String,
+  koresponCountry: String,
+)
+
+final case class ServiceSelect(
+  sluzba: String
 )
