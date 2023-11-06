@@ -41,9 +41,8 @@ case class SelectField(
       fctx.formUIFactory.select(hasError)(
         idAttr(desc.idString),
         nameAttr(desc.name),
-        initialValue.map(i => value(i._1)),
         opts.map(o =>
-          option(selected(initialValue.contains(o._1)), value(o._1), o._2)
+          option(selected(initialValue.exists(_._1 == o._1)), value(o._1), o._2)
         ),
         onChange.mapToValue.setAsValue --> observer,
         onFocus.mapTo(true) --> hadFocus.writer,
