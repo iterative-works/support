@@ -49,6 +49,7 @@ trait JsonCodecs:
   given JsonCodec[PlainMultiLine] = textCodec(PlainMultiLine.apply)
   given JsonCodec[PlainOneLine] = textCodec(PlainOneLine.apply)
   given JsonCodec[Markdown] = textCodec(Markdown.apply)
+  given JsonCodec[HtmlText] = textCodec(HtmlText.apply)
 
   given JsonCodec[PermissionOp] =
     JsonCodec.string.transform(PermissionOp(_), _.value)
@@ -82,6 +83,10 @@ trait TapirCodecs:
       ValidatedStringFactory[A]
   ): Schema[A] = Schema.string
 
+  given Codec[String, PermissionTarget, CodecFormat.TextPlain] =
+    Codec.string.map(PermissionTarget.unsafe(_))(_.toString())
+
+  given Schema[HtmlText] = Schema.string
   given Schema[PermissionOp] = Schema.string
   given Schema[PermissionTarget] = Schema.string
   given Schema[PlainMultiLine] = Schema.string

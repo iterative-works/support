@@ -109,3 +109,17 @@ object Markdown:
     Text.nonEmpty(text)
 
   extension (p: Markdown) def asString: String = p
+
+opaque type HtmlText = String
+
+object HtmlText:
+  def apply(text: String): Validated[HtmlText] =
+    Text.validateNonEmpty(text)
+
+  def opt(text: String): Validated[Option[HtmlText]] =
+    Validation.succeed(optDirect(text))
+
+  def optDirect(text: String): Option[HtmlText] =
+    Text.nonEmpty(text)
+
+  extension (p: HtmlText) def asString: String = p
