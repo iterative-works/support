@@ -40,6 +40,8 @@ object Combobox:
 
   def ctx[T](using c: Ctx[T]): Ctx[T] = c
 
+  def ictx[T](using c: ItemCtx[T]): ItemCtx[T] = c
+
   def apply[T](initialValue: Option[T] = None)(
       content: Render[T]
   ): HtmlElement =
