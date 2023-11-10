@@ -4,7 +4,6 @@ import works.iterative.tapir.CustomTapir.*
 import sttp.tapir.files.*
 import sttp.tapir.Tapir
 import sttp.tapir.EndpointInput
-import works.iterative.core.auth.CurrentUser
 
 class SPAEndpoints[Env](config: SPAConfig):
   private val prefix: EndpointInput[Unit] = emptyInput
@@ -14,7 +13,7 @@ class SPAEndpoints[Env](config: SPAConfig):
       .foldLeft(emptyInput)((i, p) => i / p)
    */
 
-  val serverEndpoints: List[ZServerEndpoint[Env & CurrentUser, Any]] =
+  val serverEndpoints: List[ZServerEndpoint[Env, Any]] =
     config.filePath match
       case Some(filePath) =>
         List(
