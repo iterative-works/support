@@ -23,8 +23,9 @@ object Combobox:
     private[Combobox] val itemsVar: Var[Seq[T]] = Var[Seq[T]](Nil)
     private[Combobox] val activeVar: Var[Set[T]] = Var[Set[T]](Set.empty)
     val itemsWriter: Observer[Seq[T]] = itemsVar.writer
+    val valueWriter: Observer[Option[T]] = valueVar.writer
     val items: Signal[Seq[T]] = itemsVar.signal
-    val value: Signal[Option[T]] = valueVar.signal
+    val value: Signal[Option[T]] = valueVar.signal.distinct.debugLog()
     val isOpen: Signal[Boolean] = open.signal
     val query: Signal[String] = inputVar.signal
 
@@ -55,6 +56,7 @@ object Combobox:
   ): Input =
     val currentValue = ctx.value.map(_.map(displayValue).getOrElse(""))
     inp.amend(
+      currentValue --> ctx.inputVar.writer,
       onFocus.mapTo(true) --> ctx.isFocused.writer,
       onBlur.mapTo(false) --> ctx.isFocused.writer,
       ctx.inputVar.signal
