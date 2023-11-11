@@ -51,8 +51,10 @@ object ClientErrorConstructor
   given noErrorConstructor: ClientErrorConstructor[Unit] with
     type Error = Nothing
     def mapErrorCause[A](effect: IO[Unit, A]): IO[Nothing, A] =
-      effect.mapErrorCause(_ =>
-        Cause.die(throw new IllegalStateException("Internal Server Error"))
+      effect.mapErrorCause(e =>
+        Cause.die(
+          throw new IllegalStateException(s"Infallible endpoint failure: ${e}")
+        )
       )
 
 trait LowPriorityClientErrorConstructorImplicits:

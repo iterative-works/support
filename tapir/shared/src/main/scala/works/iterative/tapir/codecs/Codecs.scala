@@ -5,9 +5,11 @@ import zio.json.*
 import zio.prelude.Validation
 import works.iterative.tapir.CustomTapir.*
 import works.iterative.core.*
+import works.iterative.core.czech.*
 import works.iterative.core.auth.*
 import works.iterative.core.auth.service.AuthenticationError
 import sttp.tapir.CodecFormat
+import sttp.tapir.Validator
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
@@ -50,6 +52,7 @@ trait JsonCodecs:
   given JsonCodec[PlainOneLine] = textCodec(PlainOneLine.apply)
   given JsonCodec[Markdown] = textCodec(Markdown.apply)
   given JsonCodec[HtmlText] = textCodec(HtmlText.apply)
+  given JsonCodec[IC] = validatedStringCodec(IC)
 
   given JsonCodec[PermissionOp] =
     JsonCodec.string.transform(PermissionOp(_), _.value)
@@ -82,6 +85,20 @@ trait TapirCodecs:
   given fromValidatedStringSchema[A](using
       ValidatedStringFactory[A]
   ): Schema[A] = Schema.string
+
+  given fromValidatedStringTapirCodec[A](using
+      factory: ValidatedStringFactory[A]
+  ): Codec[String, A, CodecFormat.TextPlain] =
+    Codec.string.mapDecode(v =>
+      factory
+        .apply(v)
+        .fold(
+          e =>
+            DecodeResult
+              .Error(v, new IllegalArgumentException(e.head.toString())),
+          DecodeResult.Value(_)
+        )
+    )(_.value)
 
   given Codec[String, PermissionTarget, CodecFormat.TextPlain] =
     Codec.string.map(PermissionTarget.unsafe(_))(_.toString())
