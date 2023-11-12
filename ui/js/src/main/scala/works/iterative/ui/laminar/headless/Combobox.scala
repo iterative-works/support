@@ -25,7 +25,7 @@ object Combobox:
     val itemsWriter: Observer[Seq[T]] = itemsVar.writer
     val valueWriter: Observer[Option[T]] = valueVar.writer
     val items: Signal[Seq[T]] = itemsVar.signal
-    val value: Signal[Option[T]] = valueVar.signal.distinct.debugLog()
+    val value: Signal[Option[T]] = valueVar.signal.distinct
     val isOpen: Signal[Boolean] = open.signal
     val query: Signal[String] = inputVar.signal
 

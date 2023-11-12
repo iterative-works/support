@@ -1,7 +1,8 @@
 package works.iterative
 package ui.components.tailwind
 
-import zio.prelude.Validation
+import zio.prelude.ZValidation
+import works.iterative.core.UserMessage
 
 package object form:
-  type Validated[V] = Validation[InvalidValue, V]
+  type Validated[V] = ZValidation[UserMessage, InvalidValue, V]

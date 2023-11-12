@@ -2,7 +2,7 @@ package works.iterative
 package tapir.codecs
 
 import zio.json.*
-import zio.prelude.Validation
+import zio.prelude.ZValidation
 import works.iterative.tapir.CustomTapir.*
 import works.iterative.core.*
 import works.iterative.core.czech.*
@@ -21,11 +21,13 @@ trait Codecs extends JsonCodecs with TapirCodecs
 
 trait JsonCodecs:
 
-  def fromValidation[T](v: Validation[UserMessage, T]): Either[String, T] =
+  def fromValidation[T](
+      v: ZValidation[?, UserMessage, T]
+  ): Either[String, T] =
     v.mapError(_.id).toEither.left.map(_.mkString(","))
 
   def textCodec[T](
-      f: String => Validation[UserMessage, T]
+      f: String => ZValidation[?, UserMessage, T]
   ): JsonCodec[T] =
     JsonCodec.string.transformOrFail(f andThen fromValidation, _.toString)
 

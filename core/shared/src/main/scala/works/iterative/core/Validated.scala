@@ -1,8 +1,8 @@
 package works.iterative.core
 
-import zio.prelude.Validation
+import zio.prelude.*
 
-type Validated[A] = Validation[UserMessage, A]
+type Validated[A] = ZValidation[UserMessage, UserMessage, A]
 
 extension [A](v: Validated[A])
   def orThrow: A =
