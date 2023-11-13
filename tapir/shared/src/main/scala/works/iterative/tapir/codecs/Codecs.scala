@@ -54,7 +54,7 @@ trait JsonCodecs:
   given JsonCodec[PlainOneLine] = textCodec(PlainOneLine.apply)
   given JsonCodec[Markdown] = textCodec(Markdown.apply)
   given JsonCodec[HtmlText] = textCodec(HtmlText.apply)
-  given JsonCodec[IC] = validatedStringCodec(IC)
+  given JsonCodec[ICO] = validatedStringCodec(ICO)
 
   given JsonCodec[PermissionOp] =
     JsonCodec.string.transform(PermissionOp(_), _.value)
