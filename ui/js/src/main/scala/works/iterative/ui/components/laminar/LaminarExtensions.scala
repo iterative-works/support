@@ -19,7 +19,7 @@ trait ActionExtensions:
   extension (action: works.iterative.core.Action)
     def mods: HtmlMod = nodeSeq(
       dataAttr("action_op")(action.op.value),
-      dataAttr("action_target")(action.target.value)
+      dataAttr("action_target")(action.target.toString())
     )
 
   extension (t: works.iterative.core.Action.type)

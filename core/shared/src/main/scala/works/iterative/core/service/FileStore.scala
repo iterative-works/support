@@ -5,31 +5,65 @@ import works.iterative.core.FileRef
 
 import zio.*
 
-trait FileStore:
+trait FileStoreWriter:
   type Op[A] = UIO[A]
 
-  def store(files: List[FileRepr]): Op[List[FileRef]]
+  def store(
+      files: List[FileRepr],
+      metadata: FileStore.Metadata
+  ): Op[List[FileRef]]
 
   def store(
       name: String,
       file: Array[Byte],
-      contentType: Option[String]
+      contentType: Option[String],
+      metadata: FileStore.Metadata
   ): Op[FileRef]
+
+  def update(urls: List[String], metadata: FileStore.Metadata): Op[Unit]
+
+trait FileStoreLoader:
+  type Op[A] = UIO[A]
 
   def load(url: String): Op[Option[Array[Byte]]]
 
-object FileStore:
-  type Op[A] = URIO[FileStore, A]
+trait FileStoreResolver:
+  type Op[A] = UIO[A]
 
-  def store(files: List[FileRepr]): Op[List[FileRef]] =
-    ZIO.serviceWithZIO(_.store(files))
+  def toAbsoluteURL(url: String): Op[String]
+
+object FileStore:
+  type Metadata = Map[String, String]
+
+  object Metadata:
+    val FileType = "fileType"
+    val Size = "size"
+    val Links = "links"
+    val Kind = "kind"
+    val UploadedBy = "uploadedBy"
+
+  def store(
+      files: List[FileRepr],
+      metadata: Metadata
+  ): URIO[FileStoreWriter, List[FileRef]] =
+    ZIO.serviceWithZIO(_.store(files, metadata))
 
   def store(
       name: String,
       file: Array[Byte],
-      contentType: Option[String]
-  ): Op[FileRef] =
-    ZIO.serviceWithZIO(_.store(name, file, contentType))
+      contentType: Option[String],
+      metadata: Metadata
+  ): URIO[FileStoreWriter, FileRef] =
+    ZIO.serviceWithZIO(_.store(name, file, contentType, metadata))
 
-  def load(url: String): Op[Option[Array[Byte]]] =
+  def load(url: String): URIO[FileStoreLoader, Option[Array[Byte]]] =
     ZIO.serviceWithZIO(_.load(url))
+
+  def update(
+      urls: List[String],
+      metadata: Metadata
+  ): URIO[FileStoreWriter, Unit] =
+    ZIO.serviceWithZIO(_.update(urls, metadata))
+
+  def toAbsoluteURL(url: String): URIO[FileStoreResolver, String] =
+    ZIO.serviceWithZIO(_.toAbsoluteURL(url))

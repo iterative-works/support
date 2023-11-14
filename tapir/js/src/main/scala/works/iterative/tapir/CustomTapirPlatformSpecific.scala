@@ -36,7 +36,7 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
         Part(
           "file",
           bytes.toArray,
-          fileName = Some(BigInt(f.name.getBytes).toString(16))
+          fileName = Some(f.name)
         )
       }
 
