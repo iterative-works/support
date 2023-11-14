@@ -144,6 +144,24 @@ object FieldBuilder:
           multi = true
         )
 
+  given optionalFilesInput(using
+      FormBuilderContext
+  ): FieldBuilder[Option[List[FileSupport.FileRepr]]] =
+    new FieldBuilder[Option[List[FileSupport.FileRepr]]]:
+      override def required: Boolean = false
+      override def build(
+          fieldDescriptor: FieldDescriptor,
+          initialValue: Option[Option[List[FileSupport.FileRepr]]]
+      ): FormComponent[Option[List[FileSupport.FileRepr]]] =
+        FileField(
+          fieldDescriptor,
+          _.map(_.toList) match {
+            case Some(files) => Validation.succeed(Some(files))
+            case None        => Validation.succeed(None)
+          },
+          multi = true
+        )
+
   given choiceInput[A](using Choice[A], FormBuilderContext): FieldBuilder[A] =
     new FieldBuilder[A]:
       override def required: Boolean = true
