@@ -36,7 +36,7 @@ lazy val codecs = crossProject(JSPlatform, JVMPlatform)
   .in(file("codecs"))
   .dependsOn(core, entity, `tapir-support`)
 
-lazy val `mongo-support` = project.in(file("mongo"))
+lazy val `mongo-support` = project.in(file("mongo")).dependsOn(core)
 
 lazy val `akka-persistence-support` = project
   .in(file("akka-persistence"))
