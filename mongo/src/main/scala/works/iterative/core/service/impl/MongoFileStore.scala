@@ -88,14 +88,13 @@ class MongoFileStore(
     yield bytes
 
 object MongoFileStore:
-  val layer: URLayer[
-    MongoClient & MongoFileConfig & AuthenticationService,
+  def forConfig(config: MongoFileConfig): URLayer[
+    MongoClient & AuthenticationService,
     FileStoreWriter & FileStoreLoader
   ] =
     ZLayer {
       for
         client <- ZIO.service[MongoClient]
-        config <- ZIO.service[MongoFileConfig]
         bucket <- ZIO
           .attempt(
             GridFSBucket(client.getDatabase(config.db), config.collection)
@@ -104,6 +103,11 @@ object MongoFileStore:
         authenticationService <- ZIO.service[AuthenticationService]
       yield MongoFileStore(bucket, authenticationService)
     }
+
+  val layer: URLayer[
+    MongoClient & MongoFileConfig & AuthenticationService,
+    FileStoreWriter & FileStoreLoader
+  ] = ZLayer.service[MongoFileConfig].flatMap(env => forConfig(env.get))
 
   case class Filter private (
       id: Option[String],
