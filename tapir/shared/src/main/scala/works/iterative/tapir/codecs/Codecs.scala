@@ -10,12 +10,20 @@ import works.iterative.core.auth.*
 import works.iterative.core.auth.service.AuthenticationError
 import sttp.tapir.CodecFormat
 import sttp.tapir.Validator
+import works.iterative.core.service.FileStore
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
     pon: Option[PlainOneLine],
     md: Option[Markdown]
 )
+
+case class LegacyFileRef(
+    name: String,
+    url: String,
+    fileType: Option[String],
+    size: Option[Long]
+) derives JsonCodec
 
 trait Codecs extends JsonCodecs with TapirCodecs
 
@@ -70,7 +78,24 @@ trait JsonCodecs:
   given JsonCodec[Claim] = DeriveJsonCodec.gen[Claim]
   given JsonCodec[BasicProfile] = DeriveJsonCodec.gen[BasicProfile]
 
-  given JsonCodec[FileRef] = DeriveJsonCodec.gen[FileRef]
+  given fileRefEncoder: JsonEncoder[FileRef] = DeriveJsonEncoder.gen[FileRef]
+  val fileRefDecoder: JsonDecoder[FileRef] = DeriveJsonDecoder.gen[FileRef]
+
+  given completeFileRefDecoder: JsonDecoder[FileRef] =
+    fileRefDecoder.orElse(
+      JsonDecoder[LegacyFileRef].map(f =>
+        FileRef(
+          f.name,
+          f.url,
+          List(
+            f.fileType.map(FileStore.Metadata.FileType -> _),
+            f.size.map(FileStore.Metadata.Size -> _.toString())
+          ).flatten.toMap
+        )
+      )
+    )
+
+  given JsonCodec[FileRef] = JsonCodec(fileRefEncoder, completeFileRefDecoder)
 
   given JsonCodec[Moment] = JsonCodec.instant.transform(
     Moment(_),

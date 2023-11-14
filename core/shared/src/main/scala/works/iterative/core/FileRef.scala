@@ -3,7 +3,7 @@ package works.iterative.core
 import service.FileStore
 
 /** Represents a reference to a file */
-case class FileRef private (
+case class FileRef(
     name: String,
     url: String,
     metadata: FileStore.Metadata
