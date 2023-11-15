@@ -15,7 +15,8 @@ case class Choice[A](
     id: A => String,
     label: A => String,
     combo: Boolean = false,
-    add: Option[String => Validated[A]] = None
+    add: Option[String => Validated[A]] = None,
+    query: Option[String => EventStream[List[A]]] = None
 ):
   def optional: Choice[Option[A]] =
     Choice[Option[A]](
@@ -234,46 +235,25 @@ object FieldBuilder:
       choice: Choice[A]
   )(using fctx: FormBuilderContext)
       extends FormComponent[A]:
-    private val Choice(options, id, label, combo, add) = choice
+    private val Choice(options, id, label, combo, add, query) = choice
 
-    private def findValue(i: String): Option[A] = options.find(id(_) == i)
-
-    private val rawValue: Var[Option[String]] = Var(
-      initialValue.map(id(_))
-    )
-
-    private def selectValue(id: Option[String]): Validated[Option[A]] =
-      def constructValue(id: String): Validated[Option[A]] =
-        add.fold(Validation.succeed(None))(_(id).map(Some(_)))
-
-      def findOrConstructValue(id: String): Validated[Option[A]] =
-        findValue(id)
-          .map(v => Validation.succeed(Some(v)))
-          .getOrElse(constructValue(id))
-
-      id.fold(Validation.succeed(None))(findOrConstructValue)
+    private val rawValue: Var[Option[A]] = Var(initialValue)
 
     override val validated: Signal[Validated[A]] =
-      rawValue.signal
-        .map(selectValue)
-        .map(_.flatMap(validation))
+      rawValue.signal.map(validation)
 
     override val elements: Seq[HtmlElement] =
-      val addValue: Option[String => (String, String)] = add.map(_ => {
-        val msg = fctx.formMessagesResolver.message(
-          UserMessage(s"add.${desc.idString}")
-        )
-        v => (v, s"$msg: $v")
-      })
-
       SelectField(
         desc,
-        initialValue.map(i => (id(i), label(i))),
-        options.map(o => (id(o), label(o))),
+        id,
+        label,
+        initialValue,
+        options,
         validated,
-        rawValue.writer.contramapSome,
+        rawValue.writer,
         combo,
-        addValue
+        add,
+        query
       ).elements
 
   def renderFileInputField(

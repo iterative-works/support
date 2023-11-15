@@ -6,14 +6,17 @@ import works.iterative.ui.laminar.headless.Combobox
 
 // TODO: this is a copy of InputField, but with a different logic for selects
 // We need to merge the two after the shape is clear
-case class SelectField(
+case class SelectField[A](
     desc: FieldDescriptor,
-    initialValue: Option[(String, String)],
-    options: List[(String, String)],
+    id: A => String,
+    label: A => String,
+    initialValue: Option[A],
+    initialOptions: List[A],
     validated: Signal[Validated[_]],
-    observer: Observer[String],
+    observer: Observer[Option[A]],
     combo: Boolean,
-    add: Option[String => (String, String)]
+    add: Option[String => Validated[A]],
+    queryOptions: Option[String => EventStream[List[A]]]
 )(using fctx: FormBuilderContext):
   val hadFocus: Var[Boolean] = Var(false)
 
@@ -29,34 +32,60 @@ case class SelectField(
       if t then v.fold(_.toList, _ => List.empty) else Nil
     )
 
+  val initialOptionsStream = EventStream.fromValue(initialOptions)
+
+  def findOptions(
+      v: String,
+      selectedOpt: Option[A]
+  ): EventStream[List[A]] =
+    def matches(o: A) = label(o).toLowerCase.contains(v.toLowerCase)
+
+    def withAddOption(opts: List[A]) =
+      add match
+        case Some(f) if opts.isEmpty && v.trim.nonEmpty =>
+          f(v).toOption.toList ++ opts
+        case _ => opts
+
+    def withSelected(opts: List[A]) =
+      val matchedSelected = selectedOpt.filter(matches)
+      matchedSelected match
+        case Some(s) if !opts.contains(s) => s :: opts
+        case _                            => opts
+
+    queryOptions match
+      case Some(query) =>
+        query(v).map(opts => withSelected(withAddOption(opts)))
+      case None =>
+        EventStream.fromValue(
+          withSelected(withAddOption(initialOptions.filter(matches)))
+        )
+
   def makeField: HtmlElement =
     if !combo then
-      val emptyValue = ("", "")
-      val opts =
-        if initialValue.isDefined || options.headOption.contains(
-            emptyValue
-          )
-        then options
-        else emptyValue :: options
+      val opts = None :: initialOptions.map(Some(_))
+      val optMap = initialOptions.map(o => id(o) -> o).toMap
       fctx.formUIFactory.select(hasError)(
         idAttr(desc.idString),
         nameAttr(desc.name),
         opts.map(o =>
-          option(selected(initialValue.exists(_._1 == o._1)), value(o._1), o._2)
+          option(
+            defaultSelected(initialValue.contains(o)),
+            value(o.map(id).getOrElse("")),
+            o.map(label).getOrElse("")
+          )
         ),
-        onChange.mapToValue.setAsValue --> observer,
+        onChange.mapToValue.setAsValue.map(optMap.get) --> observer,
         onFocus.mapTo(true) --> hadFocus.writer,
         onBlur.mapTo(true) --> touched.writer
       )
     else
-      val addedOpt: Var[Option[(String, String)]] = Var(None)
-      Combobox[(String, String)](initialValue)(
+      Combobox[A](initialValue)(
         fctx.formUIFactory.combobox
           .container(
             hasError,
             inp =>
               Combobox
-                .input(_._2)(inp)
+                .input(label)(inp)
                 .amend(
                   onFocus.mapTo(true) --> hadFocus.writer,
                   onBlur.mapTo(true) --> touched.writer
@@ -64,24 +93,14 @@ case class SelectField(
           )(
             Combobox.button(fctx.formUIFactory.combobox.button()),
             Combobox.options(fctx.formUIFactory.combobox.options()) { v =>
-              val ictx = summon[Combobox.ItemCtx[(String, String)]]
+              val ictx = summon[Combobox.ItemCtx[A]]
               fctx.formUIFactory.combobox
-                .option(v._2, ictx.isActive, ictx.isSelected)()
+                .option(label(v), ictx.isActive, ictx.isSelected)()
             },
-            Combobox.ctx.query.combineWithFn(addedOpt.signal) { (v, added) =>
-              val search = v.toLowerCase()
-              val opts = (added.toList ++ options)
-                .filter(_._2.toLowerCase.contains(search))
-              add match
-                case Some(f) if opts.isEmpty && v.trim.nonEmpty =>
-                  f(v) :: opts
-                case _ => opts
-            }
-              --> Combobox.ctx.itemsWriter,
-            Combobox.ctx.value.map(_.map(_._1).getOrElse("")) --> observer,
-            Combobox.ctx.value.changes.filterNot(
-              _.exists(v => options.exists(o => o._1 == v._1))
-            ) --> addedOpt.writer
+            Combobox.ctx.query
+              .withCurrentValueOf(Combobox.ctx.value)
+              .flatMap(findOptions) --> Combobox.ctx.itemsWriter,
+            Combobox.ctx.value --> observer
           )
       )
 
