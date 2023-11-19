@@ -6,7 +6,6 @@ import works.iterative.core.*
 import java.time.Instant
 import works.iterative.ui.TimeUtils
 import works.iterative.core.UserMessage
-import works.iterative.ui.components.ComponentContext
 import LaminarExtensions.*
 
 trait HtmlRenderable[A]:
@@ -74,7 +73,7 @@ object HtmlRenderable:
       )
 
   given userMessageRenderable(using
-      ComponentContext[?]
+      MessageCatalogue
   ): HtmlRenderable[UserMessage] with
     def toHtml(msg: UserMessage): HtmlMod =
       msg.asElement

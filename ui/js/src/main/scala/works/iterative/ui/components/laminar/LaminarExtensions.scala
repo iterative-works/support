@@ -3,12 +3,13 @@ package works.iterative.ui.components.laminar
 import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
 import works.iterative.core.{MessageId, UserMessage}
-import works.iterative.ui.components.ComponentContext
 import zio.IsSubtypeOfError
 import works.iterative.ui.model.Computable
 import works.iterative.core.auth.PermissionOp
 import works.iterative.core.auth.PermissionTarget
 import org.scalajs.dom
+import works.iterative.core.MessageCatalogue
+import works.iterative.ui.components.ComponentContext
 
 object LaminarExtensions
     extends I18NExtensions
@@ -38,36 +39,41 @@ trait ActionExtensions:
         case _ => None
 
 trait I18NExtensions:
+  given messageCatalogueFromContext(using
+      ctx: ComponentContext[?]
+  ): MessageCatalogue =
+    ctx.messages
+
   extension (msg: UserMessage)
-    inline def asElement(using ctx: ComponentContext[?]): HtmlElement =
+    inline def asElement(using MessageCatalogue): HtmlElement =
       span(msg.asMod)
 
     inline def asOptionalElement(using
-        ctx: ComponentContext[?]
+        messages: MessageCatalogue
     ): Option[HtmlElement] =
-      ctx.messages.get(msg).map(t => span(msgAttrs(msg.id, t)))
+      messages.get(msg).map(t => span(msgAttrs(msg.id, t)))
 
-    inline def asString(using ctx: ComponentContext[?]): String =
-      ctx.messages(msg)
+    inline def asString(using messages: MessageCatalogue): String =
+      messages(msg)
 
     inline def asOptionalString(using
-        ctx: ComponentContext[?]
+        messages: MessageCatalogue
     ): Option[String] =
-      ctx.messages.get(msg)
+      messages.get(msg)
 
-    inline def asMod(using ctx: ComponentContext[?]): Mod[HtmlElement] =
-      msgAttrs(msg.id, ctx.messages(msg))
+    inline def asMod(using messages: MessageCatalogue): Mod[HtmlElement] =
+      msgAttrs(msg.id, messages(msg))
 
     private inline def msgAttrs(id: MessageId, text: String)(using
-        cctx: ComponentContext[?]
+        messages: MessageCatalogue
     ): HtmlMod =
       nodeSeq(
         dataAttr("msgid")(id.toString()),
-        dataAttr("msgprefix")(cctx.messages.currentPrefixes.mkString(",")),
+        dataAttr("msgprefix")(messages.currentPrefixes.mkString(",")),
         text
       )
 
-  given (using ComponentContext[?]): HtmlRenderable[UserMessage] with
+  given (using MessageCatalogue): HtmlRenderable[UserMessage] with
     def toHtml(msg: UserMessage): Modifier[HtmlElement] =
       msg.asElement
 
