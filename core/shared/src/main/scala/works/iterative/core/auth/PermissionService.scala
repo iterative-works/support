@@ -8,6 +8,7 @@ import works.iterative.core.UserMessage
 opaque type PermissionOp = String
 object PermissionOp:
   def apply(op: String): PermissionOp = op
+  def unapply(op: PermissionOp): Option[String] = Some(op)
 
   extension (op: PermissionOp) def value: String = op
 
@@ -17,6 +18,13 @@ trait Targetable:
 opaque type PermissionTarget = String
 object PermissionTarget:
   given Conversion[Targetable, PermissionTarget] = _.permissionTarget
+
+  def unapply(
+      target: PermissionTarget
+  ): Option[(String, String, Option[String])] =
+    if target.contains(":") then
+      Some((target.namespace, target.value, target.rel))
+    else None
 
   def apply(target: String): Validated[PermissionTarget] =
     target.split(":", 2) match

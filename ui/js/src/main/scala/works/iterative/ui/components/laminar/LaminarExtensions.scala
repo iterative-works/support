@@ -22,12 +22,12 @@ trait ActionExtensions:
       dataAttr("action_target")(action.target.toString())
     )
 
-  extension (t: works.iterative.core.Action.type)
+  object ActionLink:
     def unapply(
         evt: org.scalajs.dom.MouseEvent
     ): Option[(PermissionOp, PermissionTarget)] =
       evt.target match
-        case t: dom.HTMLElement =>
+        case t: dom.Element =>
           t.closest("[data-action_op]") match
             case el: dom.HTMLElement =>
               for
