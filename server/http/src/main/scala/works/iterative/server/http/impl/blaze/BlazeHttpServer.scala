@@ -47,7 +47,12 @@ class BlazeHttpServer(
           )
 
       val pac4jSecurity =
-        Pac4jHttpSecurity[AppTask](pac4jConfig, contextBuilder, updateProfile)
+        Pac4jHttpSecurity[AppTask](
+          baseUri,
+          pac4jConfig,
+          contextBuilder,
+          updateProfile
+        )
 
       // TODO: remove the SecuredTask and provide just the authentication when the move to AuthenticationService is done.
       def provideCurrentUser(

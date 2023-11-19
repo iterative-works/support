@@ -19,10 +19,12 @@ import works.iterative.core.Email
 import works.iterative.core.Avatar
 import works.iterative.core.auth.*
 import org.pac4j.oidc.profile.OidcProfile
+import works.iterative.tapir.BaseUri
 
 trait HttpSecurity
 
 class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
+    baseUri: BaseUri,
     config: Pac4jSecurityConfig,
     contextBuilder: (Request[F], Config) => Http4sWebContext[F],
     updateProfile: (OidcProfile, BasicProfile) => BasicProfile
@@ -32,7 +34,7 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
 
   private val sessionConfig = SessionConfig(
     cookieName = "session",
-    mkCookie = ResponseCookie(_, _, path = Some("/")),
+    mkCookie = ResponseCookie(_, _, path = baseUri.value.map(_.toString)),
     secret = config.sessionSecret.getBytes.to(List),
     maxAge = 5.minutes
   )
