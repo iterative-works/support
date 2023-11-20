@@ -23,7 +23,10 @@ object Combobox:
     private[Combobox] val itemsVar: Var[Seq[T]] = Var[Seq[T]](Nil)
     private[Combobox] val activeVar: Var[Set[T]] = Var[Set[T]](Set.empty)
     val itemsWriter: Observer[Seq[T]] = itemsVar.writer
-    val valueWriter: Observer[Option[T]] = valueVar.writer
+    val valueWriter: Observer[Option[T]] = Observer.withRecover[Option[T]](
+      valueVar.writer.onNext,
+      { case _ => valueVar.writer.onNext(None) }
+    )
     val items: Signal[Seq[T]] = itemsVar.signal
     val value: Signal[Option[T]] = valueVar.signal.distinct
     val isOpen: Signal[Boolean] = open.signal
