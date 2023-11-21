@@ -23,7 +23,7 @@ case class Processed(
   * Service responsible for isolating the rest of the application from
   * provider-specific info, eg. pay gate adapter.
   */
-trait PayGate {
+trait PayGate:
 
   /** Check that the remote service is available and the access is working.
     *
@@ -32,21 +32,19 @@ trait PayGate {
     * pay gate side, while still validating the configuration parameters, eg.
     * authorization and such.
     */
-  def check: Task[Unit]
+  def check: UIO[Unit]
 
   /** Create the payment using API
     */
-  def create(info: PaymentInfo): Task[Created]
+  def create(info: PaymentInfo): UIO[Created]
 
-  def handleNotify(result: Seq[(String, String)]): Task[Processed]
-}
+  def handleNotify(result: Seq[(String, String)]): UIO[Processed]
 
-object PayGate {
-  def check: RIO[PayGate, Unit] = ZIO.serviceWithZIO[PayGate](_.check)
-  def create(info: PaymentInfo): RIO[PayGate, Created] =
+object PayGate:
+  def check: URIO[PayGate, Unit] = ZIO.serviceWithZIO[PayGate](_.check)
+  def create(info: PaymentInfo): URIO[PayGate, Created] =
     ZIO.serviceWithZIO[PayGate](_.create(info))
   def handleNotify(
       result: Seq[(String, String)]
-  ): RIO[PayGate, Processed] =
+  ): URIO[PayGate, Processed] =
     ZIO.serviceWithZIO[PayGate](_.handleNotify(result))
-}

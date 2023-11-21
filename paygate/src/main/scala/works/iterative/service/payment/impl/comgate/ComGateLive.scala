@@ -5,6 +5,7 @@ import zio.*
 import zio.config.*
 import sttp.client3.*
 import sttp.client3.ziojson.*
+import works.iterative.tapir.CustomTapir.*
 
 case class ComGateConfig(
     merchant: String,
@@ -16,11 +17,9 @@ case class ComGateConfig(
     merchant == this.merchant && secret == this.secret
 }
 
-case class ComGateLive(
-    backend: SttpBackend[Task, Any]
-)(implicit config: ComGateConfig)
+case class ComGateLive(backend: Backend, config: ComGateConfig)
     extends PayGate {
-  def methods: Task[MethodsResponse] = {
+  def methods: UIO[MethodsResponse] = {
     basicRequest
       .post(uri"${config.baseUrl}/methods")
       .body(
@@ -37,11 +36,11 @@ case class ComGateLive(
       }.getRight)
       .send(backend)
       .map(_.body)
-  }
+  }.orDie
 
-  override def check: Task[Unit] = methods.unit
+  override def check: UIO[Unit] = methods.unit
 
-  override def create(info: PaymentInfo): Task[Created] = {
+  override def create(info: PaymentInfo): UIO[Created] = {
     basicRequest
       .post(uri"${config.baseUrl}/create")
       .body(
@@ -73,23 +72,21 @@ case class ComGateLive(
       )
       .send(backend)
       .map(_.body)
-  }
+  }.orDie
 
-  override def handleNotify(result: Seq[(String, String)]): Task[Processed] = {
+  override def handleNotify(result: Seq[(String, String)]): UIO[Processed] = {
     PaymentResult
-      .fromParams(result)
+      .fromParams(result)(using config)
       .toZIO
       .mapBoth(
         msg => new IllegalArgumentException(msg),
         r =>
           Processed(r.transId, r.refId, r.price, r.status == PaymentStatus.Paid)
       )
-  }
+  }.orDie
 }
 
-object ComGateLive {
-  type SttpClient = SttpBackend[Task, Any]
-
+object ComGateLive:
   val DEFAULT_URL: String = "https://payments.comgate.cz/v1.0"
 
   val configDescriptor: ConfigDescriptor[ComGateConfig] = {
@@ -103,14 +100,21 @@ object ComGateLive {
   val envConfig: ZLayer[Any, ReadError[String], ComGateConfig] =
     ZConfig.fromSystemEnv(configDescriptor)
 
-  val live: URLayer[SttpClient with ComGateConfig, PayGate] =
-    ZLayer.fromFunction((b: SttpClient, c: ComGateConfig) => ComGateLive(b)(c))
+  val live: URLayer[Backend & ComGateConfig, PayGate] =
+    ZLayer {
+      for
+        c <- ZIO.service[ComGateConfig]
+        b <- ZIO.service[Backend]
+      yield ComGateLive(b, c)
+    }
 
   /*
    * A live layer that makes sure the test parameter is set, without regard for config.
    */
-  val test: URLayer[SttpClient with ComGateConfig, PayGate] =
-    ZLayer.fromFunction((b: SttpClient, c: ComGateConfig) =>
-      ComGateLive(b)(c.copy(test = true))
-    )
-}
+  val test: URLayer[Backend & ComGateConfig, PayGate] =
+    ZLayer {
+      for
+        c <- ZIO.service[ComGateConfig]
+        b <- ZIO.service[Backend]
+      yield ComGateLive(b, c.copy(test = true))
+    }
