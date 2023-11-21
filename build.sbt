@@ -38,6 +38,10 @@ lazy val codecs = crossProject(JSPlatform, JVMPlatform)
 
 lazy val `mongo-support` = project.in(file("mongo")).dependsOn(core.jvm)
 
+lazy val paygate = project
+  .in(file("paygate"))
+  .dependsOn(core.jvm, `tapir-support`.jvm)
+
 lazy val `akka-persistence-support` = project
   .in(file("akka-persistence"))
   .dependsOn(core.jvm, entity.jvm)
