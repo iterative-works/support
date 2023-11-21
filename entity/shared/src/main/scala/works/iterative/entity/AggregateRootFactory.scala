@@ -11,10 +11,12 @@ sealed trait FactoryError:
 object FactoryError:
   case class EntityAlreadyExists[Id](entityId: String, id: Id)
       extends FactoryError:
-    def userMessage = UserMessage(s"${entityId}.error.entity.exists", id)
+    def userMessage =
+      UserMessage(s"${entityId}.error.entity.exists", id.toString())
 
   case class EntityNotFound[Id](entityId: String, id: Id) extends FactoryError:
-    def userMessage = UserMessage(s"${entityId}.error.entity.not.found", id)
+    def userMessage =
+      UserMessage(s"${entityId}.error.entity.not.found", id.toString())
 
 trait AggregateRootFactory[
     Ident,

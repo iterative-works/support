@@ -1,10 +1,12 @@
 package works.iterative
 package core
 
+type MessageArg = String | Int | Long | Double | Boolean | Char
+
 // Type-wise naive solution for specifying user messages.
 // A mechanism that will check the message for correct formatting and validate parameters is needed
 // TODO: make UserMessage serializable
-case class UserMessage(id: MessageId, args: Any*):
+case class UserMessage(id: MessageId, args: MessageArg*):
   override def toString(): String =
     s"${id}[${args.mkString(", ")}]"
 

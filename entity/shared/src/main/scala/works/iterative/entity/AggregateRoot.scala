@@ -46,23 +46,29 @@ trait AggregateRootModule[Id, Command, Event, State]:
   case class UnhandledCommand(command: ARCommand, state: State)
       extends CommandError:
     val userMessage: UserMessage =
-      UserMessage("error.unhandled.command", command, state)
+      UserMessage(
+        "error.unhandled.command",
+        command.toString(),
+        state.toString()
+      )
 
   sealed trait EventError extends AggregateError
 
   case class UnhandledEvent(event: AREvent, state: State) extends EventError:
     val userMessage: UserMessage =
-      UserMessage("error.unhandled.event", event, state)
+      UserMessage("error.unhandled.event", event.toString(), state.toString())
 
   sealed trait FactoryError extends AggregateError:
     def entityId: String
     def userMessage: UserMessage
 
   case class EntityAlreadyExists(entityId: String, id: Id) extends FactoryError:
-    def userMessage = UserMessage(s"${entityId}.error.entity.exists", id)
+    def userMessage =
+      UserMessage(s"${entityId}.error.entity.exists", id.toString())
 
   case class EntityNotFound(entityId: String, id: Id) extends FactoryError:
-    def userMessage = UserMessage(s"${entityId}.error.entity.not.found", id)
+    def userMessage =
+      UserMessage(s"${entityId}.error.entity.not.found", id.toString())
 
   type ViewProcessor = works.iterative.entity.ViewProcessor[AREvent]
 
