@@ -7,7 +7,6 @@ import org.mongodb.scala.gridfs.GridFSBucket
 import zio.*
 import zio.json.*
 import works.iterative.mongo.MongoJsonFileRepository
-import FileSupport.*
 import works.iterative.core.auth.PermissionTarget
 import works.iterative.core.auth.service.AuthenticationService
 import works.iterative.core.service.FileStore.Metadata
@@ -68,6 +67,7 @@ class MongoFileStore(
       files: List[FileSupport.FileRepr],
       metadata: FileStore.Metadata
   ): UIO[List[FileRef]] =
+    import FileSupport.*
     ZIO.foreach(files)(file =>
       for
         bytes <- file.toStream.runCollect.orDie
