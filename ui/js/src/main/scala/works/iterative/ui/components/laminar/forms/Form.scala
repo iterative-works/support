@@ -3,9 +3,6 @@ package works.iterative.ui.components.laminar.forms
 import zio.prelude.Validation
 import com.raquo.laminar.api.L.*
 import works.iterative.ui.components.laminar.HtmlRenderable.given
-import magnolia1.AutoDerivation
-import magnolia1.CaseClass
-import magnolia1.SealedTrait
 
 sealed trait Form[A] extends FormBuilder[A]
 
