@@ -17,93 +17,104 @@ import works.iterative.core.service.IdGenerator
   *   Aggregate root state
   */
 trait AggregateRoot[Id, Error <: AggregateError, Command, Event, State]:
-  /** Aggregate root id */
-  def id: Id
+    /** Aggregate root id */
+    def id: Id
 
-  /** Current state */
-  def state: UIO[State]
+    /** Current state */
+    def state: UIO[State]
 
-  def handle(command: Command): IO[Error, Unit]
+    def handle(command: Command): IO[Error, Unit]
+end AggregateRoot
 
 trait AggregateRootModule[Id, Command, Event, State]:
-  final case class ARCommand(
-      id: Id,
-      command: Command,
-      record: EventRecord
-  )
+    final case class ARCommand(
+        id: Id,
+        command: Command,
+        record: EventRecord
+    )
 
-  final case class AREvent(
-      id: Id,
-      event: Event,
-      record: EventRecord
-  )
+    final case class AREvent(
+        id: Id,
+        event: Event,
+        record: EventRecord
+    )
 
-  sealed trait AggregateError:
-    def userMessage: UserMessage
+    final case class ARCommandResult(
+        originalState: State,
+        newState: State,
+        events: Seq[AREvent]
+    )
 
-  sealed trait CommandError extends AggregateError
+    sealed trait AggregateError:
+        def userMessage: UserMessage
 
-  case class UnhandledCommand(command: ARCommand, state: State)
-      extends CommandError:
-    val userMessage: UserMessage =
-      UserMessage("error.unhandled.command", command, state)
+    sealed trait CommandError extends AggregateError
 
-  sealed trait EventError extends AggregateError
+    case class UnhandledCommand(command: ARCommand, state: State)
+        extends CommandError:
+        val userMessage: UserMessage =
+            UserMessage("error.unhandled.command", command, state)
+    end UnhandledCommand
 
-  case class UnhandledEvent(event: AREvent, state: State) extends EventError:
-    val userMessage: UserMessage =
-      UserMessage("error.unhandled.event", event, state)
+    sealed trait EventError extends AggregateError
 
-  sealed trait FactoryError extends AggregateError:
-    def entityId: String
-    def userMessage: UserMessage
+    case class UnhandledEvent(event: AREvent, state: State) extends EventError:
+        val userMessage: UserMessage =
+            UserMessage("error.unhandled.event", event, state)
 
-  case class EntityAlreadyExists(entityId: String, id: Id) extends FactoryError:
-    def userMessage = UserMessage(s"${entityId}.error.entity.exists", id)
+    sealed trait FactoryError extends AggregateError:
+        def entityId: String
+        def userMessage: UserMessage
 
-  case class EntityNotFound(entityId: String, id: Id) extends FactoryError:
-    def userMessage = UserMessage(s"${entityId}.error.entity.not.found", id)
+    case class EntityAlreadyExists(entityId: String, id: Id) extends FactoryError:
+        def userMessage = UserMessage(s"${entityId}.error.entity.exists", id)
 
-  type ViewProcessor = works.iterative.entity.ViewProcessor[AREvent]
+    case class EntityNotFound(entityId: String, id: Id) extends FactoryError:
+        def userMessage = UserMessage(s"${entityId}.error.entity.not.found", id)
 
-  trait AggregateRootFactory[T <: AggregateRoot]:
-    type NotFound = EntityNotFound
-    type AlreadyExists = EntityAlreadyExists
+    type ViewProcessor = works.iterative.entity.ViewProcessor[AREvent]
 
-    protected def AlreadyExists(id: Id): AlreadyExists =
-      EntityAlreadyExists(entityId, id)
+    trait AggregateRootFactory[T <: AggregateRoot]:
+        type NotFound = EntityNotFound
+        type AlreadyExists = EntityAlreadyExists
 
-    protected def NotFound(id: Id): NotFound =
-      EntityNotFound(entityId, id)
+        protected def AlreadyExists(id: Id): AlreadyExists =
+            EntityAlreadyExists(entityId, id)
 
-    def entityId: String
-    def make(id: Id): IO[AlreadyExists, T]
-    def load(id: Id): IO[NotFound, T]
+        protected def NotFound(id: Id): NotFound =
+            EntityNotFound(entityId, id)
 
-    def loadOrMake(id: Id): UIO[T] =
-      load(id)
-        .orElse(make(id))
-        .orDieWith(_ =>
-          new RuntimeException(
-            s"Loading or making entity ${entityId} with id ${id} failed, loading fails with NotFound, making fails with AlreadyExists"
-          )
-        )
+        def entityId: String
+        def make(id: Id): IO[AlreadyExists, T]
+        def load(id: Id): IO[NotFound, T]
 
-    def make()(using idGen: IdGenerator[Id]): UIO[T] =
-      val tryToCreate = for
-        id <- idGen.nextId
-        entity <- make(id)
-      yield entity
+        def loadOrMake(id: Id): UIO[T] =
+            load(id)
+                .orElse(make(id))
+                .orDieWith: _ =>
+                    new RuntimeException(
+                        s"Loading or making entity ${entityId} with id ${id} failed, loading fails with NotFound, making fails with AlreadyExists"
+                    )
 
-      tryToCreate
-        .retryN(10)
-        .orDieWith(_ =>
-          new RuntimeException(
-            "Cannot create entity, generator failed 10 times to create new ID"
-          )
-        )
+        def make()(using idGen: IdGenerator[Id]): UIO[T] =
+            val tryToCreate =
+                for
+                    id <- idGen.nextId
+                    entity <- make(id)
+                yield entity
 
-  trait AggregateRoot:
-    def id: Id
-    def state: UIO[State]
-    def handle(command: ARCommand): IO[AggregateError, Unit]
+            tryToCreate
+                .retryN(10)
+                .orDieWith: _ =>
+                    new RuntimeException(
+                        "Cannot create entity, generator failed 10 times to create new ID"
+                    )
+        end make
+    end AggregateRootFactory
+
+    trait AggregateRoot:
+        def id: Id
+        def state: UIO[State]
+        def handle(command: ARCommand): IO[AggregateError, ARCommandResult]
+    end AggregateRoot
+end AggregateRootModule
