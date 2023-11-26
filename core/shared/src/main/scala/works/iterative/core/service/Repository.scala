@@ -27,6 +27,12 @@ trait GenericWriteRepository[Eff[_], -Key, -Value]:
     type Op[A] = Eff[A]
     def save(key: Key, value: Value): Op[Unit]
 
+trait GenericWriteRepositoryWithKeyAssignment[Eff[_], Key, -Value]:
+    type Op[A] = Eff[A]
+    def save(value: Value): Op[Key]
+    def save(value: Key => Value): Op[Key]
+end GenericWriteRepositoryWithKeyAssignment
+
 trait GenericRepository[Eff[+_], -Key, Value]
     extends GenericReadRepository[Eff, List, Key, Value, Unit]
     with GenericWriteRepository[Eff, Key, Value]
@@ -48,6 +54,13 @@ trait UpdateNotifyRepository[Key]
 trait WriteRepository[-Key, -Value]
     extends GenericWriteRepository[UIO, Key, Value]
 
+trait WriteRepositoryWithKeyAssignment[Key, -Value]
+    extends GenericWriteRepositoryWithKeyAssignment[UIO, Key, Value]
+
 trait Repository[-Key, Value, -FilterArg]
     extends ReadRepository[Key, Value, FilterArg]
     with WriteRepository[Key, Value]
+
+trait RepositoryWithKeyAssignment[Key, Value, -FilterArg]
+    extends ReadRepository[Key, Value, FilterArg]
+    with WriteRepositoryWithKeyAssignment[Key, Value]
