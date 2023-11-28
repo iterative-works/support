@@ -12,6 +12,7 @@ import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
+import org.pac4j.core.authorization.generator.FromAttributesAuthorizationGenerator
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](pac4jConfig: Pac4jSecurityConfig)
     extends ConfigFactory:
@@ -35,12 +36,10 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](pac4jConfig: Pac4jSecurityConfig)
     // oidcConfiguration.addCustomParam("prompt", "consent")
     val oidcClient = new OidcClient(oidcConfiguration)
 
-    val authorizationGenerator = new AuthorizationGenerator:
-      override def generate(
-          context: WebContext,
-          sessionStore: SessionStore,
-          profile: UserProfile
-      ): Optional[UserProfile] = Optional.of(profile)
+    val authorizationGenerator = new FromAttributesAuthorizationGenerator(
+      java.util.Arrays.asList("roles"),
+      null
+    )
 
     oidcClient.setAuthorizationGenerator(authorizationGenerator)
     oidcClient
