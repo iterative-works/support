@@ -20,7 +20,7 @@ case class Choice[A](
 ):
   def optional: Choice[Option[A]] =
     Choice[Option[A]](
-      options = None :: options.map(Some(_)),
+      options = options.map(Some(_)),
       id = _.map(id).getOrElse(""),
       label = _.map(label).getOrElse(""),
       combo = combo,
