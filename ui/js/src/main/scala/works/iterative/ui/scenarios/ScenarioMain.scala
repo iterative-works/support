@@ -23,18 +23,18 @@ trait ScenarioMain(
     @unused css: js.Any
 ) extends TailwindSupport:
 
-  val scenarioMap: Map[Scenario.Id, Scenario] =
+  private val scenarioMap: Map[Scenario.Id, Scenario] =
     scenarios.map(s => (s.id, s)).toMap
 
   val messageCatalogue: MessageCatalogue = new JsonMessageCatalogue:
     override val messages: Dictionary[String] =
       ScenarioMain.this.messages.asInstanceOf[js.Dictionary[String]]
 
-  val scenarioRoute: Route[Scenario.Id, String] =
+  private val scenarioRoute: Route[Scenario.Id, String] =
     Route.onlyFragment[Scenario.Id, String](
       identity[String],
       identity[String],
-      pattern = root / prefix / "index.html" withFragment fragment[String]
+      pattern = root / prefix withFragment fragment[String]
     )
 
   given router: Router[Scenario.Id] = Router[Scenario.Id](
