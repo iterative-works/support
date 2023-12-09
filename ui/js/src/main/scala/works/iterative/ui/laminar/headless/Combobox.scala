@@ -86,14 +86,14 @@ object Combobox:
                 .filter(v => !v)
                 .sample(ctx.value)
                 .collectSome
-                .map(displayValue) --> ctx.inputVar.writer.debugLog(),
+                .map(displayValue) --> ctx.inputVar.writer,
             EventStream.fromSeq(
                 ctx.initialValue.map(displayValue).toSeq
-            ) --> ctx.inputVar.writer.debugLog(),
+            ) --> ctx.inputVar.writer,
             // Control the input value from the inputVar
             controlled(
                 value <-- ctx.inputVar.signal,
-                onInput.mapToValue --> ctx.inputVar.writer.debugLog()
+                onInput.mapToValue --> ctx.inputVar.writer
             ),
             // Close on escape
             onKeyDown
@@ -150,7 +150,7 @@ object Combobox:
                 ctx.valueVar.writer.contramapSome,
                 ctx.open.writer.contramap(_ => false)
             ),
-            currentValue --> ctx.inputVar.writer.debugLog()
+            currentValue --> ctx.inputVar.writer
         )
     end input
 
