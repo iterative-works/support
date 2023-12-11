@@ -12,7 +12,6 @@ import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
-import org.pac4j.core.matching.matcher.PathMatcher
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](pac4jConfig: Pac4jSecurityConfig)
     extends ConfigFactory:
