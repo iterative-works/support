@@ -119,7 +119,11 @@ class BlazeHttpServer(
                             .mapK(eliminateCurrentUser)
                     }
 
-                pac4jSecurity.secure(authorizers, matchers, clients)(secureRoutes)
+                pac4jSecurity.secure(
+                    authorizers = authorizers,
+                    matchers = matchers,
+                    clients = clients
+                )(secureRoutes)
             end provideCurrentUser
 
             val publicInterpreter = new Http4sCustomTapir[Env] {}
@@ -152,9 +156,11 @@ class BlazeHttpServer(
             BlazeServerBuilder[AppTask]
                 .bindHttp(config.port, config.host)
                 .withHttpWebSocketApp(wsb =>
-                    (pac4jSecurity.route <+> pac4jSecurity.secure(authorizers, matchers, clients)(
-                        allSecuredRoutes(wsb)
-                    )).orNotFound
+                    (pac4jSecurity.route <+> pac4jSecurity.secure(
+                        authorizers = authorizers,
+                        matchers = matchers,
+                        clients = clients
+                    )(allSecuredRoutes(wsb))).orNotFound
                 )
                 .serve
                 .compile
@@ -183,9 +189,9 @@ object BlazeHttpServer:
                 baseUri,
                 updateProfile,
                 updateConfig,
-                authorizers,
-                matchers,
-                clients
+                authorizers = authorizers,
+                matchers = matchers,
+                clients = clients
             )
         }
 end BlazeHttpServer

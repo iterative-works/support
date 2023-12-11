@@ -63,7 +63,7 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
             contextBuilder,
             // TODO: this disables CSRF check, find out how to enable again
             authorizers = authorizers,
-            matchers = clients,
+            matchers = matchers,
             clients = clients
         )
 
@@ -87,5 +87,9 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
         matchers: Option[String] = None,
         clients: Option[String] = None
     ): AuthMiddleware[F, List[CommonProfile]] =
-        sessionManagement.compose(baseSecurityFilter(authorizers, matchers, clients))
+        sessionManagement.compose(baseSecurityFilter(
+            authorizers = authorizers,
+            matchers = matchers,
+            clients = clients
+        ))
 end Pac4jHttpSecurity
