@@ -12,35 +12,39 @@ import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
+import org.pac4j.core.matching.matcher.PathMatcher
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](pac4jConfig: Pac4jSecurityConfig)
     extends ConfigFactory:
 
-  override def build(parameters: AnyRef*): Config =
-    val clients = Clients(
-      s"${pac4jConfig.urlBase}/${pac4jConfig.callbackBase}/callback",
-      oidcClient()
-    )
-    val config = new Config(clients)
-    config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
-    config.setSessionStore(Http4sCacheSessionStore[F]())
-    config
+    override def build(parameters: AnyRef*): Config =
+        val clients = Clients(
+            s"${pac4jConfig.urlBase}/${pac4jConfig.callbackBase}/callback",
+            oidcClient()
+        )
+        val config = new Config(clients)
+        config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
+        config.setSessionStore(Http4sCacheSessionStore[F]())
+        config
+    end build
 
-  def oidcClient(): OidcClient =
-    val oidcConfiguration = new OidcConfiguration()
-    oidcConfiguration.setClientId(pac4jConfig.clientId)
-    oidcConfiguration.setSecret(pac4jConfig.clientSecret)
-    oidcConfiguration.setDiscoveryURI(pac4jConfig.discoveryURI)
-    oidcConfiguration.setUseNonce(true)
-    // oidcConfiguration.addCustomParam("prompt", "consent")
-    val oidcClient = new OidcClient(oidcConfiguration)
+    def oidcClient(): OidcClient =
+        val oidcConfiguration = new OidcConfiguration()
+        oidcConfiguration.setClientId(pac4jConfig.clientId)
+        oidcConfiguration.setSecret(pac4jConfig.clientSecret)
+        oidcConfiguration.setDiscoveryURI(pac4jConfig.discoveryURI)
+        oidcConfiguration.setUseNonce(true)
+        // oidcConfiguration.addCustomParam("prompt", "consent")
+        val oidcClient = new OidcClient(oidcConfiguration)
 
-    val authorizationGenerator = new AuthorizationGenerator:
-      override def generate(
-          context: WebContext,
-          sessionStore: SessionStore,
-          profile: UserProfile
-      ): Optional[UserProfile] = Optional.of(profile)
+        val authorizationGenerator = new AuthorizationGenerator:
+            override def generate(
+                context: WebContext,
+                sessionStore: SessionStore,
+                profile: UserProfile
+            ): Optional[UserProfile] = Optional.of(profile)
 
-    oidcClient.setAuthorizationGenerator(authorizationGenerator)
-    oidcClient
+        oidcClient.setAuthorizationGenerator(authorizationGenerator)
+        oidcClient
+    end oidcClient
+end Pac4jConfigFactory
