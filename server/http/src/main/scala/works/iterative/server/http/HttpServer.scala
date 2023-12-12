@@ -1,21 +1,17 @@
 package works.iterative.server.http
 
 import zio.*
-import zio.interop.catz.*
-import works.iterative.core.auth.service.AuthenticationService
 import org.http4s.HttpRoutes
+import org.http4s.server.websocket.WebSocketBuilder2
 
 trait HttpServer:
-    def serve[Env <: AuthenticationService](
-        app: HttpApplication[Env],
-        extraRoutes: HttpRoutes[RIO[Env, *]] = HttpRoutes.empty
-    ): URIO[Env, Nothing]
+    def serve[Env](app: WebSocketBuilder2[RIO[Env, *]] => HttpRoutes[RIO[Env, *]])
+        : URIO[Env, Nothing]
 end HttpServer
 
 object HttpServer:
-    def serve[Env <: AuthenticationService](
-        app: HttpApplication[Env],
-        extraRoutes: HttpRoutes[RIO[Env, *]] = HttpRoutes.empty
+    def serve[Env](
+        app: WebSocketBuilder2[RIO[Env, *]] => HttpRoutes[RIO[Env, *]]
     ): URIO[Env & HttpServer, Nothing] =
-        ZIO.serviceWithZIO[HttpServer](_.serve(app, extraRoutes))
+        ZIO.serviceWithZIO[HttpServer](_.serve(app))
 end HttpServer

@@ -12,14 +12,16 @@ import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
+import works.iterative.tapir.BaseUri
 
-class Pac4jConfigFactory[F[_] <: AnyRef: Sync](pac4jConfig: Pac4jSecurityConfig)
+class Pac4jConfigFactory[F[_] <: AnyRef: Sync](baseUri: BaseUri, pac4jConfig: Pac4jSecurityConfig)
     extends ConfigFactory:
 
     override def build(parameters: AnyRef*): Config =
         val clients = Clients(
-            s"${pac4jConfig.urlBase}/${pac4jConfig.callbackBase}/callback",
+            s"${pac4jConfig.urlBase}${baseUri.value.fold("/")(_.toString)}${pac4jConfig.callbackBase}/callback",
             oidcClient()
+            // new AnonymousClient
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
