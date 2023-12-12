@@ -14,12 +14,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import works.iterative.tapir.BaseUri
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter
-import org.pac4j.core.context.session.SessionStore
-import org.pac4j.core.profile.UserProfile
-import org.pac4j.core.context.WebContext
-import java.{util as ju}
-import org.http4s.ContextRequest
-import org.pac4j.core.profile.ProfileManager
+import org.http4s.AuthedRoutes
 
 trait HttpSecurity
 
@@ -71,7 +66,11 @@ class Pac4jHttpSecurity[Env](
     def baseSecurityFilter(
         authorizers: Option[String] = None,
         matchers: Option[String] = None,
-        clients: Option[String] = None
+        clients: Option[String] = None,
+        securityGrantedAccessAdapter: Option[AuthedRoutes[
+            List[CommonProfile],
+            AppTask
+        ] => SecurityGrantedAccessAdapter] = None
     ) = SecurityFilterMiddleware
         .securityFilter[AppTask](
             pac4jConfig,
@@ -80,26 +79,9 @@ class Pac4jHttpSecurity[Env](
             authorizers = authorizers,
             matchers = matchers,
             clients = clients,
-            securityGrantedAccessAdapter = service =>
-                new SecurityGrantedAccessAdapter:
-                    import scala.jdk.CollectionConverters.*
-                    override def adapt(
-                        context: WebContext,
-                        sessionStore: SessionStore,
-                        profiles: ju.Collection[UserProfile],
-                        parameters: AnyRef*
-                    ): AnyRef =
-                        // Get profiles from context, if any, instead of just the empty ones
-                        val manager = new ProfileManager(context, sessionStore)
-                        manager.setConfig(pac4jConfig)
-                        val sessionProfiles = manager.getProfiles()
-                        service.orNotFound(
-                            ContextRequest[AppTask, List[CommonProfile]](
-                                sessionProfiles.asScala.toList.map(_.asInstanceOf[CommonProfile]),
-                                context.asInstanceOf[Http4sWebContext[AppTask]].getRequest
-                            )
-                        )
-                    end adapt
+            securityGrantedAccessAdapter = securityGrantedAccessAdapter.getOrElse(
+                SecurityFilterMiddleware.defaultSecurityGrantedAccessAdapter
+            )
         )
 
     private val routes: HttpRoutes[AppTask] =
@@ -120,11 +102,16 @@ class Pac4jHttpSecurity[Env](
     def secure(
         authorizers: Option[String] = None,
         matchers: Option[String] = None,
-        clients: Option[String] = None
+        clients: Option[String] = None,
+        securityGrantedAccessAdapter: Option[AuthedRoutes[
+            List[CommonProfile],
+            AppTask
+        ] => SecurityGrantedAccessAdapter] = None
     ): AuthMiddleware[AppTask, List[CommonProfile]] =
         sessionManagement.compose(baseSecurityFilter(
             authorizers = authorizers,
             matchers = matchers,
-            clients = clients
+            clients = clients,
+            securityGrantedAccessAdapter = securityGrantedAccessAdapter
         ))
 end Pac4jHttpSecurity
