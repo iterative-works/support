@@ -107,6 +107,31 @@ trait JsonCodecs:
   given JsonCodec[AuthedUserInfo] = DeriveJsonCodec.gen[AuthedUserInfo]
   given JsonCodec[AuthenticationError] =
     DeriveJsonCodec.gen[AuthenticationError]
+  given JsonCodec[MessageId] =
+    JsonCodec.string.transform(MessageId(_), _.toString())
+  given JsonCodec[MessageArg] =
+    JsonCodec.string.transform(
+      input =>
+        input match
+          case i if i.startsWith("__int:")  => i.stripPrefix("__int:").toInt
+          case i if i.startsWith("__long:") => i.stripPrefix("__long:").toLong
+          case i if i.startsWith("__bool:") =>
+            i.stripPrefix("__bool:").toBoolean
+          case i if i.startsWith("__double:") =>
+            i.stripPrefix("__double:").toDouble
+          case i if i.startsWith("__char:") => i.stripPrefix("__char:").head
+          case _                            => input
+      ,
+      arg =>
+        arg match
+          case i: Int     => s"__int:$i"
+          case l: Long    => s"__long:$l"
+          case b: Boolean => s"__bool:$b"
+          case d: Double  => s"__double:$d"
+          case c: Char    => s"__char:$c"
+          case s: String  => s
+    )
+  given JsonCodec[UserMessage] = DeriveJsonCodec.gen[UserMessage]
 
 trait TapirCodecs:
   given fromValidatedStringSchema[A](using
@@ -150,6 +175,9 @@ trait TapirCodecs:
   given Schema[AccessToken] = Schema.string
   given Schema[AuthedUserInfo] = Schema.derived[AuthedUserInfo]
   given Schema[AuthenticationError] = Schema.derived[AuthenticationError]
+  given Schema[MessageId] = Schema.string
+  given Schema[MessageArg] = Schema.string
+  given Schema[UserMessage] = Schema.derived[UserMessage]
 
   given Codec[String, AccessToken, CodecFormat.TextPlain] =
     Codec.string.map(AccessToken(_))(_.token)

@@ -18,38 +18,38 @@ trait CustomTapir
     with CustomTapirPlatformSpecific
 
 object CustomTapir extends CustomTapir:
-  type ApiError[+E] = works.iterative.tapir.ApiError[E]
-  val ApiError = works.iterative.tapir.ApiError
+    type ApiError[+E] = works.iterative.tapir.ApiError[E]
+    val ApiError = works.iterative.tapir.ApiError
 
-  type ApiEndpoint[E, I, O] = works.iterative.tapir.ApiEndpoint[E, I, O]
+    type ApiEndpoint[E, I, O] = works.iterative.tapir.ApiEndpoint[E, I, O]
 
-  given apiRequestFailureCodec[E: JsonCodec]
-      : JsonCodec[ApiError.RequestFailure[E]] =
-    DeriveJsonCodec.gen
-  given apiRequestFailureSchema[E: Schema]: Schema[ApiError.RequestFailure[E]] =
-    Schema.derived
+    given apiRequestFailureCodec[E: JsonCodec]: JsonCodec[ApiError.RequestFailure[E]] =
+        DeriveJsonCodec.gen
+    given apiRequestFailureSchema[E: Schema]: Schema[ApiError.RequestFailure[E]] =
+        Schema.derived
 
-  given authenticationErrorCodec: JsonCodec[AuthenticationError] =
-    DeriveJsonCodec.gen
-  given authFailureCodec: JsonCodec[ApiError.AuthFailure] = DeriveJsonCodec.gen
-  given authenticationErrorSchema: Schema[AuthenticationError] = Schema.derived
-  given authFailureSchema: Schema[ApiError.AuthFailure] = Schema.derived
+    given authenticationErrorCodec: JsonCodec[AuthenticationError] =
+        DeriveJsonCodec.gen
+    given authFailureCodec: JsonCodec[ApiError.AuthFailure] = DeriveJsonCodec.gen
+    given authenticationErrorSchema: Schema[AuthenticationError] = Schema.derived
+    given authFailureSchema: Schema[ApiError.AuthFailure] = Schema.derived
 
-  given JsonCodec[Unit] = JsonCodec.string.transform(_ => (), _ => "")
+    given JsonCodec[Unit] = JsonCodec.string.transform(_ => (), _ => "")
 
-  extension [I, O](base: Endpoint[Unit, I, Unit, O, ZioStreams])
-    def toApi[E: JsonCodec: Schema]: ApiEndpoint[E, I, O] =
-      base
-        .securityIn(auth.bearer[AccessToken]())
-        .errorOut(
-          oneOf[ApiError[E]](
-            oneOfVariant[ApiError.AuthFailure](
-              StatusCode.Unauthorized,
-              jsonBody[ApiError.AuthFailure]
-            ),
-            oneOfDefaultVariant[ApiError.RequestFailure[E]](
-              statusCode(StatusCode.BadRequest)
-                .and(jsonBody[ApiError.RequestFailure[E]])
-            )
-          )
-        )
+    extension [I, O](base: Endpoint[Unit, I, Unit, O, ZioStreams])
+        def toApi[E: JsonCodec: Schema]: ApiEndpoint[E, I, O] =
+            base
+                .securityIn(auth.bearer[AccessToken]())
+                .errorOut(
+                    oneOf[ApiError[E]](
+                        oneOfVariant[ApiError.AuthFailure](
+                            StatusCode.Unauthorized,
+                            jsonBody[ApiError.AuthFailure]
+                        ),
+                        oneOfDefaultVariant[ApiError.RequestFailure[E]](
+                            statusCode(StatusCode.BadRequest)
+                                .and(jsonBody[ApiError.RequestFailure[E]])
+                        )
+                    )
+                )
+end CustomTapir

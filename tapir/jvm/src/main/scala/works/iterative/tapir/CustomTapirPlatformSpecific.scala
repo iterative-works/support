@@ -18,80 +18,84 @@ import works.iterative.core.auth.CurrentUser
 import works.iterative.core.auth.service.AuthenticationError
 
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
-  self: CustomTapir =>
+    self: CustomTapir =>
 
-  type Backend = SttpBackend[Task, ZioStreams & WebSockets]
+    export sttp.tapir.server.http4s.{RichHttp4sEndpoint, Context}
 
-  type ZApiEndpoint[R] = ZServerEndpoint[R & AuthenticationService, ZioStreams]
+    type Backend = SttpBackend[Task, ZioStreams & WebSockets]
 
-  private def addSession(
-      session: String
-  ): HttpClient.Builder => HttpClient.Builder =
-    _.cookieHandler(new CookieHandler {
-      override def get(
-          x: URI,
-          y: java.util.Map[String, java.util.List[String]]
-      ): java.util.Map[String, java.util.List[String]] =
-        import scala.jdk.CollectionConverters.*
-        Map(
-          "Cookie" -> List(s"pac4jSessionId=$session").asJava
-        ).asJava
-      override def put(
-          x: URI,
-          y: java.util.Map[String, java.util.List[String]]
-      ): Unit = ()
-    })
+    type ZApiEndpoint[R] = ZServerEndpoint[R & AuthenticationService, ZioStreams]
 
-  private def optionallyAddSession(
-      session: Option[String]
-  ): HttpClient.Builder => HttpClient.Builder =
-    session match {
-      case Some(s) => addSession(s)
-      case None    => identity
-    }
-
-  def clientSessionLayer(sessionId: Option[String]): TaskLayer[Backend] =
-    HttpClientZioBackend.layerUsingClient(
-      optionallyAddSession(sessionId)(
-        HttpClient
-          .newBuilder()
-          .followRedirects(HttpClient.Redirect.NEVER)
-      )
-        .build()
-    )
-
-  val clientLayer: TaskLayer[Backend] =
-    ZLayer(zio.System.env("SESSION")).flatMap(sessionId =>
-      clientSessionLayer(sessionId.get)
-    )
-
-  def makeClient[I, E, O](
-      endpoint: PublicEndpoint[I, E, O, Any]
-  )(using
-      baseUri: BaseUri,
-      backend: Backend,
-      wsToPipe: WebSocketToPipe[Any]
-  ): I => Task[O] =
-    val req = toRequestThrowErrors(endpoint, baseUri.toUri)
-    req(_)
-      .followRedirects(false)
-      .send(backend)
-      .map(_.body)
-
-  extension [E, I, O](endpoint: ApiEndpoint[E, I, O])
-    def apiLogic[R <: AuthenticationService](
-        logic: I => ZIO[R & CurrentUser, E | AuthenticationError, O]
-    ): ZServerEndpoint[R, ZioStreams] =
-      endpoint
-        .zServerSecurityLogic(_ => ZIO.unit)
-        .serverLogic(_ =>
-          (i: I) =>
-            ZIO.serviceWithZIO[AuthenticationService](
-              _.provideCurrentUser(logic(i))
-                .mapError {
-                  case a: AuthenticationError => ApiError.AuthFailure(a)
-                  // Well, we have E | AuthenticationError and we match AuthenticationError above, so what is left?
-                  case e => ApiError.RequestFailure(e.asInstanceOf[E])
-                }
-            )
+    private def addSession(
+        session: String
+    ): HttpClient.Builder => HttpClient.Builder =
+        _.cookieHandler(new CookieHandler:
+            override def get(
+                x: URI,
+                y: java.util.Map[String, java.util.List[String]]
+            ): java.util.Map[String, java.util.List[String]] =
+                import scala.jdk.CollectionConverters.*
+                Map(
+                    "Cookie" -> List(s"pac4jSessionId=$session").asJava
+                ).asJava
+            end get
+            override def put(
+                x: URI,
+                y: java.util.Map[String, java.util.List[String]]
+            ): Unit = ()
         )
+
+    private def optionallyAddSession(
+        session: Option[String]
+    ): HttpClient.Builder => HttpClient.Builder =
+        session match
+        case Some(s) => addSession(s)
+        case None    => identity
+
+    def clientSessionLayer(sessionId: Option[String]): TaskLayer[Backend] =
+        HttpClientZioBackend.layerUsingClient(
+            optionallyAddSession(sessionId)(
+                HttpClient
+                    .newBuilder()
+                    .followRedirects(HttpClient.Redirect.NEVER)
+            )
+                .build()
+        )
+
+    val clientLayer: TaskLayer[Backend] =
+        ZLayer(zio.System.env("SESSION")).flatMap(sessionId =>
+            clientSessionLayer(sessionId.get)
+        )
+
+    def makeClient[I, E, O](
+        endpoint: PublicEndpoint[I, E, O, Any]
+    )(using
+        baseUri: BaseUri,
+        backend: Backend,
+        wsToPipe: WebSocketToPipe[Any]
+    ): I => Task[O] =
+        val req = toRequestThrowErrors(endpoint, baseUri.toUri)
+        req(_)
+            .followRedirects(false)
+            .send(backend)
+            .map(_.body)
+    end makeClient
+
+    extension [E, I, O](endpoint: ApiEndpoint[E, I, O])
+        def apiLogic[R <: AuthenticationService](
+            logic: I => ZIO[R & CurrentUser, E | AuthenticationError, O]
+        ): ZServerEndpoint[R, ZioStreams] =
+            endpoint
+                .zServerSecurityLogic(_ => ZIO.unit)
+                .serverLogic(_ =>
+                    (i: I) =>
+                        ZIO.serviceWithZIO[AuthenticationService](
+                            _.provideCurrentUser(logic(i))
+                                .mapError {
+                                    case a: AuthenticationError => ApiError.AuthFailure(a)
+                                    // Well, we have E | AuthenticationError and we match AuthenticationError above, so what is left?
+                                    case e => ApiError.RequestFailure(e.asInstanceOf[E])
+                                }
+                        )
+                )
+end CustomTapirPlatformSpecific

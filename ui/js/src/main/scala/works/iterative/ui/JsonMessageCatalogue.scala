@@ -22,3 +22,8 @@ trait JsonMessageCatalogue extends MessageCatalogue:
         identity
       )
     )
+
+object JsonMessageCatalogue:
+    def apply(msgs: js.Dictionary[String]): JsonMessageCatalogue =
+        new JsonMessageCatalogue:
+          override def messages: js.Dictionary[String] = msgs

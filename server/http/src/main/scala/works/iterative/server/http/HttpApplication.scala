@@ -7,10 +7,10 @@ import sttp.capabilities.WebSockets
 
 final case class HttpApplication[Env](
     secureEndpoints: List[
-      ZServerEndpoint[Env & CurrentUser, ZioStreams]
+        ZServerEndpoint[Env & CurrentUser, ZioStreams]
     ],
     publicEndpoints: List[ZServerEndpoint[Env, ZioStreams]],
     wsEndpoints: List[
-      ZServerEndpoint[Env, ZioStreams & WebSockets]
+        ZServerEndpoint[Env, ZioStreams & WebSockets]
     ] = Nil
 )

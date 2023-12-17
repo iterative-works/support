@@ -22,7 +22,7 @@
         };
       in { devShell = with pkgs;
           mkShell {
-            buildInputs = [ jre ammonite coursier bloop sbt scalafmt yarn ];
+            buildInputs = [ jre ammonite coursier sbt scalafmt yarn ];
           };
       });
 }
