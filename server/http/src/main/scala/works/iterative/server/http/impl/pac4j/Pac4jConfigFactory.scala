@@ -8,9 +8,18 @@ import org.pac4j.http4s.{DefaultHttpActionAdapter, Http4sCacheSessionStore}
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
 import works.iterative.tapir.BaseUri
+import org.pac4j.core.authorization.generator.AuthorizationGenerator
+import org.pac4j.core.context.WebContext
+import org.pac4j.core.context.session.SessionStore
+import org.pac4j.core.profile.UserProfile
+import java.util.Optional
 
-class Pac4jConfigFactory[F[_] <: AnyRef: Sync](baseUri: BaseUri, pac4jConfig: Pac4jSecurityConfig, authorizationGenerator: AuthorizationGenerator = Pac4jConfigFactory.defaultAuthorizationGenerator)
-    extends ConfigFactory:
+class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
+    baseUri: BaseUri,
+    pac4jConfig: Pac4jSecurityConfig,
+    authorizationGenerator: AuthorizationGenerator =
+        Pac4jConfigFactory.defaultAuthorizationGenerator
+) extends ConfigFactory:
 
     override def build(parameters: AnyRef*): Config =
         val clients = Clients(
