@@ -29,7 +29,7 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
 lazy val `autocomplete` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("autocomplete"))
-    .dependsOn(core, `tapir-support`)
+    .dependsOn(core, `tapir-support`, ui)
 
 lazy val hashicorp = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
