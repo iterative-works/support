@@ -7,7 +7,8 @@ import CustomTapir.*
 
 trait AuthenticationEndpoints(base: BaseEndpoint):
 
-  val currentUser: Endpoint[Unit, Unit, Unit, Option[AuthedUserInfo], Any] =
-    base.get
-      .in("user" / "me")
-      .out(jsonBody[Option[AuthedUserInfo]])
+    val currentUser: Endpoint[Unit, Unit, Unit, Option[AuthedUserInfo], Any] =
+        base.get
+            .in("user" / "me")
+            .out(jsonBody[Option[AuthedUserInfo]])
+end AuthenticationEndpoints

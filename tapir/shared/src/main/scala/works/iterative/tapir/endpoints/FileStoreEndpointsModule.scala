@@ -9,26 +9,26 @@ import works.iterative.tapir.codecs.Codecs.given
 import sttp.model.Part
 
 class FileStoreEndpointsModule(base: BaseEndpoint):
-  final case class FileMetadataUpdate(
-      urls: List[String],
-      metadata: FileStore.Metadata
-  ) derives JsonCodec,
-        Schema
+    final case class FileMetadataUpdate(
+        urls: List[String],
+        metadata: FileStore.Metadata
+    ) derives JsonCodec, Schema
 
-  val store: Endpoint[Unit, Seq[Part[Array[Byte]]], Unit, List[FileRef], Any] =
-    base.post
-      .in("file")
-      .in(multipartBody)
-      .out(jsonBody[List[FileRef]])
+    val store: Endpoint[Unit, Seq[Part[Array[Byte]]], Unit, List[FileRef], Any] =
+        base.post
+            .in("file")
+            .in(multipartBody)
+            .out(jsonBody[List[FileRef]])
 
-  val update: Endpoint[Unit, FileMetadataUpdate, Unit, Unit, Any] =
-    base.patch
-      .in("file")
-      .in(jsonBody[FileMetadataUpdate])
-      .out(statusCode(StatusCode.Accepted))
+    val update: Endpoint[Unit, FileMetadataUpdate, Unit, Unit, Any] =
+        base.patch
+            .in("file")
+            .in(jsonBody[FileMetadataUpdate])
+            .out(statusCode(StatusCode.Accepted))
 
-  val load: Endpoint[Unit, List[String], String, Array[Byte], Any] =
-    base.get
-      .in("file" / paths)
-      .out(byteArrayBody)
-      .errorOut(statusCode(StatusCode.NotFound).and(stringBody))
+    val load: Endpoint[Unit, List[String], String, Array[Byte], Any] =
+        base.get
+            .in("file" / paths)
+            .out(byteArrayBody)
+            .errorOut(statusCode(StatusCode.NotFound).and(stringBody))
+end FileStoreEndpointsModule
