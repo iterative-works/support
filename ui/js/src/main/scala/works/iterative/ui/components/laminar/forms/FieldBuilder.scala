@@ -7,7 +7,6 @@ import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.FileList
 import works.iterative.core.{FileSupport, UserMessage, Validated}
 import zio.prelude.Validation
-
 import scala.util.NotGiven
 
 case class Choice[A](

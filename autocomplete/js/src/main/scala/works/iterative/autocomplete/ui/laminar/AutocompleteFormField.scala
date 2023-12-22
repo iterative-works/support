@@ -10,7 +10,7 @@ import com.raquo.laminar.nodes.TextNode
 class AutocompleteFormField(
     fieldId: String,
     fieldName: String,
-    handler: AutocompleteHandler,
+    query: AutocompleteQuery,
     strict: Boolean = true,
     initialValue: Option[String] = None,
     inError: Signal[Boolean] = Val(false),
@@ -19,6 +19,8 @@ class AutocompleteFormField(
 )(using cs: AutocompleteViews):
 
     private val selectedValue: Var[Option[AutocompleteEntry]] = Var(None)
+
+    val value: Signal[Option[String]] = selectedValue.signal.map(_.map(_.value))
 
     val element: HtmlElement =
         val (source, sink) = EventStream.withObserver[Seq[AutocompleteEntry]]
@@ -47,11 +49,11 @@ class AutocompleteFormField(
                         v.label,
                         v.text.map(TextNode(_))
                     ),
-                Combobox.ctx.query.changes.throttle(1000, false).flatMap(handler.find) --> sink,
+                Combobox.ctx.query.changes.throttle(1000, false).flatMap(query.find) --> sink,
                 source --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
-                values.flatMap(v => handler.load(v).map(v -> _)).collectOpt {
+                values.flatMap(v => query.load(v).map(v -> _)).collectOpt {
                     // Do not reset value if it is not found, if not strict
                     case (v, None) if !strict =>
                         Some(Some(AutocompleteEntry(v, v, None, Map.empty)))
