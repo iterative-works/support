@@ -29,7 +29,11 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
-        config.setSessionStore(Http4sCacheSessionStore[F]())
+        config.setSessionStore(Http4sCacheSessionStore[F](
+            path = Some(baseUri.value.fold("/")(_.toString)),
+            secure = pac4jConfig.callbackBase.startsWith("https://"),
+            httpOnly = true
+        ))
         config
     end build
 
