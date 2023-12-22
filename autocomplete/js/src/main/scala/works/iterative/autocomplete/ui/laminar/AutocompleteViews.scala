@@ -1,4 +1,4 @@
-package works.iterative.autocomplete.ui
+package works.iterative.autocomplete.ui.laminar
 
 import com.raquo.laminar.api.L.*
 import works.iterative.ui.laminar.InputFieldViews

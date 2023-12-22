@@ -1,18 +1,16 @@
-package works.iterative.autocomplete.ui
+package works.iterative.autocomplete
+package ui
+package laminar
 
 import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
 import works.iterative.ui.laminar.headless.Combobox
 import com.raquo.laminar.nodes.TextNode
-import works.iterative.autocomplete.AutocompleteEntry
 
 class AutocompleteFormField(
     fieldId: String,
     fieldName: String,
-    // Find by label
-    find: String => EventStream[Seq[AutocompleteEntry]],
-    // Load by value, used when setting from outside
-    load: String => EventStream[Option[AutocompleteEntry]],
+    handler: AutocompleteHandler,
     strict: Boolean = true,
     initialValue: Option[String] = None,
     inError: Signal[Boolean] = Val(false),
@@ -49,11 +47,11 @@ class AutocompleteFormField(
                         v.label,
                         v.text.map(TextNode(_))
                     ),
-                Combobox.ctx.query.changes.throttle(1000, false).flatMap(find) --> sink,
+                Combobox.ctx.query.changes.throttle(1000, false).flatMap(handler.find) --> sink,
                 source --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
-                values.flatMap(v => load(v).map(v -> _)).collectOpt {
+                values.flatMap(v => handler.load(v).map(v -> _)).collectOpt {
                     // Do not reset value if it is not found, if not strict
                     case (v, None) if !strict =>
                         Some(Some(AutocompleteEntry(v, v, None, Map.empty)))
