@@ -5,6 +5,7 @@ import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
 import zio.prelude.Validation
 import works.iterative.ui.components.ComponentContext
+import works.iterative.ui.laminar.given 
 
 trait FormBuilderModule:
   def buildForm[A](

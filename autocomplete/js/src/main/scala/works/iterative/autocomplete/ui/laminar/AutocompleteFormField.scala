@@ -20,7 +20,8 @@ class AutocompleteFormField(
 
     private val selectedValue: Var[Option[AutocompleteEntry]] = Var(None)
 
-    val value: Signal[Option[String]] = selectedValue.signal.map(_.map(_.value))
+    val entry: Signal[Option[AutocompleteEntry]] = selectedValue.signal
+    val value: Signal[Option[String]] = entry.map(_.map(_.value))
 
     val element: HtmlElement =
         val (source, sink) = EventStream.withObserver[Seq[AutocompleteEntry]]

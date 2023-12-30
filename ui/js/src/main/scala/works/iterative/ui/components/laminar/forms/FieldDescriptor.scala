@@ -1,7 +1,6 @@
 package works.iterative.ui.components.laminar.forms
 
-import works.iterative.core.PlainMultiLine
-import works.iterative.ui.components.ComponentContext
+import works.iterative.core.{MessageCatalogue, PlainMultiLine}
 
 trait FieldDescriptor:
     def id: FieldId
@@ -13,14 +12,12 @@ trait FieldDescriptor:
 end FieldDescriptor
 
 object FieldDescriptor:
-    def apply(fieldId: FieldId)(using ctx: ComponentContext[?]): FieldDescriptor =
+    def apply(fieldId: FieldId)(using messages: MessageCatalogue): FieldDescriptor =
         new FieldDescriptor:
             override def id: FieldId = fieldId
             override def idString: String = fieldId
             override def name: String = fieldId
-            override def label: String = ctx.messages(fieldId)
-            override def help: Option[PlainMultiLine] =
-                ctx.messages.get(fieldId + ".help")
-            override def placeholder: Option[String] =
-                ctx.messages.get(fieldId + ".placeholder")
+            override def label: String = messages(fieldId)
+            override def help: Option[PlainMultiLine] = messages.get(fieldId + ".help")
+            override def placeholder: Option[String] = messages.get(fieldId + ".placeholder")
 end FieldDescriptor

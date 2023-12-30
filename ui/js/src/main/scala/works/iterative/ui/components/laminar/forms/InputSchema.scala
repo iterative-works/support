@@ -26,9 +26,9 @@ object InputSchema:
             override def encode(a: A): String = encodeF(a)
             override def decode(s: String): Validated[A] = decodeF(s)
 
-    def fromValidatedString[A](
+    private def fromValidatedString[A](
         factory: ValidatedStringFactory[A]
-    ): InputSchema[A] = new InputSchema:
+    ): InputSchema[A] = new InputSchema[A]:
         override def encode(a: A): String = factory.getter(a)
         override def decode(s: String): Validated[A] = factory(s)
 

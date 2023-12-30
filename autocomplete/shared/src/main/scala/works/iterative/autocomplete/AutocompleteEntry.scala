@@ -6,3 +6,6 @@ final case class AutocompleteEntry(
     text: Option[String] = None,
     data: Map[String, String] = Map.empty
 )
+
+object AutocompleteEntry:
+    def string(value: String): AutocompleteEntry = AutocompleteEntry(value, value, None, Map.empty)

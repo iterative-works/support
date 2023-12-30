@@ -3,11 +3,13 @@ package works.iterative.autocomplete.ui.laminar
 import works.iterative.ui.components.laminar.forms.*
 import zio.prelude.Validation
 
-object AutocompleteFieldBuilder:
-    given autocompleteInput[A: AutocompleteHandler](using
-        AutocompleteViews
-    ): FieldBuilder[A] =
-        val handler = summon[AutocompleteHandler[A]]
+class AutocompleteFieldBuilder(views: AutocompleteViews, registry: AutocompleteRegistry):
+    private def valueOf[A](a: A)(using codec: AutocompleteCodec[A]): String =
+        codec.encode(a) match
+        case Left(v)  => v
+        case Right(a) => a.value
+
+    given autocompleteInput[A](using codec: AutocompleteCodec[A]): FieldBuilder[A] =
         new FieldBuilder[A]:
             override def required: Boolean = true
             override def build(
@@ -16,17 +18,16 @@ object AutocompleteFieldBuilder:
             ): FormComponent[A] =
                 AutocompleteInput[A](
                     desc,
-                    initialValue.map(handler.encode),
-                    handler,
-                    Validations.requiredA(desc.label)(_).flatMap(handler.decode)
-                )
+                    initialValue.map(valueOf),
+                    registry.queryFor(desc.id),
+                    Validations.requiredA(desc.label)(_).flatMap(codec.decode)
+                )(using views)
         end new
     end autocompleteInput
 
-    given optionalAutocompleteInput[A: AutocompleteHandler, B](using ev: B <:< Option[A])(using
-        AutocompleteViews
+    given optionalAutocompleteInput[A, B](using ev: B <:< Option[A])(using
+        codec: AutocompleteCodec[A]
     ): FieldBuilder[Option[A]] =
-        val handler = summon[AutocompleteHandler[A]]
         new FieldBuilder[Option[A]]:
             override def required: Boolean = false
             override def build(
@@ -35,13 +36,13 @@ object AutocompleteFieldBuilder:
             ): FormComponent[Option[A]] =
                 AutocompleteInput[Option[A]](
                     desc,
-                    initialValue.flatten.map(handler.encode),
-                    handler,
+                    initialValue.flatten.map(valueOf),
+                    registry.queryFor(desc.id),
                     {
-                        case Some(s) if s.trim.nonEmpty => handler.decode(s).map(Some(_))
-                        case _                          => Validation.succeed(None)
+                        case Some(s) => codec.decode(s).map(Some(_))
+                        case _       => Validation.succeed(None)
                     }
-                )
+                )(using views)
         end new
     end optionalAutocompleteInput
 end AutocompleteFieldBuilder

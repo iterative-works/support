@@ -6,9 +6,10 @@ import java.net.URI
 opaque type Avatar = String
 
 object Avatar extends ValidatedStringFactory[Avatar](a => a):
-  def apply(avatar: String): Validated[Avatar] =
-    Validated.nonEmptyString("avatar")(avatar)
-  def apply(avatar: URI): Validated[Avatar] =
-    Validated.nonNull("avatar")(avatar).flatMap(a => apply(a.toString))
+    def apply(avatar: String): Validated[Avatar] =
+        Validated.nonEmptyString("avatar")(avatar)
+    def apply(avatar: URI): Validated[Avatar] =
+        Validated.nonNull("avatar")(avatar).flatMap(a => apply(a.toString))
 
-  extension (a: Avatar) def url: String = a
+    extension (a: Avatar) def url: String = a
+end Avatar
