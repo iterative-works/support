@@ -24,7 +24,7 @@ object MongoConfig:
   val fromEnv = ZConfig.fromSystemEnv(
     configDesc,
     keyDelimiter = Some('_'),
-    valueDelimiter = Some(',')
+    valueDelimiter = None
   )
 
 extension (m: MongoClient.type)
