@@ -4,6 +4,7 @@ import zio.*
 import works.iterative.event.EventRecord
 import works.iterative.core.UserMessage
 import works.iterative.core.service.IdGenerator
+import works.iterative.core.MessageId
 
 /** Represents aggregate root in DDD
   *
@@ -55,6 +56,12 @@ trait AggregateRootModule[Id, Command, Event, State]:
         val userMessage: UserMessage =
             UserMessage("error.unhandled.command", command.toString(), state.toString())
     end UnhandledCommand
+
+    case class InvalidCommand(command: ARCommand, state: State, messageId: MessageId)
+        extends CommandError:
+        val userMessage: UserMessage =
+            UserMessage(messageId, command.toString(), state.toString())
+    end InvalidCommand
 
     sealed trait EventError extends AggregateError
 
