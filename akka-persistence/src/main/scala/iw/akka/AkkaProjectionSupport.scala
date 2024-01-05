@@ -17,59 +17,64 @@ import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
 import works.iterative.entity.ViewProcessor
 
 object AkkaProjectionSupport:
-  def runSingle[E](
-      projectionName: String,
-      projectionKey: String,
-      tag: String,
-      processor: ViewProcessor[E]
-  ): ZIO[AkkaActorSystem, Throwable, Unit] =
-    ZIO.serviceWith[AkkaActorSystem](_.system).flatMap { system =>
-      given ActorSystem[?] = system
-      for
-        given Runtime[Any] <- ZIO.runtime[Any]
-        sourceProvider <- ZIO
-          .attempt[SourceProvider[Offset, EventEnvelope[E]]] {
-            EventSourcedProvider.eventsByTag[E](
-              system,
-              readJournalPluginId = JdbcReadJournal.Identifier,
-              tag = tag
-            )
-          }
-        dbConfig <- ZIO.attempt[DatabaseConfig[MySQLProfile]] {
-          DatabaseConfig.forConfig(
-            "projection.slick",
-            system.settings.config
-          )
+    def runSingle[E, J](
+        projectionName: String,
+        projectionKey: String,
+        tag: String,
+        processor: ViewProcessor[E],
+        transform: J => E
+    ): ZIO[AkkaActorSystem, Throwable, Unit] =
+        ZIO.serviceWith[AkkaActorSystem](_.system).flatMap { system =>
+            given ActorSystem[?] = system
+            for
+                given Runtime[Any] <- ZIO.runtime[Any]
+                sourceProvider <- ZIO
+                    .attempt[SourceProvider[Offset, EventEnvelope[J]]] {
+                        EventSourcedProvider.eventsByTag[J](
+                            system,
+                            readJournalPluginId = JdbcReadJournal.Identifier,
+                            tag = tag
+                        )
+                    }
+                dbConfig <- ZIO.attempt[DatabaseConfig[MySQLProfile]] {
+                    DatabaseConfig.forConfig(
+                        "projection.slick",
+                        system.settings.config
+                    )
+                }
+                proj <- ZIO.attempt {
+                    SlickProjection.exactlyOnce(
+                        projectionId = ProjectionId(projectionName, projectionKey),
+                        sourceProvider,
+                        dbConfig,
+                        handler = () => new ProjectionHandler(dbConfig, processor, transform)
+                    )
+                }
+                _ <- ZIO.attempt {
+                    ShardedDaemonProcess(system).init[ProjectionBehavior.Command](
+                        name = s"$projectionName-$projectionKey",
+                        numberOfInstances = 1,
+                        behaviorFactory = _ => ProjectionBehavior(proj),
+                        stopMessage = ProjectionBehavior.Stop
+                    )
+                }
+            yield ()
+            end for
         }
-        proj <- ZIO.attempt {
-          SlickProjection.exactlyOnce(
-            projectionId = ProjectionId(projectionName, projectionKey),
-            sourceProvider,
-            dbConfig,
-            handler = () => new ProjectionHandler(dbConfig, processor)
-          )
-        }
-        _ <- ZIO.attempt {
-          ShardedDaemonProcess(system).init[ProjectionBehavior.Command](
-            name = s"$projectionName-$projectionKey",
-            numberOfInstances = 1,
-            behaviorFactory = _ => ProjectionBehavior(proj),
-            stopMessage = ProjectionBehavior.Stop
-          )
-        }
-      yield ()
-    }
+end AkkaProjectionSupport
 
-class ProjectionHandler[E](
+class ProjectionHandler[E, J](
     dbConfig: DatabaseConfig[MySQLProfile],
-    processor: ViewProcessor[E]
+    processor: ViewProcessor[E],
+    transform: J => E
 )(using runtime: Runtime[Any])
-    extends SlickHandler[EventEnvelope[E]]():
-  import dbConfig.profile.api.*
+    extends SlickHandler[EventEnvelope[J]]():
+    import dbConfig.profile.api.*
 
-  override def process(envelope: EventEnvelope[E]): DBIO[Done] =
-    DBIO.from(
-      Unsafe.unsafe(implicit unsafe =>
-        runtime.unsafe.runToFuture(processor.process(envelope.event).as(Done))
-      )
-    )
+    override def process(envelope: EventEnvelope[J]): DBIO[Done] =
+        DBIO.from(
+            Unsafe.unsafe(implicit unsafe =>
+                runtime.unsafe.runToFuture(processor.process(transform(envelope.event)).as(Done))
+            )
+        )
+end ProjectionHandler
