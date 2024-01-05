@@ -5,6 +5,7 @@ import works.iterative.event.EventRecord
 import works.iterative.core.UserMessage
 import works.iterative.core.service.IdGenerator
 import works.iterative.core.MessageId
+import works.iterative.core.auth.CurrentUser
 
 /** Represents aggregate root in DDD
   *
@@ -41,6 +42,7 @@ trait AggregateRootModule[Id, Command, Event, State]:
     )
 
     final case class ARCommandResult(
+        command: ARCommand,
         originalState: State,
         newState: State,
         events: Seq[AREvent]
@@ -124,4 +126,27 @@ trait AggregateRootModule[Id, Command, Event, State]:
         def state: UIO[State]
         def handle(command: ARCommand): IO[AggregateError, ARCommandResult]
     end AggregateRoot
+
+    trait EntityCreateService[Init]:
+        type Op[A] = ZIO[CurrentUser, AggregateError, A]
+
+        def create(initData: Init): Op[Id]
+    end EntityCreateService
+
+    trait EntityUpdateService:
+        type Op[A] = ZIO[CurrentUser, AggregateError, A]
+
+        def update(id: Id, command: Command): Op[Unit]
+    end EntityUpdateService
+
+    trait EntityService[Init]
+        extends EntityCreateService[Init]
+        with EntityUpdateService
+    end EntityService
+
+    trait EntityServiceAccessor[R]:
+        type Op[A] = ZIO[CurrentUser & R, AggregateError, A]
+        inline def delegate[A](inline f: R => ZIO[CurrentUser, AggregateError, A]): Op[A] =
+            ZIO.serviceWithZIO[R](f)
+    end EntityServiceAccessor
 end AggregateRootModule

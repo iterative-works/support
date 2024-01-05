@@ -4,19 +4,22 @@ import zio.*
 import works.iterative.core.auth.CurrentUser
 
 trait EntityUpdateService[Id, Command, Error <: AggregateError]:
-  type Op[A] = ZIO[CurrentUser, Error, A]
+    type Op[A] = ZIO[CurrentUser, Error, A]
 
-  def update(id: Id, command: Command): Op[Unit]
+    def update(id: Id, command: Command): Op[Unit]
+end EntityUpdateService
 
 trait EntityCreateService[Id, Init, Error <: AggregateError]:
-  type Op[A] = ZIO[CurrentUser, Error, A]
+    type Op[A] = ZIO[CurrentUser, Error, A]
 
-  def create(initData: Init): Op[Id]
+    def create(initData: Init): Op[Id]
+end EntityCreateService
 
 trait EntityCreateWithIdService[Id, Init, Error <: AggregateError]:
-  type Op[A] = ZIO[CurrentUser, Error, A]
+    type Op[A] = ZIO[CurrentUser, Error, A]
 
-  def create(id: Id, initData: Init): Op[Id]
+    def create(id: Id, initData: Init): Op[Id]
+end EntityCreateWithIdService
 
 trait EntityService[Id, Command, Error <: AggregateError, Init <: Command]
     extends EntityCreateService[Id, Init, Error]
