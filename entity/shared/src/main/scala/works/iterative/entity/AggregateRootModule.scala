@@ -6,10 +6,11 @@ import works.iterative.core.MessageId
 trait AggregateRootModule[Id, Command, Event, State]:
     type ARCommand = works.iterative.entity.ARCommand[Id, Command]
     def ARCommand(id: Id, command: Command, record: EventRecord): ARCommand =
-        ARCommand(id, command, record)
+        works.iterative.entity.ARCommand(id, command, record)
 
     type AREvent = works.iterative.entity.AREvent[Id, Event]
-    def AREvent(id: Id, event: Event, record: EventRecord): AREvent = AREvent(id, event, record)
+    def AREvent(id: Id, event: Event, record: EventRecord): AREvent =
+        works.iterative.entity.AREvent(id, event, record)
 
     type ARCommandResult = works.iterative.entity.ARCommandResult[Id, Command, Event, State]
     def ARCommandResult(
@@ -18,30 +19,30 @@ trait AggregateRootModule[Id, Command, Event, State]:
         newState: State,
         events: Seq[AREvent]
     ): ARCommandResult =
-        ARCommandResult(command, originalState, newState, events)
+        works.iterative.entity.ARCommandResult(command, originalState, newState, events)
 
     type AggregateError = works.iterative.entity.AggregateError[Id, Command, Event, State]
 
     type CommandError = works.iterative.entity.CommandError[Id, Command, Event, State]
     type UnhandledCommand = works.iterative.entity.UnhandledCommand[Id, Command, Event, State]
     def UnhandledCommand(command: ARCommand, state: State): UnhandledCommand =
-        UnhandledCommand(command, state)
+        works.iterative.entity.UnhandledCommand(command, state)
     type InvalidCommand = works.iterative.entity.InvalidCommand[Id, Command, Event, State]
     def InvalidCommand(command: ARCommand, state: State, messageId: MessageId): InvalidCommand =
-        InvalidCommand(command, state, messageId)
+        works.iterative.entity.InvalidCommand(command, state, messageId)
 
     type EventError = works.iterative.entity.EventError[Id, Command, Event, State]
     type UnhandledEvent = works.iterative.entity.UnhandledEvent[Id, Command, Event, State]
     def UnhandledEvent(event: AREvent, state: State): UnhandledEvent =
-        UnhandledEvent(event, state)
+        works.iterative.entity.UnhandledEvent(event, state)
 
     type FactoryError = works.iterative.entity.FactoryError[Id, Command, Event, State]
     type EntityNotFound = works.iterative.entity.EntityNotFound[Id, Command, Event, State]
     def EntityNotFound(entityId: String, id: Id): EntityNotFound =
-        EntityNotFound(entityId, id)
+        works.iterative.entity.EntityNotFound(entityId, id)
     type EntityAlreadyExists = works.iterative.entity.EntityAlreadyExists[Id, Command, Event, State]
     def EntityAlreadyExists(entityId: String, id: Id): EntityAlreadyExists =
-        EntityAlreadyExists(entityId, id)
+        works.iterative.entity.EntityAlreadyExists(entityId, id)
 
     type ViewProcessor = works.iterative.entity.ViewProcessor[AREvent]
     type AggregateRoot = works.iterative.entity.AggregateRoot[Id, Command, Event, State]
