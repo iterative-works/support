@@ -4,7 +4,6 @@ import zio.*
 import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.*
 import zio.json.*
-import works.iterative.app.Connector
 
 class Routes[P: JsonCodec](
     baseUrl: String,

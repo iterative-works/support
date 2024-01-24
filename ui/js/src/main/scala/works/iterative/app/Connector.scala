@@ -11,7 +11,7 @@ trait Connector[Env, P]:
     def connect(
         render: PageRender[P]
     )(using Router[P], MessageCatalogue): URIO[Env, PageRender[P]]
-    def routes(base: String): List[Route[P, ?]] = Nil
+    def routes(base: String): List[Route[? <: P, ?]] = Nil
     def breadcrumbs: PartialFunction[P, List[(UserMessage, P)]] =
         PartialFunction.empty
     def appMods: HtmlMod = emptyMod

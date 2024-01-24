@@ -8,11 +8,6 @@ import org.scalajs.dom
 import com.raquo.waypoint.SplitRender
 import works.iterative.core.MessageCatalogue
 import works.iterative.ui.services.UserNotificationService
-import works.iterative.app.AppConfig
-import works.iterative.app.AppExtensionService
-import works.iterative.app.AppShellFactory
-import works.iterative.app.Connector
-import works.iterative.app.Connectors
 import works.iterative.app.PageRender
 
 trait LaminarApp:

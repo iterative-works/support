@@ -1,5 +1,4 @@
 package works.iterative.app
-import works.iterative.app.Connector
 
 trait Connectors[Env, P]:
     def make: List[Connector[Env, P]]

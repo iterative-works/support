@@ -2,7 +2,6 @@ package works.iterative.app
 
 import zio.*
 import com.raquo.laminar.api.L.*
-import works.iterative.app.{AppExtension, AppExtensionService}
 
 class LiveAppExtensionService(ref: Ref[Vector[AppExtension]])
     extends AppExtensionService:
