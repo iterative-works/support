@@ -22,7 +22,6 @@ class AutocompleteInput[A](
             query,
             initialValue = initialValue,
             inError = inError.signal && touched.signal,
-            strict = true,
             rawInput = EventStream.fromSeq(initialValue.toSeq),
             inputFieldMod = onBlur.mapTo(true) --> touched.writer
         )
