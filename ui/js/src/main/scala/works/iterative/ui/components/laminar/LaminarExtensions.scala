@@ -2,14 +2,12 @@ package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.*
 import io.laminext.syntax.core.*
-import works.iterative.core.{MessageId, UserMessage}
+import works.iterative.core.UserMessage
 import zio.IsSubtypeOfError
 import works.iterative.ui.model.Computable
 import works.iterative.core.auth.PermissionOp
 import works.iterative.core.auth.PermissionTarget
 import org.scalajs.dom
-import works.iterative.core.MessageCatalogue
-import works.iterative.ui.components.ComponentContext
 
 object LaminarExtensions
     extends I18NExtensions
@@ -39,47 +37,6 @@ trait ActionExtensions:
             case _ => None
     end ActionLink
 end ActionExtensions
-
-trait I18NExtensions:
-    given messageCatalogueFromContext(using
-        ctx: ComponentContext[?]
-    ): MessageCatalogue =
-        ctx.messages
-
-    extension (msg: UserMessage)
-        inline def asElement(using MessageCatalogue): HtmlElement =
-            span(msg.asMod)
-
-        inline def asOptionalElement(using
-            messages: MessageCatalogue
-        ): Option[HtmlElement] =
-            messages.get(msg).map(t => span(msgAttrs(msg.id, t)))
-
-        inline def asString(using messages: MessageCatalogue): String =
-            messages(msg)
-
-        inline def asOptionalString(using
-            messages: MessageCatalogue
-        ): Option[String] =
-            messages.get(msg)
-
-        inline def asMod(using messages: MessageCatalogue): Mod[HtmlElement] =
-            msgAttrs(msg.id, messages(msg))
-
-        private inline def msgAttrs(id: MessageId, text: String)(using
-            messages: MessageCatalogue
-        ): HtmlMod =
-            nodeSeq(
-                dataAttr("msgid")(id.toString()),
-                dataAttr("msgprefix")(messages.currentPrefixes.mkString(",")),
-                text
-            )
-    end extension
-
-    given (using MessageCatalogue): HtmlRenderable[UserMessage] with
-        def toHtml(msg: UserMessage): Modifier[HtmlElement] =
-            msg.asElement
-end I18NExtensions
 
 trait ZIOInteropExtensions:
     import zio.{Fiber, Runtime, Unsafe, ZIO}
