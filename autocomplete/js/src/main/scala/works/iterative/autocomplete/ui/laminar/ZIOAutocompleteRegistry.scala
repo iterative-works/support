@@ -23,8 +23,8 @@ class ZIOAutocompleteRegistry(
 
             override def load(id: String): EventStream[Option[AutocompleteEntry]] =
                 service.load(c.collection, id, languageService.currentLanguage).map {
-                    case None if c.strict => Some(AutocompleteEntry(id, id, None, Map.empty))
-                    case c                => c
+                    case None if !c.strict => Some(AutocompleteEntry(id, id, None, Map.empty))
+                    case c                 => c
                 }.toEventStream
 end ZIOAutocompleteRegistry
 
