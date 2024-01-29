@@ -11,7 +11,6 @@ class AutocompleteFormField(
     fieldId: String,
     fieldName: String,
     query: AutocompleteQuery,
-    strict: Boolean = true,
     initialValue: Option[String] = None,
     inError: Signal[Boolean] = Val(false),
     rawInput: EventStream[String] = EventStream.empty,
@@ -54,12 +53,7 @@ class AutocompleteFormField(
                 source --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
-                values.flatMap(v => query.load(v).map(v -> _)).collectOpt {
-                    // Do not reset value if it is not found, if not strict
-                    case (v, None) if !strict =>
-                        Some(Some(AutocompleteEntry(v, v, None, Map.empty)))
-                    case (_, r) => Some(r)
-                } --> Combobox.ctx.valueWriter,
+                values.flatMap(query.load) --> Combobox.ctx.valueWriter,
                 // Init the form field with default or empty string to start validation
                 // Unless already initialized
                 EventStream.fromValue(initialValue.getOrElse("")).filterWith(

@@ -12,7 +12,14 @@ package core
 opaque type MessageId = String
 
 object MessageId:
-  def apply(id: String): MessageId = id
+    def apply(id: String): MessageId = id
 
-  inline given Conversion[String, MessageId] with
-    inline def apply(id: String): MessageId = MessageId(id)
+    extension (m: MessageId)
+        def value: String = m
+        def append(ids: String*): MessageId = MessageId((m +: ids).mkString("."))
+        def /(id: String): MessageId = append(id)
+    end extension
+
+    inline given Conversion[String, MessageId] with
+        inline def apply(id: String): MessageId = MessageId(id)
+end MessageId
