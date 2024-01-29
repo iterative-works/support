@@ -32,7 +32,7 @@ final case class SPAConfig(
 object SPAConfig:
     private def descriptor(name: String) =
         import ConfigDescriptor.*
-        string("APPPATH").default(name) zip
+        string("APPPATH").default("app") zip
             string("APPINDEX").default("index.html") zip
             string("FILEPATH").optional zip
             string("RESOURCEPATH").default(name)
@@ -45,7 +45,7 @@ object SPAConfig:
 
     def configDesc(prefix: String): ConfigDescriptor[SPAConfig] =
         import ConfigDescriptor.*
-        nested("SPA")(nested(prefix)(descriptor(prefix))).to[SPAConfig]
+        nested("SPA")(nested(prefix.toUpperCase())(descriptor(prefix))).to[SPAConfig]
 
     val appFromEnv: ZLayer[Any, ReadError[String], SPAConfig] =
         ZConfig.fromSystemEnv(
