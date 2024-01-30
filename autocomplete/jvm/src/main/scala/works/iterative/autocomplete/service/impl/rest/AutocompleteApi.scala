@@ -11,9 +11,6 @@ trait AutocompleteApi(endpoints: AutocompleteEndpoints):
         endpoints.find.zServerLogic((collection, q, limit, lang) =>
             for
                 as <- ZIO.service[AutocompleteService]
-                _ <- ZIO.logError(
-                    s"AutocompleteService: $as"
-                )
                 result <- as.find(collection, q, limit, lang)
             yield result
         )
