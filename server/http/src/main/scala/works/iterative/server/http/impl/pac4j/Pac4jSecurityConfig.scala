@@ -4,26 +4,36 @@ package impl.pac4j
 import zio.*
 import zio.config.*
 
+case class OidcClientConfig(
+    clientId: String,
+    clientSecret: String,
+    discoveryURI: String
+)
+
 case class Pac4jSecurityConfig(
     urlBase: String,
     callbackBase: String,
     logoutUrl: Option[String],
-    clientId: String,
-    clientSecret: String,
-    discoveryURI: String,
-    sessionSecret: String
+    sessionSecret: String,
+    client: OidcClientConfig,
+    clients: Map[String, OidcClientConfig]
 )
 
 object Pac4jSecurityConfig:
+    import ConfigDescriptor.*
+    val oidcConfigDesc: ConfigDescriptor[OidcClientConfig] =
+        (string("ID") zip string("SECRET") zip string(
+            "DISCOVERYURI"
+        )).to[OidcClientConfig]
+    end oidcConfigDesc
+
     val configDesc: ConfigDescriptor[Pac4jSecurityConfig] =
-        import ConfigDescriptor.*
         nested("SECURITY")(
             string("URLBASE") zip string("CALLBACKBASE") zip string(
                 "LOGOUTURL"
-            ).optional zip string("CLIENTID") zip string("CLIENTSECRET")
-                zip string(
-                    "DISCOVERYURI"
-                ) zip string("SESSIONSECRET")
+            ).optional zip string("SESSIONSECRET") zip nested("CLIENT")(oidcConfigDesc) zip map(
+                "CLIENTS"
+            )(oidcConfigDesc).default(Map.empty)
         ).to[Pac4jSecurityConfig]
     end configDesc
 
