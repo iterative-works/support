@@ -26,6 +26,8 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
             .filter(_.collection == lift(collection))
             .filter(_.label like lift(s"%$q%"))
             .filter(a => a.language.forall(_ == lift(language)))
+            .filter(_.active == true)
+            .sortBy(_.weight)(Ord.ascNullsLast)
             .take(lift(limit))
     end findQuery
 
@@ -67,7 +69,9 @@ object GenericAutocompleteService:
         language: Option[String],
         value: String,
         label: String,
-        text: Option[String]
+        text: Option[String],
+        weight: Option[Int],
+        active: Boolean
     )
 
     val layer: URLayer[javax.sql.DataSource, AutocompleteService] = ZLayer {
