@@ -2,7 +2,7 @@ package works.iterative.core
 package auth
 
 enum Claim:
-  case StringClaim(name: String, value: String)
+    case StringClaim(name: String, value: String)
 
 final case class BasicProfile(
     subjectId: UserId,
@@ -12,19 +12,30 @@ final case class BasicProfile(
     roles: Set[UserRole],
     claims: Set[Claim] = Set.empty
 ) extends UserProfile:
-  val handle: UserHandle = UserHandle(subjectId, userName)
-  def stringClaim(name: String): Option[String] =
-    claims.collectFirst { case Claim.StringClaim(n, v) if n == name => v }
+    val handle: UserHandle = UserHandle(subjectId, userName)
+    def stringClaim(name: String): Option[String] =
+        claims.collectFirst { case Claim.StringClaim(n, v) if n == name => v }
+end BasicProfile
 
 object BasicProfile:
-  def apply(p: UserProfile): BasicProfile = p match
+    val anonymous: BasicProfile =
+        BasicProfile(
+            UserId.anonymous,
+            None,
+            None,
+            None,
+            Set.empty
+        )
+
+    def apply(p: UserProfile): BasicProfile = p match
     case p: BasicProfile => p
     case _ =>
-      BasicProfile(
-        p.subjectId,
-        p.userName,
-        p.email,
-        p.avatar,
-        p.roles,
-        p.claims
-      )
+        BasicProfile(
+            p.subjectId,
+            p.userName,
+            p.email,
+            p.avatar,
+            p.roles,
+            p.claims
+        )
+end BasicProfile

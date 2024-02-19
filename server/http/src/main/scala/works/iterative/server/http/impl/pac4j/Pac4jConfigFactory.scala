@@ -13,6 +13,7 @@ import org.pac4j.core.context.WebContext
 import org.pac4j.core.context.session.SessionStore
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
+import scala.jdk.CollectionConverters.*
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
@@ -24,7 +25,11 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     override def build(parameters: AnyRef*): Config =
         val clients = Clients(
             s"${pac4jConfig.urlBase}${baseUri.value.fold("/")(_.toString)}${pac4jConfig.callbackBase}/callback",
-            oidcClient()
+            (oidcClient(pac4jConfig.client) :: (pac4jConfig.clients.map: (name, conf) =>
+                val client = oidcClient(conf)
+                client.setName(name)
+                client
+            ).toList).asJava
             // new AnonymousClient
         )
         val config = new Config(clients)
@@ -37,11 +42,11 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         config
     end build
 
-    def oidcClient(): OidcClient =
+    def oidcClient(c: OidcClientConfig): OidcClient =
         val oidcConfiguration = new OidcConfiguration()
-        oidcConfiguration.setClientId(pac4jConfig.clientId)
-        oidcConfiguration.setSecret(pac4jConfig.clientSecret)
-        oidcConfiguration.setDiscoveryURI(pac4jConfig.discoveryURI)
+        oidcConfiguration.setClientId(c.clientId)
+        oidcConfiguration.setSecret(c.clientSecret)
+        oidcConfiguration.setDiscoveryURI(c.discoveryURI)
         oidcConfiguration.setUseNonce(true)
         // oidcConfiguration.addCustomParam("prompt", "consent")
         val oidcClient = new OidcClient(oidcConfiguration)

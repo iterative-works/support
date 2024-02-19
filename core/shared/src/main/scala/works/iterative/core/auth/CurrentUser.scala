@@ -18,4 +18,6 @@ object CurrentUser:
         f: CurrentUser ?=> ZIO[R, E, A]
     ): ZIO[CurrentUser & R, E, A] =
         ZIO.serviceWithZIO[CurrentUser](f(using _))
+
+    val anonymous = CurrentUser(BasicProfile.anonymous)
 end CurrentUser

@@ -5,9 +5,12 @@ package auth
 opaque type UserId = String
 
 object UserId extends ValidatedStringFactory[UserId](u => u):
-  def apply(value: String): Validated[UserId] =
-    // Validate that the value is not empty
-    Validated.nonEmptyString("user.id")(value)
+    def apply(value: String): Validated[UserId] =
+        // Validate that the value is not empty
+        Validated.nonEmptyString("user.id")(value)
 
-  extension (u: UserId)
-    def target: PermissionTarget = PermissionTarget.unsafe("user", u)
+    extension (u: UserId)
+        def target: PermissionTarget = PermissionTarget.unsafe("user", u)
+
+    val anonymous: UserId = UserId.unsafe("anonymous")
+end UserId
