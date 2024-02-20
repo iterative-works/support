@@ -14,6 +14,7 @@ class AutocompleteFormField(
     initialValue: Option[String] = None,
     inError: Signal[Boolean] = Val(false),
     rawInput: EventStream[String] = EventStream.empty,
+    enabled: Signal[Boolean] = Val(true),
     inputFieldMod: HtmlMod = emptyMod
 )(using cs: AutocompleteViews):
 
@@ -38,7 +39,9 @@ class AutocompleteFormField(
                         inputFieldMod,
                         onBlur.compose(_.sample(Combobox.ctx.query, selectedValue.signal).filter(
                             (q, v) => !q.isBlank && !v.map(_.label).contains(q)
-                        ).map(_._1)) --> valuesObserver
+                        ).map(_._1)) --> valuesObserver,
+                        readOnly <-- enabled.not,
+                        disabled <-- enabled.not
                     )),
                     Combobox.button(cs.comboButton())
                 ),
