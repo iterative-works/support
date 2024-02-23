@@ -10,14 +10,16 @@ final case class MongoFileConfig(
     collection: String
 )
 
-object MongoConfig:
+object MongoFileConfig:
 
-  val configDescriptor: ConfigDescriptor[MongoFileConfig] =
-    import ConfigDescriptor.*
-    nested("MONGO")(
-      string("DB")
-        .zip(string("FSCOLL").default("files"))
-    ).to[MongoFileConfig]
+    val configDescriptor: ConfigDescriptor[MongoFileConfig] =
+        import ConfigDescriptor.*
+        nested("MONGO")(
+            string("DB")
+                .zip(string("FSCOLL").default("files"))
+        ).to[MongoFileConfig]
+    end configDescriptor
 
-  val fromEnv: ZLayer[Any, ReadError[String], MongoFileConfig] =
-    ZConfig.fromSystemEnv(configDescriptor, Some('_'), Some(','))
+    val fromEnv: ZLayer[Any, ReadError[String], MongoFileConfig] =
+        ZConfig.fromSystemEnv(configDescriptor, Some('_'), Some(','))
+end MongoFileConfig
