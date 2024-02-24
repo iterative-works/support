@@ -10,7 +10,8 @@ class InMemoryAutocompleteService(data: PartialFunction[String, List[Autocomplet
         collection: String,
         q: String,
         limit: Int,
-        language: String
+        language: String,
+        context: Option[Map[String, String]]
     ): UIO[List[AutocompleteEntry]] =
         ZIO.succeed:
             data.lift(collection).getOrElse(Nil).filter(_.label.contains(q)).take(limit)

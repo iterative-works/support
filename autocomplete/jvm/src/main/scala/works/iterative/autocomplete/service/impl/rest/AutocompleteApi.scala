@@ -2,21 +2,13 @@ package works.iterative.autocomplete
 package service
 package impl.rest
 
-import zio.*
 import works.iterative.autocomplete.endpoints.AutocompleteEndpoints
 import works.iterative.tapir.CustomTapir.*
 
 trait AutocompleteApi(endpoints: AutocompleteEndpoints):
     val find: ZServerEndpoint[AutocompleteService, Any] =
-        endpoints.find.zServerLogic((collection, q, limit, lang) =>
-            for
-                as <- ZIO.service[AutocompleteService]
-                result <- as.find(collection, q, limit, lang)
-            yield result
-        )
+        endpoints.find.zServerLogic(AutocompleteService.find)
 
     val load: ZServerEndpoint[AutocompleteService, Any] =
-        endpoints.load.zServerLogic((collection, q, language) =>
-            AutocompleteService.load(collection, q, language)
-        )
+        endpoints.load.zServerLogic(AutocompleteService.load)
 end AutocompleteApi

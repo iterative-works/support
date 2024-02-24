@@ -7,7 +7,7 @@ import tapir.endpoints.BaseEndpoint
 import codecs.Codecs.given
 
 trait AutocompleteEndpoints(base: BaseEndpoint):
-    val find: Endpoint[Unit, (String, String, Int, String), Unit, List[
+    val find: Endpoint[Unit, (String, String, Int, String, Option[Map[String, String]]), Unit, List[
         AutocompleteEntry
     ], Any] =
         base.get
@@ -15,6 +15,7 @@ trait AutocompleteEndpoints(base: BaseEndpoint):
             .in(query[String]("q"))
             .in(query[Int]("limit"))
             .in(query[String]("lang"))
+            .in(jsonBody[Option[Map[String, String]]].description("Additional context"))
             .out(jsonBody[List[AutocompleteEntry]])
 
     val load: Endpoint[Unit, (String, String, String), Unit, Option[

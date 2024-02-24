@@ -9,7 +9,8 @@ trait AutocompleteService:
         collection: String,
         q: String,
         limit: Int,
-        language: String
+        language: String,
+        context: Option[Map[String, String]]
     ): UIO[List[AutocompleteEntry]]
 
     def load(
@@ -24,9 +25,10 @@ object AutocompleteService:
         collection: String,
         q: String,
         limit: Int,
-        language: String
+        language: String,
+        context: Option[Map[String, String]]
     ): URIO[AutocompleteService, List[AutocompleteEntry]] =
-        ZIO.serviceWithZIO(_.find(collection, q, limit, language))
+        ZIO.serviceWithZIO(_.find(collection, q, limit, language, context))
 
     def load(
         collection: String,

@@ -6,6 +6,7 @@ package impl.mariadb
 import io.getquill.jdbczio.Quill
 import io.getquill.*
 import zio.*
+import scala.annotation.unused
 
 // TODO: how to abstract away all the details, leaving only the findQuery, loadQuery and toAutocompleteEntry?
 // That would get us a complete generic implementation, with only queries to fill in.
@@ -20,7 +21,8 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
         collection: String,
         q: String,
         limit: Int,
-        language: String
+        language: String,
+        @unused context: Option[Map[String, String]]
     ): Query[Autocomplete] =
         query[Autocomplete]
             .filter(_.collection == lift(collection))
@@ -50,9 +52,12 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
         collection: String,
         q: String,
         limit: Int,
-        language: String
+        language: String,
+        context: Option[Map[String, String]]
     ): UIO[List[AutocompleteEntry]] =
-        run(findQuery(collection, q, limit, language)).map(_.map(toAutocompleteEntry)).orDie
+        run(findQuery(collection, q, limit, language, context)).map(
+            _.map(toAutocompleteEntry)
+        ).orDie
     end find
 
     override final def load(
