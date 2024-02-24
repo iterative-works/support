@@ -15,4 +15,11 @@ trait InputFieldViews:
         inError: Signal[Boolean],
         inputMods: HtmlMod*
     ): Input
+
+    def textAreaField(
+        id: String,
+        fieldName: String,
+        inError: Signal[Boolean],
+        inputMods: HtmlMod*
+    ): TextArea
 end InputFieldViews
