@@ -10,7 +10,7 @@ trait AutocompleteEndpoints(base: BaseEndpoint):
     val find: Endpoint[Unit, (String, String, Int, String, Option[Map[String, String]]), Unit, List[
         AutocompleteEntry
     ], Any] =
-        base.get
+        base.post
             .in("autocomplete" / path[String]("collection") / "find")
             .in(query[String]("q"))
             .in(query[Int]("limit"))

@@ -12,12 +12,19 @@ class ZIOAutocompleteRegistry(
     service: AutocompleteService,
     // TODO: replace with iw-core LanguageService
     languageService: LanguageService,
-    mapping: PartialFunction[FieldId, ZIOAutocompleteRegistry.Config]
+    mapping: PartialFunction[FieldId, ZIOAutocompleteRegistry.Config],
+    context: Option[Map[String, String]] = None
 )(using Runtime[Any]) extends AutocompleteRegistry:
     override def getQueryFor(id: FieldId): Option[AutocompleteQuery] = mapping.lift(id).map: c =>
         new AutocompleteQuery:
             override def find(q: String): EventStream[List[AutocompleteEntry]] =
-                service.find(c.collection, q, c.limit, languageService.currentLanguage).map(
+                service.find(
+                    c.collection,
+                    q,
+                    c.limit,
+                    languageService.currentLanguage,
+                    context
+                ).map(
                     _.toList
                 ).toEventStream
 
@@ -26,6 +33,8 @@ class ZIOAutocompleteRegistry(
                     case None if !c.strict => Some(AutocompleteEntry(id, id, None, Map.empty))
                     case c                 => c
                 }.toEventStream
+    override def withContext(ctx: Option[Map[String, String]]): AutocompleteRegistry =
+        new ZIOAutocompleteRegistry(service, languageService, mapping, ctx)
 end ZIOAutocompleteRegistry
 
 object ZIOAutocompleteRegistry:

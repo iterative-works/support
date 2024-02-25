@@ -14,9 +14,10 @@ class LiveAutocompleteService(factory: ClientEndpointFactory, endpoints: Autocom
         collection: String,
         q: String,
         limit: Int,
-        lang: String
+        lang: String,
+        context: Option[Map[String, String]]
     ): UIO[List[AutocompleteEntry]] =
-        findClient(collection, q, limit, lang)
+        findClient(collection, q, limit, lang, context)
 
     private val loadClient = factory.make(endpoints.load)
 
