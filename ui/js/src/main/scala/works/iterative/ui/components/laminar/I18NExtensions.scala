@@ -83,13 +83,13 @@ object I18NExtensions:
 
     def withMessages(messages: MessageCatalogue)(mods: HtmlMod*): Div =
         div(
-            styleAttr("display: contents"),
+            cls("contents"),
             initContext(messages),
             mods
         )
 
     def inMessageContext(context: MessageId)(mods: HtmlMod*): Div =
-        div(styleAttr("display: contents"), nestContext(context.value), mods)
+        div(cls("contents"), nestContext(context.value), mods)
 
     def messageNode(key: MessageId): Node =
         val translation = Var[String]("")
