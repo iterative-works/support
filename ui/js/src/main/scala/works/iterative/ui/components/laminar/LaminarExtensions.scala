@@ -26,15 +26,15 @@ trait ActionExtensions:
             evt: org.scalajs.dom.MouseEvent
         ): Option[(PermissionOp, PermissionTarget)] =
             evt.target match
-            case t: dom.Element =>
-                t.closest("[data-action_op]") match
-                case el: dom.HTMLElement =>
-                    for
-                        act <- el.dataset.get("action_op")
-                        arg <- el.dataset.get("action_target")
-                    yield (PermissionOp(act), PermissionTarget.unsafe(arg))
+                case t: dom.Element =>
+                    t.closest("[data-action_op]") match
+                        case el: dom.HTMLElement =>
+                            for
+                                act <- el.dataset.get("action_op")
+                                arg <- el.dataset.get("action_target")
+                            yield (PermissionOp(act), PermissionTarget.unsafe(arg))
+                        case _ => None
                 case _ => None
-            case _ => None
     end ActionLink
 end ActionExtensions
 
@@ -58,26 +58,26 @@ trait ZIOInteropExtensions:
             stop = _ =>
                 if fiberRuntime != null then
                     Unsafe.unsafe { implicit unsafe =>
-                        runtime.unsafe.run(fiberRuntime.interrupt).ignore
+                        runtime.unsafe.fork(fiberRuntime.interrupt)
                     }
                     fiberRuntime = null
                 else ()
         )
     end zioToEventStream
 
-    def syncZIOObserver[A, R](effect: A => ZIO[R, Nothing, Unit])(using
+    def toZIOObserver[A, R](effect: A => ZIO[R, Nothing, Unit])(using
         runtime: Runtime[R]
     ): Observer[A] =
         Observer[A]: a =>
             Unsafe.unsafely {
-                runtime.unsafe.run(effect(a))
+                runtime.unsafe.fork(effect(a))
             }
             ()
 
     extension (o: Observer.type)
         def fromZIO[A, R](effect: A => ZIO[R, Nothing, Unit])(using
             runtime: Runtime[R]
-        ): Observer[A] = syncZIOObserver(effect)
+        ): Observer[A] = toZIOObserver(effect)
 
     extension (e: EventStream.type)
         def fromZIO[R, E, A](effect: ZIO[R, E, A])(using
@@ -124,7 +124,7 @@ trait ZIOInteropExtensions:
                 stop = _ =>
                     if fiberRuntime != null then
                         Unsafe.unsafe { implicit unsafe =>
-                            runtime.unsafe.run(fiberRuntime.interrupt).ignore
+                            runtime.unsafe.fork(fiberRuntime.interrupt)
                         }
                         fiberRuntime = null
                     else ()
