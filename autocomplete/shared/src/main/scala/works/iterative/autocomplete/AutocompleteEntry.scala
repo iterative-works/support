@@ -9,3 +9,6 @@ final case class AutocompleteEntry(
 
 object AutocompleteEntry:
     def string(value: String): AutocompleteEntry = AutocompleteEntry(value, value, None, Map.empty)
+
+    object keys:
+        val href: String = "href"
