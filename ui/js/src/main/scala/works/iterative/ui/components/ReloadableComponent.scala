@@ -23,6 +23,11 @@ case class ReloadableComponent[A, I](
     private val computable: Var[Computable[A]] = Var(Computable.Uninitialized)
     private val memo: Var[Option[I]] = Var(init)
 
+    // Set the value manually to avoid the need for a fetch, or prevent glitch
+    val setter: Observer[A] = Observer { value =>
+        computable.set(Computable.Ready(value))
+    }
+
     val state: Signal[Computable[A]] = computable.signal
 
     def now(): Option[A] = computable.now().toOption
@@ -68,8 +73,8 @@ case class ReloadableComponent[A, I](
         }
 
     private def updateStream: HtmlMod = updates match
-    case None      => emptyMod
-    case Some(upd) => updateFromZioStream(upd)
+        case None      => emptyMod
+        case Some(upd) => updateFromZioStream(upd)
 
     def initMod: HtmlMod = nodeSeq(
         EventStream.fromValue(ReloadableComponent.Reload.Once) --> reload,
