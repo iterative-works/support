@@ -14,5 +14,5 @@ trait FileComponents:
         ComponentContext[?]
     ): HtmlElement
 
-    def renderFileLink(ref: FileRef)(using ComponentContext[?]): HtmlElement
+    def renderFileLink(ref: FileRef): HtmlElement
 end FileComponents

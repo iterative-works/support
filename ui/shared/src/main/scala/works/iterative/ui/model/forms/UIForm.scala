@@ -8,7 +8,6 @@ type UIMessageKey = MessageId
 type UIFieldName = String
 type UIFieldType = String
 type UIButtonIcon = String
-type UIFile = String
 
 enum UIFieldDecoration:
     case Required
