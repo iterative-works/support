@@ -36,4 +36,20 @@ object AutocompleteService:
         language: String
     ): URIO[AutocompleteService, Option[AutocompleteEntry]] =
         ZIO.serviceWithZIO(_.load(collection, q, language))
+
+    val empty: AutocompleteService =
+        new AutocompleteService:
+            def find(
+                collection: String,
+                q: String,
+                limit: Int,
+                language: String,
+                context: Option[Map[String, String]]
+            ): UIO[List[AutocompleteEntry]] = ZIO.succeed(Nil)
+
+            def load(
+                collection: String,
+                id: String,
+                language: String
+            ): UIO[Option[AutocompleteEntry]] = ZIO.succeed(None)
 end AutocompleteService
