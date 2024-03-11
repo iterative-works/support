@@ -56,7 +56,7 @@ class AutocompleteFormField(
                 source --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
-                values.flatMap(query.load) --> Combobox.ctx.valueWriter,
+                values.delay(0).flatMap(query.load) --> Combobox.ctx.valueWriter,
                 // Init the form field with default or empty string to start validation
                 // Unless already initialized
                 EventStream.fromValue(initialValue.getOrElse("")).filterWith(
