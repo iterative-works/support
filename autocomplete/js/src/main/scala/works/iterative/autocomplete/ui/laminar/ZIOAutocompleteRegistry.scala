@@ -17,13 +17,18 @@ class ZIOAutocompleteRegistry(
 )(using Runtime[Any]) extends AutocompleteRegistry:
     override def getQueryFor(id: FieldId): Option[AutocompleteQuery] = mapping.lift(id).map: c =>
         new AutocompleteQuery:
+            val finalContext = (context, c.context) match
+                case (Some(a), Some(b)) => Some(a ++ b)
+                case (Some(a), _)       => Some(a)
+                case (_, b)             => b
+
             override def find(q: String): EventStream[List[AutocompleteEntry]] =
                 service.find(
                     c.collection,
                     q,
                     c.limit,
                     languageService.currentLanguage,
-                    context
+                    finalContext
                 ).map(
                     _.toList
                 ).toEventStream
@@ -38,7 +43,12 @@ class ZIOAutocompleteRegistry(
 end ZIOAutocompleteRegistry
 
 object ZIOAutocompleteRegistry:
-    final case class Config(collection: String, limit: Int = 20, strict: Boolean = false)
+    final case class Config(
+        collection: String,
+        limit: Int = 20,
+        strict: Boolean = false,
+        context: Option[Map[String, String]] = None
+    )
 
     def layer(mapping: PartialFunction[FieldId, Config])
         : URLayer[AutocompleteService & LanguageService, AutocompleteRegistry] =
