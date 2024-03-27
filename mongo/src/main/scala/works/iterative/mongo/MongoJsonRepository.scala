@@ -13,6 +13,7 @@ import java.nio.ByteBuffer
 import com.mongodb.client.gridfs.model.GridFSUploadOptions
 import java.time.Instant
 import org.bson.types.ObjectId
+import org.mongodb.scala.model.Filters
 
 case class MongoConfig(uri: String)
 
@@ -123,4 +124,5 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
                 ).to(List)
             )
             .orDie
+
 end MongoJsonFileRepository
