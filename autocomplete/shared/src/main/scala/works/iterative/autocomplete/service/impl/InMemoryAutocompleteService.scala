@@ -19,7 +19,8 @@ class InMemoryAutocompleteService(data: PartialFunction[String, List[Autocomplet
     override def load(
         collection: String,
         id: String,
-        language: String
+        language: String,
+        context: Option[Map[String, String]]
     ): UIO[Option[AutocompleteEntry]] =
         ZIO.succeed:
             data.lift(collection).getOrElse(Nil).find(_.value == id)

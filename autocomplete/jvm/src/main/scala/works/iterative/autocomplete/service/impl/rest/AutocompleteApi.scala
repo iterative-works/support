@@ -10,5 +10,7 @@ trait AutocompleteApi(endpoints: AutocompleteEndpoints):
         endpoints.find.zServerLogic(AutocompleteService.find)
 
     val load: ZServerEndpoint[AutocompleteService, Any] =
-        endpoints.load.zServerLogic(AutocompleteService.load)
+        endpoints.load.zServerLogic((c, q, l, o) =>
+            AutocompleteService.load(c, q, l, Some(o.toMap))
+        )
 end AutocompleteApi
