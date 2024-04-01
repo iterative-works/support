@@ -71,8 +71,8 @@ object FieldBuilder:
                     initialValue.flatten.map(codec.encode),
                     (v: Option[String]) =>
                         v match
-                        case Some(s) if s.trim.nonEmpty => codec.decode(s).map(Some(_))
-                        case _                          => Validation.succeed(None)
+                            case Some(s) if s.trim.nonEmpty => codec.decode(s).map(Some(_))
+                            case _                          => Validation.succeed(None)
                     ,
                     codec.inputType
                 )
@@ -100,8 +100,8 @@ object FieldBuilder:
                 FileField(
                     fieldDescriptor,
                     _ match
-                    case Some(files) => Validation.succeed(files.headOption)
-                    case None        => Validation.succeed(None)
+                        case Some(files) => Validation.succeed(files.headOption)
+                        case None        => Validation.succeed(None)
                     ,
                     multi = false
                 )
@@ -118,13 +118,36 @@ object FieldBuilder:
                 FileField(
                     fieldDescriptor,
                     _.flatMap(_.headOption) match
-                    case Some(file) => Validation.succeed(file)
-                    case None =>
-                        Validation.fail(
-                            UserMessage("error.file.required", fieldDescriptor.label)
-                        )
+                        case Some(file) => Validation.succeed(file)
+                        case None =>
+                            Validation.fail(
+                                UserMessage("error.file.required", fieldDescriptor.label)
+                            )
                     ,
                     multi = false
+                )
+
+    // TODO: Embed file type into the FileRepr somehow, so that it can be determined automatically
+    def restrictedFileInput(accepts: String)(using
+        FormBuilderContext
+    ): FieldBuilder[FileSupport.FileRepr] =
+        new FieldBuilder[FileSupport.FileRepr]:
+            override def required: Boolean = true
+            override def build(
+                fieldDescriptor: FieldDescriptor,
+                initialValue: Option[FileSupport.FileRepr]
+            ): FormComponent[FileSupport.FileRepr] =
+                FileField(
+                    fieldDescriptor,
+                    _.flatMap(_.headOption) match
+                        case Some(file) => Validation.succeed(file)
+                        case None =>
+                            Validation.fail(
+                                UserMessage("error.file.required", fieldDescriptor.label)
+                            )
+                    ,
+                    multi = false,
+                    accepts = Some(accepts)
                 )
 
     given filesInput(using
@@ -139,11 +162,11 @@ object FieldBuilder:
                 FileField(
                     fieldDescriptor,
                     _.map(_.toList) match
-                    case Some(files) => Validation.succeed(files)
-                    case None =>
-                        Validation.fail(
-                            UserMessage("error.file.required", fieldDescriptor.label)
-                        )
+                        case Some(files) => Validation.succeed(files)
+                        case None =>
+                            Validation.fail(
+                                UserMessage("error.file.required", fieldDescriptor.label)
+                            )
                     ,
                     multi = true
                 )
@@ -160,8 +183,8 @@ object FieldBuilder:
                 FileField(
                     fieldDescriptor,
                     _.map(_.toList) match
-                    case Some(files) => Validation.succeed(Some(files))
-                    case None        => Validation.succeed(None)
+                        case Some(files) => Validation.succeed(Some(files))
+                        case None        => Validation.succeed(None)
                     ,
                     multi = true
                 )
@@ -221,7 +244,8 @@ object FieldBuilder:
     class FileField[A](
         desc: FieldDescriptor,
         validation: Option[FileList] => Validated[A],
-        multi: Boolean = false
+        multi: Boolean = false,
+        accepts: Option[String] = None
     )(using fctx: FormBuilderContext)
         extends FormComponent[A]:
         private val rawValue: Var[Option[FileList]] = Var(None)
@@ -230,7 +254,7 @@ object FieldBuilder:
             rawValue.signal.map(validation)
 
         override val elements: Seq[HtmlElement] =
-            renderFileInputField(desc, rawValue.writer.contramapSome, multi)
+            renderFileInputField(desc, rawValue.writer.contramapSome, multi, accepts)
     end FileField
 
     class ChoiceField[A](
@@ -266,7 +290,8 @@ object FieldBuilder:
     def renderFileInputField(
         desc: FieldDescriptor,
         observer: Observer[FileList],
-        multi: Boolean = false
+        multi: Boolean = false,
+        accepts: Option[String] = None
     )(using
         fctx: FormBuilderContext
     ): Seq[HtmlElement] =
@@ -275,6 +300,7 @@ object FieldBuilder:
                 fctx.formUIFactory
                     .fileInput(desc.placeholder.getOrElse(desc.label))()(
                         multiple(multi),
+                        accepts.map(accept(_)),
                         nameAttr(desc.name),
                         idAttr(desc.idString),
                         inContext(thisNode =>
