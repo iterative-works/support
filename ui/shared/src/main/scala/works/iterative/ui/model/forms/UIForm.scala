@@ -3,6 +3,7 @@ package works.iterative.ui.model.forms
 import works.iterative.core.UserMessage
 import works.iterative.core.MessageId
 
+// TODO: use IdPath
 type UIFormId = String
 type UIMessageKey = MessageId
 type UIFieldName = String
