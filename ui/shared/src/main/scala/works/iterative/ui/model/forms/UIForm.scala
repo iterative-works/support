@@ -20,7 +20,8 @@ end UIFieldDecoration
 final case class UIForm(
     id: UIFormId,
     messageKey: UIMessageKey,
-    children: Seq[UIFormElement]
+    children: Seq[UIFormElement],
+    data: FormState
 )
 
 sealed trait UIFormElement
