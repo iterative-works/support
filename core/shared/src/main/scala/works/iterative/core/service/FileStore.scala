@@ -44,6 +44,7 @@ object FileStore:
         val Links = "links"
         val Kind = "kind"
         val UploadedBy = "uploadedBy"
+        val SHA256Digest = "sha256Digest"
     end Metadata
 
     def store(

@@ -16,8 +16,8 @@ class BlazeHttpServer(config: BlazeServerConfig, baseUri: BaseUri) extends HttpS
     ): URIO[Env, Nothing] =
         def withBaseUri(routes: HttpRoutes[RIO[Env, *]]): HttpRoutes[RIO[Env, *]] =
             baseUri.value match
-            case Some(u) => Router(u.toString -> routes)
-            case _       => routes
+                case Some(u) => Router(u.toString -> routes)
+                case _       => routes
 
         BlazeServerBuilder[RIO[Env, *]]
             .bindHttp(config.port, config.host)

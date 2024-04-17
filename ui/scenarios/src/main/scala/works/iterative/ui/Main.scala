@@ -16,8 +16,8 @@ object Messages extends js.Any
 @JSExportTopLevel("SupportScenarioMain", "main")
 object Main
     extends ScenarioMain(
-      "ui",
-      List(FormsScenarioModule),
-      Messages,
-      Css
+        "ui",
+        List(FormsScenarioModule),
+        Messages,
+        Css
     )

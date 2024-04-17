@@ -20,10 +20,9 @@ end UnhandledCommand
 case class InvalidCommand[Id, Command, Event, State](
     command: ARCommand[Id, Command],
     state: State,
-    messageId: MessageId
+    message: UserMessage
 ) extends CommandError[Id, Command, Event, State]:
-    val userMessage: UserMessage =
-        UserMessage(messageId, command.toString(), state.toString())
+    val userMessage: UserMessage = message
 end InvalidCommand
 
 sealed trait EventError[Id, Command, Event, State] extends AggregateError[Id, Command, Event, State]

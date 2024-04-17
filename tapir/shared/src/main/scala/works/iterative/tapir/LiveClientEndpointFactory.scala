@@ -31,19 +31,18 @@ class LiveClientEndpointFactory(using
             val fetch = req(securityInput)(input)
                 .header("X-Requested-With", "XMLHttpRequest")
                 .followRedirects(false)
-                .send(backend)
 
             val result =
                 for
-                    resp <- fetch.orDie
+                    resp <- fetch.send(backend).orDie
                     body <- resp.body match
-                    case DecodeResult.Value(v) => ZIO.succeed(v)
-                    case err: DecodeResult.Failure =>
-                        ZIO.die(
-                            new RuntimeException(
-                                s"Unexpected response status: ${resp.code} ${resp.statusText} - ${err}"
+                        case DecodeResult.Value(v) => ZIO.succeed(v)
+                        case err: DecodeResult.Failure =>
+                            ZIO.die(
+                                new RuntimeException(
+                                    s"Unexpected response status: ${resp.code} ${resp.statusText} - ${err}"
+                                )
                             )
-                        )
                     v <- ZIO.fromEither(body)
                 yield v
 

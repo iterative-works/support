@@ -7,7 +7,6 @@ import scala.annotation.tailrec
 // we need to be able to render HTML messages
 // like a list of items for example
 trait MessageCatalogue:
-
     // These need to be implemented
     def get(id: MessageId): Option[String]
     def get(msg: UserMessage): Option[String]
@@ -31,9 +30,9 @@ trait MessageCatalogue:
         tryResolve: T => Option[String]
     ): Option[String] =
         (tryResolve(id), fallback) match
-        case (m @ Some(_), _)     => m
-        case (None, next +: rest) => maybeResolve(next, rest*)(tryResolve)
-        case (None, _)            => None
+            case (m @ Some(_), _)     => m
+            case (None, next +: rest) => maybeResolve(next, rest*)(tryResolve)
+            case (None, _)            => None
 
     private inline def resolve[T, U](id: T, fallback: T*)(
         tryResolve: T => Option[String]

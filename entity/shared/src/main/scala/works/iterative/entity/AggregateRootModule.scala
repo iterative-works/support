@@ -1,7 +1,7 @@
 package works.iterative.entity
 
 import works.iterative.event.EventRecord
-import works.iterative.core.MessageId
+import works.iterative.core.UserMessage
 
 trait AggregateRootModule[Id, Command, Event, State]:
     type ARCommand = works.iterative.entity.ARCommand[Id, Command]
@@ -28,8 +28,8 @@ trait AggregateRootModule[Id, Command, Event, State]:
     def UnhandledCommand(command: ARCommand, state: State): UnhandledCommand =
         works.iterative.entity.UnhandledCommand(command, state)
     type InvalidCommand = works.iterative.entity.InvalidCommand[Id, Command, Event, State]
-    def InvalidCommand(command: ARCommand, state: State, messageId: MessageId): InvalidCommand =
-        works.iterative.entity.InvalidCommand(command, state, messageId)
+    def InvalidCommand(command: ARCommand, state: State, message: UserMessage): InvalidCommand =
+        works.iterative.entity.InvalidCommand(command, state, message)
 
     type EventError = works.iterative.entity.EventError[Id, Command, Event, State]
     type UnhandledEvent = works.iterative.entity.UnhandledEvent[Id, Command, Event, State]

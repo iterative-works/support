@@ -3,6 +3,7 @@ package works.iterative.ui.components.laminar.forms
 import works.iterative.core.*
 import zio.prelude.Validation
 import works.iterative.core.UserMessage
+import scala.util.Try
 
 trait InputSchema[A]:
     def encode(a: A): String
@@ -42,6 +43,15 @@ object InputSchema:
     given string: InputSchema[String] with
         override def encode(a: String): String = a
         override def decode(s: String): Validated[String] = Validation.succeed(s)
+
+    given integer: InputSchema[Int] with
+        override def encode(a: Int): String = a.toString
+        override def decode(s: String): Validated[Int] =
+            Validation.fromTry(Try(s.toInt)).mapError(e =>
+                UserMessage("error.invalid.integer.format", s)
+            )
+        override def inputType: InputType = InputType.Input("number")
+    end integer
 
     given plainOneLine: InputSchema[PlainOneLine] with
         override def encode(a: PlainOneLine): String = a.asString

@@ -36,7 +36,8 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
     inline protected def loadQuery(
         collection: String,
         id: String,
-        language: String
+        language: String,
+        @unused context: Option[Map[String, String]]
     ): Query[Autocomplete] =
         query[Autocomplete]
             .filter(_.collection == lift(collection))
@@ -63,9 +64,12 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
     override final def load(
         collection: String,
         id: String,
-        lang: String
+        lang: String,
+        context: Option[Map[String, String]]
     ): UIO[Option[AutocompleteEntry]] =
-        run(loadQuery(collection, id, lang)).map(_.headOption.map(toAutocompleteEntry)).orDie
+        run(loadQuery(collection, id, lang, context)).map(
+            _.headOption.map(toAutocompleteEntry)
+        ).orDie
 end GenericAutocompleteService
 
 object GenericAutocompleteService:

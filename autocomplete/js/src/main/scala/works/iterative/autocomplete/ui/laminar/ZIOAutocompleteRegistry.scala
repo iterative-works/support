@@ -77,7 +77,7 @@ object ZIOAutocompleteRegistry:
             )
 
         override def load(id: String): EventStream[Option[AutocompleteEntry]] =
-            service.load(config.collection, id, languageService.currentLanguage).map {
+            service.load(config.collection, id, languageService.currentLanguage, context).map {
                 case None if !config.strict => Some(AutocompleteEntry(id, id, None, Map.empty))
                 case c                      => c
             }.toEventStream

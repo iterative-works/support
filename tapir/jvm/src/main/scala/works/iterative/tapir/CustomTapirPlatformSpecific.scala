@@ -49,8 +49,17 @@ trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
         session: Option[String]
     ): HttpClient.Builder => HttpClient.Builder =
         session match
-        case Some(s) => addSession(s)
-        case None    => identity
+            case Some(s) => addSession(s)
+            case None    => identity
+
+    def clientSession(sessionId: Option[String]): Backend =
+        HttpClientZioBackend.usingClient(
+            optionallyAddSession(sessionId)(
+                HttpClient
+                    .newBuilder()
+                    .followRedirects(HttpClient.Redirect.NEVER)
+            ).build()
+        )
 
     def clientSessionLayer(sessionId: Option[String]): TaskLayer[Backend] =
         HttpClientZioBackend.layerUsingClient(

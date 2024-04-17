@@ -5,6 +5,7 @@ package impl.rest
 import zio.*
 import works.iterative.tapir.ClientEndpointFactory
 import works.iterative.autocomplete.endpoints.AutocompleteEndpoints
+import sttp.model.QueryParams
 
 class LiveAutocompleteService(factory: ClientEndpointFactory, endpoints: AutocompleteEndpoints)
     extends AutocompleteService:
@@ -24,9 +25,10 @@ class LiveAutocompleteService(factory: ClientEndpointFactory, endpoints: Autocom
     override def load(
         collection: String,
         id: String,
-        lang: String
+        lang: String,
+        context: Option[Map[String, String]]
     ): UIO[Option[AutocompleteEntry]] =
-        loadClient(collection, id, lang)
+        loadClient(collection, id, lang, QueryParams.fromMap(context.getOrElse(Map.empty)))
 end LiveAutocompleteService
 
 object LiveAutocompleteService:
