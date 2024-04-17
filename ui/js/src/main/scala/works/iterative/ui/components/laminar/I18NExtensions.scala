@@ -49,7 +49,7 @@ trait I18NExtensions:
             msg.asElement
 
     extension (msgId: MessageId)
-        def node: Node = I18NExtensions.messageNode(msgId)
+        def node: Span = I18NExtensions.messageNode(msgId)
 end I18NExtensions
 
 object I18NExtensions:
@@ -91,9 +91,10 @@ object I18NExtensions:
     def inMessageContext(context: MessageId)(mods: HtmlMod*): Div =
         div(cls("contents"), nestContext(context.value), mods)
 
-    def messageNode(key: MessageId): Node =
+    def messageNode(key: MessageId): Span =
         val translation = Var[String]("")
         span(
+            cls("contents"),
             child.text <-- translation.signal,
             onMountCallback: ctx =>
                 closestMessages(ctx.thisNode.ref).foreach: msgs =>
