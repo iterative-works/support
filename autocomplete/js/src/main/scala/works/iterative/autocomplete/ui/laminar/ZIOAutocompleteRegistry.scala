@@ -28,6 +28,16 @@ class ZIOAutocompleteRegistry(
 
     override def withContext(ctx: Option[Map[String, String]]): AutocompleteRegistry =
         new ZIOAutocompleteRegistry(service, languageService, mapping, ctx)
+
+    override def addContext(ctx: Map[String, String]): AutocompleteRegistry =
+        new ZIOAutocompleteRegistry(
+            service,
+            languageService,
+            mapping,
+            context match
+                case Some(c) => Some(c ++ ctx)
+                case _       => Some(ctx)
+        )
 end ZIOAutocompleteRegistry
 
 object ZIOAutocompleteRegistry:
