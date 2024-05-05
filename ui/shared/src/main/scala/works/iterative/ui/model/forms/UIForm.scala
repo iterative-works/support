@@ -32,7 +32,8 @@ final case class UIFormSection(
     level: Int,
     messageKey: UIMessageKey,
     children: Seq[UIFormElement],
-    decorations: List[UIFieldDecoration]
+    decorations: List[UIFieldDecoration],
+    repeatIndex: Option[Int]
 ) extends UIFormElement
 
 final case class UILabeledField(
