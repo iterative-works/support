@@ -50,6 +50,9 @@ trait I18NExtensions:
 
     extension (msgId: MessageId)
         def node: Node = I18NExtensions.messageNode(msgId)
+
+    extension (userMessage: UserMessage)
+        def node: Node = I18NExtensions.messageNode(userMessage)
 end I18NExtensions
 
 object I18NExtensions:
@@ -91,7 +94,7 @@ object I18NExtensions:
     def inMessageContext(context: MessageId)(mods: HtmlMod*): Div =
         div(cls("contents"), nestContext(context.value), mods)
 
-    def messageNode(key: MessageId): Node =
+    def messageNode(key: UserMessage): Node =
         val translation = Var[String]("")
         span(
             child.text <-- translation.signal,
