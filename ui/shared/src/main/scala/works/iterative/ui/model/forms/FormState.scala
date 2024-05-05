@@ -7,4 +7,5 @@ trait FormState:
     def getStringList(id: AbsolutePath): Option[List[String]]
     def getFileList(id: AbsolutePath): Option[List[UIFile]]
     def itemsFor(id: AbsolutePath): List[(String, String)]
+    def all(id: AbsolutePath => Boolean): List[Any]
 end FormState
