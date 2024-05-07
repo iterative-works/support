@@ -113,23 +113,23 @@ trait JsonCodecs:
         JsonCodec.string.transform(
             input =>
                 input match
-                case i if i.startsWith("__int:")  => i.stripPrefix("__int:").toInt
-                case i if i.startsWith("__long:") => i.stripPrefix("__long:").toLong
-                case i if i.startsWith("__bool:") =>
-                    i.stripPrefix("__bool:").toBoolean
-                case i if i.startsWith("__double:") =>
-                    i.stripPrefix("__double:").toDouble
-                case i if i.startsWith("__char:") => i.stripPrefix("__char:").head
-                case _                            => input
+                    case i if i.startsWith("__int:")  => i.stripPrefix("__int:").toInt
+                    case i if i.startsWith("__long:") => i.stripPrefix("__long:").toLong
+                    case i if i.startsWith("__bool:") =>
+                        i.stripPrefix("__bool:").toBoolean
+                    case i if i.startsWith("__double:") =>
+                        i.stripPrefix("__double:").toDouble
+                    case i if i.startsWith("__char:") => i.stripPrefix("__char:").head
+                    case _                            => input
             ,
             arg =>
                 arg match
-                case i: Int     => s"__int:$i"
-                case l: Long    => s"__long:$l"
-                case b: Boolean => s"__bool:$b"
-                case d: Double  => s"__double:$d"
-                case c: Char    => s"__char:$c"
-                case s: String  => s
+                    case i: Int     => s"__int:$i"
+                    case l: Long    => s"__long:$l"
+                    case b: Boolean => s"__bool:$b"
+                    case d: Double  => s"__double:$d"
+                    case c: Char    => s"__char:$c"
+                    case s: String  => s
         )
     given JsonCodec[UserMessage] = DeriveJsonCodec.gen[UserMessage]
 end JsonCodecs
@@ -182,6 +182,10 @@ trait TapirCodecs:
 
     given Codec[String, AccessToken, CodecFormat.TextPlain] =
         Codec.string.map(AccessToken(_))(_.token)
+
+    given Codec[String, Language, CodecFormat.TextPlain] =
+        Codec.string.map(Language.unsafe(_))(_.value)
+
 end TapirCodecs
 
 object Codecs extends Codecs
