@@ -17,6 +17,7 @@ import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.MongoCollection
 import org.mongodb.scala.model.Filters
 import org.bson.types.ObjectId
+import zio.stream.ZStream
 
 class MongoFileStore(
     collection: MongoCollection[BsonDocument],
@@ -60,61 +61,78 @@ class MongoFileStore(
                     .toString())
             case _ => metadata
 
-    // TODO: add metadata
     override def store(
         name: String,
         file: Array[Byte],
         contentType: Option[String],
         metadata: FileStore.Metadata
     ): UIO[FileRef] =
-        val size = Some(file.length.longValue())
-        for
-            cu <- authenticationService.currentUser
-            digest <- computeDigest(file)
-            existing <-
-                repository.matching(Filter(None, None, Some(digest), None)).map(_.headOption)
-            ref <- existing match
-                case Some(existingRef) => ZIO.succeed(FileRef.unsafe(
-                        name,
-                        idToUrl(existingRef.id, name),
-                        contentType,
-                        size
-                    ))
-                case _ =>
-                    for
-                        m <- withUploader(metadata)
-                        ref <- repository
-                            .put(name, file, m + (FileStore.Metadata.SHA256Digest -> digest))
-                            .map(id => FileRef.unsafe(name, idToUrl(id, name), contentType, size))
-                    yield ref
-        yield ref
-        end for
+        computeDigest(file).flatMap: digest =>
+            def withDigest(mt: Metadata) = mt + (FileStore.Metadata.SHA256Digest -> digest)
+
+            val findByDigest =
+                repository.matching(Filter.digest(digest)).map: found =>
+                    found.headOption.map: ref =>
+                        FileRef.unsafe(name, idToUrl(ref.id, name), withDigest(metadata))
+
+            val storeNewFile =
+                withUploader(metadata).flatMap: m =>
+                    val mt = withDigest(m)
+                    repository
+                        .put(name, file, mt)
+                        .map: id =>
+                            FileRef.unsafe(name, idToUrl(id, name), mt)
+
+            findByDigest.someOrElseZIO(storeNewFile)
+    end store
+
+    // TODO: deduplication and file digest after
+    override def store(
+        name: String,
+        content: ZStream[Any, Throwable, Byte],
+        metadata: Metadata
+    ): UIO[FileRef] =
+        withUploader(metadata).flatMap: m =>
+            repository
+                .put(name, content, m)
+                .map: id =>
+                    FileRef.unsafe(name, idToUrl(id, name), m)
+    end store
+
+    override def store(
+        name: String,
+        content: FileSupport.FileRepr,
+        metadata: Metadata
+    ): UIO[FileRef] =
+        withUploader(metadata).flatMap: m =>
+            repository
+                .put(name, content, m)
+                .map: id =>
+                    FileRef.unsafe(name, idToUrl(id, name), m)
     end store
 
     override def store(
         files: List[FileSupport.FileRepr],
         metadata: FileStore.Metadata
     ): UIO[List[FileRef]] =
-        import FileSupport.*
-        ZIO.foreach(files)(file =>
-            for
-                bytes <- file.toStream.runCollect.orDie
-                m <- withUploader(metadata)
-                ref <- store(file.name, bytes.toArray, None, m)
-            yield ref
-        )
+        ZIO.foreach(files)(f => store(f.getName(), f, metadata))
     end store
 
     // FIXME: implement update metadata
     override def update(urls: List[String], metadata: Metadata): UIO[Unit] =
         ZIO.unit
 
-    // TODO: stream the content
     def load(url: String): UIO[Option[Array[Byte]]] =
         for
             id <- ZIO.attempt(urlToId(url)).orDie
             bytes <- repository.find(id)
         yield bytes
+
+    def loadStream(url: String): UIO[ZStream[Any, Throwable, Byte]] =
+        for
+            id <- ZIO.attempt(urlToId(url)).orDie
+            stream <- repository.findStream(id)
+        yield stream
 
     def digestFiles: UIO[Long] =
         def updateDigest(id: String, digest: String): UIO[Unit] =
@@ -189,4 +207,7 @@ object MongoFileStore:
         digest: Option[String],
         digestExists: Option[Boolean]
     )
+
+    object Filter:
+        def digest(digest: String): Filter = Filter(None, None, Some(digest), None)
 end MongoFileStore

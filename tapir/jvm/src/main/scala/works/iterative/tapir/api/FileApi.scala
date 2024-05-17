@@ -9,6 +9,7 @@ import works.iterative.core.service.FileStoreWriter
 import works.iterative.core.service.FileStoreLoader
 import CustomTapir.*
 import endpoints.FileStoreEndpointsModule
+import sttp.capabilities.zio.ZioStreams
 
 trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
     object file:
@@ -39,6 +40,15 @@ trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
                     )
                 yield refs.toList
             }
+
+        val storeFile: ZServerEndpoint[FileStoreWriter, ZioStreams] =
+            endpoints.storeFile.zServerLogic((params, contentType, file) =>
+                FileStore.store(
+                    file.getName(),
+                    file,
+                    params.toMap + (FileStore.Metadata.FileType -> contentType)
+                )
+            )
 
         val load: ZServerEndpoint[FileStoreLoader, Any] =
             endpoints.load.zServerLogic { url =>
