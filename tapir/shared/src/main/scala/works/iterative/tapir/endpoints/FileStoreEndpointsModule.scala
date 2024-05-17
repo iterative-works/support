@@ -67,4 +67,11 @@ class FileStoreEndpointsModule(base: BaseEndpoint):
             .in("file" / paths)
             .out(byteArrayBody)
             .errorOut(statusCode(StatusCode.NotFound).and(stringBody))
+
+    val loadStream
+        : Endpoint[Unit, List[String], String, ZStream[Any, Throwable, Byte], ZioStreams] =
+        base.get
+            .in("file" / paths)
+            .out(streamBinaryBody(ZioStreams)(CodecFormat.OctetStream()))
+            .errorOut(statusCode(StatusCode.NotFound).and(stringBody))
 end FileStoreEndpointsModule

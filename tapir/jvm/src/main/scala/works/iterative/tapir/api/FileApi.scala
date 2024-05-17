@@ -55,6 +55,11 @@ trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
                 FileStore.load(url.mkString("/")).someOrFail("File not found")
             }
 
+        val loadStream: ZServerEndpoint[FileStoreLoader, ZioStreams] =
+            endpoints.loadStream.zServerLogic { url =>
+                FileStore.loadStream(url.mkString("/"))
+            }
+
         val update: ZServerEndpoint[FileStoreWriter, Any] =
             endpoints.update.zServerLogic { a =>
                 FileStore.update(a.urls, a.metadata)
