@@ -5,7 +5,7 @@ import works.iterative.tapir.CustomTapir.*
 import works.iterative.core.service.FileStore
 import works.iterative.core.FileRef
 import sttp.model.StatusCode
-import works.iterative.tapir.codecs.Codecs.given
+import works.iterative.tapir.codecs.FileCodecs.given
 import sttp.model.Part
 import sttp.tapir.CodecFormat
 import sttp.capabilities.zio.ZioStreams

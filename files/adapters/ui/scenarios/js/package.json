@@ -1,0 +1,29 @@
+{
+  "name": "scenarios-module-zadatel",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@scala-js/vite-plugin-scalajs": "mprihoda/vite-plugin-scalajs#sbtn-dist",
+    "@tailwindcss/forms": "^0.5.3",
+    "@tailwindcss/typography": "^0.5.1",
+    "autoprefixer": "^10.4.2",
+    "postcss": "^8.4.6",
+    "postcss-import": "^15.1.0",
+    "postcss-preset-env": "^8.3.2",
+    "stylelint": "^15.6.1",
+    "stylelint-config-recommended": "^12.0.0",
+    "stylelint-config-standard": "^33.0.0",
+    "tailwindcss": "^3.0.18",
+    "typescript": "5.0.4",
+    "vite": "^4.3.5",
+    "vite-plugin-html": "^3.0.6"
+  },
+  "browserslist": [
+    "defaults"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  }
+}

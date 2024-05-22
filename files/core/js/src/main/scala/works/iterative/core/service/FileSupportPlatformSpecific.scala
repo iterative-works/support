@@ -9,6 +9,7 @@ trait FileSupportPlatformSpecific:
 
     extension (f: FileRepr)
         def name: String = f.name
+
         def toStream: Stream[Throwable, Byte] =
             ZStream.unfoldChunkZIO(f.stream().getReader())(reader =>
                 ZIO
