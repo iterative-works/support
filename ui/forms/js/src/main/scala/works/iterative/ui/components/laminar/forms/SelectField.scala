@@ -12,7 +12,7 @@ case class SelectField[A](
     label: A => String,
     initialValue: Option[A],
     initialOptions: List[A],
-    validated: Signal[Validated[_]],
+    validated: Signal[Validated[?]],
     observer: Observer[Option[A]],
     combo: Boolean,
     add: Option[String => Validated[A]],
@@ -42,24 +42,24 @@ case class SelectField[A](
 
         def withAddOption(opts: List[A]) =
             add match
-            case Some(f) if opts.isEmpty && v.trim.nonEmpty =>
-                f(v).toOption.toList ++ opts
-            case _ => opts
+                case Some(f) if opts.isEmpty && v.trim.nonEmpty =>
+                    f(v).toOption.toList ++ opts
+                case _ => opts
 
         def withSelected(opts: List[A]) =
             val matchedSelected = selectedOpt.filter(matches)
             matchedSelected match
-            case Some(s) if !opts.contains(s) => s :: opts
-            case _                            => opts
+                case Some(s) if !opts.contains(s) => s :: opts
+                case _                            => opts
         end withSelected
 
         queryOptions match
-        case Some(query) =>
-            query(v).map(opts => withSelected(withAddOption(opts)))
-        case None =>
-            EventStream.fromValue(
-                withSelected(withAddOption(initialOptions.filter(matches)))
-            )
+            case Some(query) =>
+                query(v).map(opts => withSelected(withAddOption(opts)))
+            case None =>
+                EventStream.fromValue(
+                    withSelected(withAddOption(initialOptions.filter(matches)))
+                )
         end match
     end findOptions
 
@@ -102,7 +102,7 @@ case class SelectField[A](
                         },
                         Combobox.ctx.query
                             .withCurrentValueOf(Combobox.ctx.value)
-                            .flatMap(findOptions) --> Combobox.ctx.itemsWriter,
+                            .flatMapSwitch(findOptions) --> Combobox.ctx.itemsWriter,
                         Combobox.ctx.value --> observer
                     )
             )

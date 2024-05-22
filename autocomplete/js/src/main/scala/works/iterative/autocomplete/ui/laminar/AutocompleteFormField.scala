@@ -52,11 +52,11 @@ class AutocompleteFormField(
                         v.label,
                         v.text.map(TextNode(_))
                     ),
-                Combobox.ctx.query.changes.throttle(1000, false).flatMap(query.find) --> sink,
+                Combobox.ctx.query.changes.throttle(1000, false).flatMapSwitch(query.find) --> sink,
                 source --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
-                values.delay(0).flatMap(query.load) --> Combobox.ctx.valueWriter,
+                values.delay(0).flatMapSwitch(query.load) --> Combobox.ctx.valueWriter,
                 // Init the form field with default or empty string to start validation
                 // Unless already initialized
                 EventStream.fromValue(initialValue.getOrElse("")).filterWith(

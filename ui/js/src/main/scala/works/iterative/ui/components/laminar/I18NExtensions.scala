@@ -1,7 +1,6 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.*
-import io.laminext.syntax.core.*
 import works.iterative.core.{MessageId, UserMessage}
 import org.scalajs.dom
 import works.iterative.core.MessageCatalogue
@@ -37,7 +36,7 @@ trait I18NExtensions:
         private inline def msgAttrs(id: MessageId, text: String)(using
             messages: MessageCatalogue
         ): HtmlMod =
-            nodeSeq(
+            modSeq(
                 dataAttr("msgid")(id.toString()),
                 dataAttr("msgprefix")(messages.currentPrefixes.mkString(",")),
                 text

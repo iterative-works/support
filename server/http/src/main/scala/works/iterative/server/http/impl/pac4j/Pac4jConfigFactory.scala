@@ -4,20 +4,23 @@ package impl.pac4j
 import org.pac4j.core.config.*
 import org.pac4j.oidc.client.OidcClient
 import org.pac4j.oidc.config.OidcConfiguration
-import org.pac4j.http4s.{DefaultHttpActionAdapter, Http4sCacheSessionStore}
+import org.pac4j.http4s.DefaultHttpActionAdapter
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
 import works.iterative.tapir.BaseUri
 import org.pac4j.core.authorization.generator.AuthorizationGenerator
-import org.pac4j.core.context.WebContext
-import org.pac4j.core.context.session.SessionStore
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import scala.jdk.CollectionConverters.*
+import org.pac4j.http4s.Http4sGenericSessionStore
+import org.pac4j.http4s.CacheSessionRepository
+import cats.effect.std.Dispatcher
+import org.pac4j.core.context.CallContext
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
     pac4jConfig: Pac4jSecurityConfig,
+    dispatcher: Dispatcher[F],
     authorizationGenerator: AuthorizationGenerator =
         Pac4jConfigFactory.defaultAuthorizationGenerator
 ) extends ConfigFactory:
@@ -34,11 +37,16 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
-        config.setSessionStore(Http4sCacheSessionStore[F](
-            path = Some(baseUri.value.fold("/")(_.toString)),
-            secure = pac4jConfig.callbackBase.startsWith("https://"),
-            httpOnly = true
-        ))
+        config.setSessionStoreFactory(_ =>
+            Http4sGenericSessionStore[F](
+                CacheSessionRepository[F](),
+                dispatcher
+            )(
+                path = Some(baseUri.value.fold("/")(_.toString)),
+                secure = pac4jConfig.callbackBase.startsWith("https://"),
+                httpOnly = true
+            )
+        )
         config
     end build
 
@@ -59,8 +67,7 @@ object Pac4jConfigFactory:
     val defaultAuthorizationGenerator: AuthorizationGenerator =
         new AuthorizationGenerator:
             override def generate(
-                context: WebContext,
-                sessionStore: SessionStore,
+                context: CallContext,
                 profile: UserProfile
             ): Optional[UserProfile] = Optional.of(profile)
     end defaultAuthorizationGenerator

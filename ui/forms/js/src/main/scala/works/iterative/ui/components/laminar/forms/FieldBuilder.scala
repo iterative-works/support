@@ -80,7 +80,7 @@ object FieldBuilder:
 
     given [A: InputSchema](using
         fctx: FormBuilderContext,
-        ev: NotGiven[A <:< Option[_]]
+        ev: NotGiven[A <:< Option[?]]
     ): FieldBuilder[A] = requiredInput[A]
 
     given [A, B: InputSchema](using

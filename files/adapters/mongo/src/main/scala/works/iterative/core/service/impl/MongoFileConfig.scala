@@ -3,7 +3,6 @@ package service
 package impl
 
 import zio.*
-import zio.config.*
 
 final case class MongoFileConfig(
     db: String,
@@ -11,15 +10,10 @@ final case class MongoFileConfig(
 )
 
 object MongoFileConfig:
-
-    val configDescriptor: ConfigDescriptor[MongoFileConfig] =
-        import ConfigDescriptor.*
-        nested("MONGO")(
-            string("DB")
-                .zip(string("FSCOLL").default("files"))
-        ).to[MongoFileConfig]
-    end configDescriptor
-
-    val fromEnv: ZLayer[Any, ReadError[String], MongoFileConfig] =
-        ZConfig.fromSystemEnv(configDescriptor, Some('_'), Some(','))
+    given config: Config[MongoFileConfig] =
+        import Config.*
+        (string("db") ++ string("fscoll").withDefault("files")).nested("mongo").map(
+            MongoFileConfig.apply
+        )
+    end config
 end MongoFileConfig

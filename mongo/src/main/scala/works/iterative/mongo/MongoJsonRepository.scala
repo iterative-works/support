@@ -2,7 +2,6 @@ package works.iterative.mongo
 
 import zio.*
 import zio.json.*
-import zio.config.*
 import org.mongodb.scala.*
 import org.mongodb.scala.model.Filters.*
 import org.bson.json.JsonObject
@@ -13,21 +12,18 @@ import org.mongodb.scala.model.Filters
 case class MongoConfig(uri: String)
 
 object MongoConfig:
-    val configDesc =
-        import ConfigDescriptor.*
-        nested("MONGO")(string("URI").default("mongodb://localhost:27017"))
-            .to[MongoConfig]
-    val fromEnv = ZConfig.fromSystemEnv(
-        configDesc,
-        keyDelimiter = Some('_'),
-        valueDelimiter = None
-    )
+    given config: Config[MongoConfig] =
+        Config.string("uri").withDefault("mongodb://localhost:27017").nested("mongo")
+            .map(MongoConfig.apply)
 end MongoConfig
 
 extension (m: MongoClient.type)
-    def layer: RLayer[MongoConfig, MongoClient] =
+    def layer: TaskLayer[MongoClient] =
         ZLayer {
-            ZIO.serviceWithZIO[MongoConfig](c => ZIO.attempt(MongoClient(c.uri)))
+            for
+                config <- ZIO.config(MongoConfig.config)
+                client <- ZIO.attempt(MongoClient(config.uri))
+            yield client
         }
 
 class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](

@@ -2,12 +2,11 @@ package works.iterative.ui.components.laminar.forms
 
 import com.raquo.laminar.api.L.*
 import works.iterative.core.*
-import io.laminext.syntax.core.*
 
 case class InputField(
     desc: FieldDescriptor,
     initialValue: Option[String],
-    validated: Signal[Validated[_]],
+    validated: Signal[Validated[?]],
     observer: Observer[Option[String]],
     inputType: InputSchema.InputType
 )(using fctx: FormBuilderContext):
@@ -26,7 +25,7 @@ case class InputField(
         )
 
     def makeField: HtmlElement =
-        val mods = nodeSeq(
+        val mods = modSeq(
             idAttr(desc.idString),
             nameAttr(desc.name),
             desc.placeholder.map(placeholder(_)),
@@ -38,10 +37,10 @@ case class InputField(
             onBlur.mapTo(true) --> touched.writer
         )
         inputType match
-        case InputSchema.InputType.Input(typeValue) =>
-            fctx.formUIFactory.input(hasError)(tpe(typeValue), mods)
-        case InputSchema.InputType.Textarea =>
-            fctx.formUIFactory.textarea(hasError)(mods)
+            case InputSchema.InputType.Input(typeValue) =>
+                fctx.formUIFactory.input(hasError)(tpe(typeValue), mods)
+            case InputSchema.InputType.Textarea =>
+                fctx.formUIFactory.textarea(hasError)(mods)
         end match
     end makeField
 

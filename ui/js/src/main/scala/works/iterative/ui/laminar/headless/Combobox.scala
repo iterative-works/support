@@ -165,7 +165,7 @@ object Combobox:
     )(container: Render[T])(opt: ItemRender[T]): HtmlElement =
         container.amend(
             // Show if open
-            cls.toggle("hidden") <-- (ctx.isOpen.not || ctx.items.map(_.isEmpty)),
+            cls("hidden") <-- (ctx.isOpen.not || ctx.items.map(_.isEmpty)),
             onClick.mapTo(false).stopPropagation --> ctx.open.writer,
             children <-- ctx.items.map(_.map(option(_)(opt))),
             ctx.isOpen.changes

@@ -38,8 +38,8 @@ class CommonsEmailNotificationService(config: SMTPConfig)
                         )
                     }
                     config.smtpTestRecipient match
-                    case Some(recip) => email.addTo(recip)
-                    case None        => to.map[String](_.value).foreach(email.addTo)
+                        case Some(recip) => email.addTo(recip)
+                        case None        => to.map[String](_.value).foreach(email.addTo)
                 }
                 .mapError(InvalidRequest(_))
             _ <- ZIO
@@ -51,9 +51,9 @@ class CommonsEmailNotificationService(config: SMTPConfig)
 end CommonsEmailNotificationService
 
 object CommonsEmailNotificationService:
-    val layer: URLayer[SMTPConfig, EmailNotificationService] =
+    val layer: ULayer[EmailNotificationService] =
         ZLayer {
-            for config <- ZIO.service[SMTPConfig]
+            for config <- ZIO.config(SMTPConfig.config).orDie
             yield CommonsEmailNotificationService(config)
         }
 end CommonsEmailNotificationService

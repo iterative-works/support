@@ -1,6 +1,6 @@
 package works.iterative.service.email
 
-import zio.config.*
+import zio.Config
 
 case class SMTPConfig(
     smtpHost: String,
@@ -13,24 +13,14 @@ case class SMTPConfig(
 )
 
 object SMTPConfig:
-    val configuration: ConfigDescriptor[SMTPConfig] =
-        import ConfigDescriptor.*
-        nested("SMTP")(
-            string(
-                "HOST"
-            ) zip string("SENDER") zip int("PORT").default(25) zip string(
-                "USERNAME"
-            ).optional zip string(
+    given config: Config[SMTPConfig] =
+        val testConfig = Config.string("recipient").optional
+        val smtpConfig =
+            Config.string("host") ++ Config.string("SENDER") ++ Config.int("PORT").withDefault(
+                25
+            ) ++ Config.string("USERNAME").optional ++ Config.string(
                 "PASSWORD"
-            ).optional zip nested("TEST")(string("RECIPIENT").optional) zip string(
-                "SENDERNAME"
-            ).optional
-        ).to[SMTPConfig]
-    end configuration
-
-    val fromEnv = ZConfig.fromSystemEnv(
-        configuration,
-        keyDelimiter = Some('_'),
-        valueDelimiter = Some(',')
-    )
+            ).optional ++ testConfig.nested("test") ++ Config.string("sendername").optional
+        smtpConfig.nested("smtp").map(SMTPConfig.apply)
+    end config
 end SMTPConfig

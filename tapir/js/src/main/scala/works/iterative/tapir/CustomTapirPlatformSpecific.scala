@@ -4,9 +4,6 @@ import zio.*
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
-import sttp.client3.SttpBackend
-import sttp.capabilities.WebSockets
-import sttp.capabilities.zio.ZioStreams
 import sttp.client3.FetchOptions
 import org.scalajs.dom
 import sttp.client3.impl.zio.FetchZioBackend
@@ -15,13 +12,13 @@ import sttp.tapir.DecodeResult
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
     self: CustomTapir =>
 
-    type Backend = SttpBackend[Task, ZioStreams & WebSockets]
-
-    val clientLayer: ULayer[Backend] = ZLayer.succeed(
-        FetchZioBackend(
-            FetchOptions(
-                Some(dom.RequestCredentials.`same-origin`),
-                Some(dom.RequestMode.`same-origin`)
+    val clientLayer: ULayer[BackendProvider] = ZLayer.succeed(
+        BackendProvider(
+            FetchZioBackend(
+                FetchOptions(
+                    Some(dom.RequestCredentials.`same-origin`),
+                    Some(dom.RequestMode.`same-origin`)
+                )
             )
         )
     )

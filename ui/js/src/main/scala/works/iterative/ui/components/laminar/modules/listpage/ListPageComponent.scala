@@ -6,16 +6,18 @@ import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 import works.iterative.ui.components.ComponentContext
 
 trait ListPageComponent[T]:
-  self: ListPageView[T] with ListPageModel[T, ?] with HtmlTableBuilderModule =>
+    self: ListPageView[T] & ListPageModel[T, ?] & HtmlTableBuilderModule =>
 
-  class Component(effectHandler: EffectHandler[Effect, Action])(using
-      ComponentContext[?]
-  ) extends LaminarComponent[Model, Action, Effect, HtmlElement](
-        effectHandler
-      )
-      with Module:
-    override def render(
-        m: Signal[Model],
-        actions: Observer[Action]
-    ): HtmlElement =
-      View(m, actions).element
+    class Component(effectHandler: EffectHandler[Effect, Action])(using
+        ComponentContext[?]
+    ) extends LaminarComponent[Model, Action, Effect, HtmlElement](
+            effectHandler
+        )
+        with Module:
+        override def render(
+            m: Signal[Model],
+            actions: Observer[Action]
+        ): HtmlElement =
+            View(m, actions).element
+    end Component
+end ListPageComponent

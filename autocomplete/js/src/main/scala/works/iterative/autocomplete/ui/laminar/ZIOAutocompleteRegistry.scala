@@ -76,7 +76,7 @@ object ZIOAutocompleteRegistry:
         val finalContext = composeContexts(context, config.context)
 
         override def find(q: String): EventStream[List[AutocompleteEntry]] =
-            additionalContextSignal.flatMap(add =>
+            additionalContextSignal.flatMapSwitch(add =>
                 service.find(
                     config.collection,
                     q,

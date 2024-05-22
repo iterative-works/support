@@ -13,7 +13,7 @@ trait MainApp extends ZIOAppDefault with TailwindSupport:
     protected def runOnDomContentLoaded[T](continue: RIO[T, Unit]) =
         ZIO.async[T, Throwable, Unit](cb =>
             if dom.document.readyState == dom.DocumentReadyState.loading then
-                documentEvents(_.onDomContentLoaded).foreach(_ => cb(continue))(
+                val _ = documentEvents(_.onDomContentLoaded).foreach(_ => cb(continue))(
                     unsafeWindowOwner
                 )
                 ()

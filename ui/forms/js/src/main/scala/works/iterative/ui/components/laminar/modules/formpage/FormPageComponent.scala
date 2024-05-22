@@ -7,14 +7,16 @@ import works.iterative.ui.components.laminar.forms.FormBuilderModule
 import works.iterative.ui.components.laminar.forms.FormBuilderContext
 
 trait FormPageComponent[T]:
-  self: FormPageModel[T] with FormPageView[T] with FormBuilderModule =>
+    self: FormPageModel[T] & FormPageView[T] & FormBuilderModule =>
 
-  class Component(effectHandler: EffectHandler[Effect, Action])(using
-      fctx: FormBuilderContext
-  ) extends LaminarComponent[Model, Action, Effect, HtmlElement](effectHandler)
-      with Module:
-    override def render(
-        m: Signal[Model],
-        actions: Observer[Action]
-    ): HtmlElement =
-      View(m, actions).element
+    class Component(effectHandler: EffectHandler[Effect, Action])(using
+        fctx: FormBuilderContext
+    ) extends LaminarComponent[Model, Action, Effect, HtmlElement](effectHandler)
+        with Module:
+        override def render(
+            m: Signal[Model],
+            actions: Observer[Action]
+        ): HtmlElement =
+            View(m, actions).element
+    end Component
+end FormPageComponent

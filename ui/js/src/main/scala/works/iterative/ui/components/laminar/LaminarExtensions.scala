@@ -1,7 +1,6 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.*
-import io.laminext.syntax.core.*
 import works.iterative.core.UserMessage
 import zio.IsSubtypeOfError
 import works.iterative.ui.model.Computable
@@ -16,7 +15,7 @@ object LaminarExtensions
 
 trait ActionExtensions:
     extension (action: works.iterative.core.Action)
-        def mods: HtmlMod = nodeSeq(
+        def mods: HtmlMod = modSeq(
             dataAttr("action_op")(action.op.value),
             dataAttr("action_target")(action.target.toString())
         )
@@ -57,7 +56,7 @@ trait ZIOInteropExtensions:
                 },
             stop = _ =>
                 if fiberRuntime != null then
-                    Unsafe.unsafe { implicit unsafe =>
+                    val _ = Unsafe.unsafe { implicit unsafe =>
                         runtime.unsafe.fork(fiberRuntime.interrupt)
                     }
                     fiberRuntime = null
@@ -69,7 +68,7 @@ trait ZIOInteropExtensions:
         runtime: Runtime[R]
     ): Observer[A] =
         Observer[A]: a =>
-            Unsafe.unsafely {
+            val _ = Unsafe.unsafely {
                 runtime.unsafe.fork(effect(a))
             }
             ()
@@ -123,7 +122,7 @@ trait ZIOInteropExtensions:
                     },
                 stop = _ =>
                     if fiberRuntime != null then
-                        Unsafe.unsafe { implicit unsafe =>
+                        val _ = Unsafe.unsafe { implicit unsafe =>
                             runtime.unsafe.fork(fiberRuntime.interrupt)
                         }
                         fiberRuntime = null

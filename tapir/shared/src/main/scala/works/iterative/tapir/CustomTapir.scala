@@ -7,15 +7,22 @@ import works.iterative.core.auth.AccessToken
 import sttp.capabilities.zio.ZioStreams
 import works.iterative.core.auth.service.AuthenticationError
 import sttp.model.StatusCode
+import sttp.client3.SttpBackend
 import works.iterative.tapir.codecs.Codecs.given
 import zio.*
 import zio.json.*
+import sttp.capabilities.WebSockets
 
 trait CustomTapir
     extends Tapir
     with TapirJsonZio
     with TapirAliases
-    with CustomTapirPlatformSpecific
+    with CustomTapirPlatformSpecific:
+
+    type Backend = SttpBackend[Task, ZioStreams & WebSockets]
+
+    final case class BackendProvider(get: Backend)
+end CustomTapir
 
 object CustomTapir extends CustomTapir:
     type ApiError[+E] = works.iterative.tapir.ApiError[E]

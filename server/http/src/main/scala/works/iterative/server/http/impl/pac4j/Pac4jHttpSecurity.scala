@@ -15,26 +15,23 @@ import org.http4s.server.Router
 import works.iterative.tapir.BaseUri
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter
 import org.http4s.AuthedRoutes
+import org.pac4j.core.engine.DefaultSecurityLogic
+import cats.effect.std.Dispatcher
 
 trait HttpSecurity
 
 class Pac4jHttpSecurity[Env](
     baseUri: BaseUri,
     config: Pac4jSecurityConfig,
-    pac4jConfig: Config
-)(using runtime: Runtime[Env]) extends HttpSecurity:
+    pac4jConfig: Config,
+    dispatcher: Dispatcher[RIO[Env, *]]
+) extends HttpSecurity:
     type AppTask[A] = RIO[Env, A]
     protected val dsl: Http4sDsl[AppTask] = new Http4sDsl[AppTask] {}
     import dsl.*
 
     val contextBuilder = (req: Request[AppTask], conf: Config) =>
-        new Http4sWebContext[AppTask](
-            req,
-            conf.getSessionStore,
-            t =>
-                Unsafe.unsafely:
-                    runtime.unsafe.run(t).getOrThrowFiberFailure()
-        )
+        new Http4sWebContext[AppTask](req, dispatcher.unsafeRunSync)
 
     private val sessionConfig = SessionConfig(
         cookieName = "session",
@@ -76,9 +73,10 @@ class Pac4jHttpSecurity[Env](
             pac4jConfig,
             contextBuilder,
             // TODO: this disables CSRF check, find out how to enable again
+            clients = clients,
             authorizers = authorizers,
             matchers = matchers,
-            clients = clients,
+            securityLogic = new DefaultSecurityLogic,
             securityGrantedAccessAdapter = securityGrantedAccessAdapter.getOrElse(
                 SecurityFilterMiddleware.defaultSecurityGrantedAccessAdapter
             )
