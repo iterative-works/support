@@ -98,10 +98,10 @@ case class ComGateLive(backend: Backend, config: ComGateConfig)
 end ComGateLive
 
 object ComGateLive:
-    val live: URLayer[BackendProvider & ComGateConfig, PayGate] =
+    val live: RLayer[BackendProvider & ComGateConfig, PayGate] =
         ZLayer {
             for
-                c <- ZIO.config(ComGateConfig.config).orDie
+                c <- ZIO.config(ComGateConfig.config)
                 b <- ZIO.service[BackendProvider]
             yield ComGateLive(b.get, c)
         }
@@ -109,10 +109,10 @@ object ComGateLive:
     /*
      * A live layer that makes sure the test parameter is set, without regard for config.
      */
-    val test: URLayer[BackendProvider & ComGateConfig, PayGate] =
+    val test: RLayer[BackendProvider & ComGateConfig, PayGate] =
         ZLayer {
             for
-                c <- ZIO.config(ComGateConfig.config).orDie
+                c <- ZIO.config(ComGateConfig.config)
                 b <- ZIO.service[BackendProvider]
             yield ComGateLive(b.get, c.copy(test = true))
         }

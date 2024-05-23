@@ -51,9 +51,9 @@ class CommonsEmailNotificationService(config: SMTPConfig)
 end CommonsEmailNotificationService
 
 object CommonsEmailNotificationService:
-    val layer: ULayer[EmailNotificationService] =
+    val layer: TaskLayer[EmailNotificationService] =
         ZLayer {
-            for config <- ZIO.config(SMTPConfig.config).orDie
+            for config <- ZIO.config(SMTPConfig.config)
             yield CommonsEmailNotificationService(config)
         }
 end CommonsEmailNotificationService

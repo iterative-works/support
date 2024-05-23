@@ -171,7 +171,7 @@ class MongoFileStore(
 end MongoFileStore
 
 object MongoFileStore:
-    def make(config: MongoFileConfig): URIO[MongoClient & AuthenticationService, MongoFileStore] =
+    def make(config: MongoFileConfig): RIO[MongoClient & AuthenticationService, MongoFileStore] =
         for
             client <- ZIO.service[MongoClient]
             collection <-
@@ -179,25 +179,21 @@ object MongoFileStore:
                     client.getDatabase(config.db).getCollection[BsonDocument](
                         s"${config.collection}.files"
                     )
-                ).orDie
-            bucket <- ZIO
-                .attempt(
-                    GridFSBucket(client.getDatabase(config.db), config.collection)
                 )
-                .orDie
+            bucket <- ZIO.attempt(GridFSBucket(client.getDatabase(config.db), config.collection))
             authenticationService <- ZIO.service[AuthenticationService]
         yield MongoFileStore(collection, bucket, authenticationService)
 
-    def make: URIO[MongoFileConfig & MongoClient & AuthenticationService, MongoFileStore] =
-        ZIO.service[MongoFileConfig].flatMap(make(_))
+    def make: RIO[MongoClient & AuthenticationService, MongoFileStore] =
+        ZIO.config(MongoFileConfig.config).flatMap(make(_))
 
-    def forConfig(config: MongoFileConfig): URLayer[
+    def forConfig(config: MongoFileConfig): RLayer[
         MongoClient & AuthenticationService,
         FileStoreWriter & FileStoreLoader
     ] = ZLayer(make(config))
 
-    val layer: URLayer[
-        MongoClient & MongoFileConfig & AuthenticationService,
+    val layer: RLayer[
+        MongoClient & AuthenticationService,
         FileStoreWriter & FileStoreLoader
     ] = ZLayer(make)
 

@@ -18,6 +18,8 @@ import works.iterative.core.auth.service.AuthenticationError
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
     self: CustomTapir =>
 
+    import CustomTapir.{Backend, BackendProvider}
+
     export sttp.tapir.server.http4s.{RichHttp4sEndpoint, Context}
 
     type ZApiEndpoint[R] = ZServerEndpoint[R & AuthenticationService, ZioStreams]

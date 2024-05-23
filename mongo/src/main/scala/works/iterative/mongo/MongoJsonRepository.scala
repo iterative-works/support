@@ -18,6 +18,9 @@ object MongoConfig:
 end MongoConfig
 
 extension (m: MongoClient.type)
+    def layer(config: MongoConfig): TaskLayer[MongoClient] =
+        ZLayer(ZIO.attempt(MongoClient(config.uri)))
+
     def layer: TaskLayer[MongoClient] =
         ZLayer {
             for
@@ -25,6 +28,7 @@ extension (m: MongoClient.type)
                 client <- ZIO.attempt(MongoClient(config.uri))
             yield client
         }
+end extension
 
 class MongoJsonRepository[Elem: JsonCodec, Key, Criteria](
     collection: MongoCollection[JsonObject],

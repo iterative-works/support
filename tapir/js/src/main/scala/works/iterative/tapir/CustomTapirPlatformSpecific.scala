@@ -12,8 +12,8 @@ import sttp.tapir.DecodeResult
 trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
     self: CustomTapir =>
 
-    val clientLayer: ULayer[BackendProvider] = ZLayer.succeed(
-        BackendProvider(
+    val clientLayer: ULayer[CustomTapir.BackendProvider] = ZLayer.succeed(
+        CustomTapir.BackendProvider(
             FetchZioBackend(
                 FetchOptions(
                     Some(dom.RequestCredentials.`same-origin`),
@@ -27,7 +27,7 @@ trait CustomTapirPlatformSpecific extends SttpClientInterpreter:
         endpoint: PublicEndpoint[I, E, O, Any]
     )(using
         baseUri: BaseUri,
-        backend: Backend,
+        backend: CustomTapir.Backend,
         wsToPipe: WebSocketToPipe[Any]
     ): I => IO[E, O] = input =>
         val req = toRequest(endpoint, baseUri.toUri)

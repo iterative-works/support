@@ -15,7 +15,6 @@ import org.http4s.server.Router
 import works.iterative.tapir.BaseUri
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter
 import org.http4s.AuthedRoutes
-import org.pac4j.core.engine.DefaultSecurityLogic
 import cats.effect.std.Dispatcher
 
 trait HttpSecurity
@@ -31,7 +30,7 @@ class Pac4jHttpSecurity[Env](
     import dsl.*
 
     val contextBuilder = (req: Request[AppTask], conf: Config) =>
-        new Http4sWebContext[AppTask](req, dispatcher.unsafeRunSync)
+        new Http4sWebContext[AppTask](req, conf.getSessionStore(), dispatcher.unsafeRunSync)
 
     private val sessionConfig = SessionConfig(
         cookieName = "session",
@@ -76,7 +75,6 @@ class Pac4jHttpSecurity[Env](
             clients = clients,
             authorizers = authorizers,
             matchers = matchers,
-            securityLogic = new DefaultSecurityLogic,
             securityGrantedAccessAdapter = securityGrantedAccessAdapter.getOrElse(
                 SecurityFilterMiddleware.defaultSecurityGrantedAccessAdapter
             )

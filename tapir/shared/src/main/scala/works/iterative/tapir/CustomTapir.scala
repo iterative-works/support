@@ -18,13 +18,13 @@ trait CustomTapir
     with TapirJsonZio
     with TapirAliases
     with CustomTapirPlatformSpecific:
-
-    type Backend = SttpBackend[Task, ZioStreams & WebSockets]
-
-    final case class BackendProvider(get: Backend)
 end CustomTapir
 
 object CustomTapir extends CustomTapir:
+    type Backend = SttpBackend[Task, ZioStreams & WebSockets]
+
+    final case class BackendProvider(get: Backend)
+
     type ApiError[+E] = works.iterative.tapir.ApiError[E]
     val ApiError = works.iterative.tapir.ApiError
 

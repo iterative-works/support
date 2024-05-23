@@ -12,10 +12,11 @@ import org.pac4j.core.authorization.generator.AuthorizationGenerator
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import scala.jdk.CollectionConverters.*
-import org.pac4j.http4s.Http4sGenericSessionStore
-import org.pac4j.http4s.CacheSessionRepository
 import cats.effect.std.Dispatcher
-import org.pac4j.core.context.CallContext
+import org.pac4j.core.context.WebContext
+import org.pac4j.core.context.session.SessionStore
+import org.pac4j.http4s.Http4sCacheSessionStore
+import scala.annotation.nowarn
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
@@ -25,6 +26,7 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         Pac4jConfigFactory.defaultAuthorizationGenerator
 ) extends ConfigFactory:
 
+    @nowarn("cat=deprecation")
     override def build(parameters: AnyRef*): Config =
         val clients = Clients(
             s"${pac4jConfig.urlBase}${baseUri.value.fold("/")(_.toString)}${pac4jConfig.callbackBase}/callback",
@@ -37,16 +39,14 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
-        config.setSessionStoreFactory(_ =>
-            Http4sGenericSessionStore[F](
-                CacheSessionRepository[F](),
-                dispatcher
-            )(
+        config.setSessionStore(
+            Http4sCacheSessionStore[F](
                 path = Some(baseUri.value.fold("/")(_.toString)),
                 secure = pac4jConfig.callbackBase.startsWith("https://"),
                 httpOnly = true
             )
         )
+
         config
     end build
 
@@ -67,7 +67,8 @@ object Pac4jConfigFactory:
     val defaultAuthorizationGenerator: AuthorizationGenerator =
         new AuthorizationGenerator:
             override def generate(
-                context: CallContext,
+                context: WebContext,
+                sessionStore: SessionStore,
                 profile: UserProfile
             ): Optional[UserProfile] = Optional.of(profile)
     end defaultAuthorizationGenerator
