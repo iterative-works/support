@@ -17,11 +17,12 @@ import org.pac4j.core.context.WebContext
 import org.pac4j.core.context.session.SessionStore
 import org.pac4j.http4s.Http4sCacheSessionStore
 import scala.annotation.nowarn
+import scala.annotation.unused
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
     pac4jConfig: Pac4jSecurityConfig,
-    dispatcher: Dispatcher[F],
+    @unused dispatcher: Dispatcher[F],
     authorizationGenerator: AuthorizationGenerator =
         Pac4jConfigFactory.defaultAuthorizationGenerator
 ) extends ConfigFactory:
