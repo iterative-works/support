@@ -44,9 +44,18 @@ trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
         val storeFile: ZServerEndpoint[FileStoreWriter, ZioStreams] =
             endpoints.storeFile.zServerLogic((params, contentType, file) =>
                 FileStore.store(
-                    file.getName(),
+                    params.get(FileStore.Metadata.FileName).getOrElse(file.getName()),
                     file,
-                    params.toMap + (FileStore.Metadata.FileType -> contentType)
+                    params.toMap - FileStore.Metadata.FileName + (FileStore.Metadata.FileType -> contentType)
+                )
+            )
+
+        val storeStream: ZServerEndpoint[FileStoreWriter, ZioStreams] =
+            endpoints.storeStream.zServerLogic((params, contentType, content) =>
+                FileStore.store(
+                    params.get(FileStore.Metadata.FileName).getOrElse("file"),
+                    content,
+                    params.toMap - FileStore.Metadata.FileName + (FileStore.Metadata.FileType -> contentType)
                 )
             )
 
