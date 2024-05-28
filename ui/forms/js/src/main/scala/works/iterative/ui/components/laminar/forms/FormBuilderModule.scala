@@ -36,6 +36,7 @@ trait FormBuilderModule:
             val f = form.build(initialValue)
             f.wrap: elems =>
                 fctx.formUIFactory.form(
+                    autoComplete("off"),
                     onSubmit.preventDefault.compose(_.sample(f.validated).collect {
                         case Validation.Success(_, value) => Form.Event.Submitted(value)
                     }) --> events,
@@ -96,41 +97,41 @@ trait FormBuilderModule:
             import FormSchema.*
             import works.iterative.ui.components.laminar.HtmlRenderable.given
             schema match
-            case FormSchema.Unit => FormComponent.empty
+                case FormSchema.Unit => FormComponent.empty
 
-            case Section(name, inner) =>
-                val desc = SectionDescriptor(name)
-                buildForm(inner)(initialValue).wrap(
-                    fctx.formUIFactory
-                        .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
-                )
-
-            case Control(name, required, decode, validation, inputType) =>
-                val desc = FieldDescriptor(name)
-                FieldBuilder
-                    .Input(
-                        desc,
-                        initialValue.map(decode(_)),
-                        validation,
-                        inputType
+                case Section(name, inner) =>
+                    val desc = SectionDescriptor(name)
+                    buildForm(inner)(initialValue).wrap(
+                        fctx.formUIFactory
+                            .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
                     )
-                    .wrap(
-                        fctx.formUIFactory.field(
-                            fctx.formUIFactory
-                                .label(desc.label, required = required)()
-                        )(
-                            _,
-                            desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+
+                case Control(name, required, decode, validation, inputType) =>
+                    val desc = FieldDescriptor(name)
+                    FieldBuilder
+                        .Input(
+                            desc,
+                            initialValue.map(decode(_)),
+                            validation,
+                            inputType
                         )
-                    )
+                        .wrap(
+                            fctx.formUIFactory.field(
+                                fctx.formUIFactory
+                                    .label(desc.label, required = required)()
+                            )(
+                                _,
+                                desc.help.map(t => fctx.formUIFactory.fieldHelp(t.render))
+                            )
+                        )
 
-            case z @ Zip(left, right) =>
-                val leftComponent = buildForm(left)(initialValue.map(z.toLeft))
-                val rightComponent = buildForm(right)(initialValue.map(z.toRight))
-                leftComponent.zip(rightComponent)
+                case z @ Zip(left, right) =>
+                    val leftComponent = buildForm(left)(initialValue.map(z.toLeft))
+                    val rightComponent = buildForm(right)(initialValue.map(z.toRight))
+                    leftComponent.zip(rightComponent)
 
-            case BiMap(inner, to, from) =>
-                buildForm(inner)(initialValue.map(from)).map(to)
+                case BiMap(inner, to, from) =>
+                    buildForm(inner)(initialValue.map(from)).map(to)
             end match
         end buildForm
     end HtmlFormSchemaBuilder
