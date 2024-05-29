@@ -24,8 +24,23 @@ class AutocompleteFormField(
     val value: Signal[Option[String]] = entry.map(_.map(_.value))
 
     val element: HtmlElement =
-        val (source, sink) = EventStream.withObserver[Seq[AutocompleteEntry]]
+        val (autocompleteSource, autocompleteSink) =
+            EventStream.withObserver[Seq[AutocompleteEntry]]
         val (values, valuesObserver) = EventStream.withObserver[String]
+
+        def autocompleteSearchString(using Combobox.Ctx[AutocompleteEntry]) =
+            // Get all the query changes
+            Combobox.ctx.query.changes
+                // Slow down the query to avoid too many requests
+                .throttle(1000, false)
+                // Combine with the selected field
+                .withCurrentValueOf(selectedValue.signal)
+                // to filter out the selected value from the query
+                // it would return only one value, in such a case we want more options
+                .map((q, v) => if v.map(_.label).contains(q) then "" else q)
+                // And fire the query
+                .flatMapSwitch(query.find)
+
         val initialized: Var[Boolean] = Var(false)
         Combobox[AutocompleteEntry](None)(
             cs.comboContainer(
@@ -52,8 +67,8 @@ class AutocompleteFormField(
                         v.label,
                         v.text.map(TextNode(_))
                     ),
-                Combobox.ctx.query.changes.throttle(1000, false).flatMapSwitch(query.find) --> sink,
-                source --> Combobox.ctx.itemsWriter,
+                autocompleteSearchString --> autocompleteSink,
+                autocompleteSource --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
                 values.delay(0).flatMapSwitch(query.load) --> Combobox.ctx.valueWriter,

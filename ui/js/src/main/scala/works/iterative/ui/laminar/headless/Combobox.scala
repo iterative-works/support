@@ -73,10 +73,12 @@ object Combobox:
                     _.filterWith(ctx.isChanged.signal).mapTo(None)
                 ) --> ctx.valueVar.writer,
             ctx.isFocused.signal
+                /* Removed to show the suggestions even if the input is not empty or changed, eg. when someone just enters the field.
                 .combineWithFn(
                     ctx.isChanged.signal,
                     ctx.isEmpty
                 )((f, e, c) => f && (e || c))
+                 */
                 .changes
                 .collect { case true =>
                     true
