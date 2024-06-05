@@ -6,13 +6,11 @@ import sttp.tapir.ztapir.ZTapir
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
 import sttp.tapir.client.sttp.SttpClientInterpreter
-import sttp.client3.SttpBackend
 import sttp.client3.httpclient.zio.HttpClientZioBackend
 import java.net.http.HttpClient
 import java.net.CookieHandler
 import java.net.URI
 import sttp.capabilities.zio.ZioStreams
-import sttp.capabilities.WebSockets
 import works.iterative.core.auth.service.AuthenticationService
 import works.iterative.core.auth.CurrentUser
 import works.iterative.core.auth.service.AuthenticationError
@@ -20,9 +18,9 @@ import works.iterative.core.auth.service.AuthenticationError
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
     self: CustomTapir =>
 
-    export sttp.tapir.server.http4s.{RichHttp4sEndpoint, Context}
+    import CustomTapir.{Backend, BackendProvider}
 
-    type Backend = SttpBackend[Task, ZioStreams & WebSockets]
+    export sttp.tapir.server.http4s.{RichHttp4sEndpoint, Context}
 
     type ZApiEndpoint[R] = ZServerEndpoint[R & AuthenticationService, ZioStreams]
 
@@ -61,17 +59,24 @@ trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
             ).build()
         )
 
-    def clientSessionLayer(sessionId: Option[String]): TaskLayer[Backend] =
-        HttpClientZioBackend.layerUsingClient(
-            optionallyAddSession(sessionId)(
-                HttpClient
-                    .newBuilder()
-                    .followRedirects(HttpClient.Redirect.NEVER)
-            )
-                .build()
+    def clientSessionLayer(sessionId: Option[String]): TaskLayer[BackendProvider] =
+        ZLayer.scoped(
+            ZIO
+                .acquireRelease(
+                    ZIO.attempt(
+                        HttpClientZioBackend.usingClient(
+                            optionallyAddSession(sessionId)(
+                                HttpClient
+                                    .newBuilder()
+                                    .followRedirects(HttpClient.Redirect.NEVER)
+                            )
+                                .build()
+                        )
+                    ).map(BackendProvider.apply)
+                )(_.get.close().ignore)
         )
 
-    val clientLayer: TaskLayer[Backend] =
+    val clientLayer: TaskLayer[BackendProvider] =
         ZLayer(zio.System.env("SESSION")).flatMap(sessionId =>
             clientSessionLayer(sessionId.get)
         )

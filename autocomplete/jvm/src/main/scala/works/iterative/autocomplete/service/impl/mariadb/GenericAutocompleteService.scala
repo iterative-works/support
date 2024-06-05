@@ -56,8 +56,9 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
         language: String,
         context: Option[Map[String, String]]
     ): UIO[List[AutocompleteEntry]] =
+        val usedValues = context.map(_.values.toSet).getOrElse(Set.empty)
         run(findQuery(collection, q, limit, language, context)).map(
-            _.map(toAutocompleteEntry)
+            _.filterNot(v => usedValues.contains(v.value)).map(toAutocompleteEntry)
         ).orDie
     end find
 

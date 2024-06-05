@@ -28,6 +28,16 @@ class ZIOAutocompleteRegistry(
 
     override def withContext(ctx: Option[Map[String, String]]): AutocompleteRegistry =
         new ZIOAutocompleteRegistry(service, languageService, mapping, ctx)
+
+    override def addContext(ctx: Map[String, String]): AutocompleteRegistry =
+        new ZIOAutocompleteRegistry(
+            service,
+            languageService,
+            mapping,
+            context match
+                case Some(c) => Some(c ++ ctx)
+                case _       => Some(ctx)
+        )
 end ZIOAutocompleteRegistry
 
 object ZIOAutocompleteRegistry:
@@ -66,7 +76,7 @@ object ZIOAutocompleteRegistry:
         val finalContext = composeContexts(context, config.context)
 
         override def find(q: String): EventStream[List[AutocompleteEntry]] =
-            additionalContextSignal.flatMap(add =>
+            additionalContextSignal.flatMapSwitch(add =>
                 service.find(
                     config.collection,
                     q,

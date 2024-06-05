@@ -1,7 +1,6 @@
 package works.iterative.server.http
 
 import zio.*
-import zio.config.*
 
 /** Configuration for the single page application (SPA) endpoints.
   *
@@ -30,48 +29,20 @@ final case class SPAConfig(
 )
 
 object SPAConfig:
-    private def descriptor(name: String) =
-        import ConfigDescriptor.*
-        string("APPPATH").default("app") zip
-            string("APPINDEX").default("index.html") zip
-            string("FILEPATH").optional zip
-            string("RESOURCEPATH").default(name)
-    end descriptor
+    def appConfig(name: String) =
+        import Config.*
+        string("apppath").withDefault("app") ++
+            string("appindex").withDefault("index.html") ++
+            string("filepath").optional ++
+            string("resourcepath").withDefault(name)
+    end appConfig
 
-    val configDesc: ConfigDescriptor[SPAConfig] =
-        import ConfigDescriptor.*
-        nested("SPA")(descriptor("app")).to[SPAConfig]
-    end configDesc
+    val config: Config[SPAConfig] =
+        import Config.*
+        appConfig("app").nested("spa").map(SPAConfig.apply)
+    end config
 
-    def configDesc(prefix: String): ConfigDescriptor[SPAConfig] =
-        import ConfigDescriptor.*
-        nested("SPA")(nested(prefix.toUpperCase())(descriptor(prefix))).to[SPAConfig]
-
-    val appFromEnv: ZLayer[Any, ReadError[String], SPAConfig] =
-        ZConfig.fromSystemEnv(
-            configDesc,
-            keyDelimiter = Some('_'),
-            valueDelimiter = Some(',')
-        )
-
-    def fromEnv(prefix: String): ZLayer[Any, ReadError[String], SPAConfig] =
-        ZConfig.fromSystemEnv(
-            configDesc(prefix),
-            keyDelimiter = Some('_'),
-            valueDelimiter = Some(',')
-        )
-
-    def loadFromEnv(prefix: String): ZIO[Any, ReadError[String], SPAConfig] =
-        read(configDesc(prefix).from(ConfigSource.fromSystemEnv(
-            keyDelimiter = Some('_'),
-            valueDelimiter = Some(',')
-        )))
-    end loadFromEnv
-
-    def loadAppFromEnv: ZIO[Any, ReadError[String], SPAConfig] =
-        read(configDesc.from(ConfigSource.fromSystemEnv(
-            keyDelimiter = Some('_'),
-            valueDelimiter = Some(',')
-        )))
-    end loadAppFromEnv
+    def config(prefix: String): Config[SPAConfig] =
+        import Config.*
+        appConfig(prefix).nested(prefix).nested("spa").map(SPAConfig.apply)
 end SPAConfig

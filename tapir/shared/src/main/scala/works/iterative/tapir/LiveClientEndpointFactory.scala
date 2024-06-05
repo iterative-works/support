@@ -51,11 +51,11 @@ class LiveClientEndpointFactory(using
 end LiveClientEndpointFactory
 
 object LiveClientEndpointFactory:
-    val layer: URLayer[BaseUri & CustomTapir.Backend, ClientEndpointFactory] =
+    val layer: URLayer[BaseUri & CustomTapir.BackendProvider, ClientEndpointFactory] =
         ZLayer {
             for
                 given BaseUri <- ZIO.service[BaseUri]
-                given CustomTapir.Backend <- ZIO.service[CustomTapir.Backend]
+                given CustomTapir.Backend <- ZIO.serviceWith[CustomTapir.BackendProvider](_.get)
             yield LiveClientEndpointFactory()
         }
 

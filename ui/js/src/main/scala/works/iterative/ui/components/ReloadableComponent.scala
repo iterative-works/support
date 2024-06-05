@@ -1,7 +1,6 @@
 package works.iterative.ui.components
 
 import com.raquo.laminar.api.L.*
-import io.laminext.syntax.core.*
 import sttp.tapir.PublicEndpoint
 import works.iterative.core.*
 import works.iterative.tapir.ClientEndpointFactory
@@ -76,7 +75,7 @@ case class ReloadableComponent[A, I](
         case None      => emptyMod
         case Some(upd) => updateFromZioStream(upd)
 
-    def initMod: HtmlMod = nodeSeq(
+    def initMod: HtmlMod = modSeq(
         EventStream.fromValue(ReloadableComponent.Reload.Once) --> reload,
         updateStream
     )

@@ -10,20 +10,12 @@ import works.iterative.core.auth.*
 import works.iterative.core.auth.service.AuthenticationError
 import sttp.tapir.CodecFormat
 import sttp.tapir.Validator
-import works.iterative.core.service.FileStore
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
     pon: Option[PlainOneLine],
     md: Option[Markdown]
 )
-
-case class LegacyFileRef(
-    name: String,
-    url: String,
-    fileType: Option[String],
-    size: Option[Long]
-) derives JsonCodec
 
 trait Codecs extends JsonCodecs with TapirCodecs
 
@@ -78,25 +70,6 @@ trait JsonCodecs:
     given JsonCodec[Claim] = DeriveJsonCodec.gen[Claim]
     given JsonCodec[BasicProfile] = DeriveJsonCodec.gen[BasicProfile]
 
-    given fileRefEncoder: JsonEncoder[FileRef] = DeriveJsonEncoder.gen[FileRef]
-    val fileRefDecoder: JsonDecoder[FileRef] = DeriveJsonDecoder.gen[FileRef]
-
-    given completeFileRefDecoder: JsonDecoder[FileRef] =
-        fileRefDecoder.orElse(
-            JsonDecoder[LegacyFileRef].map(f =>
-                FileRef(
-                    f.name,
-                    f.url,
-                    List(
-                        f.fileType.map(FileStore.Metadata.FileType -> _),
-                        f.size.map(FileStore.Metadata.Size -> _.toString())
-                    ).flatten.toMap
-                )
-            )
-        )
-
-    given JsonCodec[FileRef] = JsonCodec(fileRefEncoder, completeFileRefDecoder)
-
     given JsonCodec[Moment] = JsonCodec.instant.transform(
         Moment(_),
         _.toInstant
@@ -113,23 +86,23 @@ trait JsonCodecs:
         JsonCodec.string.transform(
             input =>
                 input match
-                case i if i.startsWith("__int:")  => i.stripPrefix("__int:").toInt
-                case i if i.startsWith("__long:") => i.stripPrefix("__long:").toLong
-                case i if i.startsWith("__bool:") =>
-                    i.stripPrefix("__bool:").toBoolean
-                case i if i.startsWith("__double:") =>
-                    i.stripPrefix("__double:").toDouble
-                case i if i.startsWith("__char:") => i.stripPrefix("__char:").head
-                case _                            => input
+                    case i if i.startsWith("__int:")  => i.stripPrefix("__int:").toInt
+                    case i if i.startsWith("__long:") => i.stripPrefix("__long:").toLong
+                    case i if i.startsWith("__bool:") =>
+                        i.stripPrefix("__bool:").toBoolean
+                    case i if i.startsWith("__double:") =>
+                        i.stripPrefix("__double:").toDouble
+                    case i if i.startsWith("__char:") => i.stripPrefix("__char:").head
+                    case _                            => input
             ,
             arg =>
                 arg match
-                case i: Int     => s"__int:$i"
-                case l: Long    => s"__long:$l"
-                case b: Boolean => s"__bool:$b"
-                case d: Double  => s"__double:$d"
-                case c: Char    => s"__char:$c"
-                case s: String  => s
+                    case i: Int     => s"__int:$i"
+                    case l: Long    => s"__long:$l"
+                    case b: Boolean => s"__bool:$b"
+                    case d: Double  => s"__double:$d"
+                    case c: Char    => s"__char:$c"
+                    case s: String  => s
         )
     given JsonCodec[UserMessage] = DeriveJsonCodec.gen[UserMessage]
 end JsonCodecs
@@ -169,7 +142,6 @@ trait TapirCodecs:
     given Schema[Email] = Schema.string
     given Schema[Claim] = Schema.derived[Claim]
     given Schema[BasicProfile] = Schema.derived[BasicProfile]
-    given Schema[FileRef] = Schema.derived[FileRef]
     given Schema[Moment] =
         Schema.schemaForInstant.map(i => Some(Moment(i)))(_.toInstant)
     given Schema[UserHandle] = Schema.derived[UserHandle]
@@ -182,6 +154,10 @@ trait TapirCodecs:
 
     given Codec[String, AccessToken, CodecFormat.TextPlain] =
         Codec.string.map(AccessToken(_))(_.token)
+
+    given Codec[String, Language, CodecFormat.TextPlain] =
+        Codec.string.map(Language.unsafe(_))(_.value)
+
 end TapirCodecs
 
 object Codecs extends Codecs

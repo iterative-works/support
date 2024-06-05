@@ -26,10 +26,43 @@ lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
     .in(file("tapir"))
     .dependsOn(core)
 
+lazy val `files-core` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("files/core"))
+    .dependsOn(core)
+
+lazy val `files-rest` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("files/adapters/rest"))
+    .dependsOn(`files-core`, `tapir-support`)
+
+lazy val `files-mongo` = project
+    .in(file("files/adapters/mongo"))
+    .dependsOn(`files-core`.jvm, `mongo-support`)
+
+lazy val `files-mongo-it` = project
+    .in(file("files/adapters/mongo/it"))
+    .settings(publish / skip := true)
+    .settings(IWDeps.useZIO())
+    .dependsOn(`files-mongo`)
+
+lazy val `files-ui` = project
+    .enablePlugins(ScalaJSPlugin)
+    .in(file("files/adapters/ui"))
+    .dependsOn(`files-core`.js, ui.js)
+
+lazy val `files-ui-scenarios` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .settings(publish / skip := true)
+    .in(file("files/adapters/ui/scenarios"))
+    .jsConfigure(_.dependsOn(`files-ui`))
+    .dependsOn(`files-core`, ui)
+
 lazy val `autocomplete` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("autocomplete"))
-    .dependsOn(core, `tapir-support`, ui)
+    .jsConfigure(_.dependsOn(`files-ui`))
+    .dependsOn(core, `tapir-support`, ui, `ui-forms`)
 
 lazy val hashicorp = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
@@ -47,7 +80,7 @@ lazy val paygate = project
     .in(file("paygate"))
     .dependsOn(core.jvm, `tapir-support`.jvm)
 
-lazy val email = project.in(file("email")).dependsOn(core)
+lazy val email = project.in(file("email")).dependsOn(core.jvm)
 
 lazy val `akka-persistence-support` = project
     .in(file("akka-persistence"))
@@ -57,6 +90,11 @@ lazy val ui = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("ui"))
     .dependsOn(core, `tapir-support`)
+
+lazy val `ui-forms` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("ui/forms"))
+    .dependsOn(ui, `files-core`)
 
 lazy val http = (project in file("server/http"))
     .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
@@ -93,7 +131,7 @@ lazy val `scenarios-ui` = project
         },
         scalaJSUseMainModuleInitializer := true
     )
-    .dependsOn(`ui`.js)
+    .dependsOn(`ui`.js, `ui-forms`.js)
 
 lazy val root = (project in file("."))
     .enablePlugins(IWScalaProjectPlugin)
@@ -114,6 +152,12 @@ lazy val root = (project in file("."))
         `tapir-support`.jvm,
         `mongo-support`,
         `akka-persistence-support`,
+        `files-core`.js,
+        `files-core`.jvm,
+        `files-mongo`,
+        `files-rest`.js,
+        `files-rest`.jvm,
+        `files-ui`,
         ui.js,
         ui.jvm,
         http

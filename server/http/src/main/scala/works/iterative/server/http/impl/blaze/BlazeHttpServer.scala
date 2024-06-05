@@ -30,11 +30,11 @@ class BlazeHttpServer(config: BlazeServerConfig, baseUri: BaseUri) extends HttpS
 end BlazeHttpServer
 
 object BlazeHttpServer:
-    val layer: RLayer[BlazeServerConfig & BaseUri, HttpServer] =
+    val layer: TaskLayer[HttpServer] =
         ZLayer {
             for
-                config <- ZIO.service[BlazeServerConfig]
-                baseUri <- ZIO.service[BaseUri]
+                config <- ZIO.config(BlazeServerConfig.config)
+                baseUri <- ZIO.config(BaseUri.config)
             yield BlazeHttpServer(config, baseUri)
         }
 end BlazeHttpServer

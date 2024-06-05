@@ -22,11 +22,11 @@ class DocumentCounterSequenceIdGeneratorFactory(
 end DocumentCounterSequenceIdGeneratorFactory
 
 object DocumentCounterSequenceIdGeneratorFactory:
-    val layer: URLayer[AkkaActorSystem & AkkaConfig, SequenceIdGeneratorFactory] =
+    val layer: RLayer[AkkaActorSystem, SequenceIdGeneratorFactory] =
         ZLayer {
             for
                 system <- ZIO.serviceWith[AkkaActorSystem](_.system)
-                config <- ZIO.service[AkkaConfig]
+                config <- ZIO.config(AkkaConfig.config)
                 _ <- ZIO.attempt(DocumentCounterBehavior.init(using system))
             yield DocumentCounterSequenceIdGeneratorFactory(system, config)
         }.orDie

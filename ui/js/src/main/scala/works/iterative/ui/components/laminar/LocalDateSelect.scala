@@ -8,61 +8,67 @@ import org.scalajs.dom.Event
 import com.raquo.laminar.modifiers.KeyUpdater
 
 trait LocalDateSelectModule:
-  val localDateSelect: LocalDateSelect = new LocalDateSelect
+    val localDateSelect: LocalDateSelect = new LocalDateSelect
 
-  class LocalDateSelect:
-    import LocalDateSelect.*
+    class LocalDateSelect:
+        import LocalDateSelect.*
 
-    def valueUpdater(
-        signal: Signal[Option[LocalDate]]
-    ): KeyUpdater.PropUpdater[String, String] =
-      L.value <-- signal.map(_.map(formatDate).getOrElse(""))
+        def valueUpdater(
+            signal: Signal[Option[LocalDate]]
+        ): KeyUpdater.PropUpdater[String, String] =
+            L.value <-- signal.map(_.map(formatDate).getOrElse(""))
 
-    // Does not work in `controlled`
-    // Laminar refuses the custom prop, requries its own `value` or `checked`
-    val value: HtmlProp[Option[LocalDate]] =
-      htmlProp("value", OptLocalDateAsStringCodec)
+        // Does not work in `controlled`
+        // Laminar refuses the custom prop, requries its own `value` or `checked`
+        val value: HtmlProp[Option[LocalDate], String] =
+            htmlProp("value", OptLocalDateAsStringCodec)
 
-    val min: HtmlProp[LocalDate] =
-      htmlProp("min", LocalDateAsStringCodec)
+        val min: HtmlProp[LocalDate, String] =
+            htmlProp("min", LocalDateAsStringCodec)
 
-    val max: HtmlProp[LocalDate] =
-      htmlProp("max", LocalDateAsStringCodec)
+        val max: HtmlProp[LocalDate, String] =
+            htmlProp("max", LocalDateAsStringCodec)
 
-    val onInput: EventProcessor[Event, LocalDate] =
-      L.onInput.mapToValue.setAsValue.map(parseDate).collect { case Some(d) =>
-        d
-      }
+        val onInput: EventProcessor[Event, LocalDate] =
+            L.onInput.mapToValue.setAsValue.map(parseDate).collect { case Some(d) =>
+                d
+            }
 
-    val onOptInput: EventProcessor[Event, Option[LocalDate]] =
-      onInput.mapToValue.setAsValue.map(parseDate)
+        val onOptInput: EventProcessor[Event, Option[LocalDate]] =
+            onInput.mapToValue.setAsValue.map(parseDate)
+    end LocalDateSelect
 
-  object LocalDateSelect:
-    import java.time.format.DateTimeFormatter
-    import java.time.LocalDate
-    import com.raquo.laminar.codecs.Codec
+    object LocalDateSelect:
+        import java.time.format.DateTimeFormatter
+        import java.time.LocalDate
+        import com.raquo.laminar.codecs.Codec
 
-    private val formatter: DateTimeFormatter =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        private val formatter: DateTimeFormatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-    private def parseDate(date: String): Option[LocalDate] =
-      import scala.util.Try
-      if date.isEmpty then None
-      else Try(LocalDate.parse(date, formatter)).toOption
+        private def parseDate(date: String): Option[LocalDate] =
+            import scala.util.Try
+            if date.isEmpty then None
+            else Try(LocalDate.parse(date, formatter)).toOption
+        end parseDate
 
-    private def formatDate(date: LocalDate): String =
-      formatter.format(date)
+        private def formatDate(date: LocalDate): String =
+            formatter.format(date)
 
-    object LocalDateAsStringCodec extends Codec[LocalDate, String]:
-      override def decode(domValue: String): LocalDate =
-        parseDate(domValue).orNull
+        object LocalDateAsStringCodec extends Codec[LocalDate, String]:
+            override def decode(domValue: String): LocalDate =
+                parseDate(domValue).orNull
 
-      override def encode(scalaValue: LocalDate): String =
-        formatDate(scalaValue)
+            override def encode(scalaValue: LocalDate): String =
+                formatDate(scalaValue)
+        end LocalDateAsStringCodec
 
-    object OptLocalDateAsStringCodec extends Codec[Option[LocalDate], String]:
-      override def decode(domValue: String): Option[LocalDate] =
-        parseDate(domValue)
+        object OptLocalDateAsStringCodec extends Codec[Option[LocalDate], String]:
+            override def decode(domValue: String): Option[LocalDate] =
+                parseDate(domValue)
 
-      override def encode(scalaValue: Option[LocalDate]): String =
-        scalaValue.map(formatDate).getOrElse("")
+            override def encode(scalaValue: Option[LocalDate]): String =
+                scalaValue.map(formatDate).getOrElse("")
+        end OptLocalDateAsStringCodec
+    end LocalDateSelect
+end LocalDateSelectModule

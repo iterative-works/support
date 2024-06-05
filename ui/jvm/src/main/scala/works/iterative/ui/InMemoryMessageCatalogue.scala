@@ -6,6 +6,7 @@ import works.iterative.core.UserMessage
 import scala.util.Try
 import zio.*
 import zio.json.*
+import works.iterative.core.Language
 
 class InMemoryMessageCatalogue(messages: Map[String, String])
     extends MessageCatalogue:
@@ -26,11 +27,12 @@ class InMemoryMessageCatalogue(messages: Map[String, String])
 end InMemoryMessageCatalogue
 
 object InMemoryMessageCatalogue:
-    val fromJsonResources: ULayer[MessageCatalogue] =
-        ZLayer.scoped {
+    def messagesFromJsonResources(lang: Option[Language]): UIO[MessageCatalogue] =
+        val suffix = lang.filterNot(_ == Language.CS).map(l => s"_${l.value}").getOrElse("")
+        ZIO.scoped {
             for
                 resource <- ZIO.readURIInputStream(
-                    getClass().getResource("/messages.json").toURI()
+                    getClass().getResource(s"/messages${suffix}.json").toURI()
                 )
                 content <- resource.readAll(2048).mapError {
                     case Some(e) => e
@@ -47,4 +49,10 @@ object InMemoryMessageCatalogue:
                     )
             yield InMemoryMessageCatalogue(messages)
         }.orDie
+    end messagesFromJsonResources
+
+    val fromJsonResources: ULayer[MessageCatalogue] = fromJsonResources(None)
+
+    def fromJsonResources(lang: Option[Language]): ULayer[MessageCatalogue] =
+        ZLayer(messagesFromJsonResources(lang))
 end InMemoryMessageCatalogue

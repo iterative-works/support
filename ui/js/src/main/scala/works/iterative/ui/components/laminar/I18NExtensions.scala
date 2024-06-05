@@ -1,7 +1,6 @@
 package works.iterative.ui.components.laminar
 
 import com.raquo.laminar.api.L.*
-import io.laminext.syntax.core.*
 import works.iterative.core.{MessageId, UserMessage}
 import org.scalajs.dom
 import works.iterative.core.MessageCatalogue
@@ -37,7 +36,7 @@ trait I18NExtensions:
         private inline def msgAttrs(id: MessageId, text: String)(using
             messages: MessageCatalogue
         ): HtmlMod =
-            nodeSeq(
+            modSeq(
                 dataAttr("msgid")(id.toString()),
                 dataAttr("msgprefix")(messages.currentPrefixes.mkString(",")),
                 text
@@ -49,7 +48,10 @@ trait I18NExtensions:
             msg.asElement
 
     extension (msgId: MessageId)
-        def node: Span = I18NExtensions.messageNode(msgId)
+        def node: Node = I18NExtensions.messageNode(msgId)
+
+    extension (userMessage: UserMessage)
+        def node: Node = I18NExtensions.messageNode(userMessage)
 end I18NExtensions
 
 object I18NExtensions:
@@ -91,7 +93,7 @@ object I18NExtensions:
     def inMessageContext(context: MessageId)(mods: HtmlMod*): Div =
         div(cls("contents"), nestContext(context.value), mods)
 
-    def messageNode(key: MessageId): Span =
+    def messageNode(key: UserMessage): Node =
         val translation = Var[String]("")
         span(
             cls("contents"),
