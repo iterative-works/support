@@ -22,14 +22,6 @@ trait I18NExtensions:
         ): Option[HtmlElement] =
             messages.get(msg).map(t => span(msgAttrs(msg.id, t)))
 
-        inline def asString(using messages: MessageCatalogue): String =
-            messages(msg)
-
-        inline def asOptionalString(using
-            messages: MessageCatalogue
-        ): Option[String] =
-            messages.get(msg)
-
         inline def asMod(using messages: MessageCatalogue): Mod[HtmlElement] =
             msgAttrs(msg.id, messages(msg))
 
