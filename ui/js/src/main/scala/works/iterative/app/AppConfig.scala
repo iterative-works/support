@@ -9,7 +9,7 @@ import works.iterative.tapir.BaseUri
 trait JSAppConfig extends js.Object:
     def baseUrl: String = js.native
 
-case class AppConfig(baseUrl: String):
+case class AppConfig(baseUrl: String, appUrl: String):
     val baseUri: BaseUri = BaseUri(baseUrl)
 
 object AppConfig:
@@ -19,5 +19,5 @@ object AppConfig:
 
     val layer: ULayer[AppConfig] =
         ZLayer.succeed:
-            AppConfig(baseUrl = config.baseUrl)
+            AppConfig(baseUrl = config.baseUrl, appUrl = config.baseUrl + "app")
 end AppConfig

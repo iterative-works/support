@@ -38,7 +38,7 @@ object LaminarAppLive:
                 given MessageCatalogue <- ZIO.service[MessageCatalogue]
                 connects = connectors.make
                 given Router[P] = Routes[P](
-                    appConfig.baseUrl,
+                    appConfig.appUrl,
                     connects,
                     home,
                     notFound,
