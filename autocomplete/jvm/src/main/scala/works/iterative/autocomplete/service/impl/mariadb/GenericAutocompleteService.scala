@@ -56,9 +56,13 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
         language: String,
         context: Option[Map[String, String]]
     ): UIO[List[AutocompleteEntry]] =
-        val usedValues = context.map(_.values.toSet).getOrElse(Set.empty)
+        val filterUsedValues: List[Autocomplete] => List[Autocomplete] =
+            if context.flatMap(_.get("__unique")).contains("true") then
+                val usedValues = context.map(_.values.toSet).getOrElse(Set.empty)
+                (found: List[Autocomplete]) => found.filterNot(v => usedValues.contains(v.value))
+            else identity
         run(findQuery(collection, q, limit, language, context)).map(
-            _.filterNot(v => usedValues.contains(v.value)).map(toAutocompleteEntry)
+            filterUsedValues(_).map(toAutocompleteEntry)
         ).orDie
     end find
 

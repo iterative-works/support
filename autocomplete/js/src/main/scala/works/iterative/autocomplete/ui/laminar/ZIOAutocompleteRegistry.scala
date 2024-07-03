@@ -45,6 +45,7 @@ object ZIOAutocompleteRegistry:
         collection: String,
         limit: Int = 20,
         strict: Boolean = false,
+        unique: Boolean = false,
         context: Option[Map[String, String]] = None
     )
 
@@ -73,7 +74,10 @@ object ZIOAutocompleteRegistry:
         context: Option[Map[String, String]],
         additionalContextSignal: Signal[Option[Map[String, String]]]
     )(using Runtime[Any]) extends AutocompleteQuery:
-        val finalContext = composeContexts(context, config.context)
+        val finalContext = composeContexts(
+            composeContexts(context, config.context),
+            if config.unique then Some(Map("__unique" -> "true")) else None
+        )
 
         override def find(q: String): EventStream[List[AutocompleteEntry]] =
             additionalContextSignal.flatMapSwitch(add =>
