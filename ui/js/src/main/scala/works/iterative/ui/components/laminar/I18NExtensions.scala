@@ -96,6 +96,7 @@ object I18NExtensions:
     def messageNode(key: UserMessage): Node =
         val translation = Var[String]("")
         span(
+            cls("contents"),
             child.text <-- translation.signal,
             onMountCallback: ctx =>
                 closestMessages(ctx.thisNode.ref).foreach: msgs =>
