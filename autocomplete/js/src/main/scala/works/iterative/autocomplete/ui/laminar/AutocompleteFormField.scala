@@ -52,9 +52,14 @@ class AutocompleteFormField(
                         inError,
                         tpe("text"),
                         inputFieldMod,
+                        /*
+                        This is able to load a value that has not been in the list of options
+                        Let's try to abandon this feature for now, it might not be correct.
+                        Maybe reset the value instead?
                         onBlur.compose(_.sample(Combobox.ctx.query, selectedValue.signal).filter(
                             (q, v) => !q.isBlank && !v.map(_.label).contains(q)
                         ).map(_._1)) --> valuesObserver,
+                         */
                         readOnly <-- enabled.not,
                         disabled <-- enabled.not
                     )),
