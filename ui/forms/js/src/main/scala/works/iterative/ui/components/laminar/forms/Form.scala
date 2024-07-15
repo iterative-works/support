@@ -27,7 +27,8 @@ object Form:
                 .wrap(
                     fctx.formUIFactory.section(
                         desc.title,
-                        desc.subtitle.map(textToTextNode(_))
+                        desc.subtitle.map(textToTextNode(_)),
+                        desc.extraContent
                     )(_*)
                 )
     end Section

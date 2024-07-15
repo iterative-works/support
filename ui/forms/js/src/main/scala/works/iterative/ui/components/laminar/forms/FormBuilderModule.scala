@@ -103,7 +103,11 @@ trait FormBuilderModule:
                     val desc = SectionDescriptor(name)
                     buildForm(inner)(initialValue).wrap(
                         fctx.formUIFactory
-                            .section(desc.title, desc.subtitle.map(textToTextNode))(_*)
+                            .section(
+                                desc.title,
+                                desc.subtitle.map(textToTextNode),
+                                desc.extraContent
+                            )(_*)
                     )
 
                 case Control(name, required, decode, validation, inputType) =>
