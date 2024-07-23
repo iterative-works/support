@@ -76,10 +76,13 @@ object ZIOAutocompleteRegistry:
         val finalContext = composeContexts(context, config.context)
 
         private val findCache = Unsafe.unsafe:
-            Ref.Synchronized.unsafe.make(Map.empty[Find, List[AutocompleteEntry]])
+            Ref.Synchronized.unsafe.make(Map.empty[Find, Promise[Nothing, List[AutocompleteEntry]]])
 
         private val loadCache = Unsafe.unsafe:
-            Ref.Synchronized.unsafe.make(Map.empty[Load, Option[AutocompleteEntry]])
+            Ref.Synchronized.unsafe.make(Map.empty[Load, Promise[
+                Nothing,
+                Option[AutocompleteEntry]
+            ]])
 
         sealed trait Operation[M[_]]
 
@@ -126,24 +129,40 @@ object ZIOAutocompleteRegistry:
             op match
                 case key @ Find(collection, q, limit, language, contexts) =>
                     for
-                        entries <- findCache.get
-                        result <- entries.get(key) match
-                            case Some(value) => ZIO.succeed(value)
-                            case None => service.find(collection, q, limit, language, contexts)
-                                    .tap(result =>
-                                        // Keep the cache at 100 entries
-                                        findCache.update: c =>
-                                            (if c.size > 99 then c.drop(c.size - 99)
-                                             else c) + (key -> result)
-                                    )
+                        promise <- findCache.modifyZIO: entries =>
+                            // We lookup the key, if found, we return the map as is
+                            // If not found, we create the effect that will add the promise to the map
+                            entries.get(key) match
+                                case Some(p) => ZIO.succeed((p, entries))
+                                case None =>
+                                    for
+                                        p <- Promise.make[Nothing, List[AutocompleteEntry]]
+                                        _ <- p.complete(service.find(
+                                            collection,
+                                            q,
+                                            limit,
+                                            language,
+                                            contexts
+                                        )).fork
+                                    yield (p, entries + (key -> p))
+                        result <- promise.await
                     yield result
                 case key @ Load(collection, id, language, context) =>
                     for
-                        entries <- loadCache.get
-                        result <- entries.get(key) match
-                            case Some(value) => ZIO.succeed(value)
-                            case None => service.load(collection, id, language, context)
-                                    .tap(result => loadCache.update(_ + (key -> result)))
+                        promise <- loadCache.modifyZIO: entries =>
+                            entries.get(key) match
+                                case Some(p) => ZIO.succeed((p, entries))
+                                case None =>
+                                    for
+                                        p <- Promise.make[Nothing, Option[AutocompleteEntry]]
+                                        _ <- p.complete(service.load(
+                                            collection,
+                                            id,
+                                            language,
+                                            context
+                                        )).fork
+                                    yield (p, entries + (key -> p))
+                        result <- promise.await
                     yield result
     end AutocompleteQueryImpl
 end ZIOAutocompleteRegistry
