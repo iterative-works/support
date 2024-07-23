@@ -75,19 +75,44 @@ object ZIOAutocompleteRegistry:
     )(using Runtime[Any]) extends AutocompleteQuery:
         val finalContext = composeContexts(context, config.context)
 
+        private val findCache = Unsafe.unsafe:
+            Ref.Synchronized.unsafe.make(Map.empty[Find, List[AutocompleteEntry]])
+
+        private val loadCache = Unsafe.unsafe:
+            Ref.Synchronized.unsafe.make(Map.empty[Load, Option[AutocompleteEntry]])
+
+        sealed trait Operation[M[_]]
+
+        final case class Find(
+            collection: String,
+            q: String,
+            limit: Int,
+            language: String,
+            contexts: Option[Map[String, String]]
+        ) extends Operation[List]
+
+        final case class Load(
+            collection: String,
+            id: String,
+            language: String,
+            context: Option[Map[String, String]]
+        ) extends Operation[Option]
+
         override def find(q: String): EventStream[List[AutocompleteEntry]] =
-            additionalContextSignal.flatMapSwitch(add =>
-                service.find(
-                    config.collection,
-                    q,
-                    config.limit,
-                    languageService.currentLanguage,
-                    composeContexts(finalContext, add)
-                ).map(_.toList).toEventStream
+            EventStream.unit().withCurrentValueOf(additionalContextSignal.signal).flatMapSwitch(
+                add =>
+                    cached(Find(
+                        config.collection,
+                        q,
+                        config.limit,
+                        languageService.currentLanguage,
+                        composeContexts(finalContext, add)
+                    )).toEventStream
             )
+        end find
 
         override def load(id: String): EventStream[Option[AutocompleteEntry]] =
-            service.load(config.collection, id, languageService.currentLanguage, context).map {
+            cached(Load(config.collection, id, languageService.currentLanguage, context)).map {
                 case None if !config.strict => Some(AutocompleteEntry(id, id, None, Map.empty))
                 case c                      => c
             }.toEventStream
@@ -95,5 +120,30 @@ object ZIOAutocompleteRegistry:
         override def withContextSignal(ctx: Signal[Option[Map[String, String]]])
             : AutocompleteQuery =
             new AutocompleteQueryImpl(service, languageService, config, context, ctx)
+
+        private def cached[M[_]](op: Operation[M]): UIO[M[AutocompleteEntry]] =
+            // Naive cache implementation, could be improved, but it's good enough for now
+            op match
+                case key @ Find(collection, q, limit, language, contexts) =>
+                    for
+                        entries <- findCache.get
+                        result <- entries.get(key) match
+                            case Some(value) => ZIO.succeed(value)
+                            case None => service.find(collection, q, limit, language, contexts)
+                                    .tap(result =>
+                                        // Keep the cache at 100 entries
+                                        findCache.update: c =>
+                                            (if c.size > 99 then c.drop(c.size - 99)
+                                             else c) + (key -> result)
+                                    )
+                    yield result
+                case key @ Load(collection, id, language, context) =>
+                    for
+                        entries <- loadCache.get
+                        result <- entries.get(key) match
+                            case Some(value) => ZIO.succeed(value)
+                            case None => service.load(collection, id, language, context)
+                                    .tap(result => loadCache.update(_ + (key -> result)))
+                    yield result
     end AutocompleteQueryImpl
 end ZIOAutocompleteRegistry

@@ -19,6 +19,7 @@ class AutocompleteFormField(
 )(using cs: AutocompleteViews):
 
     private val selectedValue: Var[Option[AutocompleteEntry]] = Var(None)
+    private val isFocused: Var[Boolean] = Var(false)
 
     val entry: Signal[Option[AutocompleteEntry]] = selectedValue.signal
     val value: Signal[Option[String]] = entry.map(_.map(_.value))
@@ -33,6 +34,10 @@ class AutocompleteFormField(
             Combobox.ctx.query.changes
                 // Slow down the query to avoid too many requests
                 .throttle(1000, false)
+                // Combine with the focused signal, so that we react on focus change as well
+                .combineWith(isFocused.signal.changes)
+                .filter(_._2)
+                .map(_._1)
                 // Combine with the selected field
                 .withCurrentValueOf(selectedValue.signal)
                 // to filter out the selected value from the query
@@ -61,7 +66,9 @@ class AutocompleteFormField(
                         ).map(_._1)) --> valuesObserver,
                          */
                         readOnly <-- enabled.not,
-                        disabled <-- enabled.not
+                        disabled <-- enabled.not,
+                        onFocus.mapToTrue --> isFocused.writer,
+                        onBlur.mapToFalse --> isFocused.writer
                     )),
                     Combobox.button(cs.comboButton())
                 ),
