@@ -16,7 +16,7 @@ object Combobox:
         private[Combobox] val valueVar: Var[Option[T]] = Var(initialValue)
         private[Combobox] val inputVar: Var[String] = Var("")
         private[Combobox] val open: Var[Boolean] = Var(false)
-        private[Combobox] val isFocused: Var[Boolean] = Var(false)
+        private[Combobox] val focused: Var[Boolean] = Var(false)
         private[Combobox] val isChanged: Var[Boolean] = Var(false)
         private[Combobox] val isEmpty: Signal[Boolean] =
             valueVar.signal.map(_.isEmpty)
@@ -30,6 +30,7 @@ object Combobox:
         val items: Signal[Seq[T]] = itemsVar.signal
         val value: Signal[Option[T]] = valueVar.signal.distinct
         val isOpen: Signal[Boolean] = open.signal
+        val isFocused: Signal[Boolean] = focused.signal
         val query: Signal[String] = inputVar.signal
     end Ctx
 
@@ -62,8 +63,8 @@ object Combobox:
     ): Input =
         val currentValue = ctx.value.map(_.map(displayValue).getOrElse(""))
         inp.amend(
-            onFocus.mapTo(true) --> ctx.isFocused.writer,
-            onBlur.mapTo(false) --> ctx.isFocused.writer,
+            onFocus.mapToTrue --> ctx.focused.writer,
+            onBlur.mapToFalse --> ctx.focused.writer,
             ctx.inputVar.signal
                 .combineWithFn(currentValue)(_ != _) --> ctx.isChanged.writer,
             // Reset the value if we get back to blank after having something set
@@ -72,7 +73,7 @@ object Combobox:
                 .compose(
                     _.filterWith(ctx.isChanged.signal).mapTo(None)
                 ) --> ctx.valueVar.writer,
-            ctx.isFocused.signal
+            ctx.focused.signal
                 /* Removed to show the suggestions even if the input is not empty or changed, eg. when someone just enters the field.
                 .combineWithFn(
                     ctx.isChanged.signal,
