@@ -71,7 +71,6 @@ class Pac4jHttpSecurity[Env](
         .securityFilter[AppTask](
             pac4jConfig,
             contextBuilder,
-            // TODO: this disables CSRF check, find out how to enable again
             clients = clients,
             authorizers = authorizers,
             matchers = matchers,
