@@ -112,25 +112,43 @@ object ApacheFopMultiPdfInterpreter:
             UIXMLDisplayResolver & AutocompleteResolver & ApacheFopStylesheetProvider &
             AutocompleteService & UIFormBuilder,
         MultiPdfInterpreter
+    ] = ZLayer(ZIO.config(ApacheFopConfig.config)).flatMap(configEnv => layer(configEnv.get))
+
+    def layer(config: ApacheFopConfig): RLayer[
+        MessageCatalogue &
+            UIXMLDisplayResolver & AutocompleteResolver & ApacheFopStylesheetProvider &
+            AutocompleteService & UIFormBuilder,
+        MultiPdfInterpreter
     ] =
         ZLayer {
             for
                 given MessageCatalogue <- ZIO.service[MessageCatalogue]
                 builder <- ZIO.service[UIFormBuilder]
-                config <- ZIO.config(ApacheFopConfig.config)
                 displayResolver <- ZIO.service[UIXMLDisplayResolver]
                 autocompleteResolver <- ZIO.service[AutocompleteResolver]
                 autocompleteService <- ZIO.service[AutocompleteService]
                 stylessheetProvider <- ZIO.service[ApacheFopStylesheetProvider]
-                fopFactory <- ZIO.attempt(config match
+                fopFactory <- (config match
                     case ApacheFopConfig(_, Some(cfg)) =>
-                        FopFactory.newInstance(cfg.toFile)
+                        ZIO.log(s"Using custom FOP configuration from ${cfg}") *>
+                            ZIO.attempt(FopFactory.newInstance(cfg.toFile))
                     case ApacheFopConfig(Some(bd), _) =>
-                        FopFactory.newInstance(bd.toUri)
-                    case _ => FopFactory.newInstance(
-                            new java.io.File(".").toURI(),
-                            config.getClass.getResourceAsStream("/fop.xconf")
-                        )
+                        ZIO.log(
+                            "Using default FOP configuration with base in ${bd}"
+                        ) *> ZIO.attempt:
+                            FopFactory.newInstance(bd.toUri)
+                    case _ =>
+                        val baseDir = new java.io.File(".").toURI()
+                        for
+                            _ <- ZIO.log(
+                                s"Using FOP configuration with base in ${baseDir} and fop.xconf in classpath"
+                            )
+                            fopFactory <- ZIO.attempt(FopFactory.newInstance(
+                                baseDir,
+                                config.getClass.getResourceAsStream("/fop.xconf")
+                            ))
+                        yield fopFactory
+                        end for
                 ).orDie
             yield ApacheFopMultiPdfInterpreter(
                 fopFactory,
