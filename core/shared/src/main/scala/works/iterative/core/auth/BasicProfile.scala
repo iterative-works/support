@@ -18,24 +18,26 @@ final case class BasicProfile(
 end BasicProfile
 
 object BasicProfile:
-    val anonymous: BasicProfile =
+    def systemProfile(userId: UserId): BasicProfile =
         BasicProfile(
-            UserId.anonymous,
-            None,
+            userId,
+            Some(UserName.system(userId)),
             None,
             None,
             Set.empty
         )
 
+    val anonymous: BasicProfile = systemProfile(UserId.anonymous)
+
     def apply(p: UserProfile): BasicProfile = p match
-    case p: BasicProfile => p
-    case _ =>
-        BasicProfile(
-            p.subjectId,
-            p.userName,
-            p.email,
-            p.avatar,
-            p.roles,
-            p.claims
-        )
+        case p: BasicProfile => p
+        case _ =>
+            BasicProfile(
+                p.subjectId,
+                p.userName,
+                p.email,
+                p.avatar,
+                p.roles,
+                p.claims
+            )
 end BasicProfile
