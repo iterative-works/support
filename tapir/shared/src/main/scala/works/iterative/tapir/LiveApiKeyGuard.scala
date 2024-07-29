@@ -23,12 +23,10 @@ class LiveApiKeyGuard(config: ApiKeyConfig) extends ApiKeyGuard:
     .toMap
 
     override def checkApiKey(apiKey: String): IO[AuthFailure, UserId] =
-        ZIO.log(s"Checking API key: ${apiKey} in ${apiToUser}") *> {
-            apiToUser.get(apiKey) match
-                case Some(user) => ZIO.succeed(UserId.unsafe(user))
-                case _ =>
-                    ZIO.fail(AuthFailure(AuthenticationError(UserMessage("error.invalid.api.key"))))
-        }
+        apiToUser.get(apiKey) match
+            case Some(user) => ZIO.succeed(UserId.unsafe(user))
+            case _ =>
+                ZIO.fail(AuthFailure(AuthenticationError(UserMessage("error.invalid.api.key"))))
 end LiveApiKeyGuard
 
 object LiveApiKeyGuard:
