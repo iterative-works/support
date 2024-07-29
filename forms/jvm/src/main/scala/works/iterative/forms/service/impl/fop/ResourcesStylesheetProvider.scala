@@ -6,6 +6,7 @@ import zio.*
 import javax.xml.transform.stream.StreamSource
 import works.iterative.core.Language
 import java.io.InputStream
+import javax.xml.transform.TransformerFactory
 
 class ResourcesStylesheetProvider extends ApacheFopStylesheetProvider:
     override def stylesheetFor(formId: String, lang: Option[Language]): Task[Source] =
@@ -35,6 +36,14 @@ class ResourcesStylesheetProvider extends ApacheFopStylesheetProvider:
 
         finalStyleSheet.map(StreamSource(_))
     end stylesheetFor
+
+    override def newTransformerFactory: Task[TransformerFactory] = ZIO.attempt:
+        val transformerFactory = TransformerFactory.newInstance()
+        transformerFactory.setURIResolver((href, base) =>
+            new StreamSource(getClass().getResourceAsStream(href))
+        )
+        transformerFactory
+
 end ResourcesStylesheetProvider
 
 object ResourcesStylesheetProvider:

@@ -84,10 +84,10 @@ class ApacheFopMultiPdfInterpreter(
                     forms.head.form.id.serialize,
                     if lang == Language.CS then None else Some(lang)
                 )
+                transformerFactory <- stylesheetProvider.newTransformerFactory
                 // Render PDF using Apache FOP
                 _ <- ZIO.attempt {
                     val fop = fopFactory.newFop(MimeConstants.MIME_PDF, out)
-                    val transformerFactory = TransformerFactory.newInstance()
                     val transformer = transformerFactory.newTransformer(xslt)
                     val src = new javax.xml.transform.stream.StreamSource(
                         new java.io.StringReader(xml.toString)
