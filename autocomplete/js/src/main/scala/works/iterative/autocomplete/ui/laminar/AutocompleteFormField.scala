@@ -15,7 +15,9 @@ class AutocompleteFormField(
     inError: Signal[Boolean] = Val(false),
     rawInput: EventStream[String] = EventStream.empty,
     enabled: Signal[Boolean] = Val(true),
-    inputFieldMod: HtmlMod = emptyMod
+    inputFieldMod: HtmlMod = emptyMod,
+    // Use only values from the option list
+    strict: Boolean = false
 )(using cs: AutocompleteViews):
 
     private val selectedValue: Var[Option[AutocompleteEntry]] = Var(None)
@@ -33,6 +35,10 @@ class AutocompleteFormField(
             Combobox.ctx.query.changes
                 // Slow down the query to avoid too many requests
                 .throttle(1000, false)
+                // Combine with the focused signal, so that we react on focus change as well
+                .combineWith(Combobox.ctx.isFocused.signal.changes)
+                .filter(_._2)
+                .map(_._1)
                 // Combine with the selected field
                 .withCurrentValueOf(selectedValue.signal)
                 // to filter out the selected value from the query
@@ -52,9 +58,14 @@ class AutocompleteFormField(
                         inError,
                         tpe("text"),
                         inputFieldMod,
-                        onBlur.compose(_.sample(Combobox.ctx.query, selectedValue.signal).filter(
-                            (q, v) => !q.isBlank && !v.map(_.label).contains(q)
-                        ).map(_._1)) --> valuesObserver,
+                        /* Strict needs to pick from the options, otherwise we load */
+                        if !strict then
+                            onBlur.compose(
+                                _.sample(Combobox.ctx.query, selectedValue.signal).filter((q, v) =>
+                                    !q.isBlank && !v.map(_.label).contains(q)
+                                ).map(_._1)
+                            ) --> valuesObserver
+                        else emptyMod,
                         readOnly <-- enabled.not,
                         disabled <-- enabled.not
                     )),

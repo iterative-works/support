@@ -15,6 +15,7 @@ import scala.scalajs.js.Dictionary
 import works.iterative.ui.components.Modal
 import works.iterative.ui.components.ZIODispatcher
 import works.iterative.core.auth.UserProfile
+import works.iterative.core.Language
 
 trait ScenarioMain(
     prefix: String,
@@ -27,6 +28,7 @@ trait ScenarioMain(
         scenarios.map(s => (s.id, s)).toMap
 
     val messageCatalogue: MessageCatalogue = new JsonMessageCatalogue:
+        override val language: Language = Language.CS
         override val messages: Dictionary[String] =
             ScenarioMain.this.messages.asInstanceOf[js.Dictionary[String]]
 

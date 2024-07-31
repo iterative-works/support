@@ -8,7 +8,7 @@ import zio.*
 import zio.json.*
 import works.iterative.core.Language
 
-class InMemoryMessageCatalogue(messages: Map[String, String])
+class InMemoryMessageCatalogue(override val language: Language, messages: Map[String, String])
     extends MessageCatalogue:
 
     override def get(id: MessageId): Option[String] =
@@ -28,6 +28,7 @@ end InMemoryMessageCatalogue
 
 object InMemoryMessageCatalogue:
     def messagesFromJsonResources(lang: Option[Language]): UIO[MessageCatalogue] =
+        val language = lang.getOrElse(Language.CS)
         val suffix = lang.filterNot(_ == Language.CS).map(l => s"_${l.value}").getOrElse("")
         ZIO.scoped {
             for
@@ -47,7 +48,7 @@ object InMemoryMessageCatalogue:
                             s"Failed to parse messages.json: $e"
                         )
                     )
-            yield InMemoryMessageCatalogue(messages)
+            yield InMemoryMessageCatalogue(language, messages)
         }.orDie
     end messagesFromJsonResources
 

@@ -7,6 +7,8 @@ import scala.annotation.tailrec
 // we need to be able to render HTML messages
 // like a list of items for example
 trait MessageCatalogue:
+    // Languate of this message catalogue
+    def language: Language
     // These need to be implemented
     def get(id: MessageId): Option[String]
     def get(msg: UserMessage): Option[String]
@@ -53,11 +55,13 @@ end MessageCatalogue
 object MessageCatalogue:
     /** No messages */
     val empty: MessageCatalogue = new MessageCatalogue:
+        override val language: Language = Language.EN
         def get(id: MessageId): Option[String] = None
         def get(msg: UserMessage): Option[String] = None
 
     /** Show the message keys */
     val debug: MessageCatalogue = new MessageCatalogue:
+        override val language: Language = Language.EN
         def get(id: MessageId): Option[String] = Some(id.value)
         def get(msg: UserMessage): Option[String] = Some(msg.id.value)
 end MessageCatalogue
@@ -66,6 +70,8 @@ private class NestedMessageCatalogue(
     underlying: MessageCatalogue,
     prefixes: String*
 ) extends MessageCatalogue:
+    export underlying.language
+
     // All members of MessageCatalogue, calling underlying with prefixed ids falling back to unprefixed
     def get(id: MessageId): Option[String] =
         // Iterate over the prefixes, trying to find the message, returning the first one found, trying bare id last, or None

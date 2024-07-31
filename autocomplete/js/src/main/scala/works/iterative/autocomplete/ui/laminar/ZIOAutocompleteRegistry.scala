@@ -74,24 +74,54 @@ object ZIOAutocompleteRegistry:
         context: Option[Map[String, String]],
         additionalContextSignal: Signal[Option[Map[String, String]]]
     )(using Runtime[Any]) extends AutocompleteQuery:
+        override val strict = config.strict
+
         val finalContext = composeContexts(
             composeContexts(context, config.context),
             if config.unique then Some(Map("__unique" -> "true")) else None
         )
 
+        private val findCache = Unsafe.unsafe:
+            Ref.Synchronized.unsafe.make(Map.empty[Find, Promise[Nothing, List[AutocompleteEntry]]])
+
+        private val loadCache = Unsafe.unsafe:
+            Ref.Synchronized.unsafe.make(Map.empty[Load, Promise[
+                Nothing,
+                Option[AutocompleteEntry]
+            ]])
+
+        sealed trait Operation[M[_]]
+
+        final case class Find(
+            collection: String,
+            q: String,
+            limit: Int,
+            language: String,
+            contexts: Option[Map[String, String]]
+        ) extends Operation[List]
+
+        final case class Load(
+            collection: String,
+            id: String,
+            language: String,
+            context: Option[Map[String, String]]
+        ) extends Operation[Option]
+
         override def find(q: String): EventStream[List[AutocompleteEntry]] =
-            additionalContextSignal.flatMapSwitch(add =>
-                service.find(
-                    config.collection,
-                    q,
-                    config.limit,
-                    languageService.currentLanguage,
-                    composeContexts(finalContext, add)
-                ).map(_.toList).toEventStream
+            EventStream.unit().withCurrentValueOf(additionalContextSignal.signal).flatMapSwitch(
+                add =>
+                    cached(Find(
+                        config.collection,
+                        q,
+                        config.limit,
+                        languageService.currentLanguage,
+                        composeContexts(finalContext, add)
+                    )).toEventStream
             )
+        end find
 
         override def load(id: String): EventStream[Option[AutocompleteEntry]] =
-            service.load(config.collection, id, languageService.currentLanguage, context).map {
+            cached(Load(config.collection, id, languageService.currentLanguage, context)).map {
                 case None if !config.strict => Some(AutocompleteEntry(id, id, None, Map.empty))
                 case c                      => c
             }.toEventStream
@@ -99,5 +129,46 @@ object ZIOAutocompleteRegistry:
         override def withContextSignal(ctx: Signal[Option[Map[String, String]]])
             : AutocompleteQuery =
             new AutocompleteQueryImpl(service, languageService, config, context, ctx)
+
+        private def cached[M[_]](op: Operation[M]): UIO[M[AutocompleteEntry]] =
+            // Naive cache implementation, could be improved, but it's good enough for now
+            op match
+                case key @ Find(collection, q, limit, language, contexts) =>
+                    for
+                        promise <- findCache.modifyZIO: entries =>
+                            // We lookup the key, if found, we return the map as is
+                            // If not found, we create the effect that will add the promise to the map
+                            entries.get(key) match
+                                case Some(p) => ZIO.succeed((p, entries))
+                                case None =>
+                                    for
+                                        p <- Promise.make[Nothing, List[AutocompleteEntry]]
+                                        _ <- p.complete(service.find(
+                                            collection,
+                                            q,
+                                            limit,
+                                            language,
+                                            contexts
+                                        )).fork
+                                    yield (p, entries + (key -> p))
+                        result <- promise.await
+                    yield result
+                case key @ Load(collection, id, language, context) =>
+                    for
+                        promise <- loadCache.modifyZIO: entries =>
+                            entries.get(key) match
+                                case Some(p) => ZIO.succeed((p, entries))
+                                case None =>
+                                    for
+                                        p <- Promise.make[Nothing, Option[AutocompleteEntry]]
+                                        _ <- p.complete(service.load(
+                                            collection,
+                                            id,
+                                            language,
+                                            context
+                                        )).fork
+                                    yield (p, entries + (key -> p))
+                        result <- promise.await
+                    yield result
     end AutocompleteQueryImpl
 end ZIOAutocompleteRegistry

@@ -6,14 +6,12 @@ import com.raquo.waypoint.*
 import zio.json.*
 
 class Routes[P: JsonCodec](
-    baseUrl: String,
+    base: String,
     connectors: List[Connector[?, P]],
     home: P,
     notFound: P,
     pageTitle: P => String
 ):
-    val base = baseUrl + "app"
-
     val router: Router[P] = Router[P](
         routes = connectors.flatMap(_.routes(base)),
         serializePage = _.toJson,
