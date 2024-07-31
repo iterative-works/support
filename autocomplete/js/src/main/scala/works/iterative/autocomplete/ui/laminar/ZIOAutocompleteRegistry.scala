@@ -45,6 +45,7 @@ object ZIOAutocompleteRegistry:
         collection: String,
         limit: Int = 20,
         strict: Boolean = false,
+        unique: Boolean = false,
         context: Option[Map[String, String]] = None
     )
 
@@ -75,7 +76,10 @@ object ZIOAutocompleteRegistry:
     )(using Runtime[Any]) extends AutocompleteQuery:
         override val strict = config.strict
 
-        val finalContext = composeContexts(context, config.context)
+        val finalContext = composeContexts(
+            composeContexts(context, config.context),
+            if config.unique then Some(Map("__unique" -> "true")) else None
+        )
 
         private val findCache = Unsafe.unsafe:
             Ref.Synchronized.unsafe.make(Map.empty[Find, Promise[Nothing, List[AutocompleteEntry]]])
