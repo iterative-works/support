@@ -8,6 +8,7 @@ trait AutocompleteQuery:
     def find(q: String): EventStream[List[AutocompleteEntry]]
     def load(id: String): EventStream[Option[AutocompleteEntry]]
     def withContextSignal(context: Signal[Option[Map[String, String]]]): AutocompleteQuery
+    def strict: Boolean
 end AutocompleteQuery
 
 object AutocompleteQuery:
@@ -17,4 +18,5 @@ object AutocompleteQuery:
         override def withContextSignal(context: Signal[Option[Map[String, String]]])
             : AutocompleteQuery =
             empty
+        override def strict: Boolean = false
 end AutocompleteQuery

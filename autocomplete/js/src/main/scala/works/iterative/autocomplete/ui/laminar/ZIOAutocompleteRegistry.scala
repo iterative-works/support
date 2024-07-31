@@ -73,6 +73,8 @@ object ZIOAutocompleteRegistry:
         context: Option[Map[String, String]],
         additionalContextSignal: Signal[Option[Map[String, String]]]
     )(using Runtime[Any]) extends AutocompleteQuery:
+        override val strict = config.strict
+
         val finalContext = composeContexts(context, config.context)
 
         private val findCache = Unsafe.unsafe:
