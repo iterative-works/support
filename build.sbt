@@ -58,6 +58,10 @@ lazy val `files-ui-scenarios` = crossProject(JSPlatform, JVMPlatform)
     .jsConfigure(_.dependsOn(`files-ui`))
     .dependsOn(`files-core`, ui)
 
+lazy val `files-it` = project
+    .in(file("files/it"))
+    .dependsOn(`files-rest`.jvm, http)
+
 lazy val `autocomplete` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("autocomplete"))

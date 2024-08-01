@@ -11,6 +11,7 @@ import CustomTapir.*
 import endpoints.FileStoreEndpointsModule
 import sttp.capabilities.zio.ZioStreams
 
+// TODO: does the trait need to be generic on FileStoreEndpointsModule?
 trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
     object file:
         val store: ZServerEndpoint[FileStoreWriter, Any] =
@@ -34,7 +35,6 @@ trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
                                 .map(f => new String(BigInt(f, 16).toByteArray, "UTF-8"))
                                 .getOrElse(part.name),
                             part.body,
-                            part.contentType,
                             metadata
                         )
                     )
