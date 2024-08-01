@@ -113,28 +113,8 @@ lazy val `mongo-support-it` = project
 
 lazy val `scenarios-ui` = project
     .in(file("ui/scenarios"))
-    .enablePlugins(org.scalajs.sbtplugin.ScalaJSPlugin)
+    .enablePlugins(ScalaJSPlugin, VitePlugin)
     .configure(IWDeps.useScalaJavaTimeAndLocales)
-    .settings(
-        scalaJSLinkerConfig := {
-            val prevConfig = scalaJSLinkerConfig.value
-            val base = (LocalRootProject / baseDirectory).value
-            prevConfig
-                .withModuleKind(ModuleKind.ESModule)
-                .withModuleSplitStyle(
-                    ModuleSplitStyle.SmallModulesFor(
-                        List("works.iterative")
-                    )
-                )
-                .withSourceMap(true)
-            // .withRelativizeSourceMapBase(Some(base.toURI()))
-        },
-        scalacOptions += {
-            val localRootBase = (LocalRootProject / baseDirectory).value
-            s"-scalajs-mapSourceURI:${localRootBase.toURI.toString}->/mdr/poptavky/@fs${localRootBase.toString}/",
-        },
-        scalaJSUseMainModuleInitializer := true
-    )
     .dependsOn(`ui`.js, `ui-forms`.js)
 
 lazy val root = (project in file("."))
