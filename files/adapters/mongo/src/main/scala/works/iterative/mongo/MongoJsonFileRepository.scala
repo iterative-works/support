@@ -13,11 +13,13 @@ import org.bson.types.ObjectId
 import org.mongodb.scala.model.Filters
 import zio.stream.ZStream
 import works.iterative.core.FileSupport
+import scala.jdk.CollectionConverters.*
 
 case class MongoFile(
     id: String,
     name: String,
-    created: Instant
+    created: Instant,
+    metadata: Map[String, String]
 )
 
 class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
@@ -79,7 +81,10 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
                     MongoFile(
                         f.getObjectId.toString,
                         f.getFilename,
-                        f.getUploadDate.toInstant
+                        f.getUploadDate.toInstant,
+                        f.getMetadata.entrySet().asScala.map(e =>
+                            e.getKey -> e.getValue.toString
+                        ).toMap
                     )
                 ).to(List)
             )

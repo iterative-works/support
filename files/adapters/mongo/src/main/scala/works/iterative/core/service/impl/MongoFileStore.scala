@@ -30,7 +30,7 @@ class MongoFileStore(
     def filterToQuery(f: Filter) =
         import org.mongodb.scala.model.Filters.*
         f match
-            case Filter(Some(id), _, _, _)   => equal("_id", id)
+            case Filter(Some(id), _, _, _)   => equal("_id", ObjectId(id))
             case Filter(_, Some(link), _, _) =>
                 // TODO: legacy ref to poptavka, remove after updating the legacy data
                 val evc = PermissionTarget(link).map(_.toString()).getOrElse(link)
@@ -127,6 +127,13 @@ class MongoFileStore(
             bytes <- repository.find(id)
         yield bytes
 
+    def loadRef(url: String): UIO[Option[FileRef]] =
+        for
+            id <- ZIO.attempt(urlToId(url)).orDie
+            ref <- repository.matching(Filter(id = Some(id)))
+        yield ref.headOption.map: mf =>
+            FileRef.unsafe(mf.name, url, mf.metadata)
+
     def loadStream(url: String): UIO[ZStream[Any, Throwable, Byte]] =
         for
             id <- ZIO.attempt(urlToId(url)).orDie
@@ -197,10 +204,10 @@ object MongoFileStore:
     ] = ZLayer(make)
 
     case class Filter(
-        id: Option[String],
-        link: Option[String],
-        digest: Option[String],
-        digestExists: Option[Boolean]
+        id: Option[String] = None,
+        link: Option[String] = None,
+        digest: Option[String] = None,
+        digestExists: Option[Boolean] = None
     )
 
     object Filter:
