@@ -43,15 +43,18 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
 
     def put(name: String, file: ZStream[Any, Throwable, Byte], metadata: Metadata): UIO[String] =
         import zio.interop.reactivestreams.*
-        file.grouped(4096).map(v => java.nio.ByteBuffer.wrap(v.toArray)).toPublisher.flatMap(
-            publisher =>
-                ZIO.fromFuture(_ =>
-                    bucket.uploadFromObservable(
-                        name,
-                        BoxedPublisher(publisher),
-                        GridFSUploadOptions().metadata(Document(metadata.toJson))
-                    ).toFuture
-                )
+        file.chunks.map(v =>
+            java.nio.ByteBuffer.wrap(v.toArray)
+        ).toPublisher.flatMap(publisher =>
+            ZIO.fromFuture(_ =>
+                bucket.uploadFromObservable(
+                    name,
+                    BoxedPublisher(publisher),
+                    GridFSUploadOptions().metadata(
+                        Document(metadata.toJson)
+                    ).chunkSizeBytes(1048576)
+                ).toFuture
+            )
         ).map(_.toString()).orDie
     end put
 
