@@ -150,5 +150,7 @@ lazy val root = (project in file("."))
         `files-ui`,
         ui.js,
         ui.jvm,
+        forms.js,
+        forms.jvm,
         http
     )
