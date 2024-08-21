@@ -104,7 +104,6 @@ lazy val forms = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("forms"))
     .jvmConfigure(_.dependsOn(email, paygate, `files-mongo`))
-    .jsSettings(stIgnore += "luxon")
     .dependsOn(core, codecs, autocomplete, `files-rest`)
 
 lazy val http = (project in file("server/http"))
