@@ -106,6 +106,12 @@ lazy val forms = crossProject(JSPlatform, JVMPlatform)
     .jvmConfigure(_.dependsOn(email, paygate, `files-mongo`))
     .dependsOn(core, codecs, autocomplete, `files-rest`)
 
+lazy val `forms-scenarios` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .settings(publish / skip := true)
+    .in(file("forms/scenarios"))
+    .dependsOn(forms)
+
 lazy val http = (project in file("server/http"))
     .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
 
