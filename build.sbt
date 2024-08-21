@@ -96,6 +96,13 @@ lazy val `ui-forms` = crossProject(JSPlatform, JVMPlatform)
     .in(file("ui/forms"))
     .dependsOn(ui, `files-core`)
 
+lazy val forms = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("forms"))
+    .jvmConfigure(_.dependsOn(email, paygate, `files-mongo`))
+    .jsSettings(stIgnore += "luxon")
+    .dependsOn(core, codecs, autocomplete, `files-rest`)
+
 lazy val http = (project in file("server/http"))
     .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
 
