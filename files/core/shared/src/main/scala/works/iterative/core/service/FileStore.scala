@@ -11,11 +11,6 @@ trait FileStoreWriter:
     type Op[A] = UIO[A]
 
     def store(
-        files: List[FileRepr],
-        metadata: FileStore.Metadata
-    ): Op[List[FileRef]]
-
-    def store(
         name: String,
         content: ZStream[Any, Throwable, Byte],
         metadata: FileStore.Metadata
@@ -23,16 +18,20 @@ trait FileStoreWriter:
 
     def store(
         name: String,
-        content: FileSupport.FileRepr,
+        content: FileRepr,
         metadata: FileStore.Metadata
-    ): Op[FileRef]
+    ): Op[FileRef] = store(name, content.toStream, metadata)
 
     def store(
         name: String,
         file: Array[Byte],
-        contentType: Option[String],
         metadata: FileStore.Metadata
-    ): Op[FileRef]
+    ): Op[FileRef] = store(name, ZStream.fromChunk(Chunk.fromArray(file)), metadata)
+
+    def store(
+        files: List[FileRepr],
+        metadata: FileStore.Metadata
+    ): Op[List[FileRef]] = ZIO.foreach(files)(f => store(f.name, f, metadata))
 
     def update(urls: List[String], metadata: FileStore.Metadata): Op[Unit]
 end FileStoreWriter
@@ -87,10 +86,9 @@ object FileStore:
     def store(
         name: String,
         file: Array[Byte],
-        contentType: Option[String],
         metadata: Metadata
     ): URIO[FileStoreWriter, FileRef] =
-        ZIO.serviceWithZIO(_.store(name, file, contentType, metadata))
+        ZIO.serviceWithZIO(_.store(name, file, metadata))
 
     def load(url: String): URIO[FileStoreLoader, Option[Array[Byte]]] =
         ZIO.serviceWithZIO(_.load(url))

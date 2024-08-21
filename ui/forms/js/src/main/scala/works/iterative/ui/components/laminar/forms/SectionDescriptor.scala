@@ -1,15 +1,17 @@
 package works.iterative.ui.components.laminar.forms
 
 import works.iterative.ui.components.ComponentContext
+import com.raquo.laminar.api.L.*
 
-trait SectionDescriptor:
-    def title: String
-    def subtitle: Option[String]
+final case class SectionDescriptor(
+    title: String,
+    subtitle: Option[String],
+    extraContent: HtmlMod
+):
+    def extraContent(mod: HtmlMod): SectionDescriptor = copy(extraContent = mod)
+end SectionDescriptor
 
 object SectionDescriptor:
     def apply(id: String)(using ctx: ComponentContext[?]): SectionDescriptor =
-        new SectionDescriptor:
-            override def title: String = ctx.messages(id)
-            override def subtitle: Option[String] =
-                ctx.messages.get(id + ".subtitle")
+        SectionDescriptor(ctx.messages(id), ctx.messages.get(id + ".subtitle"), emptyMod)
 end SectionDescriptor

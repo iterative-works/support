@@ -33,7 +33,6 @@ object InMemoryFileStoreWriter:
             override def store(
                 name: String,
                 file: Array[Byte],
-                contentType: Option[String],
                 metadata: FileStore.Metadata
             ): Op[FileRef] =
                 ZIO.succeed(FileRef.unsafe(name, "#"))

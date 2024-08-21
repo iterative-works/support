@@ -54,7 +54,6 @@ class LiveFileStore(
     override def store(
         name: String,
         file: Array[Byte],
-        contentType: Option[String],
         metadata: FileStore.Metadata
     ): UIO[FileRef] =
         storeClient(
@@ -62,7 +61,7 @@ class LiveFileStore(
                 Part(
                     "file",
                     file,
-                    contentType.flatMap(MediaType.parse(_).toOption),
+                    metadata.get(FileStore.Metadata.FileType).flatMap(MediaType.parse(_).toOption),
                     Some(encodeFileName(name))
                 )
             ) :+ metadataToPart(metadata)

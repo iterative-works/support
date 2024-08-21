@@ -64,7 +64,6 @@ class MongoFileStore(
     override def store(
         name: String,
         file: Array[Byte],
-        contentType: Option[String],
         metadata: FileStore.Metadata
     ): UIO[FileRef] =
         computeDigest(file).flatMap: digest =>

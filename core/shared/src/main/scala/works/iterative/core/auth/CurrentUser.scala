@@ -20,4 +20,6 @@ object CurrentUser:
         ZIO.serviceWithZIO[CurrentUser](f(using _))
 
     val anonymous = CurrentUser(BasicProfile.anonymous)
+
+    def system(userId: UserId) = CurrentUser(BasicProfile.systemProfile(userId))
 end CurrentUser
