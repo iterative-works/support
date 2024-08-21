@@ -30,12 +30,14 @@ object ScenarioServer extends ZIOAppDefault:
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Basic Form Element Test</title>
+                <!-- Tailwind CSS -->
+                <script src="https://cdn.tailwindcss.com"></script>
                 <!-- Assets dir: ${assetsDir} -->
                 <script src="/assets/main.js"></script>
             </head>
             <body>
                 <h1>Form rendered below</h1>
-                <iw-form src="/form"></iw-form>
+                <iw-form form-id="test" entity="abc" src="/form"></iw-form>
                 <script>Main.main()</script>
             </body>
             </html>
