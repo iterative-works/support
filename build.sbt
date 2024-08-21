@@ -108,7 +108,12 @@ lazy val forms = crossProject(JSPlatform, JVMPlatform)
 
 lazy val `forms-scenarios` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
-    .settings(publish / skip := true)
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+        publish / skip := true,
+        buildInfoPackage := "works.iterative.forms.scenarios",
+        buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion)
+    )
     .in(file("forms/scenarios"))
     .dependsOn(forms)
 
