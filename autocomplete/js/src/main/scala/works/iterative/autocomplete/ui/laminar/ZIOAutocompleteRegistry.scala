@@ -78,7 +78,7 @@ object ZIOAutocompleteRegistry:
 
         val finalContext = composeContexts(
             composeContexts(context, config.context),
-            if config.unique then Some(Map("unique" -> "true")) else None
+            if config.unique then Some(Map("__unique" -> "true")) else None
         )
 
         private val findCache = Unsafe.unsafe:
