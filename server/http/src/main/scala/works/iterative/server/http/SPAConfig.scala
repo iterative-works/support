@@ -38,11 +38,9 @@ object SPAConfig:
     end appConfig
 
     val config: Config[SPAConfig] =
-        import Config.*
         appConfig("app").nested("spa").map(SPAConfig.apply)
     end config
 
     def config(prefix: String): Config[SPAConfig] =
-        import Config.*
         appConfig(prefix).nested(prefix).nested("spa").map(SPAConfig.apply)
 end SPAConfig

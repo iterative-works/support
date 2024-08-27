@@ -78,7 +78,6 @@ object ValidationState:
             x: => ValidationState[A],
             y: => ValidationState[A]
         ): ValidationState[A] =
-            import ValidationState.*
             (x, y) match
                 case (Unknown(infos), Invalid(errs))       => y
                 case (Unknown(infos), Unknown(otherInfos)) => Unknown(infos ++ otherInfos)
