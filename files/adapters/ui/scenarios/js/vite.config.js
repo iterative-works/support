@@ -2,20 +2,35 @@ import { defineConfig } from "vite";
 import { glob } from "glob";
 import path from "path";
 import { fileURLToPath } from "node:url";
+import globResolverPlugin from "@raquo/vite-plugin-glob-resolver";
+import importSideEffectPlugin from "@raquo/vite-plugin-import-side-effect";
+import rollupCopyPlugin from 'rollup-plugin-copy'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
-    publicDir: "./js/src/main/static/public",
+    publicDir: "public",
     resolve: {
       alias: {
-        resources: path.resolve(__dirname, "./js/src/main/static/resources"),
+        resources: path.resolve(__dirname, "src/main/static/resources"),
         stylesheets: path.resolve(
           __dirname,
-          "./js/src/main/static/stylesheets",
+          "src/main/static/stylesheets",
         ),
       },
     },
+    plugins: [
+      importSideEffectPlugin({
+        // See https://github.com/raquo/vite-plugin-import-side-effect
+        defNames: ['importStyle'],
+        rewriteModuleIds: ['**/*.less', '**/*.css'],
+        // verbose: true
+      })
+      // TODO: copy icons automatically, now I have to manually
+      // yarn unplug @shoelace-style/shoelace
+      // and copy from <project root>/.yarn/unplugged/@shoelace*/node_modules/@shoelace-style/shoelace/dist/assets
+      // to src/main/static/public/assets
+    ],
     build: {
       // generate .vite/manifest.json in outDir
       manifest: true,

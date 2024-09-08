@@ -6,5 +6,10 @@
   "workspaces": [
     "files/adapters/ui/scenarios/js",
     "ui/scenarios"
-  ]
+  ],
+  "dependenciesMeta": {
+    "@shoelace-style/shoelace@2.16.0": {
+      "unplugged": true
+    }
+  }
 }

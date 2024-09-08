@@ -1,7 +1,10 @@
 package works.iterative.files.scenarios
 
 import works.iterative.scenarios.Scenario
+import zio.*
+import zio.http.*
 import zio.http.template.*
+import java.nio.file.Paths
 
 object FilePickerScenarioServer extends Scenario:
     override val id: String = "filePicker"
@@ -34,7 +37,32 @@ object FilePickerScenarioServer extends Scenario:
             script(
                 typeAttr("module"),
                 s"import { scenario } from '${viteBase}/scenario${this.id}.js'; scenario.main();"
-            )
+            ),
+            div(idAttr := "app")
         )
     )
+
+    private val assetsDir =
+        Paths.get(
+            "..",
+            "js",
+            "public",
+            "assets"
+        ).toRealPath().toAbsolutePath()
+
+    override def routes: Routes[Any, Nothing] =
+        (super.routes ++ Routes(
+            Method.GET / Root / id / "files.json" -> handler((req: Request) =>
+                ZIO.scoped:
+                    ZIO.readURLInputStream(getClass.getResource("/sample_files.json")).debug
+                        .flatMap(_.readAll(4096))
+                        .map(content => Response.json(content.asString))
+                        .catchAll: err =>
+                            ZIO.succeed:
+                                Response.internalServerError(err.toString())
+            )
+        )) @@ Middleware.serveDirectory(
+            Path.empty / "assets",
+            assetsDir.toFile()
+        )
 end FilePickerScenarioServer

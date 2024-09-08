@@ -56,7 +56,7 @@ lazy val `files-ui-scenarios` = crossProject(JSPlatform, JVMPlatform)
     .settings(publish / skip := true)
     .in(file("files/adapters/ui/scenarios"))
     .jsConfigure(_.dependsOn(`files-ui`))
-    .dependsOn(`files-core`, ui, scenarios)
+    .dependsOn(`files-core`, `files-rest`, ui, scenarios)
 
 lazy val `files-it` = project
     .in(file("files/it"))
