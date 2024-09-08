@@ -6,14 +6,21 @@ import zio.http.template.*
 trait Scenario:
     def id: String
     def label: String
-    def content: Html
-    def routes: Routes[Any, Nothing] = Routes.empty
+    def content: Html =
+        iframe(srcAttr := s"/${id}/page", widthAttr := "100%", heightAttr := "100%")
+    def page: Html
+    def routes: Routes[Any, Nothing] = Routes(
+        Method.GET / Root / id / "page" -> handler(
+            Response.html(page)
+        )
+    )
 end Scenario
 
 object Scenario:
     val empty = new Scenario:
         override val id = ""
         override val label = ""
+        override val routes = Routes.empty
         override val content =
             div(
                 idAttr := "scenario",
@@ -31,6 +38,6 @@ object Scenario:
                     "Get started by selecting a scenario from the sidebar."
                 )
             )
-
+        override val page = content
     end empty
 end Scenario

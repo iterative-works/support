@@ -28,9 +28,9 @@ object FormCustomElementScenario extends Scenario:
         ).toRealPath().toAbsolutePath()
 
     override val content =
-        iframe(srcAttr := s"/scenarios/${id}/page", widthAttr := "100%", heightAttr := "100%")
+        iframe(srcAttr := s"/${id}/page", widthAttr := "100%", heightAttr := "100%")
 
-    val page =
+    override val page =
         Html.raw(s"""
         <html lang="en">
         <head>
@@ -53,9 +53,8 @@ object FormCustomElementScenario extends Scenario:
 
     override val routes = Routes(
         Method.GET / Root / "form" -> handler(Response.json(formDescriptor.toJson)),
-        Method.GET / Root / "scenarios" / string("scenario-id") / "page" -> handler(
-            (scenarioId: String, _: Request) =>
-                Response.html(page)
+        Method.GET / Root / id / "page" -> handler(
+            Response.html(page)
         )
     ) @@ Middleware.serveDirectory(
         Path.empty / "assets",

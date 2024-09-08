@@ -7,7 +7,7 @@ import zio.http.template.*
 object ScenarioServer extends ZIOAppDefault:
     val view = ScenarioView
 
-    val scenarios = List(FormCustomElementScenario)
+    val scenarios = List(FormCustomElementScenario, UIFormScenario)
 
     val routes: Routes[Any, Nothing] = Routes(
         Method.GET / Root -> handler(Response.html(
