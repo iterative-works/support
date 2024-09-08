@@ -1,10 +1,10 @@
-package works.iterative.forms.scenarios
+package works.iterative.scenarios
 
 import zio.*
 import zio.http.*
 import zio.http.template.*
 
-class ScenarioServer(scenarios: Scenario*) extends ZIOAppDefault:
+class ScenariosServer(scenarios: Scenario*) extends ZIOAppDefault:
     val view = ScenarioView
 
     val routes: Routes[Any, Nothing] = Routes(
@@ -21,6 +21,4 @@ class ScenarioServer(scenarios: Scenario*) extends ZIOAppDefault:
     ) ++ scenarios.map(_.routes).reduceLeft(_ ++ _)
 
     override def run = Server.serve(routes).provide(Server.default)
-end ScenarioServer
-
-object ScenarioServer extends ScenarioServer(FormCustomElementScenario, UIFormScenario)
+end ScenariosServer

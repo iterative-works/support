@@ -1,4 +1,4 @@
-package works.iterative.forms.scenarios
+package works.iterative.scenarios
 
 import zio.http.template.*
 

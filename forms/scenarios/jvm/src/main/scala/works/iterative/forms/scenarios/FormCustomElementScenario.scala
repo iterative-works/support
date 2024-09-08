@@ -6,6 +6,7 @@ import portaly.forms.*
 import zio.json.*
 import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
 import java.nio.file.Paths
+import works.iterative.scenarios.Scenario
 
 object FormCustomElementScenario extends Scenario:
 

@@ -56,7 +56,7 @@ lazy val `files-ui-scenarios` = crossProject(JSPlatform, JVMPlatform)
     .settings(publish / skip := true)
     .in(file("files/adapters/ui/scenarios"))
     .jsConfigure(_.dependsOn(`files-ui`))
-    .dependsOn(`files-core`, ui)
+    .dependsOn(`files-core`, ui, scenarios)
 
 lazy val `files-it` = project
     .in(file("files/it"))
@@ -115,7 +115,7 @@ lazy val `forms-scenarios` = crossProject(JSPlatform, JVMPlatform)
         buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion)
     )
     .in(file("forms/scenarios"))
-    .dependsOn(forms)
+    .dependsOn(forms, scenarios)
 
 lazy val http = (project in file("server/http"))
     .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
@@ -133,6 +133,11 @@ lazy val `scenarios-ui` = project
     .enablePlugins(ScalaJSPlugin, VitePlugin)
     .configure(IWDeps.useScalaJavaTimeAndLocales)
     .dependsOn(`ui`.js, `ui-forms`.js)
+
+lazy val scenarios = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("scenarios"))
+    .dependsOn(core)
 
 lazy val root = (project in file("."))
     .enablePlugins(IWScalaProjectPlugin)
