@@ -4,10 +4,8 @@ import zio.*
 import zio.http.*
 import zio.http.template.*
 
-object ScenarioServer extends ZIOAppDefault:
+class ScenarioServer(scenarios: Scenario*) extends ZIOAppDefault:
     val view = ScenarioView
-
-    val scenarios = List(FormCustomElementScenario, UIFormScenario)
 
     val routes: Routes[Any, Nothing] = Routes(
         Method.GET / Root -> handler(Response.html(
@@ -24,3 +22,5 @@ object ScenarioServer extends ZIOAppDefault:
 
     override def run = Server.serve(routes).provide(Server.default)
 end ScenarioServer
+
+object ScenarioServer extends ScenarioServer(FormCustomElementScenario, UIFormScenario)
