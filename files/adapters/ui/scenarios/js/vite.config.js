@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import glob from "glob";
+import { glob } from "glob";
 import path from "path";
 import { fileURLToPath } from "node:url";
 
@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: Object.fromEntries(
           glob
+            // The scenario entries need to start scenario*, so that we can filter just these
             .sync(`${process.env.VITE_SCALAJS_OUTPUT}/scenario*.js`)
             .map((file) => [
               // This remove `src/` as well as the file extension from each

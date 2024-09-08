@@ -7,8 +7,9 @@ object FileUploadScenarioServer extends Scenario:
     override val id: String = "fileUpload"
     override val label: String = "File Upload"
 
+    // TODO: get from config or somewhere
     private val viteBase =
-        "http://localhost:5173/target/scala-3.3.1/iw-support-files-ui-scenarios-fastopt"
+        "http://localhost:5173/target/scala-3.5.0/files-ui-scenarios-fastopt"
 
     override val page = html(
         classAttr("h-full bg-white"),
@@ -22,7 +23,7 @@ object FileUploadScenarioServer extends Scenario:
             script(
                 typeAttr("module"),
                 srcAttr(
-                    s"${viteBase}/${this.id}.js"
+                    s"${viteBase}/scenario${this.id}.js"
                 )
             ),
             // end if development
@@ -32,7 +33,7 @@ object FileUploadScenarioServer extends Scenario:
             span(classAttr("text-lg font-semibold"), s"${this.label}"),
             script(
                 typeAttr("module"),
-                s"import { scenario } from '${viteBase}/${this.id}.js'; scenario.main();"
+                s"import { scenario } from '${viteBase}/scenario${this.id}.js'; scenario.main();"
             )
         )
     )

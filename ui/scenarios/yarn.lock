@@ -696,15 +696,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scala-js/vite-plugin-scalajs@mprihoda/vite-plugin-scalajs#sbtn-dist":
-  version: 1.0.0
-  resolution: "@scala-js/vite-plugin-scalajs@https://github.com/mprihoda/vite-plugin-scalajs.git#commit=04e046fbbf7b8cc180194ebc78258410aa719957"
-  dependencies:
-    vite: "npm:^4.1.4"
-  checksum: 41a082c598f8be31e27f5f6228fee2dbe1beda62d58e4d9cbe72baa4a4ea675b3d8a749855dcdda197ad588b3e9566663b7e56bb80a20795481d02708cc24d33
-  languageName: node
-  linkType: hard
-
 "@tailwindcss/forms@npm:^0.5.3":
   version: 0.5.6
   resolution: "@tailwindcss/forms@npm:0.5.6"
@@ -3585,7 +3576,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "scenarios-module-document@workspace:."
   dependencies:
-    "@scala-js/vite-plugin-scalajs": "mprihoda/vite-plugin-scalajs#sbtn-dist"
     "@tailwindcss/forms": "npm:^0.5.3"
     "@tailwindcss/typography": "npm:^0.5.1"
     autoprefixer: "npm:^10.4.2"
@@ -4187,7 +4177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.1.4, vite@npm:^4.3.5":
+"vite@npm:^4.3.5":
   version: 4.4.11
   resolution: "vite@npm:4.4.11"
   dependencies:
