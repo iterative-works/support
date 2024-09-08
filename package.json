@@ -1,0 +1,10 @@
+{
+  "name": "iw-support",
+  "packageManager": "yarn@4.0.2",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "files/adapters/ui/scenarios/js",
+    "ui/scenarios"
+  ]
+}

@@ -3,7 +3,7 @@ package works.iterative.files.scenarios
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("scenario", "scenario1")
+@JSExportTopLevel("scenario", "fileUpload")
 object FileUploadScenario:
     @JSExport
     def main(): Unit =
