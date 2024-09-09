@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { glob } from "glob";
+import glob from "glob";
 import path from "path";
 import { fileURLToPath } from "node:url";
 import globResolverPlugin from "@raquo/vite-plugin-glob-resolver";
