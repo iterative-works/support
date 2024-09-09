@@ -3,7 +3,6 @@ package works.iterative.mongo
 import zio.*
 import zio.json.*
 import org.mongodb.scala.*
-import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.gridfs.GridFSBucket
 import java.nio.ByteBuffer
