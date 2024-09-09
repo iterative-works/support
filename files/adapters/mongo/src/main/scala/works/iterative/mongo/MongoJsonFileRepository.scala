@@ -10,7 +10,6 @@ import java.nio.ByteBuffer
 import com.mongodb.client.gridfs.model.GridFSUploadOptions
 import java.time.Instant
 import org.bson.types.ObjectId
-import org.mongodb.scala.model.Filters
 import zio.stream.ZStream
 import works.iterative.core.FileSupport
 import scala.jdk.CollectionConverters.*

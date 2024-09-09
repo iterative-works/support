@@ -56,7 +56,7 @@ lazy val `files-ui-scenarios` = crossProject(JSPlatform, JVMPlatform)
     .settings(publish / skip := true)
     .in(file("files/adapters/ui/scenarios"))
     .jsConfigure(_.dependsOn(`files-ui`))
-    .dependsOn(`files-core`, ui)
+    .dependsOn(`files-core`, `files-rest`, ui, scenarios)
 
 lazy val `files-it` = project
     .in(file("files/it"))
@@ -100,6 +100,23 @@ lazy val `ui-forms` = crossProject(JSPlatform, JVMPlatform)
     .in(file("ui/forms"))
     .dependsOn(ui, `files-core`)
 
+lazy val forms = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("forms"))
+    .jvmConfigure(_.dependsOn(email, paygate, `files-mongo`))
+    .dependsOn(core, codecs, autocomplete, `files-rest`)
+
+lazy val `forms-scenarios` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .enablePlugins(BuildInfoPlugin)
+    .settings(
+        publish / skip := true,
+        buildInfoPackage := "works.iterative.forms.scenarios",
+        buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion)
+    )
+    .in(file("forms/scenarios"))
+    .dependsOn(forms, scenarios)
+
 lazy val http = (project in file("server/http"))
     .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
 
@@ -116,6 +133,11 @@ lazy val `scenarios-ui` = project
     .enablePlugins(ScalaJSPlugin, VitePlugin)
     .configure(IWDeps.useScalaJavaTimeAndLocales)
     .dependsOn(`ui`.js, `ui-forms`.js)
+
+lazy val scenarios = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("scenarios"))
+    .dependsOn(core)
 
 lazy val root = (project in file("."))
     .enablePlugins(IWScalaProjectPlugin)
@@ -144,5 +166,7 @@ lazy val root = (project in file("."))
         `files-ui`,
         ui.js,
         ui.jvm,
+        forms.js,
+        forms.jvm,
         http
     )

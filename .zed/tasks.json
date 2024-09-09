@@ -1,0 +1,39 @@
+// Static tasks configuration.
+[
+  {
+    "label": "forms-scenariosJVM/reStart",
+    "command": "sbtn forms-scenariosJVM/reStart",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "on_success",
+    "shell": "system"
+  },
+  {
+    "label": "forms-scenariosJS/fastLinkJS",
+    "command": "sbtn forms-scenariosJS/fastLinkJS",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "on_success",
+    "shell": "system"
+  },
+  {
+    "label": "files-ui-scenariosJS/fastLinkJS",
+    "command": "sbtn files-ui-scenariosJS/fastLinkJS",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "on_success",
+    "shell": "system"
+  },
+  {
+    "label": "files-ui-scenariosJVM/reStart",
+    "command": "sbtn files-ui-scenariosJVM/reStart",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "on_success",
+    "shell": "system"
+  }
+]

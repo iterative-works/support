@@ -1,6 +1,7 @@
 package works.iterative
 package core
 
+// Could we use this for nested UserMessages? Argument that has to be resolved with MessageCatalogue recursively?
 type MessageArg = String | Int | Long | Double | Boolean | Char
 
 // Type-wise naive solution for specifying user messages.

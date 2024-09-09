@@ -1,7 +1,6 @@
 package works.iterative.tapir
 
 import zio.*
-import sttp.tapir.Endpoint
 import sttp.capabilities.zio.ZioStreams
 import sttp.capabilities.WebSockets
 import sttp.tapir.client.sttp.ws.zio.*

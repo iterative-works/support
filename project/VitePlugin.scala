@@ -33,7 +33,7 @@ class ViteDevServer() {
         globalLogger: Logger
     ) {
         logger.info("Starting vite dev server")
-        val command = Seq("yarn", "run", "vite", "dev")
+        val command = Seq("yarn", "run", "vite", ".")
         val process = Process(command, workDir, extraEnv.toSeq: _*).run(
             ProcessLogger(globalLogger.info(_), globalLogger.error(_))
         )
