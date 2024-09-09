@@ -11,8 +11,7 @@ object FilePickerScenarioServer extends Scenario:
     override val label: String = "File Picker"
 
     // TODO: get from config or somewhere
-    private val viteBase =
-        "http://localhost:5173/target/scala-3.5.0/files-ui-scenarios-fastopt"
+    private val viteBase = scala.sys.env.get("VITE_BASE").get
 
     override val page = html(
         classAttr("h-full bg-white"),
