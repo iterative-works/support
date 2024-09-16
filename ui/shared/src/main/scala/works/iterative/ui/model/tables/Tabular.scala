@@ -11,4 +11,6 @@ case class Column[A, Cell](name: String, get: A => Cell)
 
 /** A typeclass to represet a type that can be tabulated into Cells */
 trait Tabular[A, Cell]:
-  def columns: List[Column[A, Cell]]
+    def columns: List[Column[A, Cell]]
+
+trait StringTabular[A] extends Tabular[A, String]
