@@ -66,7 +66,7 @@ class ApacheFopMultiPdfInterpreter(
                     autocompleteResolver,
                     displayResolver,
                     data
-                ).render(uiForm)
+                ).render(uiForm).debug
             yield xml
             end for
         end renderOne

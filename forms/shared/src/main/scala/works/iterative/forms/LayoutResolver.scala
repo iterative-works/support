@@ -16,4 +16,5 @@ object LayoutResolver:
             ): Layout =
                 if extra.isDefinedAt(sectionId) then extra(sectionId)(elems)
                 else Grid(elems.map(List(_)))
+            end resolve
 end LayoutResolver

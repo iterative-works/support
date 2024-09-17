@@ -22,10 +22,22 @@ end ReadOnlyHtmlDisplayResolver
 class CmiLiveDisplayResolver extends LiveHtmlDisplayResolver:
     override def resolve(id: IdPath, ctx: FormCtx)(using MessageCatalogue, Language): HtmlElement =
         id.last match
-            case "platba" =>
+            case "total_allowance_eur" =>
                 div(
-                    cls("text-blue-800 text-sm"),
-                    "Pro přímé objednání a zaplacení služby je nutné zvolit ceníkové položky ze seznamu níže."
+                    label(
+                        cls("block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5"),
+                        forId(id.toHtmlId),
+                        if lang == Language.EN then "Total" else "Celkem"
+                    ),
+                    div(
+                        cls("mt-2 sm:col-span-2 sm:mt-0 text-sm text-gray-900 p-2"),
+                        "EUR ",
+                        child.text <-- ctx.state.all(v =>
+                            v.startsWith(id.up)
+                        ).map(_.collect {
+                            case e: String => scala.util.Try(e.replace(',', '.').toDouble).toOption
+                        }.flatten.sum.toString)
+                    )
                 )
             case _ => div()
 end CmiLiveDisplayResolver
@@ -36,10 +48,24 @@ class CmiReadOnlyDisplayResolver extends ReadOnlyHtmlDisplayResolver:
         Language
     ): HtmlElement =
         id.last match
-            case "platba" =>
+            case "total_allowance_eur" =>
                 div(
-                    cls("text-blue-800 text-sm"),
-                    "Pro přímé objednání a zaplacení služby je nutné zvolit ceníkové položky ze seznamu níže."
+                    label(
+                        cls("block text-sm font-medium leading-6 text-neutral-500"),
+                        forId(id.toHtmlId),
+                        if lang == Language.EN then "Total" else "Celkem"
+                    ),
+                    div(
+                        cls("sm:mt-0"),
+                        span(
+                            cls("text-sm"),
+                            "EUR ",
+                            state.all(v => v.startsWith(id.up)).collect {
+                                case e: String =>
+                                    scala.util.Try(e.replace(',', '.').toDouble).toOption
+                            }.flatten.sum.toString
+                        )
+                    )
                 )
             case _ => div()
 end CmiReadOnlyDisplayResolver
