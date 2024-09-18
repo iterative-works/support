@@ -39,7 +39,6 @@ class LiveFieldTypeResolver(
                 end meridlaObserver
 
                 def autocompleteObserver(using FormCtx) =
-                    println(fieldType.id)
                     if fieldType.id == "cmi:meridlo_evidcislo" || fieldType.id == "cmi:meridlo_vyrcislo"
                     then
                         Observer.combine(valuesObserver, meridlaObserver)
