@@ -43,8 +43,10 @@ class TextFormField(
                 readOnly <-- enabled.signal.not,
                 disabled <-- enabled.signal.not,
                 fi.control.collect {
-                    case FormControl.Disable(p) if p == fi.id => false
-                    case FormControl.Enable(p) if p == fi.id  => false
+                    case FormControl.Disable(p) if p == fi.id                => false
+                    case d: FormControl.DisableAll if d.path.contains(fi.id) => false
+                    case FormControl.Enable(p) if p == fi.id                 => true
+                    case e: FormControl.EnableAll if e.path.contains(fi.id)  => true
                 } --> enabled.writer,
                 inputValue.signal.mapTo(true) --> initialized.writer,
                 inputValue.signal.changes.filterNot(_.isBlank).mapTo(true) --> inputTouched.writer,
