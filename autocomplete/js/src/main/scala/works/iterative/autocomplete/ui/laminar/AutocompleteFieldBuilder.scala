@@ -6,8 +6,8 @@ import zio.prelude.Validation
 class AutocompleteFieldBuilder(views: AutocompleteViews, registry: AutocompleteRegistry):
     private def valueOf[A](a: A)(using codec: AutocompleteCodec[A]): String =
         codec.encode(a) match
-        case Left(v)  => v
-        case Right(a) => a.value
+            case Left(v)  => v
+            case Right(a) => a.value
 
     given autocompleteInput[A](using codec: AutocompleteCodec[A]): FieldBuilder[A] =
         new FieldBuilder[A]:
@@ -19,7 +19,7 @@ class AutocompleteFieldBuilder(views: AutocompleteViews, registry: AutocompleteR
                 AutocompleteInput[A](
                     desc,
                     initialValue.map(valueOf),
-                    registry.queryFor(desc.id),
+                    registry.queryFor(desc.id).withContextSignal(codec.contextSignal),
                     Validations.requiredA(desc.label)(_).flatMap(codec.decode)
                 )(using views)
         end new
@@ -37,7 +37,7 @@ class AutocompleteFieldBuilder(views: AutocompleteViews, registry: AutocompleteR
                 AutocompleteInput[Option[A]](
                     desc,
                     initialValue.flatten.map(valueOf),
-                    registry.queryFor(desc.id),
+                    registry.queryFor(desc.id).withContextSignal(codec.contextSignal),
                     {
                         case Some(s) => codec.decode(s).map(Some(_))
                         case _       => Validation.succeed(None)
