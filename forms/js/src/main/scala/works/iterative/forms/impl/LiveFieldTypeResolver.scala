@@ -7,6 +7,7 @@ import works.iterative.autocomplete.AutocompleteEntry
 import works.iterative.autocomplete.ui.laminar.AutocompleteRegistry
 import works.iterative.ui.TimeUtils
 import works.iterative.ui.model.forms.{AbsolutePath, IdPath}
+import com.raquo.airstream.core.Observer
 
 class LiveFieldTypeResolver(
     autocomplete: AutocompleteRegistry,
@@ -16,7 +17,35 @@ class LiveFieldTypeResolver(
     override def resolve(fieldType: FieldType): FieldFactory[String] =
         val fieldValidation: IdPath => Validation = validation.resolve(fieldType.id)
         autocomplete.getQueryFor(fieldType.id) match
-            case Some(q) => FieldFactory.Autocomplete(
+            case Some(q) =>
+                def valuesObserver(using FormCtx) =
+                    FormCtx.ctx.updateValues.contramap[(
+                        AbsolutePath,
+                        AutocompleteEntry
+                    )]: (id, entry) =>
+                        FormR.Builder().addAll(entry.data).build(id.up)
+
+                def meridlaObserver(using FormCtx) =
+                    /*
+                    val fieldId = if fieldType.id == "cmi:meridlo_evidcislo" then "evidencni_cislo"
+                    else "vyrobni_cislo"
+                     */
+                    FormCtx.ctx.control.contramap[(AbsolutePath, AutocompleteEntry)]: (id, entry) =>
+                        val paths = (entry.data.keySet).map(id.up / _)
+                        if entry.data.get("typ_meridla").exists(v => !v.isBlank()) then
+                            FormControl.DisableAll(paths.toSeq)
+                        else
+                            FormControl.EnableAll(paths.toSeq)
+                end meridlaObserver
+
+                def autocompleteObserver(using FormCtx) =
+                    if fieldType.id == "cmi:meridlo_evidcislo" || fieldType.id == "cmi:meridlo_vyrcislo"
+                    then
+                        Observer.combine(valuesObserver, meridlaObserver)
+                    else valuesObserver
+                end autocompleteObserver
+
+                FieldFactory.Autocomplete(
                     q,
                     // Add context from surrounding fields to the query
                     // This is a hack for now, the 3 levels up is a bit arbitrary
@@ -33,13 +62,7 @@ class LiveFieldTypeResolver(
                                     case _ => k.serialize -> v.toString
                             )).map(Some(_))
                     ,
-                    Some(
-                        FormCtx.ctx.updateValues.contramap[(
-                            AbsolutePath,
-                            AutocompleteEntry
-                        )]: (id, entry) =>
-                            FormR.Builder().addAll(entry.data).build(id.up)
-                    )
+                    Some(autocompleteObserver)
                 )
             case _ =>
                 fieldType match

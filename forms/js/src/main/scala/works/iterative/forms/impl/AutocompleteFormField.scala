@@ -43,8 +43,10 @@ class AutocompleteFormField(
                 s"writing ${fi.id.serialize}"
             ),
             fi.control.collect {
-                case FormControl.Disable(p) if p == fi.id => false
-                case FormControl.Enable(p) if p == fi.id  => false
+                case FormControl.Disable(p) if p == fi.id                => false
+                case d: FormControl.DisableAll if d.path.contains(fi.id) => false
+                case FormControl.Enable(p) if p == fi.id                 => true
+                case e: FormControl.EnableAll if e.path.contains(fi.id)  => true
             } --> enabled.writer
         )
     end domOutput
