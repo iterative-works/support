@@ -10,6 +10,7 @@ import works.iterative.ui.components.FileComponents
 import works.iterative.core.UserMessage
 import works.iterative.core.MessageCatalogue
 import works.iterative.core.Language
+import scala.annotation.unused
 
 class UIFormReadOnlyRenderer(
     displayResolver: ReadOnlyHtmlDisplayResolver,
@@ -85,25 +86,25 @@ class UIFormReadOnlyRenderer(
         )
     end renderSection
 
-    private def renderChoiceField(field: UILabeledField, data: FormState): HtmlElement =
-        val UILabeledField(id, messageKey, field, decorations) = field
+    private def renderChoiceField(field: UILabeledField, @unused data: FormState): HtmlElement =
+        val UILabeledField(id, messageKey, theField, decorations) = field
         cs.labeledField(
             id,
             renderMessage(messageKey, "label"),
             false,
             isInline(id),
-            inMessageContext(messageKey)(renderField(field))
+            inMessageContext(messageKey)(renderField(theField))
         )
     end renderChoiceField
 
-    private def renderLabeledField(field: UILabeledField, data: FormState): HtmlElement =
-        val UILabeledField(id, messageKey, field, decorations) = field
+    private def renderLabeledField(field: UILabeledField, @unused data: FormState): HtmlElement =
+        val UILabeledField(id, messageKey, theField, decorations) = field
         cs.labeledField(
             id,
             renderMessage(messageKey, "label"),
             false,
             isInline(id),
-            inMessageContext(messageKey)(renderField(field))
+            inMessageContext(messageKey)(renderField(theField))
         )
     end renderLabeledField
 

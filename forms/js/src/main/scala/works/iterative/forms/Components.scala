@@ -93,4 +93,11 @@ trait Components extends AutocompleteViews:
 end Components
 
 object Components:
-    final case class RadioOption(id: String, value: String, text: Node, mods: HtmlMod*)
+    final case class RadioOption(
+        id: String,
+        value: String,
+        text: Node,
+        help: Option[Node],
+        mods: HtmlMod*
+    )
+end Components
