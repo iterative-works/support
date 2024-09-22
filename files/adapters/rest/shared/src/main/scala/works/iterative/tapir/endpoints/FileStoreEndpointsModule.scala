@@ -13,7 +13,8 @@ import zio.stream.ZStream
 import sttp.tapir.Endpoint
 import sttp.model.QueryParams
 
-class FileStoreEndpointsModule(base: BaseEndpoint):
+class FileStoreEndpointsModule(base: BaseEndpoint)
+    extends FileStoreEndpointsModulePlatformSpecific(base):
     final case class FileMetadataUpdate(
         urls: List[String],
         metadata: FileStore.Metadata

@@ -3,7 +3,6 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@scala-js/vite-plugin-scalajs": "mprihoda/vite-plugin-scalajs#sbtn-dist",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.1",
     "autoprefixer": "^10.4.2",

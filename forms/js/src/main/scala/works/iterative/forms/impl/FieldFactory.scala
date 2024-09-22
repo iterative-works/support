@@ -3,7 +3,6 @@ package impl
 
 import zio.prelude.*
 import com.raquo.laminar.api.L.*
-import works.iterative.core.MessageCatalogue
 import works.iterative.core.UserMessage
 import works.iterative.autocomplete.AutocompleteEntry
 import works.iterative.autocomplete.ui.laminar.AutocompleteQuery

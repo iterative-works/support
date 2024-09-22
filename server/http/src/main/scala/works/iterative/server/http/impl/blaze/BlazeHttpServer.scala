@@ -19,15 +19,16 @@ class BlazeHttpServer(config: BlazeServerConfig, baseUri: BaseUri) extends HttpS
                 case Some(u) => Router(u.toString -> routes)
                 case _       => routes
 
-        BlazeServerBuilder[RIO[Env, *]]
-            .bindHttp(config.port, config.host)
-            .withResponseHeaderTimeout(config.responseHeaderTimeout.asScala)
-            .withIdleTimeout(config.idleTimeout.asScala)
-            .withHttpWebSocketApp(wsb => withBaseUri(httpApp(wsb)).orNotFound)
-            .serve
-            .compile
-            .drain
-            .orDie *> ZIO.never
+        ZIO.log(s"Starting Blaze server with config: $config") *>
+            BlazeServerBuilder[RIO[Env, *]]
+                .bindHttp(config.port, config.host)
+                .withResponseHeaderTimeout(config.responseHeaderTimeout.asScala)
+                .withIdleTimeout(config.idleTimeout.asScala)
+                .withHttpWebSocketApp(wsb => withBaseUri(httpApp(wsb)).orNotFound)
+                .serve
+                .compile
+                .drain
+                .orDie *> ZIO.never
     end serve
 end BlazeHttpServer
 

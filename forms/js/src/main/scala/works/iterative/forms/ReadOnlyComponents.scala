@@ -1,7 +1,6 @@
 package portaly.forms
 
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.api.L
 
 trait ReadOnlyComponents:
     def form(id: String, titleMod: HtmlMod, mods: HtmlMod*): HtmlElement

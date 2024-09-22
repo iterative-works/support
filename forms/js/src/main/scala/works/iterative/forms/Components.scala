@@ -1,7 +1,6 @@
 package portaly.forms
 
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.api.L
 import works.iterative.autocomplete.ui.laminar.AutocompleteViews
 
 trait Components extends AutocompleteViews:
