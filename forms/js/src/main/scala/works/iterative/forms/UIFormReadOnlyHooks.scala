@@ -4,17 +4,17 @@ import com.raquo.laminar.api.L.*
 import works.iterative.ui.model.forms.*
 
 trait UIFormReadOnlyHooks:
-    def renderSection(
+    def adviceAroundSection(
         element: UIFormSection,
         data: FormState,
         render: (UIFormSection, FormState) => HtmlElement
-    ): HtmlElement = render(element, data)
+    ): (UIFormSection, FormState) => HtmlElement = render
 
-    def renderLabeledField(
+    def adviceAroundLabeledField(
         field: UILabeledField,
         data: FormState,
         render: (UILabeledField, FormState) => HtmlElement
-    ): HtmlElement = render(field, data)
+    ): (UILabeledField, FormState) => HtmlElement = render
 
 end UIFormReadOnlyHooks
 

@@ -49,14 +49,21 @@ class UIFormReadOnlyRenderer(
     def renderSegment(data: FormState)(segment: UIFormElement): HtmlElement =
         segment match
             case i @ UIFormSection(id, level, messageKey, children, decorations, repeatIndex) =>
-                div(inMessageContext(messageKey)(hooks.renderSection(i, data, renderSection)))
+                val advisedRender = hooks.adviceAroundSection(i, data, renderSection)
+                div(inMessageContext(messageKey)(advisedRender(i, data)))
             case UILabeledField(_, _, UITextField(_, _, _, None, _), _)       => div()
             case UILabeledField(_, _, UITextField(_, _, _, Some(""), _), _)   => div()
             case UILabeledField(_, _, UIChoiceField(_, _, None, _, _), _)     => div()
             case UILabeledField(_, _, UIChoiceField(_, _, Some(""), _, _), _) => div()
             case i @ UILabeledField(id, messageKey, field, decorations) => field match
-                    case _: UIChoiceField => hooks.renderLabeledField(i, data, renderChoiceField)
-                    case _                => hooks.renderLabeledField(i, data, renderLabeledField)
+                    case _: UIChoiceField =>
+                        val advisedRender =
+                            hooks.adviceAroundLabeledField(i, data, renderChoiceField)
+                        advisedRender(i, data)
+                    case _ =>
+                        val advisedRender =
+                            hooks.adviceAroundLabeledField(i, data, renderLabeledField)
+                        advisedRender(i, data)
             case UIGrid(elems) =>
                 cs.grid:
                     elems.flatMap: segments =>
