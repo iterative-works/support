@@ -18,10 +18,21 @@ class UIFormReadOnlyRenderer(
     acs: AutocompleteComponents,
     fcs: FileComponents,
     hooks: UIFormReadOnlyHooks,
+    // TODO: replace with hooks
     isInline: UIFormId => Boolean = _ => false
 )(using MessageCatalogue, Language):
     def withComponents(components: ReadOnlyComponents): UIFormReadOnlyRenderer =
         UIFormReadOnlyRenderer(displayResolver, components, acs, fcs, hooks, isInline)
+
+    def addHooks(hooks: UIFormReadOnlyHooks): UIFormReadOnlyRenderer =
+        UIFormReadOnlyRenderer(
+            displayResolver,
+            cs,
+            acs,
+            fcs,
+            hooks.composeWith(this.hooks),
+            isInline
+        )
 
     def render(form: UIForm): HtmlElement =
         inMessageContext(form.messageKey)(
