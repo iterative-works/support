@@ -137,7 +137,7 @@ class CmiLiveDisplayResolver extends LiveHtmlDisplayResolver:
                 labeledString(id.up, "call")
             case "privacy_policy" =>
                 div(a(
-                    cls("action-link text-sm p-7 relative -top-6"),
+                    cls("action-link text-sm pl-7 relative -top-6"),
                     href("https://www.cmi.cz/GDPRenglish?language=en"),
                     UserMessage("cbc.privacy_policy").asString
                 ))
