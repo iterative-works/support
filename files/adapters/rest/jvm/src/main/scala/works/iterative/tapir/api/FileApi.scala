@@ -10,6 +10,7 @@ import works.iterative.core.service.FileStoreLoader
 import CustomTapir.*
 import endpoints.FileStoreEndpointsModule
 import sttp.capabilities.zio.ZioStreams
+import sttp.capabilities.fs2.Fs2Streams
 
 // TODO: does the trait need to be generic on FileStoreEndpointsModule?
 trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
@@ -58,6 +59,18 @@ trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
                     params.toMap - FileStore.Metadata.FileName + (FileStore.Metadata.FileType -> contentType)
                 )
             )
+        end storeStream
+
+        val storeStreamFS2: ZServerEndpoint[FileStoreWriter, Fs2Streams[RIO[Any, *]]] =
+            import zio.stream.interop.fs2z.*
+            endpoints.storeStreamFS2.zServerLogic((params, contentType, content) =>
+                FileStore.store(
+                    params.get(FileStore.Metadata.FileName).getOrElse("file"),
+                    content.toZStream(8192),
+                    params.toMap - FileStore.Metadata.FileName + (FileStore.Metadata.FileType -> contentType)
+                )
+            )
+        end storeStreamFS2
 
         val load: ZServerEndpoint[FileStoreLoader, Any] =
             endpoints.load.zServerLogic { url =>

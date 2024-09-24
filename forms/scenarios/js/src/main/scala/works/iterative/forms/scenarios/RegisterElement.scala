@@ -17,7 +17,7 @@ import portaly.forms.impl.LiveFormHooks
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("Main")
+@JSExportTopLevel("RegisterElement")
 object Main:
     @JSExport("main")
     def main(): Unit =

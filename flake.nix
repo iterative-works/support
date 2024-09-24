@@ -13,7 +13,7 @@
           inherit system;
           overlays = [
             (self: super:
-              let jvm = super.jdk17_headless;
+              let jvm = super.jdk21_headless;
               in {
                 jre = jvm;
                 jdk = jvm;
@@ -22,7 +22,7 @@
         };
       in { devShell = with pkgs;
           mkShell {
-            buildInputs = [ jre ammonite coursier sbt scalafmt yarn ];
+            buildInputs = [ jre nodejs-18_x ];
           };
       });
 }

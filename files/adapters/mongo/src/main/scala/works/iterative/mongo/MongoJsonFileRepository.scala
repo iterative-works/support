@@ -3,7 +3,6 @@ package works.iterative.mongo
 import zio.*
 import zio.json.*
 import org.mongodb.scala.*
-import org.mongodb.scala.model.Filters.*
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.gridfs.GridFSBucket
 import java.nio.ByteBuffer
@@ -12,11 +11,13 @@ import java.time.Instant
 import org.bson.types.ObjectId
 import zio.stream.ZStream
 import works.iterative.core.FileSupport
+import scala.jdk.CollectionConverters.*
 
 case class MongoFile(
     id: String,
     name: String,
-    created: Instant
+    created: Instant,
+    metadata: Map[String, String]
 )
 
 class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
@@ -42,15 +43,18 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
 
     def put(name: String, file: ZStream[Any, Throwable, Byte], metadata: Metadata): UIO[String] =
         import zio.interop.reactivestreams.*
-        file.grouped(4096).map(v => java.nio.ByteBuffer.wrap(v.toArray)).toPublisher.flatMap(
-            publisher =>
-                ZIO.fromFuture(_ =>
-                    bucket.uploadFromObservable(
-                        name,
-                        BoxedPublisher(publisher),
-                        GridFSUploadOptions().metadata(Document(metadata.toJson))
-                    ).toFuture
-                )
+        file.chunks.map(v =>
+            java.nio.ByteBuffer.wrap(v.toArray)
+        ).toPublisher.flatMap(publisher =>
+            ZIO.fromFuture(_ =>
+                bucket.uploadFromObservable(
+                    name,
+                    BoxedPublisher(publisher),
+                    GridFSUploadOptions().metadata(
+                        Document(metadata.toJson)
+                    ).chunkSizeBytes(1048576)
+                ).toFuture
+            )
         ).map(_.toString()).orDie
     end put
 
@@ -75,7 +79,10 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
                     MongoFile(
                         f.getObjectId.toString,
                         f.getFilename,
-                        f.getUploadDate.toInstant
+                        f.getUploadDate.toInstant,
+                        f.getMetadata.entrySet().asScala.map(e =>
+                            e.getKey -> e.getValue.toString
+                        ).toMap
                     )
                 ).to(List)
             )

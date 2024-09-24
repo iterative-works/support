@@ -29,13 +29,13 @@ object PermissionTarget:
 
     def apply(target: String): Validated[PermissionTarget] =
         target.split(":", 2) match
-        case Array(n, i) =>
-            apply(
-                n,
-                i.split("#", 2).head,
-                if i.contains("#") then i.split("#").lastOption else None
-            )
-        case _ => Validation.fail(UserMessage("error.target.format"))
+            case Array(n, i) =>
+                apply(
+                    n,
+                    i.split("#", 2).head,
+                    if i.contains("#") then i.split("#").lastOption else None
+                )
+            case _ => Validation.fail(UserMessage("error.target.format"))
 
     def apply(namespace: String, id: String): Validated[PermissionTarget] =
         apply(namespace, id, None)
@@ -55,9 +55,11 @@ object PermissionTarget:
             _ <- Validation.fromPredicateWith(UserMessage("error.namespace.colon"))(
                 n
             )(_.indexOf(':') == -1)
+        /* Seems to be unnecessary
             _ <- Validation.fromPredicateWith(UserMessage("error.id.colon"))(i)(
                 _.indexOf(':') == -1
             )
+         */
         yield
             val v = s"$n:$i"
             rel.fold(v)(r => s"${v}#${r}")

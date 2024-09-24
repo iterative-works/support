@@ -11,6 +11,8 @@ enum FormControl:
     case Disable(path: IdPath)
     case Enable(path: IdPath)
     case Invoke(path: IdPath)
+    case DisableAll(path: Seq[IdPath])
+    case EnableAll(path: Seq[IdPath])
 end FormControl
 
 trait FormPartInputs[+S, +RI, +EI]:

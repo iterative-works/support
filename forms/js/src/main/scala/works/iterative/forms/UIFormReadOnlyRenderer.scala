@@ -10,6 +10,7 @@ import works.iterative.ui.components.FileComponents
 import works.iterative.core.UserMessage
 import works.iterative.core.MessageCatalogue
 import works.iterative.core.Language
+import scala.annotation.unused
 
 class UIFormReadOnlyRenderer(
     displayResolver: ReadOnlyHtmlDisplayResolver,
@@ -17,10 +18,21 @@ class UIFormReadOnlyRenderer(
     acs: AutocompleteComponents,
     fcs: FileComponents,
     hooks: UIFormReadOnlyHooks,
+    // TODO: replace with hooks
     isInline: UIFormId => Boolean = _ => false
 )(using MessageCatalogue, Language):
     def withComponents(components: ReadOnlyComponents): UIFormReadOnlyRenderer =
         UIFormReadOnlyRenderer(displayResolver, components, acs, fcs, hooks, isInline)
+
+    def addHooks(hooks: UIFormReadOnlyHooks): UIFormReadOnlyRenderer =
+        UIFormReadOnlyRenderer(
+            displayResolver,
+            cs,
+            acs,
+            fcs,
+            hooks.composeWith(this.hooks),
+            isInline
+        )
 
     def render(form: UIForm): HtmlElement =
         inMessageContext(form.messageKey)(
@@ -48,47 +60,21 @@ class UIFormReadOnlyRenderer(
     def renderSegment(data: FormState)(segment: UIFormElement): HtmlElement =
         segment match
             case i @ UIFormSection(id, level, messageKey, children, decorations, repeatIndex) =>
-                div(
-                    inMessageContext(messageKey)(
-                        // TODO: the following "trick" is a bit of a hack to get the section title to be displayed
-                        // only when it should be.
-                        // A more stable solution is needed
-                        hooks.amendSection(
-                            i,
-                            data,
-                            cs.section(
-                                id,
-                                level,
-                                Some(renderMessage(s"${id.split("-").last}.section", repeatIndex)),
-                                Some(renderMessage(
-                                    s"${id.split("-").last}.section.subtitle",
-                                    repeatIndex
-                                )),
-                                children.map(renderSegment(data)),
-                                idAttr(id)
-                            )
-                        )
-                    )
-                )
+                val advisedRender = hooks.adviceAroundSection(i, data, renderSection)
+                div(inMessageContext(messageKey)(advisedRender(i, data)))
             case UILabeledField(_, _, UITextField(_, _, _, None, _), _)       => div()
             case UILabeledField(_, _, UITextField(_, _, _, Some(""), _), _)   => div()
             case UILabeledField(_, _, UIChoiceField(_, _, None, _, _), _)     => div()
             case UILabeledField(_, _, UIChoiceField(_, _, Some(""), _, _), _) => div()
-            case UILabeledField(id, messageKey, field, decorations) => field match
-                    case _: UIChoiceField => cs.labeledField(
-                            id,
-                            renderMessage(messageKey, "label"),
-                            false,
-                            isInline(id),
-                            inMessageContext(messageKey)(renderField(field))
-                        )
-                    case _ => cs.labeledField(
-                            id,
-                            renderMessage(messageKey, "label"),
-                            false,
-                            isInline(id),
-                            inMessageContext(messageKey)(renderField(field))
-                        )
+            case i @ UILabeledField(id, messageKey, field, decorations) => field match
+                    case _: UIChoiceField =>
+                        val advisedRender =
+                            hooks.adviceAroundLabeledField(i, data, renderChoiceField)
+                        advisedRender(i, data)
+                    case _ =>
+                        val advisedRender =
+                            hooks.adviceAroundLabeledField(i, data, renderLabeledField)
+                        advisedRender(i, data)
             case UIGrid(elems) =>
                 cs.grid:
                     elems.flatMap: segments =>
@@ -102,6 +88,43 @@ class UIFormReadOnlyRenderer(
                     data
                 )
             case _ => div()
+
+    private def renderSection(section: UIFormSection, data: FormState): HtmlElement =
+        val UIFormSection(id, level, messageKey, children, decorations, repeatIndex) = section
+        cs.section(
+            id,
+            level,
+            Some(renderMessage(s"${id.split("-").last}.section", repeatIndex)),
+            Some(renderMessage(
+                s"${id.split("-").last}.section.subtitle",
+                repeatIndex
+            )),
+            children.map(renderSegment(data)),
+            idAttr(id)
+        )
+    end renderSection
+
+    private def renderChoiceField(field: UILabeledField, @unused data: FormState): HtmlElement =
+        val UILabeledField(id, messageKey, theField, decorations) = field
+        cs.labeledField(
+            id,
+            renderMessage(messageKey, "label"),
+            false,
+            isInline(id),
+            inMessageContext(messageKey)(renderField(theField))
+        )
+    end renderChoiceField
+
+    private def renderLabeledField(field: UILabeledField, @unused data: FormState): HtmlElement =
+        val UILabeledField(id, messageKey, theField, decorations) = field
+        cs.labeledField(
+            id,
+            renderMessage(messageKey, "label"),
+            false,
+            isInline(id),
+            inMessageContext(messageKey)(renderField(theField))
+        )
+    end renderLabeledField
 
     private def renderField(field: UIField): Node =
         field match

@@ -41,6 +41,8 @@ trait FileStoreLoader:
 
     def load(url: String): Op[Option[Array[Byte]]]
 
+    def loadRef(url: String): Op[Option[FileRef]]
+
     def loadStream(url: String): Op[ZStream[Any, Throwable, Byte]]
 end FileStoreLoader
 
@@ -95,6 +97,9 @@ object FileStore:
 
     def loadStream(url: String): URIO[FileStoreLoader, ZStream[Any, Throwable, Byte]] =
         ZIO.serviceWithZIO(_.loadStream(url))
+
+    def loadRef(url: String): URIO[FileStoreLoader, Option[FileRef]] =
+        ZIO.serviceWithZIO(_.loadRef(url))
 
     def update(
         urls: List[String],
