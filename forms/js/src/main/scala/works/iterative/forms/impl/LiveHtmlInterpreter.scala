@@ -474,7 +474,7 @@ class LiveHtmlInterpreter(
         default: Option[String]
     ): RenderPart =
         ctx.liftStringInput(id) {
-            val field = TextFormField(inputType, default, true)
+            val field = TextFormField(inputType, default, true, None)
             ValidatingFormField(ValidationRule.valid)(
                 LabeledFormField(field, Val(false)),
                 field.touched

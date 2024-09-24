@@ -32,7 +32,7 @@ object FieldFactory:
             required: Boolean,
             initialValue: Option[String]
         ): Render[FieldPart[String]] =
-            val field = TextFormField("hidden", initialValue, true, extraMods)
+            val field = TextFormField("hidden", initialValue, true, None, extraMods)
             fi => field(fi.mapError(_ => false)).map(v => ValidationState.Valid(v))
         end render
     end Hidden
@@ -41,6 +41,7 @@ object FieldFactory:
         inputType: String,
         initialEnabled: Boolean,
         validation: IdPath => portaly.forms.impl.Validation,
+        prefixed: Option[String],
         extraMods: HtmlMod*
     ) extends FieldFactory[String]:
         def render(
@@ -48,7 +49,7 @@ object FieldFactory:
             required: Boolean,
             initialValue: Option[String]
         ): Render[FieldPart[String]] =
-            val field = TextFormField(inputType, initialValue, initialEnabled, extraMods)
+            val field = TextFormField(inputType, initialValue, initialEnabled, prefixed, extraMods)
             fi =>
                 ValidatingFormField[Any, String, String, String, String](
                     if required then

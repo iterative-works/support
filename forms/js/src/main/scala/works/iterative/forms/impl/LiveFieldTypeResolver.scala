@@ -71,20 +71,29 @@ class LiveFieldTypeResolver(
             fieldType match
                 case FieldType("prose", _, _) => FieldFactory.TextArea("text", fieldValidation)
                 case FieldType("base:email", _, disabled) =>
-                    FieldFactory.Text("email", !disabled, fieldValidation)
+                    FieldFactory.Text("email", !disabled, fieldValidation, None)
+                case FieldType("base:phone", _, disabled) =>
+                    FieldFactory.Text(
+                        "tel",
+                        !disabled,
+                        fieldValidation,
+                        Some("+"),
+                        L.placeholder("420123456789")
+                    )
                 case FieldType("hidden", _, _) => FieldFactory.Hidden()
                 case FieldType("cmi:preferovane_datum", _, disabled) => FieldFactory.Text(
                         "date",
                         !disabled,
                         fieldValidation,
+                        None,
                         L.minAttr(TimeUtils.htmlDateFormat.format(java.time.LocalDate.now()))
                     )
                 case FieldType("number", _, disabled) =>
-                    FieldFactory.Text("number", !disabled, fieldValidation)
+                    FieldFactory.Text("number", !disabled, fieldValidation, None)
                 case FieldType("number:natural", _, disabled) =>
-                    FieldFactory.Text("number", !disabled, fieldValidation)
+                    FieldFactory.Text("number", !disabled, fieldValidation, None)
                 case FieldType(_, _, disabled) =>
-                    FieldFactory.Text("text", !disabled, fieldValidation)
+                    FieldFactory.Text("text", !disabled, fieldValidation, None)
             end match
         end buildField
 

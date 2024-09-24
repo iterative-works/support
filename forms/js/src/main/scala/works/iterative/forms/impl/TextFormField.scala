@@ -8,6 +8,7 @@ class TextFormField(
     inputType: String,
     initialValue: Option[String],
     initialEnabled: Boolean,
+    prefixed: Option[String],
     extraMods: HtmlMod*
 )(using cs: Components) extends FormPart.StringInput:
     type ThisInputs = FormPartInputs[Any, String, Boolean]
@@ -29,8 +30,7 @@ class TextFormField(
 
         val htmlId = fi.id.toHtmlId
 
-        cs.inputFieldContainer(
-            inError,
+        def theField =
             cs.inputField(
                 htmlId,
                 fi.id.toHtmlName,
@@ -49,7 +49,9 @@ class TextFormField(
                     case e: FormControl.EnableAll if e.path.contains(fi.id)  => true
                 } --> enabled.writer,
                 inputValue.signal.mapTo(true) --> initialized.writer,
-                inputValue.signal.changes.filterNot(_.isBlank).mapTo(true) --> inputTouched.writer,
+                inputValue.signal.changes.filterNot(_.isBlank).mapTo(
+                    true
+                ) --> inputTouched.writer,
                 fi.rawInput.setDisplayName(s"raw input:${htmlId}") --> inputValue.writer,
                 onBlur.mapTo(true) --> inputTouched.writer,
                 // Init the form field with default or empty string to start validation
@@ -59,7 +61,22 @@ class TextFormField(
                 ) --> inputValue.writer,
                 extraMods
             )
-        )
+
+        def completeField = prefixed match
+            case Some(p) =>
+                div(
+                    cls("flex rounded-md shadow-sm"),
+                    span(
+                        cls(
+                            "inline-flex items-center rounded-l-md border border-r-0 border-gray-300 px-2 text-gray-500 sm:text-sm"
+                        ),
+                        p
+                    ),
+                    theField
+                )
+            case _ => theField
+
+        cs.inputFieldContainer(inError, completeField)
     end domOutput
 
     override def apply(fi: ThisInputs): ThisOutputs =

@@ -12,7 +12,7 @@ object FieldTypeResolver:
                 FieldFactory.TextArea("text", _ => ValidationRule.valid)
             case FieldType("hidden", _, _) => FieldFactory.Hidden()
             case FieldType(_, _, disabled) =>
-                FieldFactory.Text("text", !disabled, _ => ValidationRule.valid)
+                FieldFactory.Text("text", !disabled, _ => ValidationRule.valid, None)
         override def withAutocompleteContext(context: Map[String, String]): FieldTypeResolver =
             this
     end empty
