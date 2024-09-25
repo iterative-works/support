@@ -134,7 +134,11 @@ class CmiLiveDisplayResolver extends LiveHtmlDisplayResolver:
                     labeledString(id.up, "application_number")
                 )
             case "call" =>
-                labeledString(id.up, "call")
+                // labeledString(id.up, "call")
+                labeled(
+                    UserMessage("call.id").asString,
+                    id.segments.headOption.getOrElse("msa").toUpperCase + "-01-24"
+                )
             case "privacy_policy" =>
                 div(a(
                     cls("action-link text-sm pl-7 relative -top-6"),
@@ -152,6 +156,22 @@ class CmiReadOnlyDisplayResolver extends ReadOnlyHtmlDisplayResolver:
         lang: Language
     ): HtmlElement =
         id.last match
+            case "call" =>
+                div(
+                    label(
+                        cls("block text-sm font-medium leading-6 text-neutral-500"),
+                        forId(id.toHtmlId),
+                        UserMessage("call.id").asString
+                    ),
+                    div(
+                        cls("sm:mt-0"),
+                        span(
+                            cls("text-sm"),
+                            id.segments.headOption.getOrElse("msa").toUpperCase + "-01-24"
+                        )
+                    )
+                )
+
             case "total_allowance_eur" =>
                 div(
                     label(

@@ -51,7 +51,7 @@ class ApacheFopMultiPdfInterpreter(
         given MessageCatalogue = messages
         given Language = lang
 
-        def renderOne(form: FormRender): Task[NodeSeq] =
+        def renderOne(form: FormRender): Task[(NodeSeq, Map[String, String])] =
             val data = FormR.parse(form.data.getOrElse(Map.empty))
 
             val uiForm = builder.buildForm(
@@ -67,16 +67,19 @@ class ApacheFopMultiPdfInterpreter(
                     displayResolver,
                     data
                 ).render(uiForm).debug
-            yield xml
+            yield (xml, form.params)
             end for
         end renderOne
 
-        def renderForms: Task[NodeSeq] =
+        def renderForms: Task[(NodeSeq, Map[String, String])] =
             for
                 xmls <- ZIO.foreach(forms)(renderOne)
-            yield <ui:forms xmlns:ui="https://ui.iterative.works/form">{xmls}</ui:forms>
+            yield (
+                <ui:forms xmlns:ui="https://ui.iterative.works/form">{xmls.map(_._1)}</ui:forms>,
+                xmls.map(_._2).foldLeft(Map.empty[String, String])(_ ++ _)
+            )
 
-        def renderPdf(xml: NodeSeq): Task[Array[Byte]] = ZIO.scoped {
+        def renderPdf(xml: NodeSeq, params: Map[String, String]): Task[Array[Byte]] = ZIO.scoped {
             for
                 bout <- ZIO.fromAutoCloseable(ZIO.attempt(new ByteArrayOutputStream()))
                 out <- ZIO.fromAutoCloseable(ZIO.attempt(new BufferedOutputStream(bout)))
@@ -93,6 +96,7 @@ class ApacheFopMultiPdfInterpreter(
                         new java.io.StringReader(xml.toString)
                     )
                     val res = new javax.xml.transform.sax.SAXResult(fop.getDefaultHandler)
+                    params.foreach((k, v) => transformer.setParameter(k, v))
                     transformer.transform(src, res)
                 }
             yield bout
@@ -100,7 +104,7 @@ class ApacheFopMultiPdfInterpreter(
 
         for
             xml <- renderForms
-            pdf <- renderPdf(xml)
+            pdf <- renderPdf(xml._1, xml._2)
         yield Chunk.fromArray(pdf)
         end for
     }.orDie
