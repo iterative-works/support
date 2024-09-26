@@ -35,7 +35,7 @@ object PermissionTarget:
                     i.split("#", 2).head,
                     if i.contains("#") then i.split("#").lastOption else None
                 )
-            case _ => Validation.fail(UserMessage("error.target.format"))
+            case _ => Validation.fail(UserMessage("error.target.format", target))
 
     def apply(namespace: String, id: String): Validated[PermissionTarget] =
         apply(namespace, id, None)
