@@ -348,7 +348,17 @@ class LiveHtmlInterpreter(
         def cont(i: SectionSegment) = renderSegment(i)
         hooks.aroundSection(id): fi =>
             val fullId = fi.id / id
-            val content = FormPart.combine(id, elems.map(cont)*)(cs.flexRow)
+            val layout = layoutResolver.resolve(fullId, elems)
+            val content = layout match
+                case Grid(elems) =>
+                    FormPart.combine(
+                        id,
+                        elems.flatMap(segments =>
+                            segments.map(cont(_).mapDom(cs.gridCell(segments.size, _)))
+                        )*
+                    )(cs.grid)
+                case Flex(elems) =>
+                    FormPart.combine(id, elems.map(cont)*)(cs.flexRow)
 
             val unknown = ValidationState.Unknown(
                 List(fi.id -> UserMessage("error.validation.unknown", fi.id.toHtmlId))
