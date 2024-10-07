@@ -75,6 +75,17 @@ trait Components extends AutocompleteViews:
         mods: HtmlMod*
     ): HtmlElement
 
+    def select(
+        id: String,
+        name: String,
+        labelMod: HtmlMod,
+        descriptionMod: Option[HtmlMod],
+        required: Signal[Boolean],
+        value: Signal[String],
+        values: List[Components.RadioOption],
+        mods: HtmlMod*
+    ): HtmlElement
+
     def flexRow(mods: HtmlMod*): HtmlElement
 
     def button(

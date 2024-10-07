@@ -557,19 +557,11 @@ class LiveHtmlInterpreter(
         values: List[String],
         default: Option[String],
         required: Boolean
-    ): RenderPart = ctx.liftStringInput(id) {
-        FormPart.fromVar[String](
-            id,
-            Var(default.getOrElse("")),
-            {
-                case a if a.isBlank && required =>
-                    ValidationState.Invalid(
-                        id,
-                        UserMessage("error.field.required", id.toMessage("label"))
-                    )
-                case a => ValidationState.Valid(a)
-            }
-        )(inputVal =>
+    ): RenderPart =
+
+        type RenderF = Var[String] => FormPartInputs[Any, String, Nothing] => HtmlElement
+
+        val renderRadio: RenderF = inputVal =>
             fi =>
                 cs.radio(
                     fi.id.toHtmlId,
@@ -592,8 +584,50 @@ class LiveHtmlInterpreter(
                     },
                     EventStream.fromSeq(default.toSeq) --> inputVal.writer
                 )
-        )
-    }
+
+        val renderSelect: RenderF = inputVal =>
+            fi =>
+                cs.select(
+                    fi.id.toHtmlId,
+                    fi.id.toHtmlName,
+                    fi.id.toMessageNode("label"),
+                    fi.id.toMessageNodeOpt("description"),
+                    Val(required),
+                    inputVal.signal,
+                    values.map { v =>
+                        val vId = fi.id / v
+                        RadioOption(
+                            vId.toHtmlId,
+                            v,
+                            vId.toMessageNode("label"),
+                            vId.toMessageNodeOpt("help"),
+                            onClick.mapTo(v) --> inputVal.writer.setDisplayName(
+                                s"set_enum:${id}"
+                            )
+                        )
+                    },
+                    EventStream.fromSeq(default.toSeq) --> inputVal.writer
+                )
+
+        val renderF: RenderF = if values.length > 3 then renderSelect else renderRadio
+
+        def validateEnum(a: String): ValidationState[String] = a match
+            case a if a.isBlank && required =>
+                ValidationState.Invalid(
+                    id,
+                    UserMessage("error.field.required", id.toMessage("label"))
+                )
+            case a => ValidationState.Valid(a)
+
+        val buildField =
+            FormPart.fromVar[String](
+                id,
+                Var(default.getOrElse("")),
+                validateEnum
+            )(renderF)
+
+        ctx.liftStringInput(id)(buildField)
+    end renderEnum
 
     private def renderDisplay(id: RelativePath): RenderPart =
         ctx.liftEmpty(id)(
