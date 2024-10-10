@@ -600,13 +600,11 @@ class LiveHtmlInterpreter(
                             vId.toHtmlId,
                             v,
                             vId.toMessageNode("label"),
-                            vId.toMessageNodeOpt("help"),
-                            onClick.mapTo(v) --> inputVal.writer.setDisplayName(
-                                s"set_enum:${id}"
-                            )
+                            vId.toMessageNodeOpt("help")
                         )
                     },
-                    EventStream.fromSeq(default.toSeq) --> inputVal.writer
+                    EventStream.fromSeq(default.toSeq) --> inputVal.writer,
+                    onChange.mapToValue --> inputVal.writer
                 )
 
         val renderF: RenderF = if values.length > 3 then renderSelect else renderRadio
