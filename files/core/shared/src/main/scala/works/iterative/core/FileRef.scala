@@ -22,7 +22,9 @@ case class FileRef(
     def withBase(url: String): FileRef =
         val normalizedUrl = if url.endsWith("/") then url else url + "/"
         val normalizedFileUrl = if this.url.startsWith("/") then this.url.drop(1) else this.url
-        copy(url = normalizedUrl + normalizedFileUrl)
+        val parts = normalizedFileUrl.split('/').map(java.net.URLEncoder.encode(_, "UTF-8"))
+        val encodedFileUrl = parts.mkString("/")
+        copy(url = normalizedUrl + encodedFileUrl)
     end withBase
 end FileRef
 
