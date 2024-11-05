@@ -58,6 +58,12 @@ class MongoJsonFileRepository[Metadata: JsonCodec, Criteria](
         ).map(_.toString()).orDie
     end put
 
+    def remove(id: String): UIO[Unit] =
+        ZIO
+            .fromFuture(_ => bucket.delete(ObjectId(id)).toFuture)
+            .unit
+            .orDie
+
     def find(id: String): UIO[Option[Array[Byte]]] =
         ZIO
             .fromFuture(_ => bucket.downloadToObservable(ObjectId(id)).toFuture)

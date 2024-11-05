@@ -85,6 +85,17 @@ class MongoFileStore(
             findByDigest.someOrElseZIO(storeNewFile)
     end store
 
+    def findUrlsByLink(link: String): UIO[List[FileRef]] =
+        repository.matching(Filter(link = Some(link))).map(_.map(f =>
+            FileRef.unsafe(f.name, idToUrl(f.id, f.name), f.metadata)
+        ))
+
+    def removeByUrl(url: String): UIO[Unit] =
+        for
+            id <- ZIO.attempt(urlToId(url)).orDie
+            _ <- repository.remove(id)
+        yield ()
+
     // TODO: deduplication and file digest after
     override def store(
         name: String,
@@ -200,7 +211,7 @@ object MongoFileStore:
 
     val layer: RLayer[
         MongoClient & AuthenticationService,
-        FileStoreWriter & FileStoreLoader
+        FileStoreWriter & FileStoreLoader & MongoFileStore
     ] = ZLayer(make)
 
     case class Filter(
