@@ -600,6 +600,8 @@ class LiveHtmlInterpreter(
                             )
                         )
                     },
+                    fi.showErrors.combineWithFn(inputVal.signal): (se, value) =>
+                        se && value.isEmpty && required,
                     EventStream.fromSeq(default.toSeq) --> inputVal.writer
                 )
         )

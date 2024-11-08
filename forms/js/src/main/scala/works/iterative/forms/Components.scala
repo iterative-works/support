@@ -72,6 +72,7 @@ trait Components extends AutocompleteViews:
         required: Signal[Boolean],
         value: Signal[String],
         values: List[Components.RadioOption],
+        inError: Signal[Boolean],
         mods: HtmlMod*
     ): HtmlElement
 
