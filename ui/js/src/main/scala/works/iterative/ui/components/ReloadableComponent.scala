@@ -31,6 +31,8 @@ case class ReloadableComponent[A, I](
 
     def now(): Option[A] = computable.now().toOption
 
+    def getZIO: UIO[Option[A]] = ZIO.succeed(now())
+
     val update: Observer[I] = Observer { input =>
         memo.update(_ => Some(input))
         load(input)
