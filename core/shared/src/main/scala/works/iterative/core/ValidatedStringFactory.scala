@@ -1,5 +1,7 @@
 package works.iterative.core
 
+import ValidatedSyntax.*
+
 /** Common methods for opaque validated String types
   */
 trait ValidatedStringFactory[A](val getter: A => String):
