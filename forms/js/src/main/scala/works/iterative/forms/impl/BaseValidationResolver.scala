@@ -69,16 +69,17 @@ class BaseValidationResolver(
             UserMessage("error.meridlo.vyrobniOrEvidencniCislo.required")
         )
 
-    private def validateSouhlas(id: IdPath): SectionValidation = ValidationRule.succeed:
-        val fullPath = absolutePath(id)
-        def hasSouhlas: FormR => Boolean = m =>
-            m.getFirst(fullPath / "souhlas").exists {
-                case s: String => s == "true"
-                case _         => false
-            }
-        ValidationState.failUnless[FormR](id)(hasSouhlas)(
-            UserMessage("error.souhlas.required")
-        )
+    private def validateSouhlas(id: IdPath, fieldName: String = "souhlas"): SectionValidation =
+        ValidationRule.succeed:
+            val fullPath = absolutePath(id)
+            def hasSouhlas: FormR => Boolean = m =>
+                m.getFirst(fullPath / fieldName).exists {
+                    case s: String => s == "true"
+                    case _         => false
+                }
+            ValidationState.failUnless[FormR](id)(hasSouhlas)(
+                UserMessage("error.souhlas.required")
+            )
 
     private def validateVies(id: IdPath, countryField: IdPath): Validation =
         val tooShort: ValidationRule[EventStream, String, String] = ValidationRule.succeed: vatId =>
@@ -137,6 +138,7 @@ class BaseValidationResolver(
         sectionType match
             case "cmi:meridlo" => validateMeridlo(id)
             case "cmi:souhlas" => validateSouhlas(id)
+            case "cmi:gdpr"    => validateSouhlas(id, "gdpr")
             case _             => ValidationRule.valid
 
 end BaseValidationResolver
