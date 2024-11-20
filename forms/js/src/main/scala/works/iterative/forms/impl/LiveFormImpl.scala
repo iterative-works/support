@@ -48,9 +48,10 @@ class LiveFormImpl(
                 form.id.last,
                 form.version
             ),
-            resetEvents.mapTo(PersistenceData.Reset) --> Observer.combine(
-                persistenceProvider.writer(id, form.id.last, form.version),
-                Observer(_ => org.scalajs.dom.window.location.reload())
+            resetEvents.mapTo(PersistenceData.Reset) --> persistenceProvider.writer(
+                id,
+                form.id.last,
+                form.version
             )
         ),
         renderMenu
