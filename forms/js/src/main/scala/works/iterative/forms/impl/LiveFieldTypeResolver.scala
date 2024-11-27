@@ -65,7 +65,6 @@ class LiveFieldTypeResolver(
                                 val kategorieValue = ctx.state
                                     .get(idPath.up.up / "kategorie_meridla")
                                     .changes
-                                    .debugLog()
                                     .map:
                                         case Some(v: String) => v
                                         case _               => ""
