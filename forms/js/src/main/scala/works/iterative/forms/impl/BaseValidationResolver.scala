@@ -83,7 +83,7 @@ class BaseValidationResolver(
     private def validateSluzby(id: IdPath): SectionValidation = ValidationRule.succeed:
         val fullPath = absolutePath(id)
         def hasSluzby: FormR => Boolean = m =>
-            m.get(fullPath / "sluzby").exists(_.nonEmpty)
+            m.get(fullPath / "sluzby" / "__items").exists(_.nonEmpty)
 
         ValidationState.failUnless[FormR](id)(hasSluzby)(
             UserMessage("error.sluzby.required")
