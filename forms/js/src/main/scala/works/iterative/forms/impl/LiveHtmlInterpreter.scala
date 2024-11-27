@@ -207,9 +207,11 @@ class LiveHtmlInterpreter(
                                     cls("inline-block mt-1 mr-1"),
                                     child.text <-- updates.map(_._2 + 1)
                                 ),
-                                */
+                                 */
                                 span(
-                                    cls("bg-red-700 text-red-100 text-sm flex items-center button hover:bg-red-600"),
+                                    cls(
+                                        "bg-red-700 text-red-100 text-sm flex items-center button hover:bg-red-600"
+                                    ),
                                     span("Odebrat "),
                                     cs.segmentRemoveIcon(svg.cls("w-4 h-4 cursor-pointer")),
                                     onClick.mapTo(key) --> items.updater((its, it) =>
@@ -423,7 +425,8 @@ class LiveHtmlInterpreter(
                     fullId.size,
                     sectionTitle,
                     fullId.toMessageNodeOpt("section.subtitle"),
-                    errors.map(_.map(_.asElement)),
+                    fi.showErrors.combineWithFn(errors): (show, errs) =>
+                        if show then errs.map(_.asElement) else Nil,
                     mods(out.domOutput),
                     if fullId.size == 2 && ctx.menuItems.nonEmpty then
                         modSeq(
