@@ -51,9 +51,12 @@ class AutocompleteSelectFormField(
                     entry.text.map(TextNode(_))
                 )),
             // On options change, set the value to the first option
-            options.changes.map(_.headOption).collectSome.map(_.value).withCurrentValueOf(
-                inputValue.signal
-            ).filterNot((a, b) => a == b).map(_._1) --> inputValue.writer,
+            options.changes.withCurrentValueOf(inputValue.signal)
+                .map((opts, v) => opts.find(_.value == v).orElse(opts.headOption).map(_.value) -> v)
+                .collectOpt {
+                    case (Some(v), cv) if v != cv => Some(v)
+                    case _                        => None
+                } --> inputValue.writer,
             disabled <-- enabled.signal.not,
             fi.control.collect {
                 case FormControl.Disable(p) if p == fi.id                => false
