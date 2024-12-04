@@ -18,7 +18,8 @@ object MultiPdfInterpreter:
     final case class FormRender(
         id: FormIdent,
         form: Form,
-        data: Option[Map[String, Seq[String]]]
+        data: Option[Map[String, Seq[String]]],
+        context: Option[Map[String, String]] = None
     )
 
     def interpret(
