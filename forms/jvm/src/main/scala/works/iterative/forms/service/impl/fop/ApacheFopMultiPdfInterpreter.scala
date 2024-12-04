@@ -88,6 +88,10 @@ class ApacheFopMultiPdfInterpreter(
                 _ <- ZIO.attempt {
                     val fop = fopFactory.newFop(MimeConstants.MIME_PDF, out)
                     val transformer = transformerFactory.newTransformer(xslt)
+                    forms.foreach: form =>
+                        form.context.foreach: ctx =>
+                            ctx.foreach: (k, v) =>
+                                transformer.setParameter(k, v)
                     val src = new javax.xml.transform.stream.StreamSource(
                         new java.io.StringReader(xml.toString)
                     )
