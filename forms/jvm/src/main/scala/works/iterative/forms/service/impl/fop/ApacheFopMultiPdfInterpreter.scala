@@ -9,7 +9,6 @@ import org.apache.fop.apps.FopFactory
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import org.apache.xmlgraphics.util.MimeConstants
-import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
 import scala.xml.*
 import works.iterative.autocomplete.service.AutocompleteService
@@ -84,10 +83,10 @@ class ApacheFopMultiPdfInterpreter(
                     forms.head.form.id.serialize,
                     if lang == Language.CS then None else Some(lang)
                 )
+                transformerFactory <- stylesheetProvider.newTransformerFactory
                 // Render PDF using Apache FOP
                 _ <- ZIO.attempt {
                     val fop = fopFactory.newFop(MimeConstants.MIME_PDF, out)
-                    val transformerFactory = TransformerFactory.newInstance()
                     val transformer = transformerFactory.newTransformer(xslt)
                     val src = new javax.xml.transform.stream.StreamSource(
                         new java.io.StringReader(xml.toString)
