@@ -43,20 +43,40 @@ class AutocompleteSelectFormField(
             fi.id.toMessageNodeOpt("description"),
             enabled.signal,
             inputValue.signal,
-            options.map(_.map: entry =>
-                Components.RadioOption(
-                    entry.value,
-                    entry.value,
-                    entry.label,
-                    entry.text.map(TextNode(_))
-                )),
+            options.map: opts =>
+                val emptyOption = Components.RadioOption(
+                    "",
+                    "",
+                    messages("forms.select.placeholder"),
+                    None
+                )
+                val radios = opts.map: entry =>
+                    Components.RadioOption(
+                        entry.value,
+                        entry.value,
+                        entry.label,
+                        entry.text.map(TextNode(_))
+                    )
+                if opts.size > 1 && !opts.exists(_.value == "") then emptyOption +: radios
+                else radios
+            ,
             // On options change, set the value to the first option
+            // options.changes.withCurrentValueOf(inputValue.signal)
+            //     .map((opts, v) => opts.find(_.value == v).orElse(opts.headOption).map(_.value) -> v)
+            //     .collectOpt {
+            //         case (Some(v), cv) if v != cv => Some(v)
+            //         case _                        => None
+            //     } --> inputValue.writer,
             options.changes.withCurrentValueOf(inputValue.signal)
-                .map((opts, v) => opts.find(_.value == v).orElse(opts.headOption).map(_.value) -> v)
-                .collectOpt {
-                    case (Some(v), cv) if v != cv => Some(v)
-                    case _                        => None
-                } --> inputValue.writer,
+                .map((opts, currentValue) =>
+                    if opts.size == 1 then
+                        opts.headOption.map(_.value)
+                    else
+                        opts.find(_.value == currentValue)
+                            .map(_.value)
+                            .filter(_.nonEmpty)
+                )
+                .collect { case Some(v) => v } --> inputValue.writer,
             disabled <-- enabled.signal.not,
             fi.control.collect {
                 case FormControl.Disable(p) if p == fi.id                => false
