@@ -133,7 +133,10 @@ object ApacheFopMultiPdfInterpreter:
                 stylessheetProvider <- ZIO.service[ApacheFopStylesheetProvider]
                 fopFactory <- (config match
                     case ApacheFopConfig(_, Some(cfg)) =>
-                        ZIO.log(s"Using custom FOP configuration from ${cfg}") *>
+                        val file = cfg.toFile
+                        ZIO.log(
+                            s"Using custom FOP configuration from ${cfg} (exists: ${file.exists()})"
+                        ) *>
                             ZIO.attempt(FopFactory.newInstance(cfg.toFile))
                     case ApacheFopConfig(Some(bd), _) =>
                         ZIO.log(
