@@ -76,7 +76,7 @@ class AutocompleteSelectFormField(
                             .map(_.value)
                             .filter(_.nonEmpty)
                 )
-                .collect { case Some(v) => v } --> inputValue.writer,
+                .map(_.getOrElse("")) --> inputValue.writer,
             disabled <-- enabled.signal.not,
             fi.control.collect {
                 case FormControl.Disable(p) if p == fi.id                => false
