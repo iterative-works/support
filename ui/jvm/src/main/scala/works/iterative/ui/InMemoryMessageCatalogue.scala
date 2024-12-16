@@ -24,6 +24,8 @@ class InMemoryMessageCatalogue(override val language: Language, messages: Map[St
             )
         )
     end get
+
+    override val root: MessageCatalogue = this
 end InMemoryMessageCatalogue
 
 object InMemoryMessageCatalogue:

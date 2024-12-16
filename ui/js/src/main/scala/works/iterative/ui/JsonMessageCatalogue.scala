@@ -31,4 +31,5 @@ object JsonMessageCatalogue:
         new JsonMessageCatalogue:
             override def language: Language = lang
             override def messages: js.Dictionary[String] = msgs
+            override val root: MessageCatalogue = this
 end JsonMessageCatalogue
