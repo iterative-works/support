@@ -72,6 +72,18 @@ trait Components extends AutocompleteViews:
         required: Signal[Boolean],
         value: Signal[String],
         values: List[Components.RadioOption],
+        inError: Signal[Boolean],
+        mods: HtmlMod*
+    ): HtmlElement
+
+    def select(
+        id: String,
+        name: String,
+        labelMod: HtmlMod,
+        descriptionMod: Option[HtmlMod],
+        required: Signal[Boolean],
+        value: Signal[String],
+        values: Signal[List[Components.RadioOption]],
         mods: HtmlMod*
     ): HtmlElement
 

@@ -11,7 +11,7 @@ case class SelectField[A](
     id: A => String,
     label: A => String,
     initialValue: Option[A],
-    initialOptions: List[A],
+    options: Signal[List[A]],
     validated: Signal[Validated[?]],
     observer: Observer[Option[A]],
     combo: Boolean,
@@ -31,8 +31,6 @@ case class SelectField[A](
         validated.combineWithFn(touched.signal)((v, t) =>
             if t then v.fold(_.toList, _ => List.empty) else Nil
         )
-
-    val initialOptionsStream = EventStream.fromValue(initialOptions)
 
     def findOptions(
         v: String,
@@ -57,27 +55,29 @@ case class SelectField[A](
             case Some(query) =>
                 query(v).map(opts => withSelected(withAddOption(opts)))
             case None =>
-                EventStream.fromValue(
-                    withSelected(withAddOption(initialOptions.filter(matches)))
+                EventStream.unit().sample(options).map(opts =>
+                    withSelected(withAddOption(opts.filter(matches)))
                 )
         end match
     end findOptions
 
     def makeField: HtmlElement =
         if !combo then
-            val opts = None :: initialOptions.map(Some(_))
-            val optMap = initialOptions.map(o => id(o) -> o).toMap
+            val opts = options.map(o => None :: o.map(Some(_)))
+            val optMap = options.map(os => os.map(o => id(o) -> o).toMap)
             fctx.formUIFactory.select(hasError)(
                 idAttr(desc.idString),
                 nameAttr(desc.name),
-                opts.map(o =>
+                children <-- opts.map(_.map(o =>
                     option(
                         defaultSelected(initialValue == o),
                         value(o.map(id).getOrElse("")),
                         o.map(label).getOrElse("")
                     )
-                ),
-                onChange.mapToValue.setAsValue.map(optMap.get) --> observer,
+                )),
+                onChange.mapToValue.setAsValue.compose(_.withCurrentValueOf(optMap).map((v, om) =>
+                    om.get(v)
+                )) --> observer,
                 onFocus.mapTo(true) --> hadFocus.writer,
                 onBlur.mapTo(true) --> touched.writer
             )

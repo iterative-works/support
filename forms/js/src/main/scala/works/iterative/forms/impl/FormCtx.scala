@@ -60,7 +60,8 @@ class FormCtx private (
     val controlEvents: EventStream[FormControl] = controlBus.events
 
     val state: FormV = formState
-    val showErrors: Signal[Boolean] = displayAllErrors.signal
+    val showErrors: Signal[Boolean] =
+        displayAllErrors.signal.setDisplayName("show errors")
     val updateValues: Observer[FormR] = inputBus.writer.setDisplayName("input bus")
 
     val inputValues: EventStream[FormR] = inputBus.events

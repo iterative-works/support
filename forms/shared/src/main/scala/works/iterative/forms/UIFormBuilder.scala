@@ -35,7 +35,8 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         element match
             case Section(id, elems, _) => renderSection(path / id, repeatIndex)(elems).map(List(_))
             case Field(id, fieldType, default, optional) =>
-                if fieldType.hidden then ZPure.succeed(Nil)
+                if fieldType.hidden then
+                    renderHiddenField(path / id, default).map(List(_))
                 else renderField(path / id, fieldType.id, default, optional).map(List(_))
             case File(id, multiple, optional) =>
                 renderFileField(path / id, multiple, optional).map(List(_))
@@ -97,6 +98,16 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
 
     private def optionalDecoration(optional: Boolean) =
         if !optional then List(UIFieldDecoration.Required) else Nil
+
+    private def renderHiddenField(
+        path: AbsolutePath,
+        default: Option[String]
+    ) = getString(path).map: value =>
+        UIHiddenField(
+            path.toHtmlId,
+            path.toHtmlName,
+            value.orElse(default)
+        )
 
     private def renderField(
         path: AbsolutePath,

@@ -31,6 +31,7 @@ trait ScenarioMain(
         override val language: Language = Language.CS
         override val messages: Dictionary[String] =
             ScenarioMain.this.messages.asInstanceOf[js.Dictionary[String]]
+        override val root: MessageCatalogue = this
 
     private val scenarioRoute: Route[Scenario.Id, String] =
         Route.onlyFragment[Scenario.Id, String](

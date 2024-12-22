@@ -19,7 +19,7 @@ object MultiPdfInterpreter:
         id: FormIdent,
         form: Form,
         data: Option[Map[String, Seq[String]]],
-        params: Map[String, String] = Map.empty
+        context: Option[Map[String, String]] = None
     )
 
     def interpret(

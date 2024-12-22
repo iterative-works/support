@@ -43,6 +43,12 @@ final case class UILabeledField(
     decorations: List[UIFieldDecoration]
 ) extends UIFormElement
 
+final case class UIHiddenField(
+    id: UIFormId,
+    fieldName: UIFieldName,
+    value: Option[String]
+) extends UIFormElement
+
 sealed trait UIField:
     def id: UIFormId
     def fieldName: UIFieldName

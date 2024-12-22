@@ -81,6 +81,15 @@ class BaseValidationResolver(
                 UserMessage("error.souhlas.required")
             )
 
+    private def validateSluzby(id: IdPath): SectionValidation = ValidationRule.succeed:
+        val fullPath = absolutePath(id)
+        def hasSluzby: FormR => Boolean = m =>
+            m.get(fullPath / "sluzby" / "__items").exists(_.nonEmpty)
+
+        ValidationState.failUnless[FormR](id)(hasSluzby)(
+            UserMessage("error.sluzby.required")
+        )
+
     private def validateVies(id: IdPath, countryField: IdPath): Validation =
         val tooShort: ValidationRule[EventStream, String, String] = ValidationRule.succeed: vatId =>
             ValidationState.failIf[String](id)(_.length < 2)(
@@ -139,6 +148,7 @@ class BaseValidationResolver(
             case "cmi:meridlo" => validateMeridlo(id)
             case "cmi:souhlas" => validateSouhlas(id)
             case "cmi:gdpr"    => validateSouhlas(id, "gdpr")
+            case "cmi:sluzby"  => validateSluzby(id)
             case _             => ValidationRule.valid
 
 end BaseValidationResolver

@@ -27,6 +27,8 @@ trait MessageCatalogue:
 
     def currentPrefixes: List[String] = Nil
 
+    def root: MessageCatalogue
+
     @tailrec
     private def maybeResolve[T, U](id: T, fallback: T*)(
         tryResolve: T => Option[String]
@@ -58,12 +60,14 @@ object MessageCatalogue:
         override val language: Language = Language.EN
         def get(id: MessageId): Option[String] = None
         def get(msg: UserMessage): Option[String] = None
+        val root: MessageCatalogue = this
 
     /** Show the message keys */
     val debug: MessageCatalogue = new MessageCatalogue:
         override val language: Language = Language.EN
         def get(id: MessageId): Option[String] = Some(id.value)
         def get(msg: UserMessage): Option[String] = Some(msg.id.value)
+        val root: MessageCatalogue = this
 end MessageCatalogue
 
 private class NestedMessageCatalogue(
@@ -100,4 +104,6 @@ private class NestedMessageCatalogue(
 
     override def currentPrefixes: List[String] =
         prefixes.toList ++ underlying.currentPrefixes
+
+    val root: MessageCatalogue = underlying.root
 end NestedMessageCatalogue

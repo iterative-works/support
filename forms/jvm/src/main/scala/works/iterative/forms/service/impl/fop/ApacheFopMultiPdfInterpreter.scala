@@ -9,7 +9,6 @@ import org.apache.fop.apps.FopFactory
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import org.apache.xmlgraphics.util.MimeConstants
-import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
 import scala.xml.*
 import works.iterative.autocomplete.service.AutocompleteService
@@ -87,11 +86,15 @@ class ApacheFopMultiPdfInterpreter(
                     forms.head.form.id.serialize,
                     if lang == Language.CS then None else Some(lang)
                 )
+                transformerFactory <- stylesheetProvider.newTransformerFactory
                 // Render PDF using Apache FOP
                 _ <- ZIO.attempt {
                     val fop = fopFactory.newFop(MimeConstants.MIME_PDF, out)
-                    val transformerFactory = TransformerFactory.newInstance()
                     val transformer = transformerFactory.newTransformer(xslt)
+                    forms.foreach: form =>
+                        form.context.foreach: ctx =>
+                            ctx.foreach: (k, v) =>
+                                transformer.setParameter(k, v)
                     val src = new javax.xml.transform.stream.StreamSource(
                         new java.io.StringReader(xml.toString)
                     )
@@ -116,25 +119,46 @@ object ApacheFopMultiPdfInterpreter:
             UIXMLDisplayResolver & AutocompleteResolver & ApacheFopStylesheetProvider &
             AutocompleteService & UIFormBuilder,
         MultiPdfInterpreter
+    ] = ZLayer(ZIO.config(ApacheFopConfig.config)).flatMap(configEnv => layer(configEnv.get))
+
+    def layer(config: ApacheFopConfig): RLayer[
+        MessageCatalogue &
+            UIXMLDisplayResolver & AutocompleteResolver & ApacheFopStylesheetProvider &
+            AutocompleteService & UIFormBuilder,
+        MultiPdfInterpreter
     ] =
         ZLayer {
             for
                 given MessageCatalogue <- ZIO.service[MessageCatalogue]
                 builder <- ZIO.service[UIFormBuilder]
-                config <- ZIO.config(ApacheFopConfig.config)
                 displayResolver <- ZIO.service[UIXMLDisplayResolver]
                 autocompleteResolver <- ZIO.service[AutocompleteResolver]
                 autocompleteService <- ZIO.service[AutocompleteService]
                 stylessheetProvider <- ZIO.service[ApacheFopStylesheetProvider]
-                fopFactory <- ZIO.attempt(config match
+                fopFactory <- (config match
                     case ApacheFopConfig(_, Some(cfg)) =>
-                        FopFactory.newInstance(cfg.toFile)
+                        val file = cfg.toFile
+                        ZIO.log(
+                            s"Using custom FOP configuration from ${cfg} (exists: ${file.exists()})"
+                        ) *>
+                            ZIO.attempt(FopFactory.newInstance(cfg.toFile))
                     case ApacheFopConfig(Some(bd), _) =>
-                        FopFactory.newInstance(bd.toUri)
-                    case _ => FopFactory.newInstance(
-                            new java.io.File(".").toURI(),
-                            config.getClass.getResourceAsStream("/fop.xconf")
-                        )
+                        ZIO.log(
+                            "Using default FOP configuration with base in ${bd}"
+                        ) *> ZIO.attempt:
+                            FopFactory.newInstance(bd.toUri)
+                    case _ =>
+                        val baseDir = new java.io.File(".").toURI()
+                        for
+                            _ <- ZIO.log(
+                                s"Using FOP configuration with base in ${baseDir} and fop.xconf in classpath"
+                            )
+                            fopFactory <- ZIO.attempt(FopFactory.newInstance(
+                                baseDir,
+                                config.getClass.getResourceAsStream("/fop.xconf")
+                            ))
+                        yield fopFactory
+                        end for
                 ).orDie
             yield ApacheFopMultiPdfInterpreter(
                 fopFactory,

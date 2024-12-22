@@ -201,13 +201,19 @@ class LiveHtmlInterpreter(
                             idAttr((fi.id / id / key / elemId).toHtmlId),
                             cls("relative"),
                             span(
-                                cls("text-xs absolute right-2 top-0 flex"),
+                                cls("text-xs absolute right-0 top-0 flex"),
+                                /*
                                 div(
                                     cls("inline-block mt-1 mr-1"),
                                     child.text <-- updates.map(_._2 + 1)
                                 ),
+                                 */
                                 span(
-                                    cs.segmentRemoveIcon(svg.cls("w-4 h-4 mt-1 cursor-pointer")),
+                                    cls(
+                                        "bg-red-700 text-red-100 text-sm flex items-center button hover:bg-red-600"
+                                    ),
+                                    span("Odebrat "),
+                                    cs.segmentRemoveIcon(svg.cls("w-4 h-4 cursor-pointer")),
                                     onClick.mapTo(key) --> items.updater((its, it) =>
                                         its.filterNot(_._1 == it)
                                     )
@@ -348,7 +354,17 @@ class LiveHtmlInterpreter(
         def cont(i: SectionSegment) = renderSegment(i)
         hooks.aroundSection(id): fi =>
             val fullId = fi.id / id
-            val content = FormPart.combine(id, elems.map(cont)*)(cs.flexRow)
+            val layout = layoutResolver.resolve(fullId, elems)
+            val content = layout match
+                case Grid(elems) =>
+                    FormPart.combine(
+                        id,
+                        elems.flatMap(segments =>
+                            segments.map(cont(_).mapDom(cs.gridCell(segments.size, _)))
+                        )*
+                    )(cs.grid)
+                case Flex(elems) =>
+                    FormPart.combine(id, elems.map(cont)*)(cs.flexRow)
 
             val unknown = ValidationState.Unknown(
                 List(fi.id -> UserMessage("error.validation.unknown", fi.id.toHtmlId))
@@ -409,7 +425,8 @@ class LiveHtmlInterpreter(
                     fullId.size,
                     sectionTitle,
                     fullId.toMessageNodeOpt("section.subtitle"),
-                    errors.map(_.map(_.asElement)),
+                    fi.showErrors.combineWithFn(errors): (show, errs) =>
+                        if show then errs.map(_.asElement) else Nil,
                     mods(out.domOutput),
                     if fullId.size == 2 && ctx.menuItems.nonEmpty then
                         modSeq(
@@ -582,6 +599,8 @@ class LiveHtmlInterpreter(
                             )
                         )
                     },
+                    fi.showErrors.combineWithFn(inputVal.signal): (se, value) =>
+                        se && value.isEmpty && required,
                     EventStream.fromSeq(default.toSeq) --> inputVal.writer
                 )
 

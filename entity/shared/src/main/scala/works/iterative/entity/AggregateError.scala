@@ -6,6 +6,10 @@ import works.iterative.core.MessageId
 sealed trait AggregateError[Id, Command, Event, State]:
     def userMessage: UserMessage
 
+case class InvalidRequest[Id, Command, Event, State](message: UserMessage)
+    extends AggregateError[Id, Command, Event, State]:
+    val userMessage: UserMessage = message
+
 sealed trait CommandError[Id, Command, Event, State]
     extends AggregateError[Id, Command, Event, State]
 

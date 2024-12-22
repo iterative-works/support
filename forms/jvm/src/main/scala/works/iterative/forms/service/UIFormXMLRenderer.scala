@@ -82,6 +82,8 @@ class UIFormXMLRenderer(
                 yield <ui:block id={id} title={renderMessage(messageKey, "title")}>
                     {content}
                 </ui:block>
+            case UIHiddenField(id, fieldName, value) =>
+                ZIO.succeed(<ui:hiddenField id={id} value={value.getOrElse("")}/>)
             case _ => ZIO.succeed(NodeSeq.Empty)
 
     private def renderField(field: UIField)(using

@@ -10,7 +10,7 @@ import zio.prelude.Validation
 import scala.util.NotGiven
 
 case class Choice[A](
-    options: List[A],
+    options: Signal[List[A]],
     id: A => String,
     label: A => String,
     combo: Boolean = false,
@@ -19,11 +19,20 @@ case class Choice[A](
 ):
     def optional: Choice[Option[A]] =
         Choice[Option[A]](
-            options = options.map(Some(_)),
+            options = options.map(_.map(Some(_))),
             id = _.map(id).getOrElse(""),
             label = _.map(label).getOrElse(""),
             combo = combo,
             add = add.map(_.andThen(_.map(Some(_))))
+        )
+end Choice
+
+object Choice:
+    def apply[A](options: List[A], id: A => String, label: A => String): Choice[A] =
+        Choice(
+            options = Val(options),
+            id = id,
+            label = label
         )
 end Choice
 
