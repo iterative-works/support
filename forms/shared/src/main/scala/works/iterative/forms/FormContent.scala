@@ -111,6 +111,11 @@ object FormContent:
         def formId: Option[String] = content.first[FormValue.StringValue](formIdKey).map(_.value)
         def formVersion: Option[String] =
             content.first[FormValue.StringValue](formVersionKey).map(_.value)
+        def toStringMap: Map[String, Seq[String]] =
+            content.map: (k, v) =>
+                k -> v.map:
+                    case FormValue.StringValue(v) => v
+                    case FormValue.FileValue(v)   => v.name
     end extension
 
     val formIdKey: FormKey = "___form_id"

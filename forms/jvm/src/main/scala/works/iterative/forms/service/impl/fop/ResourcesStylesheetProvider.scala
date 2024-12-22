@@ -43,7 +43,6 @@ class ResourcesStylesheetProvider extends ApacheFopStylesheetProvider:
             Option(getClass().getResourceAsStream(href)).map(StreamSource(_)).orNull
         )
         transformerFactory
-
 end ResourcesStylesheetProvider
 
 object ResourcesStylesheetProvider:

@@ -57,6 +57,7 @@ trait FormR extends FormState:
         getStringList(id / "__items").map(_.map(_.split(":", 2)).collect {
             case Array(i, t) => (i, t)
         }).getOrElse(Nil)
+    end itemsFor
 end FormR
 
 object FormR:
@@ -108,7 +109,7 @@ object FormR:
                 d2.foldLeft(d1) {
                     case (acc, (k, v)) =>
                         acc.updatedWith(k) {
-                            case Some(v1) => Some(v1 ++ v)
+                            case Some(v1) => Some(v1)
                             case None     => Some(v)
                         }
                 }

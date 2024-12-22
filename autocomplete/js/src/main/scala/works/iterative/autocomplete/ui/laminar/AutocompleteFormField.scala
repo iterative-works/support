@@ -79,7 +79,7 @@ class AutocompleteFormField(
                         v.text.map(TextNode(_))
                     ),
                 autocompleteSearchString --> autocompleteSink,
-                autocompleteSource --> Combobox.ctx.itemsWriter,
+                autocompleteSource.map(_.sortBy(_.label)) --> Combobox.ctx.itemsWriter,
                 Combobox.ctx.value --> selectedValue.writer,
                 values.mapToTrue --> initialized.writer,
                 values.delay(0).flatMapSwitch(query.load) --> Combobox.ctx.valueWriter,

@@ -3,6 +3,7 @@ package impl
 
 import zio.*
 import com.raquo.laminar.api.L
+import com.raquo.laminar.api.L.*
 import works.iterative.autocomplete.AutocompleteEntry
 import works.iterative.autocomplete.ui.laminar.AutocompleteRegistry
 import works.iterative.ui.TimeUtils
@@ -18,6 +19,7 @@ class LiveFieldTypeResolver(
 
     override def resolve(fieldType: FieldType): FieldFactory[String] =
         def buildAutocompleteField(q: AutocompleteQuery): FieldFactory[String] =
+            val fieldValidation: IdPath => Validation = validation.resolve(fieldType.id)
             def valuesObserver(using FormCtx) =
                 FormCtx.ctx.updateValues.contramap[(
                     AbsolutePath,
@@ -45,25 +47,71 @@ class LiveFieldTypeResolver(
                 else valuesObserver
             end autocompleteObserver
 
-            FieldFactory.Autocomplete(
-                q,
-                // Add context from surrounding fields to the query
-                // This is a hack for now, the 3 levels up is a bit arbitrary
-                ctx =>
-                    idPath =>
-                        val contextLvl = fieldType.context match
-                            case Some(ctxLvl) =>
-                                works.iterative.ui.model.forms.IdPath.parse(ctxLvl, idPath)
-                            case None => idPath.up
-                        ctx.state.under(contextLvl).map(_.map((k, v) =>
-                            k match
-                                case ap: AbsolutePath =>
-                                    ap.relativeTo(contextLvl).serialize -> v.toString
-                                case _ => k.serialize -> v.toString
-                        )).map(Some(_))
-                ,
-                Some(autocompleteObserver)
-            )
+            fieldType match
+                case FieldType(id, context, disabled) if id.startsWith("cmi:erp_cenik_kategorie") =>
+                    FieldFactory.Select(
+                        fieldValidation,
+                        ctx => _ => q.find("").map(_.sortBy(_.label)),
+                        None,
+                        disabled
+                    )
+
+                case FieldType(id, context, disabled) if id.startsWith("cmi:erp_cenik") =>
+                    FieldFactory.Select(
+                        fieldValidation,
+                        ctx =>
+                            idPath =>
+                                // Get the "kategorie_meridla" value from the form context
+                                val kategorieValue = ctx.state
+                                    .get(idPath.up.up / "kategorie_meridla")
+                                    .changes
+                                    .map:
+                                        case Some(v: String) => v
+                                        case _               => ""
+
+                                val contextLvl = fieldType.context match
+                                    case Some(ctxLvl) =>
+                                        works.iterative.ui.model.forms.IdPath.parse(ctxLvl, idPath)
+                                    case None => idPath.up
+                                val contextSignal = ctx.state.under(contextLvl).map(_.map((k, v) =>
+                                    k match
+                                        case ap: AbsolutePath =>
+                                            ap.relativeTo(contextLvl).serialize -> v.toString
+                                        case _ => k.serialize -> v.toString
+                                )).map(Some(_))
+
+                                val qq = q.withContextSignal(contextSignal)
+
+                                // Create options stream that updates when kategorie changes
+                                kategorieValue.flatMapSwitch(kategorie =>
+                                    if kategorie.isBlank then EventStream.fromValue(Nil)
+                                    else qq.find("").map(_.sortBy(_.label))
+                                )
+                        ,
+                        Some(autocompleteObserver),
+                        disabled
+                    )
+
+                case _ => FieldFactory.Autocomplete(
+                        q,
+                        // Add context from surrounding fields to the query
+                        // This is a hack for now, the 3 levels up is a bit arbitrary
+                        ctx =>
+                            idPath =>
+                                val contextLvl = fieldType.context match
+                                    case Some(ctxLvl) =>
+                                        works.iterative.ui.model.forms.IdPath.parse(ctxLvl, idPath)
+                                    case None => idPath.up
+                                ctx.state.under(contextLvl).map(_.map((k, v) =>
+                                    k match
+                                        case ap: AbsolutePath =>
+                                            ap.relativeTo(contextLvl).serialize -> v.toString
+                                        case _ => k.serialize -> v.toString
+                                )).map(Some(_))
+                        ,
+                        Some(autocompleteObserver)
+                    )
+            end match
         end buildAutocompleteField
 
         def buildField: FieldFactory[String] =

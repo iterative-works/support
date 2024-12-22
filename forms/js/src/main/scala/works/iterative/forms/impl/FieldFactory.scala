@@ -121,4 +121,39 @@ object FieldFactory:
                 )(fi)
         end render
     end Autocomplete
+
+    case class Select(
+        validation: IdPath => portaly.forms.impl.Validation,
+        getOptions: FormCtx => AbsolutePath => EventStream[List[AutocompleteEntry]],
+        selectObserver: Option[FormCtx ?=> Observer[(AbsolutePath, AutocompleteEntry)]] = None,
+        disabled: Boolean = false
+    ) extends FieldFactory[String]:
+        def render(
+            id: IdPath,
+            required: Boolean,
+            initialValue: Option[String]
+        ): Render[FieldFactory.FieldPart[String]] =
+            fi =>
+                val observe: Observer[(AbsolutePath, Option[AutocompleteEntry])] =
+                    selectObserver match
+                        case Some(o) => o.contracollect[(AbsolutePath, Option[AutocompleteEntry])]:
+                                case (id, Some(a)) => (id, a)
+                        case _ => Observer.empty
+                val field =
+                    AutocompleteSelectFormField(
+                        initialValue,
+                        getOptions(FormCtx.ctx)(fi.id).startWith(Nil),
+                        disabled
+                    )
+                val req = if required then requiredString(fi.id) else ValidationRule.valid
+                ValidatingFormField(req.flatMap(validation(fi.id)))(
+                    LabeledFormField(
+                        field.tap(observe.setDisplayName(s"observe:${id.toHtmlId}")).map(
+                            _.map(_.value).getOrElse("")
+                        ),
+                        Val(required)
+                    ),
+                    field.touched
+                )(fi)
+    end Select
 end FieldFactory

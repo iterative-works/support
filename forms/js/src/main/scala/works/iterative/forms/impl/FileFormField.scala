@@ -56,6 +56,9 @@ class FileFormField(multiple: Boolean = false)(using cs: Components, messages: M
                     cls("block w-full"),
                     div(
                         cs.buttonLike,
+                        cls(
+                            "bg-[#0466A9] text-white hover:bg-[#0D81CF] disabled:hover:bg-[#0466A9] disabled:text-neutral-400"
+                        ),
                         cls("inline-flex"),
                         cs.uploadIcon(svg.cls("w-5 h-5 mr-1")),
                         fi.id.toMessageNode("button.add")
