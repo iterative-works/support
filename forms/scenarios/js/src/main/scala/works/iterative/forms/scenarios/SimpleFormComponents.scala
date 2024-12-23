@@ -364,6 +364,7 @@ class SimpleFormComponents extends Components:
         required: Signal[Boolean],
         value: Signal[String],
         values: List[Components.RadioOption],
+        inError: Signal[Boolean],
         mods: HtmlMod*
     ): HtmlElement =
         fieldSet(
@@ -401,6 +402,49 @@ class SimpleFormComponents extends Components:
             ),
             mods
         )
+
+    def select(
+        id: String,
+        name: String,
+        labelMod: HtmlMod,
+        descriptionMod: Option[HtmlMod],
+        required: Signal[Boolean],
+        value: Signal[String],
+        values: Signal[List[Components.RadioOption]],
+        mods: HtmlMod*
+    ): HtmlElement = div(child <-- values.map(vs =>
+        select(
+            id,
+            name,
+            labelMod,
+            descriptionMod,
+            required,
+            value,
+            vs,
+            mods
+        )
+    ))
+
+    def select(
+        id: String,
+        name: String,
+        labelMod: HtmlMod,
+        descriptionMod: Option[HtmlMod],
+        required: Signal[Boolean],
+        value: Signal[String],
+        values: List[Components.RadioOption],
+        mods: HtmlMod*
+    ): HtmlElement = radio(
+        id,
+        name,
+        labelMod,
+        descriptionMod,
+        required,
+        value,
+        values,
+        Val(false),
+        mods
+    )
 
     override def grid(mods: HtmlMod*): HtmlElement =
         div(
