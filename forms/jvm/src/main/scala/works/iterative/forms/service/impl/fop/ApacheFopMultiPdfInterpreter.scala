@@ -50,7 +50,7 @@ class ApacheFopMultiPdfInterpreter(
         given MessageCatalogue = messages
         given Language = lang
 
-        def renderOne(form: FormRender): Task[(NodeSeq, Map[String, String])] =
+        def renderOne(form: FormRender): Task[(NodeSeq, Option[Map[String, String]])] =
             val data = FormR.parse(form.data.getOrElse(Map.empty))
 
             val uiForm = builder.buildForm(
@@ -66,17 +66,21 @@ class ApacheFopMultiPdfInterpreter(
                     displayResolver,
                     data
                 ).render(uiForm).debug
-            yield (xml, form.params)
+            yield (xml, form.context)
             end for
         end renderOne
 
         def renderForms: Task[(NodeSeq, Map[String, String])] =
             for
-                xmls <- ZIO.foreach(forms)(renderOne)
-            yield (
-                <ui:forms xmlns:ui="https://ui.iterative.works/form">{xmls.map(_._1)}</ui:forms>,
-                xmls.map(_._2).foldLeft(Map.empty[String, String])(_ ++ _)
-            )
+                prepared <- ZIO.foreach(forms)(renderOne)
+            yield
+                val xmls = prepared.map(_._1)
+                val contexts = prepared.flatMap(_._2)
+                val context = contexts.foldLeft(Map.empty[String, String])(_ ++ _)
+                (
+                    <ui:forms xmlns:ui="https://ui.iterative.works/form">{xmls}</ui:forms>,
+                    context
+                )
 
         def renderPdf(xml: NodeSeq, params: Map[String, String]): Task[Array[Byte]] = ZIO.scoped {
             for
