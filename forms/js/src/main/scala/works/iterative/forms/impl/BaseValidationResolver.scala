@@ -148,6 +148,7 @@ class BaseValidationResolver(
             case "cmi:meridlo" => validateMeridlo(id)
             case "cmi:souhlas" => validateSouhlas(id)
             case "cmi:gdpr"    => validateSouhlas(id, "gdpr")
+            case "cmi:postup"  => validateSouhlas(id, "souhlas_s_postupem")
             case "cmi:sluzby"  => validateSluzby(id)
             case _             => ValidationRule.valid
 
