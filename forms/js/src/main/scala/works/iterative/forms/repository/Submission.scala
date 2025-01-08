@@ -1,9 +1,11 @@
-package portaly.forms
+package works.iterative.forms
 package repository
 
 import java.time.OffsetDateTime
 import works.iterative.core.Email
 import works.iterative.ui.model.forms.IdPath
+import portaly.forms.FormContent
+import portaly.forms.FormKey
 
 final case class Submission(
     id: String,

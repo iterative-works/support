@@ -10,13 +10,13 @@ import Codecs.given
 import FormPersistenceCodecs.given
 import works.iterative.tapir.codecs.Codecs.given
 import sttp.model.StatusCode
-import portaly.forms.repository.Submission
+import works.iterative.forms.repository.Submission
 import works.iterative.autocomplete.endpoints.AutocompleteEndpoints
 import sttp.model.headers.CookieValueWithMeta
 import repository.impl.rest.FormReadRepositoryEndpoints
 import works.iterative.tapir.endpoints.FileStoreEndpointsModule
 import works.iterative.core.Language
-import portaly.forms.repository.SubmissionRepository
+import works.iterative.forms.repository.SubmissionRepository
 
 trait Endpoints(base: BaseEndpoint) extends CustomTapir:
     object user:

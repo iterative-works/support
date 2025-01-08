@@ -5,7 +5,7 @@ package impl.rest
 
 import zio.json.*
 import works.iterative.tapir.CustomTapir.*
-import portaly.forms.repository.{Submission, SubmissionRepository}
+import works.iterative.forms.repository.{Submission, SubmissionRepository}
 import works.iterative.core.codecs.Codecs.given
 import FormPersistenceCodecs.given
 
