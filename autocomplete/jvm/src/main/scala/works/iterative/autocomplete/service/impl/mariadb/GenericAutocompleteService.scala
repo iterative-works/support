@@ -29,7 +29,7 @@ class GenericAutocompleteService(quill: Quill.Mysql[SnakeCase])
             .filter(_.label like lift(s"%$q%"))
             .filter(a => a.language.forall(_ == lift(language)))
             .filter(_.active == true)
-            .sortBy(_.weight)(Ord.ascNullsLast)
+            .sortBy(a => (a.weight, a.label))(Ord(Ord.ascNullsLast, Ord.asc))
             .take(lift(limit))
     end findQuery
 
