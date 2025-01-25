@@ -2,7 +2,7 @@ package portaly
 package forms
 import works.iterative.ui.model.forms.RelativePath
 
-final case class FieldType(id: String, context: Option[String], disabled: Boolean = false):
+final case class FieldType(id: String, context: Option[String] = None, disabled: Boolean = false):
     val hidden: Boolean = id == "hidden"
 
 object FieldType:
