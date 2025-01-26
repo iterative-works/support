@@ -22,7 +22,8 @@ final case class UIForm(
     id: UIFormId,
     messageKey: UIMessageKey,
     children: Seq[UIFormElement],
-    data: FormState
+    data: FormState,
+    context: Option[Map[String, String]]
 )
 
 sealed trait UIFormElement

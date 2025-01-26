@@ -21,6 +21,7 @@ class UIFormXMLRenderer(
 ):
     def render(form: UIForm)(using messages: MessageCatalogue, lang: Language): UIO[NodeSeq] =
         given MessageCatalogue = messages.nested(form.messageKey.value)
+        given UIForm = form
         for
             nested <- ZIO.foreach(form.children)(renderSegment)
         yield <ui:form xmlns:ui="https://ui.iterative.works/form" title={
@@ -34,6 +35,7 @@ class UIFormXMLRenderer(
         messages.get(UserMessage(key.append(suffix), args*)).orNull
 
     def renderSegment(segment: UIFormElement)(using
+        form: UIForm,
         messages: MessageCatalogue,
         lang: Language
     ): UIO[NodeSeq] =
@@ -52,7 +54,12 @@ class UIFormXMLRenderer(
             case UILabeledField(id, messageKey, field, decorations) =>
                 field match
                     case _: UIChoiceField =>
-                        for rendered <- renderField(field)(using messages.nested(messageKey.value))
+                        for rendered <-
+                                renderField(field)(using
+                                    form,
+                                    messages.nested(messageKey.value),
+                                    lang
+                                )
                         yield <ui:choiceField id={id} label={renderMessage(messageKey, "label")}>
                             {rendered}
                         </ui:choiceField>
@@ -87,6 +94,7 @@ class UIFormXMLRenderer(
             case _ => ZIO.succeed(NodeSeq.Empty)
 
     private def renderField(field: UIField)(using
+        form: UIForm,
         messages: MessageCatalogue,
         lang: Language
     ): UIO[NodeSeq] =
@@ -96,7 +104,12 @@ class UIFormXMLRenderer(
                     ZIO.foreach(autocompleteResolver.resolveAutocomplete(fieldType)):
                         autocompleteId =>
                             ZIO.foreach(rawValue): v =>
-                                autocompleteService.load(autocompleteId, v, lang.value, None).map(
+                                autocompleteService.load(
+                                    autocompleteId,
+                                    v,
+                                    lang.value,
+                                    form.context
+                                ).map(
                                     _.map(_.label).getOrElse(v)
                                 )
                     .map(_.flatten.orElse(rawValue))

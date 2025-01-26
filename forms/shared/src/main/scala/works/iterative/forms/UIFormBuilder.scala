@@ -9,9 +9,10 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
     def buildForm(
         form: Form,
         state: FormState,
-        validationState: FormValidationState
+        validationState: FormValidationState,
+        context: Option[Map[String, String]]
     ): UIForm =
-        val result = render(IdPath.Root / form.id, form.elems).provideEnvironment(
+        val result = render(IdPath.Root / form.id, form.elems, context).provideEnvironment(
             ZEnvironment(state, validationState)
         ).run
         formHook match
@@ -21,12 +22,13 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
 
     def render(
         path: AbsolutePath,
-        elems: List[SectionSegment]
+        elems: List[SectionSegment],
+        context: Option[Map[String, String]]
     ): ZPure[Nothing, Unit, Unit, FormState & FormValidationState, Nothing, UIForm] =
         for
             children <- ZPure.foreach(elems)(renderSegment(path))
             state <- ZPure.service[Unit, FormState]
-        yield UIForm(path.toHtmlId, path.last, children.flatten, state)
+        yield UIForm(path.toHtmlId, path.last, children.flatten, state, context)
         end for
     end render
 

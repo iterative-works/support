@@ -56,7 +56,8 @@ class ApacheFopMultiPdfInterpreter(
             val uiForm = builder.buildForm(
                 form.form,
                 data,
-                FormValidationState.valid
+                FormValidationState.valid,
+                form.context
             )
 
             for
