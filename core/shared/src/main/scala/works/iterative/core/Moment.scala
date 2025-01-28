@@ -3,6 +3,8 @@ package works.iterative.core
 import java.time.Instant
 import scala.Conversion
 import zio.*
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 /** A moment in time, represented as an instant
   *
@@ -13,6 +15,7 @@ opaque type Moment = Instant
 
 object Moment:
     def apply(value: Instant): Moment = value
+    def apply(value: LocalDateTime): Moment = value.atZone(ZoneId.systemDefault).toInstant
 
     def now: UIO[Moment] =
         for now <- Clock.instant
