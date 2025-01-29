@@ -1,4 +1,4 @@
-package works.iterative.server.http
+package works.iterative.scalatags
 
 trait ScalatagsSupport:
     // Extracted from http4s-scalatags - supported scalatags version lags behind by a year, and it is just a bunch of givens.

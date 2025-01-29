@@ -1,4 +1,5 @@
-package works.iterative.server.http
+package works.iterative.forms
+package http
 
 import org.http4s.UrlForm
 
