@@ -146,7 +146,7 @@ object ScalatagsViteSupport:
                 config <- ZIO.config(config)
                 baseUri <- ZIO.config(BaseUri.config)
                 entries <- entriesFor(config, baseUri)
-                _ <- ZIO.log(s"Vite support enabled, entries:\n${entries}")
+                _ <- ZIO.log(s"Vite support enabled with config: $config")
             yield ScalatagsViteSupport(entries)
         }
     end layer

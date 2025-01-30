@@ -5,8 +5,7 @@ IWDeps.zioConfig
 IWDeps.zioConfigTypesafe
 IWDeps.zioConfigMagnolia
 IWDeps.zioLoggingSlf4j
-// TODO: use IWDeps.zioInteropCats with next iw-support version (0.3.19+)
-libraryDependencies += "dev.zio" %% "zio-interop-cats" % "23.0.0.8"
+IWDeps.zioInteropCats
 IWDeps.tapirCore
 IWDeps.tapirZIO
 IWDeps.tapirZIOJson

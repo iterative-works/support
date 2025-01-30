@@ -139,6 +139,37 @@ lazy val scenarios = crossProject(JSPlatform, JVMPlatform)
     .in(file("scenarios"))
     .dependsOn(core)
 
+lazy val `forms-core` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("forms/core"))
+    .settings(
+        name := "iw-support-forms-core"
+    )
+    .dependsOn(core)
+
+lazy val `ui-core` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("ui/core"))
+    .settings(
+        name := "iw-support-ui-core"
+    )
+    .dependsOn(`forms-core`)
+
+lazy val `forms-http` = project
+    .in(file("forms/http"))
+    .settings(
+        name := "iw-support-forms-http"
+    )
+    .dependsOn(`forms-core`.jvm, http)
+
+lazy val `ui-scalatags` = crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("ui/scalatags"))
+    .settings(
+        name := "iw-support-ui-scalatags"
+    )
+    .dependsOn(`ui-core`)
+
 lazy val root = (project in file("."))
     .enablePlugins(IWScalaProjectPlugin)
     .settings(
@@ -168,5 +199,12 @@ lazy val root = (project in file("."))
         ui.jvm,
         forms.js,
         forms.jvm,
-        http
+        http,
+        `forms-core`.js,
+        `forms-core`.jvm,
+        `ui-core`.js,
+        `ui-core`.jvm,
+        `forms-http`,
+        `ui-scalatags`.js,
+        `ui-scalatags`.jvm
     )
