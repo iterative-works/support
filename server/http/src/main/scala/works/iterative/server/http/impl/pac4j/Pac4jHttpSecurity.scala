@@ -59,6 +59,7 @@ class Pac4jHttpSecurity[Env](
     )
 
     val sessionManagement = Session.sessionManagement[AppTask](sessionConfig)
+
     def baseSecurityFilter(
         authorizers: Option[String] = None,
         matchers: Option[String] = None,
