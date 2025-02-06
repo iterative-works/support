@@ -14,4 +14,5 @@ object components:
         extends works.iterative.ui.components.ErrorPageComponents[Frag]
     trait ScalatagsAppShell extends works.iterative.ui.components.AppShell[Frag]
     trait ScalatagsActionComponents extends works.iterative.ui.components.ActionComponents[Frag]
+    trait ScalatagsAppPageComponents extends works.iterative.ui.components.AppPageComponents[Frag]
 end components

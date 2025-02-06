@@ -12,13 +12,6 @@ trait LayoutComponents[T] extends Components[T]:
     /** Card component with optional header */
     def card(content: T, header: Option[T] = None): T
 
-    /** Navigation bar component */
-    def navigationBar(
-        title: String,
-        links: Seq[(String, String)], // (href, text) pairs
-        extraClasses: String = ""
-    ): T
-
     /** Section component with title */
     def section(title: String, content: T): T
 
