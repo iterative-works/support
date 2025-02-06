@@ -1,8 +1,6 @@
 package works.iterative.server.http
 package impl.pac4j
 
-import zio.*
-import zio.interop.catz.*
 import org.http4s.{HttpRoutes, Request, Response, ResponseCookie}
 import org.http4s.server.AuthMiddleware
 import org.pac4j.core.config.Config
@@ -16,21 +14,21 @@ import works.iterative.tapir.BaseUri
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter
 import org.http4s.AuthedRoutes
 import cats.effect.std.Dispatcher
+import cats.effect.Sync
 
 trait HttpSecurity
 
-class Pac4jHttpSecurity[Env](
+class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
     config: Pac4jSecurityConfig,
     pac4jConfig: Config,
-    dispatcher: Dispatcher[RIO[Env, *]]
+    dispatcher: Dispatcher[F]
 ) extends HttpSecurity:
-    type AppTask[A] = RIO[Env, A]
-    protected val dsl: Http4sDsl[AppTask] = new Http4sDsl[AppTask] {}
+    protected val dsl: Http4sDsl[F] = new Http4sDsl[F] {}
     import dsl.*
 
-    val contextBuilder = (req: Request[AppTask], conf: Config) =>
-        new Http4sWebContext[AppTask](req, conf.getSessionStore(), dispatcher.unsafeRunSync)
+    val contextBuilder = (req: Request[F], conf: Config) =>
+        new Http4sWebContext[F](req, conf.getSessionStore(), dispatcher.unsafeRunSync)
 
     private val sessionConfig = SessionConfig(
         cookieName = "session",
@@ -39,9 +37,9 @@ class Pac4jHttpSecurity[Env](
         maxAge = 5.minutes
     )
 
-    val callbackService = CallbackService[AppTask](pac4jConfig, contextBuilder)
+    val callbackService = CallbackService[F](pac4jConfig, contextBuilder)
 
-    val localLogoutService = LogoutService[AppTask](
+    val localLogoutService = LogoutService[F](
         pac4jConfig,
         contextBuilder,
         config.logoutUrl,
@@ -49,7 +47,7 @@ class Pac4jHttpSecurity[Env](
         destroySession = true
     )
 
-    val centralLogoutService = LogoutService[AppTask](
+    val centralLogoutService = LogoutService[F](
         pac4jConfig,
         contextBuilder,
         defaultUrl = config.logoutUrl,
@@ -58,7 +56,7 @@ class Pac4jHttpSecurity[Env](
         centralLogout = true
     )
 
-    val sessionManagement = Session.sessionManagement[AppTask](sessionConfig)
+    val sessionManagement = Session.sessionManagement[F](sessionConfig)
 
     def baseSecurityFilter(
         authorizers: Option[String] = None,
@@ -66,10 +64,10 @@ class Pac4jHttpSecurity[Env](
         clients: Option[String] = None,
         securityGrantedAccessAdapter: Option[AuthedRoutes[
             List[CommonProfile],
-            AppTask
+            F
         ] => SecurityGrantedAccessAdapter] = None
     ) = SecurityFilterMiddleware
-        .securityFilter[AppTask](
+        .securityFilter[F](
             pac4jConfig,
             contextBuilder,
             clients = clients,
@@ -80,7 +78,7 @@ class Pac4jHttpSecurity[Env](
             )
         )
 
-    private val routes: HttpRoutes[AppTask] =
+    private val routes: HttpRoutes[F] =
         HttpRoutes.of {
             case req @ GET -> Root / "callback" =>
                 callbackService.callback(req)
@@ -92,7 +90,7 @@ class Pac4jHttpSecurity[Env](
                 centralLogoutService.logout(req)
         }
 
-    def route: HttpRoutes[AppTask] =
+    def route: HttpRoutes[F] =
         Router(s"${config.callbackBase}" -> sessionManagement(routes))
 
     def secure(
@@ -101,9 +99,9 @@ class Pac4jHttpSecurity[Env](
         clients: Option[String] = None,
         securityGrantedAccessAdapter: Option[AuthedRoutes[
             List[CommonProfile],
-            AppTask
+            F
         ] => SecurityGrantedAccessAdapter] = None
-    ): AuthMiddleware[AppTask, List[CommonProfile]] =
+    ): AuthMiddleware[F, List[CommonProfile]] =
         sessionManagement.compose(baseSecurityFilter(
             authorizers = authorizers,
             matchers = matchers,

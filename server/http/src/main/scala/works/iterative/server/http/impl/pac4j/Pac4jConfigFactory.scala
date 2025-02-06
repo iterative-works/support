@@ -12,17 +12,14 @@ import org.pac4j.core.authorization.generator.AuthorizationGenerator
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import scala.jdk.CollectionConverters.*
-import cats.effect.std.Dispatcher
 import org.pac4j.core.context.WebContext
 import org.pac4j.core.context.session.SessionStore
 import org.pac4j.http4s.Http4sCacheSessionStore
 import scala.annotation.nowarn
-import scala.annotation.unused
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
     pac4jConfig: Pac4jSecurityConfig,
-    @unused dispatcher: Dispatcher[F],
     authorizationGenerator: AuthorizationGenerator =
         Pac4jConfigFactory.defaultAuthorizationGenerator
 ) extends ConfigFactory:

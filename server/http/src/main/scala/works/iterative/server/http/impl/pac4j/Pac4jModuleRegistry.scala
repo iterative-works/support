@@ -10,7 +10,7 @@ import zio.interop.catz.*
 import cats.syntax.all.*
 
 trait Pac4jModuleRegistry[R, U] extends ModuleRegistry[R]:
-    def pac4jSecurity: Pac4jHttpSecurity[R]
+    def pac4jSecurity: Pac4jHttpSecurity[RIO[R, *]]
     def profileToUser(profile: List[CommonProfile]): Option[U]
     def clients: Option[String] = None
 
