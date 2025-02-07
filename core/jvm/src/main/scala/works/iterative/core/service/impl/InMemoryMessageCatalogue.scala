@@ -1,5 +1,5 @@
 package works.iterative
-package ui
+package core.service.impl
 
 import core.{MessageCatalogue, MessageId}
 import works.iterative.core.UserMessage
