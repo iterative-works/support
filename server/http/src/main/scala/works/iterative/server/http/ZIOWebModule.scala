@@ -4,8 +4,13 @@ import zio.*
 import zio.interop.catz.*
 import org.http4s.*
 import cats.syntax.all.*
+import org.http4s.dsl.Http4sDsl
 
-trait ZIOWebModule[R] extends WebFeatureModule[RIO[R, *]]:
+trait WebModuleTypes:
+    type Env
+    type WebTask[A] = RIO[Env, A]
+
+trait ZIOWebModule[R] extends WebFeatureModule[RIO[R, *]] with WebModuleTypes:
     type Env = R
     type WebTask[A] = RIO[R, A]
 
@@ -37,7 +42,7 @@ end ZIOWebModule
   *     ): ZIOWebModule[R]
   * }}}
   */
-trait AuthedZIOWebModule[R, C]:
+trait AuthedZIOWebModule[R, C] extends WebModuleTypes:
     self =>
     type Env = R
     type Context = C
@@ -62,3 +67,7 @@ object AuthedZIOWebModule:
     def combine[R, C](modules: AuthedZIOWebModule[R, C]*): AuthedZIOWebModule[R, C] =
         modules.foldLeft(empty[R, C])(_ ++ _)
 end AuthedZIOWebModule
+
+trait DslSupport:
+    self: WebModuleTypes =>
+    protected val dsl = Http4sDsl[WebTask]
