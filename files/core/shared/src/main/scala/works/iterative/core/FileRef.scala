@@ -60,4 +60,10 @@ object FileRef:
 
     def unsafe(name: String, url: String, metadata: Metadata) =
         new FileRef(name, url, metadata)
+
+    def fromUrl(url: String): Validated[FileRef] =
+        // We can pas empty name, validation happens in the constructor
+        val name = Option(url).flatMap(_.split('/').lastOption).getOrElse("")
+        FileRef(name, url)
+    end fromUrl
 end FileRef
