@@ -35,6 +35,8 @@ sealed trait Computable[+Model]:
         case Computable.Recomputing(_, _) => true
         case _                            => false
 
+    def isEmpty: Boolean = !this.isDefined
+
     def isComputing: Boolean = this match
         case Computable.Computing(_)      => true
         case Computable.Recomputing(_, _) => true

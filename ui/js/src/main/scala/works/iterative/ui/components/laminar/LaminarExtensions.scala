@@ -7,11 +7,39 @@ import works.iterative.ui.model.Computable
 import works.iterative.core.auth.PermissionOp
 import works.iterative.core.auth.PermissionTarget
 import org.scalajs.dom
+import com.raquo.airstream.split.Splittable
 
 object LaminarExtensions
     extends I18NExtensions
     with ZIOInteropExtensions
     with ActionExtensions
+    with AirstreamExtensions
+
+trait AirstreamExtensions:
+    given Splittable[Computable] with
+        override def map[A, B](inputs: Computable[A], project: A => B): Computable[B] =
+            import Computable.*
+            inputs match
+                case Uninitialized             => Uninitialized
+                case Computing(start)          => Computing(start)
+                case Ready(model)              => Ready(project(model))
+                case Failed(error)             => Failed(error)
+                case Recomputing(start, model) => Recomputing(start, project(model))
+            end match
+        end map
+
+        override def foreach[A](inputs: Computable[A], f: A => Unit): Unit =
+            import Computable.*
+            inputs match
+                case Ready(model)              => f(model)
+                case Recomputing(start, model) => f(model)
+                case _                         => ()
+            end match
+        end foreach
+
+        override def empty[A]: Computable[A] = Computable.Uninitialized
+    end given
+end AirstreamExtensions
 
 trait ActionExtensions:
     extension (action: works.iterative.core.Action)
