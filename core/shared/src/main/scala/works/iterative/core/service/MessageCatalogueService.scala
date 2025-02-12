@@ -15,4 +15,11 @@ object MessageCatalogueService:
 
     def forLanguage(language: Language): URIO[MessageCatalogueService, MessageCatalogue] =
         ZIO.serviceWithZIO(_.forLanguage(language))
+
+    val empty: MessageCatalogueService = new MessageCatalogueService:
+        def messages: UIO[MessageCatalogue] = ZIO.succeed(MessageCatalogue.empty)
+
+        def forLanguage(language: Language): UIO[MessageCatalogue] =
+            ZIO.succeed(MessageCatalogue.empty)
+    end empty
 end MessageCatalogueService
