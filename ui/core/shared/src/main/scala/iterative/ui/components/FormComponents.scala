@@ -3,6 +3,7 @@ package components
 
 import works.iterative.forms.FormField
 import works.iterative.forms.FormContext
+import works.iterative.forms.FormErrors
 
 trait FormComponents[T] extends Components[T]:
     import FormComponents.*
@@ -15,7 +16,7 @@ trait FormComponents[T] extends Components[T]:
         default: String = "",
         options: Seq[(String, String)] = Seq.empty,
         attrs: Seq[(String, String)] = Seq.empty
-    )(using context: FormContext): T
+    )(using context: FormContext, errors: FormErrors[T]): T
 
     // Context-aware field rendering
     def hiddenFields(fieldNames: Seq[FormField])(using FormContext): T
@@ -36,7 +37,7 @@ trait FormComponents[T] extends Components[T]:
         value: String = "",
         helpText: Option[String] = None,
         required: Boolean = false
-    ): T
+    )(using FormErrors[T]): T
 
     /** Date input field */
     def dateField(
@@ -45,7 +46,7 @@ trait FormComponents[T] extends Components[T]:
         value: String = "",
         helpText: Option[String] = None,
         required: Boolean = false
-    ): T
+    )(using FormErrors[T]): T
 
     /** Select input field */
     def selectField(
@@ -55,7 +56,7 @@ trait FormComponents[T] extends Components[T]:
         value: String = "",
         helpText: Option[String] = None,
         required: Boolean = false
-    ): T
+    )(using FormErrors[T]): T
 
     /** Hidden field */
     def hiddenField(
