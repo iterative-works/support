@@ -67,6 +67,9 @@ object ShoelaceTags:
 end ShoelaceTags
 
 object ShoelaceAttrs:
+    // Generic HTML slot
+    val slot = attr("slot")
+
     // Common attributes
     val variant = attr("variant")
     val size = attr("size")
@@ -118,6 +121,9 @@ object ShoelaceAttrs:
     val iterations = attr("iterations")
     val iterationStart = attr("iteration-start")
     val playbackRate = attr("playback-rate")
+
+    // sl-badge
+    val pulse = attr("pulse")
 
     // sl-carousel
     val loop = attr("loop")
