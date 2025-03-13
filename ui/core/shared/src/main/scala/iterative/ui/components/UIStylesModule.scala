@@ -1,7 +1,7 @@
 package works.iterative.ui.components
 
 // Enhanced styling module that supports overrides
-trait UIStylesModule[T]:
+trait UIStylesModule[+T]:
     // Base style methods
     def getStyle(
         componentType: String,
