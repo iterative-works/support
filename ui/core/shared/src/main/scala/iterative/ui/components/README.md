@@ -46,7 +46,7 @@ trait UIComponentBuilder[T, Self <: UIComponentBuilder[T, Self]]:
 The styling system is based on the `UIStylesModule` trait:
 
 ```scala
-trait UIStylesModule[T]:
+trait UIStylesModule[+T]:
   def getStyle(componentType: String, variant: String = "default", state: String = "default"): Map[String, String]
   def getClasses(componentType: String, variant: String = "default", state: String = "default"): Seq[String]
   def createStyleOverride(): StyleOverride
