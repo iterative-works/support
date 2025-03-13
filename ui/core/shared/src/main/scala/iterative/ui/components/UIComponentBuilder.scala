@@ -18,10 +18,10 @@ trait UIComponentBuilder[T, Self <: UIComponentBuilder[T, Self]]:
         withAttributes(attributes ++ attrs)
 
     def withClass(cls: String): Self =
-        withClasses(classes :+ cls)
+        withCls(classes :+ cls)
 
     def withClasses(cls: Seq[String]): Self =
-        withClasses(classes ++ cls)
+        withCls(classes ++ cls)
 
     def withData(name: String, value: String): Self =
         withDataset(dataset + (name -> value))

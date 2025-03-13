@@ -40,6 +40,9 @@ trait TableUIModule[T]:
             copy(styleOverride = newOverride)
 
         // Style helper methods for table-specific parts
+        def withTableStyle(styles: Map[String, String]): TableBuilder[A] =
+            withStyleOverride("table", styles)
+
         def withHeaderStyle(styles: Map[String, String]): TableBuilder[A] =
             withPartStyle("header", styles)
 
@@ -50,6 +53,9 @@ trait TableUIModule[T]:
             withPartStyle("cell", styles)
 
         // Class helper methods
+        def withTableClasses(classes: Seq[String]): TableBuilder[A] =
+            withClassOverride("table", classes)
+
         def withHeaderClasses(classes: Seq[String]): TableBuilder[A] =
             withPartClasses("header", classes)
 
@@ -60,6 +66,9 @@ trait TableUIModule[T]:
             withPartClasses("cell", classes)
 
         // Get computed styles with overrides
+        def tableStyle: Map[String, String] =
+            styleOverride.getComputedStyle("table", variant)
+
         def headerStyle: Map[String, String] =
             styleOverride.getComputedStyle("table.header", variant)
 
@@ -79,6 +88,9 @@ trait TableUIModule[T]:
             styleOverride.getComputedStyle("table.cell", variant)
 
         // Get computed classes with overrides
+        def tableClasses: Seq[String] =
+            styleOverride.getComputedClasses("table", variant) ++ classes
+
         def headerClasses: Seq[String] =
             styleOverride.getComputedClasses("table.header", variant)
 
