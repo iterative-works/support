@@ -38,18 +38,18 @@ trait GenericWriteRepositoryWithKeyAssignment[Eff[+_], +Key, -Value]:
 end GenericWriteRepositoryWithKeyAssignment
 
 trait GenericRepository[Eff[+_], -Key, Value]
-    extends GenericReadRepository[Eff, List, Key, Value, Unit]
+    extends GenericReadRepository[Eff, Seq, Key, Value, Unit]
     with GenericWriteRepository[Eff, Key, Value]
 
 type LoadRepository[-Key, +Value] = GenericLoadService[UIO, Key, Value]
 type LoadAllRepository[-Key, +Value] =
-    GenericLoadAllService[UIO, List, Key, Value]
+    GenericLoadAllService[UIO, Seq, Key, Value]
 
 trait ReadRepository[-Key, +Value, -FilterArg]
-    extends GenericReadRepository[UIO, List, Key, Value, FilterArg]:
-    override def loadAll(ids: Seq[Key]): UIO[List[Value]] =
+    extends GenericReadRepository[UIO, Seq, Key, Value, FilterArg]:
+    override def loadAll(ids: Seq[Key]): UIO[Seq[Value]] =
         // Inefficient implementation, meant to be overridden
-        ZIO.foreach(ids)(load).map(_.flatten.toList)
+        ZIO.foreach(ids)(load).map(_.flatten)
 end ReadRepository
 
 trait UpdateNotifyRepository[Key]
