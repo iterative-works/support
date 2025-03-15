@@ -31,7 +31,7 @@ object SubmissionRepository:
     def load(id: String): URIO[SubmissionRepository, Option[Submission]] =
         ZIO.serviceWithZIO(_.load(id))
 
-    def find(filter: Query): URIO[SubmissionRepository, List[Submission]] =
+    def find(filter: Query): URIO[SubmissionRepository, Seq[Submission]] =
         ZIO.serviceWithZIO(_.find(filter))
 
     def save(id: String, value: Submission): URIO[SubmissionRepository, Unit] =
