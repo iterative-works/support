@@ -105,6 +105,9 @@ lazy val `sqldb-support` = project.in(file("sqldb"))
     .settings(commonSettings)
     .dependsOn(core.jvm)
 
+lazy val `sqldb-testing-support` =
+    project.in(file("sqldb/testing-support")).settings(commonSettings).dependsOn(`sqldb-support`)
+
 lazy val paygate = project
     .in(file("paygate"))
     .settings(commonSettings)
@@ -249,5 +252,6 @@ lazy val root = (project in file("."))
         `forms-http`,
         `ui-scalatags`.js,
         `ui-scalatags`.jvm,
-        `sqldb-support`
+        `sqldb-support`,
+        `sqldb-testing-support`
     )
