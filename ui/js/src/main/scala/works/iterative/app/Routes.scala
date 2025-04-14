@@ -19,8 +19,7 @@ class Routes[P: JsonCodec](
             .fold(s => throw IllegalStateException(s), identity),
         getPageTitle = pageTitle,
         routeFallback = _ => notFound,
-        deserializeFallback = _ => home
-    )(
+        deserializeFallback = _ => home,
         popStateEvents = windowEvents(_.onPopState),
         owner = unsafeWindowOwner
     )

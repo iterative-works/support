@@ -37,7 +37,7 @@ trait ScenarioMain(
         Route.onlyFragment[Scenario.Id, String](
             identity[String],
             identity[String],
-            pattern = root / prefix withFragment fragment[String]
+            pattern = ??? // (root / prefix).withFragment(fragment[String])
         )
 
     given router: Router[Scenario.Id] = Router[Scenario.Id](
@@ -45,10 +45,9 @@ trait ScenarioMain(
         identity[String],
         identity[String],
         identity[String],
-        routeFallback = _ => scenarios.head.id
-    )(
-        windowEvents(_.onPopState),
-        unsafeWindowOwner
+        routeFallback = _ => scenarios.head.id,
+        popStateEvents = windowEvents(_.onPopState),
+        owner = unsafeWindowOwner
     )
 
     def main(@unused args: Array[String]): Unit =

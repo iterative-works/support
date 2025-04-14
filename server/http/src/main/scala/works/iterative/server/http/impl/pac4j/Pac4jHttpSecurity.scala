@@ -6,6 +6,7 @@ import org.http4s.server.AuthMiddleware
 import org.pac4j.core.config.Config
 import org.pac4j.core.profile.CommonProfile
 import org.pac4j.http4s.*
+import org.pac4j.core.engine.DefaultSecurityLogic
 
 import scala.concurrent.duration.given
 import org.http4s.dsl.Http4sDsl
@@ -27,8 +28,9 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
     protected val dsl: Http4sDsl[F] = new Http4sDsl[F] {}
     import dsl.*
 
-    val contextBuilder = (req: Request[F], conf: Config) =>
-        new Http4sWebContext[F](req, conf.getSessionStore(), dispatcher.unsafeRunSync)
+    // Updated contextBuilder to use new Http4sWebContext constructor
+    val contextBuilder: Http4sContextBuilder[F] = (req: Request[F]) =>
+        new Http4sWebContext[F](req, _ => dispatcher.unsafeRunSync(req.bodyText.compile.string))
 
     private val sessionConfig = SessionConfig(
         cookieName = "session",
@@ -37,20 +39,32 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
         maxAge = 5.minutes
     )
 
-    val callbackService = CallbackService[F](pac4jConfig, contextBuilder)
+    // Updated CallbackService with defaultUrl parameter
+    val callbackService = CallbackService[F](
+        pac4jConfig,
+        contextBuilder,
+        defaultUrl = config.defaultUrl,
+        renewSession = true,
+        defaultClient = None
+    )
 
+    // Updated LogoutService with logoutUrlPattern parameter
     val localLogoutService = LogoutService[F](
         pac4jConfig,
         contextBuilder,
-        config.logoutUrl,
+        defaultUrl = config.logoutUrl,
+        logoutUrlPattern = config.logoutUrlPattern,
         localLogout = true,
-        destroySession = true
+        destroySession = true,
+        centralLogout = false
     )
 
+    // Updated LogoutService with logoutUrlPattern parameter
     val centralLogoutService = LogoutService[F](
         pac4jConfig,
         contextBuilder,
         defaultUrl = config.logoutUrl,
+        logoutUrlPattern = config.logoutUrlPattern,
         localLogout = true,
         destroySession = true,
         centralLogout = true
@@ -66,8 +80,12 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
             List[CommonProfile],
             F
         ] => SecurityGrantedAccessAdapter] = None
-    ) = SecurityFilterMiddleware
-        .securityFilter[F](
+    ) =
+        // Create a SecurityLogic instead of using securityGrantedAccessAdapter directly
+        val securityLogic = new DefaultSecurityLogic()
+
+        // Updated call to securityFilter without securityGrantedAccessAdapter
+        SecurityFilterMiddleware.securityFilter[F](
             pac4jConfig,
             contextBuilder,
             clients = clients,
@@ -75,8 +93,10 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
             matchers = matchers,
             securityGrantedAccessAdapter = securityGrantedAccessAdapter.getOrElse(
                 SecurityFilterMiddleware.defaultSecurityGrantedAccessAdapter
-            )
+            ),
+            securityLogic = securityLogic
         )
+    end baseSecurityFilter
 
     private val routes: HttpRoutes[F] =
         HttpRoutes.of {

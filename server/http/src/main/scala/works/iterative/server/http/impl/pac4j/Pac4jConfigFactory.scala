@@ -12,10 +12,9 @@ import org.pac4j.core.authorization.generator.AuthorizationGenerator
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import scala.jdk.CollectionConverters.*
-import org.pac4j.core.context.WebContext
-import org.pac4j.core.context.session.SessionStore
 import org.pac4j.http4s.Http4sCacheSessionStore
 import scala.annotation.nowarn
+import org.pac4j.core.context.CallContext
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
@@ -37,7 +36,7 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
-        config.setSessionStore(
+        config.setSessionStoreFactory(_ =>
             Http4sCacheSessionStore[F](
                 path = Some(baseUri.value.fold("/")(_.toString)),
                 secure = pac4jConfig.callbackBase.startsWith("https://"),
@@ -65,8 +64,7 @@ object Pac4jConfigFactory:
     val defaultAuthorizationGenerator: AuthorizationGenerator =
         new AuthorizationGenerator:
             override def generate(
-                context: WebContext,
-                sessionStore: SessionStore,
+                context: CallContext,
                 profile: UserProfile
             ): Optional[UserProfile] = Optional.of(profile)
     end defaultAuthorizationGenerator

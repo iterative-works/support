@@ -12,7 +12,9 @@ case class OidcClientConfig(
 case class Pac4jSecurityConfig(
     urlBase: String,
     callbackBase: String,
+    defaultUrl: Option[String],
     logoutUrl: Option[String],
+    logoutUrlPattern: Option[String],
     sessionSecret: String,
     client: OidcClientConfig,
     clients: Map[String, OidcClientConfig]
@@ -28,9 +30,11 @@ object Pac4jSecurityConfig:
 
     given config: Config[Pac4jSecurityConfig] =
         (
-            string("urlbase") ++ string("callbackbase") ++ string(
+            string("urlbase") ++ string("callbackbase") ++ string("defaulturl").optional ++ string(
                 "logouturl"
-            ).optional ++ string("sessionsecret") ++ oidcConfig.nested("client") ++ Config.table(
+            ).optional ++ string("logouturlpattern").optional ++ string(
+                "sessionsecret"
+            ) ++ oidcConfig.nested("client") ++ Config.table(
                 oidcConfig
             ).withDefault(Map.empty).nested("clients")
         ).nested("security").map(Pac4jSecurityConfig.apply)
