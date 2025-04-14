@@ -248,5 +248,6 @@ lazy val root = (project in file("."))
         `ui-core`.jvm,
         `forms-http`,
         `ui-scalatags`.js,
-        `ui-scalatags`.jvm
+        `ui-scalatags`.jvm,
+        `sqldb-support`
     )
