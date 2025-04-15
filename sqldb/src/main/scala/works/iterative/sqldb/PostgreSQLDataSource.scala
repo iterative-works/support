@@ -47,4 +47,11 @@ object PostgreSQLDataSource:
     def managedLayerWithConfig(config: PostgreSQLConfig)
         : ZLayer[Scope, Throwable, PostgreSQLDataSource] =
         layerWithConfig(config) >>> ZLayer.fromFunction(PostgreSQLDataSource.apply)
+
+    val layerFromDataSource: ZLayer[DataSource, Nothing, PostgreSQLDataSource] = ZLayer {
+        for
+            ds <- ZIO.service[DataSource]
+        yield PostgreSQLDataSource(ds)
+    }
+
 end PostgreSQLDataSource

@@ -8,12 +8,12 @@ import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import javax.sql.DataSource
 import com.augustnagro.magnum.magzio.*
 
-object PostgreSQLLayers:
+object PostgreSQLTestingLayers:
 
     private val postgresImage = DockerImageName.parse("postgres:17-alpine")
 
     // Define a layer for test container
-    val postgresContainer =
+    val postgresContainer: ZLayer[Scope, Throwable, PostgreSQLContainer] =
         ZLayer {
             ZIO.acquireRelease {
                 ZIO.attempt {
@@ -29,7 +29,7 @@ object PostgreSQLLayers:
         }
 
     // Create a DataSource from the container
-    val dataSourceLayer =
+    val dataSourceLayer: ZLayer[Scope, Throwable, DataSource] =
         postgresContainer >>> ZLayer.fromZIO {
             for
                 container <- ZIO.service[PostgreSQLContainer]
@@ -45,14 +45,16 @@ object PostgreSQLLayers:
             yield dataSource
         }
 
+    val postgreSQLDataSourceLayer: ZLayer[Scope, Throwable, PostgreSQLDataSource] =
+        dataSourceLayer >>> PostgreSQLDataSource.layerFromDataSource
+
     // Create a Transactor from the DataSource
-    val transactorLayer =
+    val transactorLayer: ZLayer[Scope, Throwable, Transactor] =
         dataSourceLayer.flatMap(env => Transactor.layer(env.get[DataSource]))
 
-    // Create PostgreSQLDataSource from DataSource for Flyway
-    val postgreSQLDataSourceLayer = dataSourceLayer >>> ZLayer {
-        ZIO.service[DataSource].map(ds => PostgreSQLDataSource(ds))
-    }
+    val postgreSQLTransactorLayer
+        : ZLayer[Scope, Throwable, PostgreSQLDataSource & PostgreSQLTransactor] =
+        postgreSQLDataSourceLayer >+> PostgreSQLTransactor.managedLayer
 
     // Create a custom Flyway config that allows cleaning the database
     val testFlywayConfig = FlywayConfig(
@@ -61,7 +63,11 @@ object PostgreSQLLayers:
     )
 
     // Create FlywayMigrationService layer with custom config
-    val flywayMigrationServiceLayer =
-        postgreSQLDataSourceLayer >>> FlywayMigrationService.layerWithConfig(testFlywayConfig)
+    val flywayMigrationServiceLayer: ZLayer[
+        Scope,
+        Throwable,
+        PostgreSQLDataSource & PostgreSQLTransactor & FlywayMigrationService
+    ] =
+        postgreSQLTransactorLayer >+> FlywayMigrationService.layerWithConfig(testFlywayConfig)
 
-end PostgreSQLLayers
+end PostgreSQLTestingLayers
