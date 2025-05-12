@@ -18,6 +18,9 @@ object MigrateAspects:
         yield ()
     }
 
-    // How could we use aspects to not have to _ <- setupDb everywhere?
+    // Run migration and cleanup before each test
     val migrate = TestAspect.before(setupDbSchema)
+
+    // Run migration and cleanup before a suite
+    val migrateOnce = TestAspect.beforeAll(setupDbSchema)
 end MigrateAspects
