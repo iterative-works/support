@@ -43,7 +43,7 @@ object ScalatagsViteSupport:
         def withBaseUri(baseUri: BaseUri): Entries =
             def prepend(v: String) =
                 if v.startsWith("/") || v.startsWith("http") then v
-                else baseUri.href + "/" + v
+                else baseUri.appendCompletePath(v).orRoot
 
             copy(
                 stylesheet = stylesheet.map(prepend),
@@ -94,6 +94,7 @@ object ScalatagsViteSupport:
                     module = List(chunk.file),
                     preload = allPreloads(chunk)
                 ).withBaseUri(baseUri)
+            end collectEntries
 
             manifest.keys.flatMap(e => manifest.get(e).map(e -> _)).map((k, v) =>
                 k -> collectEntries(v)

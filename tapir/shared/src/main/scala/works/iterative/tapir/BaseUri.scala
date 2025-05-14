@@ -9,13 +9,21 @@ case class BaseUri(value: Option[Uri]):
 
     def toWSUri: Option[Uri] = value.map(u =>
         u.scheme match
-        case Some("https") => u.scheme("wss")
-        case _             => u.scheme("ws")
+            case Some("https") => u.scheme("wss")
+            case _             => u.scheme("ws")
     )
 
-    def /(s: String): BaseUri = value match
-    case Some(u) => BaseUri(Some(uri"$u/$s"))
-    case None    => BaseUri(Some(uri"$s"))
+    private def mapUriOrRoot(f: Uri => Uri): BaseUri = value match
+        case Some(u) => BaseUri(f(u))
+        case None    => BaseUri(f(BaseUri.RootUri))
+
+    def /(s: String): BaseUri = mapUriOrRoot(_.addPath(s))
+
+    def appendCompletePath(p: String): BaseUri =
+        mapUriOrRoot: u =>
+            val pWithoutLeadingSlash = if p.startsWith("/") then p.substring(1) else p
+            val ps = pWithoutLeadingSlash.split("/", -1).toList
+            u.addPath(ps)
 
     def href: String =
         value.fold("#")(_.toString)
@@ -28,6 +36,10 @@ case class BaseUri(value: Option[Uri]):
 end BaseUri
 
 object BaseUri extends BaseUriPlatformSpecific:
+    val RootUri = uri"/"
+    val Root = BaseUri(Some(RootUri))
+    val Empty = BaseUri(None)
+
     def apply(s: String): BaseUri = BaseUri(Some(uri"$s"))
     def apply(u: Uri): BaseUri = BaseUri(Some(u))
 end BaseUri
