@@ -16,12 +16,12 @@ publishToIW
 lazy val core = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("core"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-core")
 
 lazy val entity = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("entity"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-entity")
     .dependsOn(core)
 
 lazy val `service-specs` = crossProject(JSPlatform, JVMPlatform)
@@ -32,24 +32,24 @@ lazy val `service-specs` = crossProject(JSPlatform, JVMPlatform)
 
 lazy val `tapir-support` = crossProject(JSPlatform, JVMPlatform)
     .in(file("tapir"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-tapir")
     .dependsOn(core)
 
 lazy val `files-core` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("files/core"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-files-core")
     .dependsOn(core)
 
 lazy val `files-rest` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("files/adapters/rest"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-files-rest")
     .dependsOn(`files-core`, `tapir-support`)
 
 lazy val `files-mongo` = project
     .in(file("files/adapters/mongo"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-files-mongo")
     .dependsOn(`files-core`.jvm, `mongo-support`)
 
 lazy val `files-mongo-it` = project
@@ -62,7 +62,7 @@ lazy val `files-mongo-it` = project
 lazy val `files-ui` = project
     .enablePlugins(ScalaJSPlugin)
     .in(file("files/adapters/ui"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-files-ui")
     .dependsOn(`files-core`.js, ui.js)
 
 lazy val `files-ui-scenarios` = crossProject(JSPlatform, JVMPlatform)
@@ -81,28 +81,28 @@ lazy val `files-it` = project
 lazy val `autocomplete` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("autocomplete"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-autocomplete")
     .jsConfigure(_.dependsOn(`files-ui`))
     .dependsOn(core, `tapir-support`, ui, `ui-forms`)
 
 lazy val hashicorp = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("hashicorp"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-hashicorp")
     .dependsOn(core, `service-specs`, `tapir-support`)
 
 lazy val codecs = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Pure)
     .in(file("codecs"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-codecs")
     .dependsOn(core, entity, `tapir-support`)
 
 lazy val `mongo-support` = project.in(file("mongo"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-mongo")
     .dependsOn(core.jvm)
 
 lazy val `sqldb-support` = project.in(file("sqldb"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-sqldb")
     .dependsOn(core.jvm)
 
 lazy val `sqldb-testing-support` =
@@ -110,35 +110,35 @@ lazy val `sqldb-testing-support` =
 
 lazy val paygate = project
     .in(file("paygate"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-paygate")
     .dependsOn(core.jvm, `tapir-support`.jvm)
 
 lazy val email = project.in(file("email"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-email")
     .dependsOn(core.jvm)
 
 lazy val `akka-persistence-support` = project
     .in(file("akka-persistence"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-akka-persistence")
     .dependsOn(core.jvm, entity.jvm)
 
 lazy val ui = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("ui"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-ui")
     .dependsOn(core, `tapir-support`)
 
 lazy val `ui-forms` = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("ui/forms"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-ui-forms")
     .dependsOn(ui, `files-core`)
 
 lazy val forms = crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
     .in(file("forms"))
     .jvmConfigure(_.dependsOn(email, paygate, `files-mongo`))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-forms")
     .dependsOn(core, codecs, autocomplete, `files-rest`)
 
 lazy val `forms-scenarios` = crossProject(JSPlatform, JVMPlatform)
@@ -154,7 +154,7 @@ lazy val `forms-scenarios` = crossProject(JSPlatform, JVMPlatform)
     .dependsOn(forms, scenarios)
 
 lazy val http = (project in file("server/http"))
-    .settings(commonSettings)
+    .settings(commonSettings, name := "iw-support-http")
     .dependsOn(core.jvm, codecs.jvm, `tapir-support`.jvm)
 
 // Internal projects
@@ -226,6 +226,7 @@ lazy val root = (project in file("."))
         core.jvm,
         entity.js,
         entity.jvm,
+        email,
         `service-specs`.jvm,
         hashicorp.jvm,
         codecs.js,
@@ -249,9 +250,14 @@ lazy val root = (project in file("."))
         `forms-core`.jvm,
         `ui-core`.js,
         `ui-core`.jvm,
+	`ui-forms`.js,
+	`ui-forms`.jvm,
         `forms-http`,
         `ui-scalatags`.js,
         `ui-scalatags`.jvm,
         `sqldb-support`,
-        `sqldb-testing-support`
+        `sqldb-testing-support`,
+        autocomplete.js,
+        autocomplete.jvm,
+        paygate
     )
