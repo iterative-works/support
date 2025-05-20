@@ -15,13 +15,28 @@ import scala.jdk.CollectionConverters.*
 import org.pac4j.http4s.Http4sCacheSessionStore
 import scala.annotation.nowarn
 import org.pac4j.core.context.CallContext
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod
+import org.http4s.SameSite
+import org.pac4j.http4s.Http4sGenericSessionStore
+import org.pac4j.http4s.CacheSessionRepository
+import cats.effect.std.Dispatcher
 
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     baseUri: BaseUri,
     pac4jConfig: Pac4jSecurityConfig,
+    dispatcher: Dispatcher[F],
     authorizationGenerator: AuthorizationGenerator =
         Pac4jConfigFactory.defaultAuthorizationGenerator
 ) extends ConfigFactory:
+    val sessionStore = Http4sGenericSessionStore[F](
+        new CacheSessionRepository[F],
+        dispatcher
+    )(
+        path = Some(baseUri.value.fold("/")(_.toString)),
+        secure = pac4jConfig.callbackBase.startsWith("https://"),
+        httpOnly = true,
+        sameSite = Some(SameSite.Lax)
+    )
 
     @nowarn("cat=deprecation")
     override def build(parameters: AnyRef*): Config =
@@ -36,13 +51,7 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
-        config.setSessionStoreFactory(_ =>
-            Http4sCacheSessionStore[F](
-                path = Some(baseUri.value.fold("/")(_.toString)),
-                secure = pac4jConfig.callbackBase.startsWith("https://"),
-                httpOnly = true
-            )
-        )
+        config.setSessionStoreFactory(_ => sessionStore)
 
         config
     end build
@@ -53,6 +62,9 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         oidcConfiguration.setSecret(c.clientSecret)
         oidcConfiguration.setDiscoveryURI(c.discoveryURI)
         oidcConfiguration.setUseNonce(true)
+        oidcConfiguration.setClientAuthenticationMethod(
+            ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+        )
         // oidcConfiguration.addCustomParam("prompt", "consent")
         val oidcClient = new OidcClient(oidcConfiguration)
         oidcClient.setAuthorizationGenerator(authorizationGenerator)
