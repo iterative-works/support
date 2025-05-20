@@ -3,7 +3,6 @@ package scenarios
 
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.nodes.ReactiveHtmlElement
 import works.iterative.ui.components.ComponentContext
 
 object Scenario:

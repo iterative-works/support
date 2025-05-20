@@ -12,7 +12,6 @@ import org.pac4j.core.authorization.generator.AuthorizationGenerator
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
 import scala.jdk.CollectionConverters.*
-import org.pac4j.http4s.Http4sCacheSessionStore
 import scala.annotation.nowarn
 import org.pac4j.core.context.CallContext
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod

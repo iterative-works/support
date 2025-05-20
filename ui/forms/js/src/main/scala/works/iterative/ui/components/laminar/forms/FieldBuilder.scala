@@ -3,7 +3,6 @@ package works.iterative.ui.components.laminar.forms
 import com.raquo.airstream.core.Signal
 import com.raquo.laminar.api.L
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.nodes.ReactiveHtmlElement
 import org.scalajs.dom.FileList
 import works.iterative.core.{FileSupport, UserMessage, Validated}
 import zio.prelude.Validation

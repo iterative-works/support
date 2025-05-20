@@ -18,7 +18,7 @@ import works.iterative.core.auth.UserProfile
 import works.iterative.core.Language
 
 trait ScenarioMain(
-    prefix: String,
+    @unused prefix: String,
     scenarios: List[Scenario],
     messages: js.Any,
     @unused css: js.Any

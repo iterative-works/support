@@ -2,7 +2,6 @@ package works.iterative.ui.components.tailwind
 package list
 
 import com.raquo.laminar.api.L.*
-import com.raquo.laminar.nodes.ReactiveHtmlElement
 
 trait AsListRow[A]:
     extension (a: A) def asListRow: ListRow
