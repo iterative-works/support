@@ -1,7 +1,7 @@
 package works.iterative
 package core.service.impl
 
-import core.{MessageCatalogue, MessageId}
+import works.iterative.core.{MessageCatalogue, MessageId}
 import works.iterative.core.UserMessage
 import scala.util.Try
 import zio.*
