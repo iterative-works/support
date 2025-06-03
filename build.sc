@@ -293,7 +293,7 @@ object mongo extends BaseModule {
     IWMillDeps.zioJson,
     IWMillDeps.zioConfig,
     IWMillDeps.zioInteropReactiveStreams,
-    // Use Scala 2.13 dependencies with Scala 3 compatibility
+    // MongoDB-specific dependencies (only available for Scala 2.13)
     mvn"org.mongodb.scala::mongo-scala-driver::4.2.3".withDottyCompat(scalaVersion()),
     mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
   )
@@ -338,11 +338,12 @@ object sqldb extends BaseModule {
     IWMillDeps.zioConfig,
     IWMillDeps.magnumZIO,
     IWMillDeps.magnumPG,
-    IWMillDeps.flyway,
-    IWMillDeps.flywayPostgres,
-    IWMillDeps.postgresql,
-    IWMillDeps.hikariCP,
-    IWMillDeps.chimney
+    IWMillDeps.chimney,
+    // SQL database specific dependencies
+    mvn"org.flywaydb:flyway-core:11.4.0",
+    mvn"org.flywaydb:flyway-database-postgresql:11.4.0",
+    mvn"org.postgresql:postgresql:42.7.5",
+    mvn"com.zaxxer:HikariCP:6.2.1"
   )
   
   // Testing support sub-module
@@ -371,12 +372,39 @@ object sqldb extends BaseModule {
     def mvnDeps = super.mvnDeps() ++ Seq(
       IWMillDeps.zio,
       IWMillDeps.zioTest,
-      IWMillDeps.testcontainers,
-      IWMillDeps.testcontainersPostgres,
-      IWMillDeps.testcontainersScalaPostgres,
-      IWMillDeps.logbackClassic
+      IWMillDeps.logbackClassic,
+      // Testcontainers dependencies
+      mvn"org.testcontainers:testcontainers:1.20.4",
+      mvn"org.testcontainers:postgresql:1.20.4",
+      mvn"com.dimafeng::testcontainers-scala-postgresql::0.41.5"
     )
   }
+}
+
+// Email support module - JVM only
+object email extends BaseModule {
+  def artifactName = "iw-support-email"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support Email Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(core.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.zio,
+    IWMillDeps.zioConfig,
+    mvn"org.apache.commons:commons-email:1.5",
+    // Silencer lib for cross-compilation (2.13 version for Scala 3)
+    mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
+  )
 }
 
 // Convenience commands for testing the migration
@@ -394,6 +422,7 @@ object verify extends Module {
     mongo.compile()
     sqldb.compile()
     sqldb.testing.compile()
+    email.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -419,6 +448,7 @@ object verify extends Module {
     mongo.checkFormat()
     sqldb.checkFormat()
     sqldb.testing.checkFormat()
+    email.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
