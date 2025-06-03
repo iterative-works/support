@@ -621,6 +621,175 @@ object uiCore extends Module {
   }
 }
 
+// UI module - cross-compiled for JVM and JS
+object ui extends Module {
+  
+  // Base trait for all ui module variants
+  trait UIModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-ui"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support UI Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends UIModule {
+    def moduleDeps = Seq(core.jvm, tapir.jvm)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.scalatags,
+      // Apache POI for Excel support
+      mvn"org.apache.poi:poi-ooxml:5.2.1"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends UIModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js, tapir.js)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.zioJson,
+      IWMillDeps.laminar,
+      IWMillDeps.waypoint,
+      IWMillDeps.urlDsl,
+      // Laminext libraries
+      mvn"io.laminext::core::${IWMillVersions.laminext}",
+      mvn"io.laminext::ui::${IWMillVersions.laminext}",
+      mvn"io.laminext::tailwind::${IWMillVersions.laminext}",
+      mvn"io.laminext::validation-core::${IWMillVersions.laminext}"
+    )
+  }
+}
+
+// UI Forms module - cross-compiled for JVM and JS
+object uiForms extends Module {
+  
+  // Base trait for all ui-forms module variants
+  trait UIFormsModule extends BaseModule {
+    def artifactName = "iw-support-ui-forms"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "ui" / "forms"
+    
+    // Override source paths for the specific module structure
+    def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+    
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+    
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+    
+    def pomSettings = PomSettings(
+      description = "IW Support UI Forms Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends UIFormsModule {
+    def moduleDeps = Seq(ui.jvm, filesCore.jvm)
+    
+    // Override sources to include platform-specific sources
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends UIFormsModule with BaseScalaJSModule {
+    def moduleDeps = Seq(ui.js, filesCore.js)
+    
+    // Override sources to include platform-specific sources
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+}
+
+// UI Scalatags module - cross-compiled for JVM and JS
+object uiScalatags extends Module {
+  
+  // Base trait for all ui-scalatags module variants
+  trait UIScalatagsModule extends BaseModule {
+    def artifactName = "iw-support-ui-scalatags"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "ui" / "scalatags"
+    
+    // Override source paths for the specific module structure
+    def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+    
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+    
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+    
+    def pomSettings = PomSettings(
+      description = "IW Support UI Scalatags Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends UIScalatagsModule {
+    def moduleDeps = Seq(uiCore.jvm)
+    
+    // Override sources to include platform-specific sources
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.scalatags,
+      IWMillDeps.zioInteropCats,
+      // HTTP4s core for server-side rendering
+      mvn"org.http4s::http4s-core::${IWMillVersions.http4s}"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends UIScalatagsModule with BaseScalaJSModule {
+    def moduleDeps = Seq(uiCore.js)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.scalatags
+    )
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -645,6 +814,12 @@ object verify extends Module {
     filesCore.js.compile()
     uiCore.jvm.compile()
     uiCore.js.compile()
+    ui.jvm.compile()
+    ui.js.compile()
+    uiForms.jvm.compile()
+    uiForms.js.compile()
+    uiScalatags.jvm.compile()
+    uiScalatags.js.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -679,6 +854,12 @@ object verify extends Module {
     filesCore.js.checkFormat()
     uiCore.jvm.checkFormat()
     uiCore.js.checkFormat()
+    ui.jvm.checkFormat()
+    ui.js.checkFormat()
+    uiForms.jvm.checkFormat()
+    uiForms.js.checkFormat()
+    uiScalatags.jvm.checkFormat()
+    uiScalatags.js.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
