@@ -315,6 +315,70 @@ object mongo extends BaseModule {
   }
 }
 
+// SQL Database support module - JVM only
+object sqldb extends BaseModule {
+  def artifactName = "iw-support-sqldb"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support SQL Database Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(core.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.zio,
+    IWMillDeps.zioJson,
+    IWMillDeps.zioConfig,
+    IWMillDeps.magnumZIO,
+    IWMillDeps.magnumPG,
+    IWMillDeps.flyway,
+    IWMillDeps.flywayPostgres,
+    IWMillDeps.postgresql,
+    IWMillDeps.hikariCP,
+    IWMillDeps.chimney
+  )
+  
+  // Testing support sub-module
+  object testing extends BaseModule {
+    def artifactName = "iw-support-sqldb-testing"
+    
+    override def moduleDir = sqldb.moduleDir / "testing-support"
+    override def intellijModulePath: os.Path = sqldb.moduleDir / "testing-support"
+    
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+    
+    def pomSettings = PomSettings(
+      description = "IW Support SQL Database Testing Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+    
+    def moduleDeps = Seq(sqldb)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.zioTest,
+      IWMillDeps.testcontainers,
+      IWMillDeps.testcontainersPostgres,
+      IWMillDeps.testcontainersScalaPostgres,
+      IWMillDeps.logbackClassic
+    )
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -328,6 +392,8 @@ object verify extends Module {
     tapir.jvm.compile()
     tapir.js.compile()
     mongo.compile()
+    sqldb.compile()
+    sqldb.testing.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -351,6 +417,8 @@ object verify extends Module {
     tapir.jvm.checkFormat()
     tapir.js.checkFormat()
     mongo.checkFormat()
+    sqldb.checkFormat()
+    sqldb.testing.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
