@@ -146,6 +146,175 @@ object entity extends Module {
   }
 }
 
+// Service specs module - cross-compiled for JVM and JS
+object serviceSpecs extends Module {
+
+  // Base trait for all service specs module variants
+  trait ServiceSpecsModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-service-specs"
+
+    def pomSettings = PomSettings(
+      description = "IW Support Service Specs Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+
+  // JVM-specific module
+  object jvm extends ServiceSpecsModule {
+    def moduleDeps = Seq(core.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.zioTest
+    )
+  }
+
+  // JavaScript-specific module
+  object js extends ServiceSpecsModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.zioTest
+    )
+  }
+}
+
+// Tapir module - cross-compiled for JVM and JS
+object tapir extends Module {
+
+  // Base trait for all tapir module variants
+  trait TapirModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-tapir"
+
+    def pomSettings = PomSettings(
+      description = "IW Support Tapir Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+
+    // Test module with shared tests
+    trait TapirTests extends BaseTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / os.up / "shared" / "src" / "test" / "scala"
+      )
+      
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
+  }
+
+  // JVM-specific module
+  object jvm extends TapirModule {
+    def moduleDeps = Seq(core.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.tapirCore,
+      IWMillDeps.tapirZIOJson,
+      IWMillDeps.zioJson,
+      IWMillDeps.tapirSttpClient,
+      IWMillDeps.sttpClientZio,
+      IWMillDeps.tapirZIO,
+      IWMillDeps.tapirZIOHttp4sServer,
+      IWMillDeps.zioConfig,
+      IWMillDeps.zioInteropReactiveStreams,
+      IWMillDeps.zioNIO,
+      // Silencer lib for cross-compilation (2.13 version for Scala 3)
+      mvn"com.github.ghik:silencer-lib_2.13:1.4.2".withConfiguration("provided")
+    )
+
+    // Excluding conflicting dependency
+    // TODO: Mill doesn't have direct exclusion support like SBT
+    // The conflict should be resolved by Coursier automatically
+    // If needed, we can use mapDependencies to filter out specific dependencies
+
+    // Test module for JVM
+    object test extends TapirTests
+  }
+
+  // JavaScript-specific module
+  object js extends TapirModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.tapirCore,
+      IWMillDeps.tapirZIOJson,
+      IWMillDeps.zioJson,
+      IWMillDeps.tapirSttpClient,
+      IWMillDeps.sttpClientZio
+    )
+
+    // Test module for JS  
+    object test extends BaseScalaJSTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / os.up / "shared" / "src" / "test" / "scala"
+      )
+      
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
+  }
+}
+
+// Mongo support module - JVM only
+object mongo extends BaseModule {
+  def artifactName = "iw-support-mongo"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support MongoDB Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(core.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.zio,
+    IWMillDeps.zioJson,
+    IWMillDeps.zioConfig,
+    IWMillDeps.zioInteropReactiveStreams,
+    // Use Scala 2.13 dependencies with Scala 3 compatibility
+    mvn"org.mongodb.scala::mongo-scala-driver::4.2.3".withDottyCompat(scalaVersion()),
+    mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
+  )
+  
+  // Integration test module
+  object it extends BaseTests {
+    override def moduleDir = mongo.moduleDir / "it"
+    override def intellijModulePath: os.Path = mongo.moduleDir / "it" / "src/test"
+    
+    override def sources = Task.Sources(mongo.moduleDir / "it" / "src" / "test" / "scala")
+    override def resources = Task.Sources(mongo.moduleDir / "it" / "src" / "test" / "resources")
+    
+    def moduleDeps = Seq(mongo)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.zioConfig
+    )
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -154,6 +323,11 @@ object verify extends Module {
     core.js.compile()
     entity.jvm.compile()
     entity.js.compile()
+    serviceSpecs.jvm.compile()
+    serviceSpecs.js.compile()
+    tapir.jvm.compile()
+    tapir.js.compile()
+    mongo.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -161,6 +335,8 @@ object verify extends Module {
   def test() = Task.Command {
     core.jvm.test.testForked()
     core.js.test.testForked()
+    tapir.jvm.test.testForked()
+    tapir.js.test.testForked()
     println("✅ All tests passed!")
   }
 
@@ -168,6 +344,13 @@ object verify extends Module {
   def checkFormat() = Task.Command {
     core.jvm.checkFormat()
     core.js.checkFormat()
+    entity.jvm.checkFormat()
+    entity.js.checkFormat()
+    serviceSpecs.jvm.checkFormat()
+    serviceSpecs.js.checkFormat()
+    tapir.jvm.checkFormat()
+    tapir.js.checkFormat()
+    mongo.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
