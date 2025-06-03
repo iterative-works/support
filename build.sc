@@ -407,6 +407,220 @@ object email extends BaseModule {
   )
 }
 
+// Codecs module - cross-compiled for JVM and JS (pure cross-compilation with only shared sources)
+// Note: This module is used by forms and http modules (not yet migrated)
+object codecs extends Module {
+  
+  // Base trait for all codecs module variants  
+  trait CodecsModule extends BaseModule {
+    def artifactName = "iw-support-codecs"
+
+    def pomSettings = PomSettings(
+      description = "IW Support Codecs Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+    
+    // Pure cross-compilation - only shared sources, no platform-specific sources
+    override def sources = Task.Sources("src/main/scala")
+    override def resources = Task.Sources("src/main/resources")
+  }
+  
+  // JVM-specific module
+  object jvm extends CodecsModule {
+    def moduleDeps = Seq(core.jvm, entity.jvm, tapir.jvm)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zioJson
+    )
+    
+    // Excluding scala-collection-compat conflict (similar to SBT build)
+    // Note: Mill handles this automatically through Coursier resolution
+  }
+  
+  // JavaScript-specific module
+  object js extends CodecsModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js, entity.js, tapir.js)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zioJson
+    )
+  }
+}
+
+// Forms core module - cross-compiled for JVM and JS
+object formsCore extends Module {
+  
+  // Base trait for all forms-core module variants
+  trait FormsCoreModule extends BaseModule {
+    def artifactName = "iw-support-forms-core"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "core"
+    
+    // Override source paths for the specific module structure
+    def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+    
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+    
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Forms Core Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends FormsCoreModule {
+    def moduleDeps = Seq(core.jvm)
+  }
+  
+  // JavaScript-specific module
+  object js extends FormsCoreModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js)
+  }
+}
+
+// Files core module - cross-compiled for JVM and JS
+object filesCore extends Module {
+  
+  // Base trait for all files-core module variants
+  trait FilesCoreModule extends BaseModule {
+    def artifactName = "iw-support-files-core"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "files" / "core"
+    
+    // Override source paths for the specific module structure
+    def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+    
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+    
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Files Core Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends FilesCoreModule {
+    def moduleDeps = Seq(core.jvm)
+    
+    // Override sources to look in jvm directory
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends FilesCoreModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js)
+    
+    // Override sources to look in js directory
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.scalaJsDom
+    )
+  }
+}
+
+// UI core module - cross-compiled for JVM and JS
+object uiCore extends Module {
+  
+  // Base trait for all ui-core module variants
+  trait UICoreModule extends BaseModule {
+    def artifactName = "iw-support-ui-core"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "ui" / "core"
+    
+    // Override source paths for the specific module structure
+    def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+    
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+    
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+    
+    def pomSettings = PomSettings(
+      description = "IW Support UI Core Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends UICoreModule {
+    def moduleDeps = Seq(formsCore.jvm)
+    
+    // Override sources to look in jvm directory if it exists
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends UICoreModule with BaseScalaJSModule {
+    def moduleDeps = Seq(formsCore.js)
+    
+    // Override sources to look in js directory if it exists
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -423,6 +637,14 @@ object verify extends Module {
     sqldb.compile()
     sqldb.testing.compile()
     email.compile()
+    codecs.jvm.compile()
+    codecs.js.compile()
+    formsCore.jvm.compile()
+    formsCore.js.compile()
+    filesCore.jvm.compile()
+    filesCore.js.compile()
+    uiCore.jvm.compile()
+    uiCore.js.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -449,6 +671,14 @@ object verify extends Module {
     sqldb.checkFormat()
     sqldb.testing.checkFormat()
     email.checkFormat()
+    codecs.jvm.checkFormat()
+    codecs.js.checkFormat()
+    formsCore.jvm.checkFormat()
+    formsCore.js.checkFormat()
+    filesCore.jvm.checkFormat()
+    filesCore.js.checkFormat()
+    uiCore.jvm.checkFormat()
+    uiCore.js.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
