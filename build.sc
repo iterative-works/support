@@ -790,6 +790,191 @@ object uiScalatags extends Module {
   }
 }
 
+// Akka Persistence support module - JVM only
+object akkaPersistence extends BaseModule {
+  def artifactName = "iw-support-akka-persistence"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support Akka Persistence Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(core.jvm, entity.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.zio,
+    IWMillDeps.zioJson,
+    IWMillDeps.zioConfig,
+    // Akka dependencies (all using Scala 2.13 with Scala 3 compatibility)
+    mvn"com.typesafe.akka::akka-persistence-typed::${IWMillVersions.akka}".withDottyCompat(scalaVersion()),
+    mvn"com.typesafe.akka::akka-cluster-sharding-typed::${IWMillVersions.akka}".withDottyCompat(scalaVersion()),
+    mvn"com.lightbend.akka::akka-persistence-jdbc::5.1.0".withDottyCompat(scalaVersion()),
+    // Akka Projection dependencies
+    mvn"com.lightbend.akka::akka-projection-core::${IWMillVersions.akkaProjection}".withDottyCompat(scalaVersion()),
+    mvn"com.lightbend.akka::akka-projection-eventsourced::${IWMillVersions.akkaProjection}".withDottyCompat(scalaVersion()),
+    mvn"com.lightbend.akka::akka-projection-slick::${IWMillVersions.akkaProjection}".withDottyCompat(scalaVersion()),
+    mvn"com.typesafe.akka::akka-persistence-query::${IWMillVersions.akka}".withDottyCompat(scalaVersion()),
+    // Slick dependencies
+    mvn"com.typesafe.slick::slick::${IWMillVersions.slick}".withDottyCompat(scalaVersion()),
+    mvn"com.typesafe.slick::slick-hikaricp::${IWMillVersions.slick}".withDottyCompat(scalaVersion()),
+    // Silencer for cross-compilation
+    mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
+  )
+}
+
+// Paygate payment gateway support module - JVM only
+object paygate extends BaseModule {
+  def artifactName = "iw-support-paygate"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support Paygate Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(core.jvm, tapir.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.zio,
+    IWMillDeps.zioJson,
+    IWMillDeps.zioConfig,
+    IWMillDeps.sttpClientZio,
+    mvn"com.softwaremill.sttp.client3::zio-json::${IWMillVersions.sttpClient3}",
+    // Silencer for cross-compilation
+    mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
+  )
+}
+
+// HashiCorp integrations module - cross-compiled for JVM and JS
+object hashicorp extends Module {
+  
+  // Base trait for all hashicorp module variants
+  trait HashicorpModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-hashicorp"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support HashiCorp Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends HashicorpModule {
+    def moduleDeps = Seq(core.jvm, serviceSpecs.jvm, tapir.jvm)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends HashicorpModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js, serviceSpecs.js, tapir.js)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio
+    )
+  }
+}
+
+// HTTP server support module - JVM only
+object http extends BaseModule {
+  def artifactName = "iw-support-http"
+  
+  // Override module directory to match SBT structure
+  override def moduleDir = super.moduleDir / os.up / os.up / "server" / "http"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support HTTP Server Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(core.jvm, codecs.jvm, tapir.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.zio,
+    IWMillDeps.zioConfig,
+    mvn"dev.zio::zio-config-typesafe::${IWMillVersions.zioConfig}",
+    mvn"dev.zio::zio-config-magnolia::${IWMillVersions.zioConfig}",
+    mvn"dev.zio::zio-logging-slf4j::${IWMillVersions.zioLogging}",
+    IWMillDeps.zioInteropCats,
+    IWMillDeps.tapirCore,
+    IWMillDeps.tapirZIO,
+    IWMillDeps.tapirZIOJson,
+    mvn"com.softwaremill.sttp.tapir::tapir-files::${IWMillVersions.tapir}",
+    IWMillDeps.tapirZIOHttp4sServer,
+    mvn"org.http4s::http4s-blaze-server::${IWMillVersions.http4sBlaze}",
+    mvn"org.pac4j::pac4j-http4s::${IWMillVersions.http4sPac4J}",
+    mvn"org.pac4j::pac4j-oidc::${IWMillVersions.pac4j}",
+    IWMillDeps.scalatags,
+    // Silencer for cross-compilation
+    mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
+  )
+}
+
+// Autocomplete module - cross-compiled for JVM and JS
+object autocomplete extends Module {
+  
+  // Base trait for all autocomplete module variants
+  trait AutocompleteModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-autocomplete"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Autocomplete Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends AutocompleteModule {
+    def moduleDeps = Seq(core.jvm, tapir.jvm, ui.jvm, uiForms.jvm)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.quill
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends AutocompleteModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js, tapir.js, ui.js, uiForms.js)
+    // TODO: Add files-ui.js when it's migrated
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio
+    )
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -820,6 +1005,13 @@ object verify extends Module {
     uiForms.js.compile()
     uiScalatags.jvm.compile()
     uiScalatags.js.compile()
+    akkaPersistence.compile()
+    paygate.compile()
+    hashicorp.jvm.compile()
+    hashicorp.js.compile()
+    http.compile()
+    autocomplete.jvm.compile()
+    autocomplete.js.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -860,6 +1052,13 @@ object verify extends Module {
     uiForms.js.checkFormat()
     uiScalatags.jvm.checkFormat()
     uiScalatags.js.checkFormat()
+    akkaPersistence.checkFormat()
+    paygate.checkFormat()
+    hashicorp.jvm.checkFormat()
+    hashicorp.js.checkFormat()
+    http.checkFormat()
+    autocomplete.jvm.checkFormat()
+    autocomplete.js.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
