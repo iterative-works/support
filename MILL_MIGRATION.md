@@ -38,16 +38,25 @@ The Mill build maintains the existing SBT directory structure:
 ### Compilation
 - `./mill core.jvm.compile` - Compile JVM core module
 - `./mill core.js.compile` - Compile JS core module
-- `./mill verify.compile` - Compile all core modules
+- `./mill email.compile` - Compile email module
+- `./mill verify.compile` - Compile all modules
 
 ### Testing
 - `./mill core.jvm.test.test` - Run JVM tests
 - `./mill core.js.test.test` - Run JS tests
 - `./mill verify.test` - Run all tests
 
+### Module-specific Commands
+- `./mill email.compile` - Compile email module
+- `./mill mongo.compile` - Compile mongo module
+- `./mill sqldb.compile` - Compile sqldb module
+- `./mill tapir.jvm.compile` - Compile tapir JVM module
+- `./mill entity.jvm.compile` - Compile entity JVM module
+
 ### Other Commands
 - `./mill resolve __` - List all available tasks
 - `./mill inspect core.jvm.ivyDeps` - Show dependencies
+- `./mill show email.mvnDeps` - Show email module dependencies
 - `./mill verify.checkFormat` - Check code formatting
 
 ## Key Differences from SBT
@@ -63,9 +72,15 @@ The Mill build maintains the existing SBT directory structure:
 - [x] Cross-compilation (JVM/JS)
 - [x] Directory structure preservation
 - [x] Basic compilation
-- [ ] Test execution
+- [x] Entity module (cross-compiled)
+- [x] Service-specs module (cross-compiled)
+- [x] Tapir module (cross-compiled)
+- [x] Mongo module (JVM only)
+- [x] SQLDB module with testing support (JVM only)
+- [x] Email module (JVM only)
+- [ ] Test execution for all modules
 - [ ] Publishing configuration
-- [ ] Other modules (entity, tapir-support, etc.)
+- [ ] Remaining modules (files, autocomplete, hashicorp, codecs, paygate, akka-persistence, ui, forms, scenarios, http)
 
 ## Next Steps
 
