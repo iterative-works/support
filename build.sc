@@ -1341,12 +1341,78 @@ object scenariosUI extends BaseScalaJSModule {
     os.proc("yarn", "install").call(cwd = moduleDir)
   }
   
-  // Run Vite dev server (depends on fastLinkJS)
+  // PID file for tracking Vite dev server
+  def viteDevPidFile = Task { Task.dest / "vite.pid" }
+  
+  // Check if process is running
+  def isProcessRunning(pid: String): Boolean = {
+    try {
+      os.proc("ps", "-p", pid).call(check = false).exitCode == 0
+    } catch {
+      case _: Exception => false
+    }
+  }
+  
+  // Run Vite dev server in background with PID management
   def viteDev() = Task.Command {
+    npmInstall()
     fastLinkJS()
-    println(s"Starting Vite dev server...")
-    println(s"ScalaJS output: ${fastLinkJS().dest.path}")
-    os.proc("yarn", "run", "dev").call(cwd = moduleDir, stdin = os.Inherit, stdout = os.Inherit, stderr = os.Inherit)
+    
+    val pidFile = viteDevPidFile()
+    val pidOpt = if (os.exists(pidFile)) {
+      try Some(os.read(pidFile).trim) catch {
+        case _: Exception => None
+      }
+    } else None
+    
+    pidOpt match {
+      case Some(pid) if isProcessRunning(pid) =>
+        println(s"✅ Vite dev server already running with PID $pid")
+        println(s"   Access the server at http://localhost:5173")
+        println(s"   ScalaJS output: ${fastLinkJS().dest.path}")
+      case _ =>
+        // Kill old process if PID exists but process is dead
+        pidOpt.foreach { pid =>
+          println(s"⚠️  Previous Vite process (PID $pid) is not running, cleaning up...")
+          try { os.proc("kill", "-9", pid).call(check = false) } catch { case _: Exception => }
+        }
+        
+        println("🚀 Starting Vite development server...")
+        println(s"   ScalaJS output: ${fastLinkJS().dest.path}")
+        
+        // Start the server in background
+        val process = os.proc("yarn", "run", "dev")
+          .spawn(cwd = moduleDir, stdout = os.Inherit, stderr = os.Inherit)
+        
+        // Get the PID using ProcessHandle
+        val pid = process.wrapped.pid().toString
+        os.write.over(pidFile, pid)
+        
+        println(s"✅ Vite dev server started with PID $pid")
+        println(s"   Access the server at http://localhost:5173")
+        println(s"   To stop: mill scenariosUI.viteStop")
+    }
+    ()  // Explicitly return Unit
+  }
+  
+  // Stop the Vite dev server
+  def viteStop() = Task.Command {
+    val pidFile = viteDevPidFile()
+    if (os.exists(pidFile)) {
+      val pid = os.read(pidFile).trim
+      if (isProcessRunning(pid)) {
+        println(s"🛑 Stopping Vite dev server (PID $pid)...")
+        os.proc("kill", pid).call(check = false)
+        os.remove(pidFile)
+        println("✅ Vite dev server stopped")
+      } else {
+        println("⚠️  Vite dev server is not running")
+        os.remove(pidFile)
+      }
+    } else {
+      println("⚠️  No Vite dev server PID file found")
+    }
+    ()  // Explicitly return Unit
   }
   
   // Build with Vite (depends on fullLinkJS for production)
