@@ -1110,6 +1110,87 @@ object filesIT extends BaseModule {
   def moduleDeps = Seq(filesRest.jvm, http)
 }
 
+// Scenarios module - cross-compiled for JVM and JS
+object scenarios extends Module {
+  
+  // Base trait for all scenarios module variants
+  trait ScenariosModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-scenarios"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Scenarios Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends ScenariosModule {
+    def moduleDeps = Seq(core.jvm)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      mvn"dev.zio::zio-http::${IWMillVersions.zioHttp}"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends ScenariosModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio
+    )
+  }
+}
+
+// Forms module - cross-compiled for JVM and JS
+object forms extends Module {
+  
+  // Base trait for all forms module variants
+  trait FormsModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-forms"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Forms Library",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends FormsModule {
+    def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, filesRest.jvm, email, paygate, filesMongo)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio,
+      IWMillDeps.zioConfigTypesafe,
+      mvn"org.scala-lang.modules::scala-xml::2.2.0",
+      mvn"org.apache.xmlgraphics:fop:2.9",
+      mvn"io.github.arainko::ducktape::0.1.11"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends FormsModule with BaseScalaJSModule {
+    def moduleDeps = Seq(core.js, codecs.js, autocomplete.js, filesRest.js)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.zio
+    )
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -1152,6 +1233,10 @@ object verify extends Module {
     filesMongo.compile()
     filesUI.compile()
     filesIT.compile()
+    scenarios.jvm.compile()
+    scenarios.js.compile()
+    forms.jvm.compile()
+    forms.js.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -1204,6 +1289,10 @@ object verify extends Module {
     filesMongo.checkFormat()
     filesUI.checkFormat()
     filesIT.checkFormat()
+    scenarios.jvm.checkFormat()
+    scenarios.js.checkFormat()
+    forms.jvm.checkFormat()
+    forms.js.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }

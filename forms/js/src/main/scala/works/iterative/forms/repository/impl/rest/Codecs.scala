@@ -6,7 +6,7 @@ package impl.rest
 import zio.json.*
 import works.iterative.tapir.CustomTapir.*
 import works.iterative.forms.repository.{Submission, SubmissionRepository}
-import works.iterative.core.codecs.Codecs.given
+import works.iterative.tapir.codecs.Codecs.given
 import FormPersistenceCodecs.given
 
 trait Codecs extends JsonCodecs with TapirCodecs
