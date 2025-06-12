@@ -899,7 +899,7 @@ object http extends BaseModule {
   def artifactName = "iw-support-http"
   
   // Override module directory to match SBT structure
-  override def moduleDir = super.moduleDir / os.up / os.up / "server" / "http"
+  override def moduleDir = super.moduleDir / os.up / "server" / "http"
   
   def pomSettings = PomSettings(
     description = "IW Support HTTP Server Library",
