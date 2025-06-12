@@ -1191,6 +1191,105 @@ object forms extends Module {
   }
 }
 
+// Forms HTTP module - JVM only
+object formsHttp extends BaseModule {
+  def artifactName = "iw-support-forms-http"
+  
+  // Override module directory to match SBT structure
+  override def moduleDir = super.moduleDir / os.up / "forms" / "http"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support Forms HTTP Library",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(formsCore.jvm, http)
+}
+
+// Forms scenarios module - cross-compiled for JVM and JS (test scenarios)
+object formsScenarios extends Module {
+  
+  // Base trait for all forms-scenarios module variants
+  trait FormsScenariosModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-forms-scenarios"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "scenarios"
+    
+    // Skip publishing for test scenarios
+    override def publishVersion = "0.0.0"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Forms Scenarios",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+    
+    // TODO: Add BuildInfo support when available in Mill
+  }
+  
+  // JVM-specific module
+  object jvm extends FormsScenariosModule {
+    def moduleDeps = Seq(forms.jvm, scenarios.jvm)
+  }
+  
+  // JavaScript-specific module
+  object js extends FormsScenariosModule with BaseScalaJSModule {
+    def moduleDeps = Seq(forms.js, scenarios.js)
+  }
+}
+
+// Files UI scenarios module - cross-compiled for JVM and JS (test scenarios)
+object filesUIScenarios extends Module {
+  
+  // Base trait for all files-ui-scenarios module variants
+  trait FilesUIScenariosModule extends BaseModule with FullCrossScalaModule {
+    def artifactName = "iw-support-files-ui-scenarios"
+    
+    // Override module directory to match SBT structure
+    override def moduleDir = super.moduleDir / os.up / os.up / "files" / "adapters" / "ui" / "scenarios"
+    
+    // Skip publishing for test scenarios
+    override def publishVersion = "0.0.0"
+    
+    def pomSettings = PomSettings(
+      description = "IW Support Files UI Scenarios",
+      organization = "works.iterative.support",
+      url = "https://github.com/iterative-works/iw-support",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("iterative-works", "iw-support"),
+      developers = Seq(
+        Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+      )
+    )
+  }
+  
+  // JVM-specific module
+  object jvm extends FilesUIScenariosModule {
+    def moduleDeps = Seq(filesCore.jvm, filesRest.jvm, ui.jvm, scenarios.jvm)
+    
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"dev.zio::zio-http-htmx::3.0.0-RC6"
+    )
+  }
+  
+  // JavaScript-specific module
+  object js extends FilesUIScenariosModule with BaseScalaJSModule {
+    def moduleDeps = Seq(filesCore.js, filesRest.js, ui.js, scenarios.js, filesUI)
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -1237,6 +1336,11 @@ object verify extends Module {
     scenarios.js.compile()
     forms.jvm.compile()
     forms.js.compile()
+    formsHttp.compile()
+    formsScenarios.jvm.compile()
+    formsScenarios.js.compile()
+    filesUIScenarios.jvm.compile()
+    filesUIScenarios.js.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -1293,6 +1397,11 @@ object verify extends Module {
     scenarios.js.checkFormat()
     forms.jvm.checkFormat()
     forms.js.checkFormat()
+    formsHttp.checkFormat()
+    formsScenarios.jvm.checkFormat()
+    formsScenarios.js.checkFormat()
+    filesUIScenarios.jvm.checkFormat()
+    filesUIScenarios.js.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
