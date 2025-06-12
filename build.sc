@@ -966,8 +966,7 @@ object autocomplete extends Module {
   
   // JavaScript-specific module
   object js extends AutocompleteModule with BaseScalaJSModule {
-    def moduleDeps = Seq(core.js, tapir.js, ui.js, uiForms.js)
-    // TODO: Add files-ui.js when it's migrated
+    def moduleDeps = Seq(core.js, tapir.js, ui.js, uiForms.js, filesUI)
     
     def mvnDeps = super.mvnDeps() ++ Seq(
       IWMillDeps.zio
