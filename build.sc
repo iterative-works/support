@@ -3,6 +3,7 @@
 import mill._
 import mill.scalalib._
 import mill.scalajslib._
+import mill.scalajslib.api._
 import mill.scalalib.publish._
 import mill.scalalib.scalafmt._
 
@@ -1290,6 +1291,72 @@ object filesUIScenarios extends Module {
   }
 }
 
+// Scenarios UI module - JS only with Vite support
+object scenariosUI extends BaseScalaJSModule {
+  def artifactName = "iw-support-scenarios-ui"
+  
+  // Override module directory to match SBT structure
+  override def moduleDir = super.moduleDir / os.up / "ui" / "scenarios"
+  
+  // Skip publishing for internal scenarios
+  override def publishVersion = "0.0.0"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support Scenarios UI",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  def moduleDeps = Seq(ui.js, uiForms.js)
+  
+  // Enable main module initializer
+  def scalaJSUseMainModuleInitializer = true
+  
+  override def moduleKind = Task {
+    ModuleKind.ESModule
+  }
+
+  override def moduleSplitStyle = Task {
+    ModuleSplitStyle.SmallModulesFor(List("works.iterative"))
+  }
+  
+  // Add custom scalac option for source map URI
+  override def scalacOptions = Task {
+    super.scalacOptions() ++ Seq(
+      s"-scalajs-mapSourceURI:${moduleDir.toNIO.toUri.toString}->/mdr/poptavky/@fs${moduleDir.toString}/"
+    )
+  }
+  
+  // Custom tasks for Vite integration
+  def viteConfig = Task.Source(moduleDir / "vite.config.js")
+  def packageJson = Task.Source(moduleDir / "package.json")
+  
+  // Install npm dependencies
+  def npmInstall() = Task.Command {
+    os.proc("yarn", "install").call(cwd = moduleDir)
+  }
+  
+  // Run Vite dev server (depends on fastLinkJS)
+  def viteDev() = Task.Command {
+    fastLinkJS()
+    println(s"Starting Vite dev server...")
+    println(s"ScalaJS output: ${fastLinkJS().dest.path}")
+    os.proc("yarn", "run", "dev").call(cwd = moduleDir, stdin = os.Inherit, stdout = os.Inherit, stderr = os.Inherit)
+  }
+  
+  // Build with Vite (depends on fullLinkJS for production)
+  def viteBuild() = Task.Command {
+    fullLinkJS()
+    println(s"Building with Vite...")
+    os.proc("yarn", "run", "build", "--outDir", Task.dest).call(cwd = moduleDir)
+  }
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
   // Compile all modules
@@ -1341,6 +1408,7 @@ object verify extends Module {
     formsScenarios.js.compile()
     filesUIScenarios.jvm.compile()
     filesUIScenarios.js.compile()
+    scenariosUI.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -1402,6 +1470,7 @@ object verify extends Module {
     formsScenarios.js.checkFormat()
     filesUIScenarios.jvm.checkFormat()
     filesUIScenarios.js.checkFormat()
+    scenariosUI.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }

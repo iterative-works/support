@@ -1,5 +1,6 @@
+// Mill output paths
 export const bundleDir = (mode) =>
-  `target/scala-3.5.0/app-poptavky-live-${mode === "production" ? "opt" : "fastopt"}`;
+  `../../out/scenariosUI/${mode === "production" ? "fullLinkJS" : "fastLinkJS"}.dest`;
 export const bundlePath = (mode) => `./${bundleDir(mode)}`;
 export const bundleMain = (mode) => `${bundlePath(mode)}/main.js`;
 
