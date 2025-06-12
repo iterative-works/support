@@ -1357,58 +1357,78 @@ object scenariosUI extends BaseScalaJSModule {
   }
 }
 
+// Root aggregate module - equivalent to SBT root project
+object root extends BaseModule {
+  def artifactName = "iw-support"
+  
+  // Skip publishing for root aggregate
+  override def publishVersion = "0.0.0"
+  
+  def pomSettings = PomSettings(
+    description = "IW Support Root Aggregate",
+    organization = "works.iterative.support",
+    url = "https://github.com/iterative-works/iw-support",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    developers = Seq(
+      Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
+    )
+  )
+  
+  // Aggregate all modules - this compiles all modules when root is compiled
+  def moduleDeps = Seq(
+    // Core modules
+    core.jvm, core.js,
+    entity.jvm, entity.js,
+    serviceSpecs.jvm, serviceSpecs.js,
+    tapir.jvm, tapir.js,
+    
+    // Storage modules
+    mongo, sqldb, sqldb.testing,
+    
+    // Communication modules
+    email, paygate,
+    
+    // Support modules
+    codecs.jvm, codecs.js,
+    hashicorp.jvm, hashicorp.js,
+    akkaPersistence,
+    
+    // File handling
+    filesCore.jvm, filesCore.js,
+    filesRest.jvm, filesRest.js,
+    filesMongo, filesUI, filesIT,
+    
+    // UI modules
+    uiCore.jvm, uiCore.js,
+    ui.jvm, ui.js,
+    uiForms.jvm, uiForms.js,
+    uiScalatags.jvm, uiScalatags.js,
+    
+    // Server modules
+    http,
+    
+    // Application modules
+    autocomplete.jvm, autocomplete.js,
+    
+    // Forms modules
+    formsCore.jvm, formsCore.js,
+    forms.jvm, forms.js,
+    formsHttp,
+    
+    // Scenarios and testing
+    scenarios.jvm, scenarios.js,
+    formsScenarios.jvm, formsScenarios.js,
+    filesUIScenarios.jvm, filesUIScenarios.js,
+    scenariosUI
+  )
+}
+
 // Convenience commands for testing the migration
 object verify extends Module {
-  // Compile all modules
+  // Compile all modules via root aggregate
   def compile() = Task.Command {
-    core.jvm.compile()
-    core.js.compile()
-    entity.jvm.compile()
-    entity.js.compile()
-    serviceSpecs.jvm.compile()
-    serviceSpecs.js.compile()
-    tapir.jvm.compile()
-    tapir.js.compile()
-    mongo.compile()
-    sqldb.compile()
-    sqldb.testing.compile()
-    email.compile()
-    codecs.jvm.compile()
-    codecs.js.compile()
-    formsCore.jvm.compile()
-    formsCore.js.compile()
-    filesCore.jvm.compile()
-    filesCore.js.compile()
-    uiCore.jvm.compile()
-    uiCore.js.compile()
-    ui.jvm.compile()
-    ui.js.compile()
-    uiForms.jvm.compile()
-    uiForms.js.compile()
-    uiScalatags.jvm.compile()
-    uiScalatags.js.compile()
-    akkaPersistence.compile()
-    paygate.compile()
-    hashicorp.jvm.compile()
-    hashicorp.js.compile()
-    http.compile()
-    autocomplete.jvm.compile()
-    autocomplete.js.compile()
-    filesRest.jvm.compile()
-    filesRest.js.compile()
-    filesMongo.compile()
-    filesUI.compile()
-    filesIT.compile()
-    scenarios.jvm.compile()
-    scenarios.js.compile()
-    forms.jvm.compile()
-    forms.js.compile()
-    formsHttp.compile()
-    formsScenarios.jvm.compile()
-    formsScenarios.js.compile()
-    filesUIScenarios.jvm.compile()
-    filesUIScenarios.js.compile()
-    scenariosUI.compile()
+    root.compile()
     println("✅ All modules compiled successfully!")
   }
 
