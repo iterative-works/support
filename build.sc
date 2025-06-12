@@ -927,10 +927,8 @@ object http extends BaseModule {
     mvn"com.softwaremill.sttp.tapir::tapir-files::${IWMillVersions.tapir}",
     IWMillDeps.tapirZIOHttp4sServer,
     mvn"org.http4s::http4s-blaze-server::${IWMillVersions.http4sBlaze}",
-    // TODO: Fix pac4j versions - current versions (5.0.0 and 6.0.3) don't exist for Scala 2.13
-    // Available versions: pac4j-http4s_2.13:4.1.0, need to check compatible pac4j-oidc version
-    mvn"org.pac4j::pac4j-http4s::${IWMillVersions.http4sPac4J}".withDottyCompat(scalaVersion()),
-    mvn"org.pac4j::pac4j-oidc::${IWMillVersions.pac4j}".withDottyCompat(scalaVersion()),
+    mvn"org.pac4j::http4s-pac4j::${IWMillVersions.http4sPac4J}",
+    mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
     IWMillDeps.scalatags,
     // Silencer for cross-compilation
     mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion())
@@ -1154,7 +1152,7 @@ object verify extends Module {
     filesRest.js.compile()
     filesMongo.compile()
     filesUI.compile()
-    // filesIT.compile() // TODO: Fix after pac4j dependency issues are resolved
+    filesIT.compile()
     println("✅ All modules compiled successfully!")
   }
 
@@ -1206,7 +1204,7 @@ object verify extends Module {
     filesRest.js.checkFormat()
     filesMongo.checkFormat()
     filesUI.checkFormat()
-    // filesIT.checkFormat() // TODO: Fix after pac4j dependency issues are resolved
+    filesIT.checkFormat()
     println("✅ Code formatting is correct!")
   }
 }
