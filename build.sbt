@@ -108,6 +108,11 @@ lazy val `sqldb-support` = project.in(file("sqldb"))
 lazy val `sqldb-testing-support` =
     project.in(file("sqldb/testing-support")).settings(commonSettings).dependsOn(`sqldb-support`)
 
+lazy val `e2e-testing` = project
+    .in(file("e2e-testing"))
+    .settings(commonSettings, name := "iw-support-e2e-testing")
+    .dependsOn(core.jvm)
+
 lazy val paygate = project
     .in(file("paygate"))
     .settings(commonSettings, name := "iw-support-paygate")
@@ -250,13 +255,14 @@ lazy val root = (project in file("."))
         `forms-core`.jvm,
         `ui-core`.js,
         `ui-core`.jvm,
-	`ui-forms`.js,
-	`ui-forms`.jvm,
+        `ui-forms`.js,
+        `ui-forms`.jvm,
         `forms-http`,
         `ui-scalatags`.js,
         `ui-scalatags`.jvm,
         `sqldb-support`,
         `sqldb-testing-support`,
+        `e2e-testing`,
         autocomplete.js,
         autocomplete.jvm,
         paygate
