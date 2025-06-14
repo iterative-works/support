@@ -396,6 +396,23 @@ object ui extends CrossModule {
   }
 }
 
+// E2E Testing support - JVM only
+object e2eTesting extends JvmOnlyModule {
+  def moduleName = "e2e-testing"
+  def description = "IW Support E2E Testing Library"
+  def moduleDeps = Seq(core.jvm)
+  
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
+    // Cucumber for BDD testing
+    mvn"io.cucumber::cucumber-scala::8.23.1",
+    mvn"io.cucumber:cucumber-junit:7.20.1",
+    // Playwright for browser automation
+    mvn"com.microsoft.playwright:playwright:1.49.0",
+    // Typesafe config for configuration
+    mvn"com.typesafe:config:1.4.3"
+  )
+}
+
 // Root aggregate module
 object root extends BaseModule {
   def artifactName = "iw-support"
@@ -409,7 +426,8 @@ object root extends BaseModule {
     tapir.jvm, tapir.js,
     mongo, sqldb, sqldb.testing, email,
     codecs.jvm, codecs.js,
-    ui.jvm, ui.js
+    ui.jvm, ui.js,
+    e2eTesting
   )
 }
 
