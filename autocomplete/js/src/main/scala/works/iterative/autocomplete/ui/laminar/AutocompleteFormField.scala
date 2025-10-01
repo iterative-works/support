@@ -57,6 +57,7 @@ class AutocompleteFormField(
                         fieldName,
                         inError,
                         tpe("text"),
+                        autoComplete("off"),
                         inputFieldMod,
                         /* Strict needs to pick from the options, otherwise we load */
                         if !strict then
