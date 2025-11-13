@@ -1,5 +1,5 @@
 //| mvnDeps:
-//| - works.iterative::mill-iw-support::0.1.0-SNAPSHOT
+//| - works.iterative::mill-iw-support::0.1.1-SNAPSHOT
 import mill._
 import mill.scalalib._
 import mill.scalajslib._
@@ -30,7 +30,7 @@ object CommonPomSettings {
 
 /** Common version for all published modules */
 object CommonVersion {
-  val publishVersion = "0.1.10-SNAPSHOT"
+  val publishVersion = "0.1.11-SNAPSHOT"
 }
 
 /** Common dependency groups */
@@ -73,7 +73,7 @@ object Dependencies {
     mvn"com.github.ghik:silencer-lib_2.13:1.4.2".withConfiguration("provided")
   )
   
-  def withSilencer(deps: Seq[Dep])(implicit scalaVersion: String): Seq[Dep] = 
+  def withSilencer(deps: Seq[Dep])(using scalaVersion: String): Seq[Dep] =
     deps ++ Seq(mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion))
 }
 
@@ -95,8 +95,7 @@ trait BaseModule extends IWScalaModule with IWPublishModule { outer =>
   // Inner test trait (matching original structure)
   trait BaseTests extends ScalaTests with TestModule.ZioTest {
     override def moduleDir = outer.moduleDir
-    override def intellijModulePath: os.Path = outer.moduleDir / "src/test"
-    
+
     override def sources = Task.Sources("src/test/scala")
     override def resources = Task.Sources("src/test/resources")
     
@@ -111,8 +110,7 @@ trait BaseScalaJSModule extends BaseModule with ScalaJSModule { outer =>
   trait BaseScalaJSTests extends ScalaJSTests with TestModule.ZioTest {
     override def scalaJSVersion = "1.19.0"
     override def moduleDir = outer.moduleDir
-    override def intellijModulePath: os.Path = outer.moduleDir / "src/test"
-    
+
     override def sources = Task.Sources("src/test/scala")
     override def resources = Task.Sources("src/test/resources")
     
@@ -277,16 +275,15 @@ object mongo extends JvmOnlyModule {
   def description = "IW Support MongoDB Library"
   def moduleDeps = Seq(core.jvm)
   
-  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ 
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++
     Dependencies.zioConfig ++ Seq(
       IWMillDeps.zioInteropReactiveStreams,
       mvn"org.mongodb.scala::mongo-scala-driver::4.2.3".withDottyCompat(scalaVersion())
-    ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+    ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
   
   object it extends BaseTests {
     override def moduleDir = mongo.moduleDir / "it"
-    override def intellijModulePath: os.Path = mongo.moduleDir / "it" / "src/test"
-    
+
     override def sources = Task.Sources(mongo.moduleDir / "it" / "src" / "test" / "scala")
     override def resources = Task.Sources(mongo.moduleDir / "it" / "src" / "test" / "resources")
     
@@ -318,8 +315,7 @@ object sqldb extends JvmOnlyModule {
     def moduleName = "sqldb-testing"
     def description = "IW Support SQL Database Testing Library"
     override def moduleDir = sqldb.moduleDir / "testing-support"
-    override def intellijModulePath: os.Path = sqldb.moduleDir / "testing-support"
-    
+
     override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
     override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
     
@@ -342,7 +338,7 @@ object email extends JvmOnlyModule {
   
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig ++ Seq(
     mvn"org.apache.commons:commons-email:1.5"
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // Codecs module - pure shared sources
@@ -974,9 +970,9 @@ object scenariosUI extends BaseScalaJSModule {
 
 // Root aggregate module
 object root extends BaseModule {
-  def artifactName = "iw-support"
-  override def publishVersion = "0.0.0"
-  def pomSettings = CommonPomSettings("IW Support Root Aggregate")
+  def artifactName = "iw-support-all"
+  override def publishVersion = CommonVersion.publishVersion
+  def pomSettings = CommonPomSettings("IW Support - Convenience aggregate for all modules")
 
   def moduleDeps = Seq(
     // Core modules
