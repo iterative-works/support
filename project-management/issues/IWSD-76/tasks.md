@@ -35,39 +35,39 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 #### Tasks
 
 1. **Verify Development Environment**
-   - [ ] [impl] Verify PostgreSQL is running locally or via Docker
-   - [ ] [impl] Run: `psql --version` or `docker ps | grep postgres`
-   - [ ] [impl] Verify Mill build system works: `mill version`
-   - [ ] [impl] Run existing tests to ensure baseline is green: `mill core.jvm.test`
-   - [ ] [impl] Run database tests: `mill sqldb.test`
-   - [ ] [reviewed] Development environment is properly configured
+   - [x] [impl] Verify PostgreSQL is running locally or via Docker
+   - [x] [impl] Run: `psql --version` or `docker ps | grep postgres`
+   - [x] [impl] Verify Mill build system works: `mill version`
+   - [x] [impl] Run existing tests to ensure baseline is green: `mill core.jvm.test`
+   - [x] [impl] Run database tests: `mill sqldb.test`
+   - [x] [reviewed] Development environment is properly configured
 
 2. **Determine Migration Version Number**
-   - [ ] [impl] Check existing migrations: `ls -la core/jvm/src/main/resources/db/migration/`
-   - [ ] [impl] Identify highest version number (V1, V2, etc.)
-   - [ ] [impl] Determine next version number for message_catalogue migration
-   - [ ] [impl] Document version number to use (will be referenced as V{N} in Phase 1)
-   - [ ] [reviewed] Migration version number confirmed
+   - [x] [impl] Check existing migrations: `ls -la core/jvm/src/main/resources/db/migration/`
+   - [x] [impl] Identify highest version number (V1, V2, etc.)
+   - [x] [impl] Determine next version number for message_catalogue migration
+   - [x] [impl] Document version number to use (will be referenced as V{N} in Phase 1)
+   - [x] [reviewed] Migration version number confirmed
 
 3. **Verify Dependencies**
-   - [ ] [impl] Verify Magnum library version in build configuration
-   - [ ] [impl] Verify TestContainers dependency is available
-   - [ ] [impl] Check that `works.iterative.sqldb.testing.PostgreSQLTestingLayers` exists
-   - [ ] [impl] Verify Flyway is configured for migrations
-   - [ ] [reviewed] All dependencies are available and compatible
+   - [x] [impl] Verify Magnum library version in build configuration
+   - [x] [impl] Verify TestContainers dependency is available
+   - [x] [impl] Check that `works.iterative.sqldb.testing.PostgreSQLTestingLayers` exists
+   - [x] [impl] Verify Flyway is configured for migrations
+   - [x] [reviewed] All dependencies are available and compatible
 
 #### Phase Success Criteria
 
-- [ ] [impl] Local PostgreSQL accessible
-- [ ] [reviewed] Database connectivity verified
-- [ ] [impl] All existing tests pass (baseline is green)
-- [ ] [reviewed] Test baseline confirmed
-- [ ] [impl] Migration version number determined (e.g., V3, V4)
-- [ ] [reviewed] Version number documented
-- [ ] [impl] TestContainers can start PostgreSQL container
-- [ ] [reviewed] Test infrastructure verified
-- [ ] [impl] Development environment ready for implementation
-- [ ] [reviewed] Phase validation approved
+- [x] [impl] Local PostgreSQL accessible
+- [x] [reviewed] Database connectivity verified
+- [x] [impl] All existing tests pass (baseline is green)
+- [x] [reviewed] Test baseline confirmed
+- [x] [impl] Migration version number determined (e.g., V3, V4)
+- [x] [reviewed] Version number documented
+- [x] [impl] TestContainers can start PostgreSQL container
+- [x] [reviewed] Test infrastructure verified
+- [x] [impl] Development environment ready for implementation
+- [x] [reviewed] Phase validation approved
 
 ---
 
