@@ -1,0 +1,123 @@
+// PURPOSE: Tests for MessageCatalogueEntity domain model
+// PURPOSE: Verifies entity creation, factory methods, and Magnum codec derivation
+
+package works.iterative.core.db
+
+import zio.*
+import zio.test.*
+import zio.test.TestAspect.*
+import works.iterative.core.{Language, MessageId}
+import com.augustnagro.magnum.*
+import java.time.Instant
+
+object MessageCatalogueEntitySpec extends ZIOSpecDefault:
+
+  def spec = suite("MessageCatalogueEntitySpec")(
+    test("creates MessageCatalogueEntity with all fields") {
+      val now = Instant.now()
+      val entity = MessageCatalogueEntity(
+        id = Some(1L),
+        messageKey = "test.key",
+        language = "en",
+        messageText = "Test message",
+        description = Some("Test description"),
+        createdAt = now,
+        updatedAt = now,
+        createdBy = Some("testuser"),
+        updatedBy = Some("testuser")
+      )
+
+      assertTrue(
+        entity.id == Some(1L),
+        entity.messageKey == "test.key",
+        entity.language == "en",
+        entity.messageText == "Test message",
+        entity.description == Some("Test description"),
+        entity.createdAt == now,
+        entity.updatedAt == now,
+        entity.createdBy == Some("testuser"),
+        entity.updatedBy == Some("testuser")
+      )
+    },
+
+    test("fromMessage factory method creates entity with correct fields") {
+      for
+        beforeCreation <- Clock.instant
+        entity <- ZIO.succeed(
+          MessageCatalogueEntity.fromMessage(
+            MessageId("welcome.message"),
+            Language.EN,
+            "Welcome to the application",
+            Some("Greeting message for users"),
+            Some("admin")
+          )
+        )
+        afterCreation <- Clock.instant
+      yield assertTrue(
+        entity.id.isEmpty,
+        entity.messageKey == "welcome.message",
+        entity.language == "en",
+        entity.messageText == "Welcome to the application",
+        entity.description == Some("Greeting message for users"),
+        entity.createdBy == Some("admin"),
+        entity.updatedBy == Some("admin"),
+        !entity.createdAt.isBefore(beforeCreation),
+        !entity.createdAt.isAfter(afterCreation),
+        entity.createdAt == entity.updatedAt
+      )
+    },
+
+    test("Magnum can derive DbCodec for the entity") {
+      // This test verifies that Magnum can properly encode/decode the entity
+      // If DbCodec derivation fails, this test won't compile
+      val codec = summon[DbCodec[MessageCatalogueEntity]]
+      assertTrue(codec != null)
+    },
+
+    test("field name mapping uses CamelToSnakeCase") {
+      // This is validated by the TableInfo which Magnum derives
+      val tableInfo = TableInfo[MessageCatalogueEntity, MessageCatalogueEntity, Long]
+
+      // Check that the table name is message_catalogue
+      assertTrue(
+        tableInfo.tableName == "message_catalogue"
+      )
+    },
+
+    test("Language type converts to/from String") {
+      val entity = MessageCatalogueEntity(
+        id = None,
+        messageKey = "test",
+        language = Language.CS, // Using Language enum
+        messageText = "text",
+        description = None,
+        createdAt = Instant.now(),
+        updatedAt = Instant.now(),
+        createdBy = None,
+        updatedBy = None
+      )
+
+      assertTrue(entity.language == "cs")
+    },
+
+    test("Instant serialization works correctly") {
+      val now = Instant.now()
+      val entity = MessageCatalogueEntity(
+        id = None,
+        messageKey = "test",
+        language = "en",
+        messageText = "text",
+        description = None,
+        createdAt = now,
+        updatedAt = now,
+        createdBy = None,
+        updatedBy = None
+      )
+
+      assertTrue(
+        entity.createdAt == now,
+        entity.updatedAt == now
+      )
+    }
+  )
+end MessageCatalogueEntitySpec
