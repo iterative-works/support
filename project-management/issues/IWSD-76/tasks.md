@@ -84,32 +84,32 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 1. **Create Flyway Migration for Message Catalogue Tables** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `sqldb/src/test/scala/works/iterative/sqldb/MessageCatalogueMigrationSpec.scala`
-   - [ ] [impl] Write test that connects to test database and verifies `message_catalogue` table does not exist
-   - [ ] [impl] Run test: `mill sqldb.test`
-   - [ ] [impl] Verify test fails because migration hasn't been created yet
+   - [x] [impl] Create test file: `sqldb/src/test/scala/works/iterative/sqldb/MessageCatalogueMigrationSpec.scala`
+   - [x] [impl] Write test that connects to test database and verifies `message_catalogue` table does not exist
+   - [x] [impl] Run test: `mill sqldb.test`
+   - [x] [impl] Verify test fails because migration hasn't been created yet
    - [ ] [reviewed] Test properly validates the expected schema doesn't exist
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create migration file: `core/jvm/src/main/resources/db/migration/V{N}__create_message_catalogue.sql` (where {N} is version number from Phase 0)
-   - [ ] [impl] Add `message_catalogue` table with columns: id, message_key, language, message_text, description, created_at, updated_at, created_by, updated_by
-   - [ ] [impl] Add UNIQUE constraint on (message_key, language)
-   - [ ] [impl] Add indexes: idx_message_catalogue_key_lang, idx_message_catalogue_language, idx_message_catalogue_updated_at
-   - [ ] [impl] Add `message_catalogue_history` table with columns: id, message_catalogue_id, message_key, language, old_message_text, new_message_text, changed_at, changed_by, change_reason
-   - [ ] [impl] Add indexes for history table: idx_message_history_catalogue_id, idx_message_history_changed_at
-   - [ ] [impl] Create trigger function `message_catalogue_audit_trigger()` to log message_text changes
-   - [ ] [impl] Create trigger `message_catalogue_audit` on UPDATE of message_catalogue
-   - [ ] [impl] Update test to verify tables and indexes exist after migration
-   - [ ] [impl] Run test: `mill sqldb.test`
-   - [ ] [impl] Verify test passes
+   - [x] [impl] Create migration file: `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.sql`
+   - [x] [impl] Add `message_catalogue` table with columns: id, message_key, language, message_text, description, created_at, updated_at, created_by, updated_by
+   - [x] [impl] Add UNIQUE constraint on (message_key, language)
+   - [x] [impl] Add indexes: idx_message_catalogue_key_lang, idx_message_catalogue_language, idx_message_catalogue_updated_at
+   - [x] [impl] Add `message_catalogue_history` table with columns: id, message_catalogue_id, message_key, language, old_message_text, new_message_text, changed_at, changed_by, change_reason
+   - [x] [impl] Add indexes for history table: idx_message_history_catalogue_id, idx_message_history_changed_at
+   - [x] [impl] Create trigger function `message_catalogue_audit_trigger()` to log message_text changes
+   - [x] [impl] Create trigger `message_catalogue_audit` on UPDATE of message_catalogue
+   - [x] [impl] Update test to verify tables and indexes exist after migration
+   - [x] [impl] Run test: `mill sqldb.test`
+   - [x] [impl] Verify test passes
    - [ ] [reviewed] Migration script is correct and complete
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review SQL for PostgreSQL best practices
-   - [ ] [impl] Ensure all table and column names follow snake_case convention
-   - [ ] [impl] Verify trigger only fires when message_text actually changes
-   - [ ] [impl] Run all related tests: `mill sqldb.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Review SQL for PostgreSQL best practices
+   - [x] [impl] Ensure all table and column names follow snake_case convention
+   - [x] [impl] Verify trigger only fires when message_text actually changes
+   - [x] [impl] Run all related tests: `mill sqldb.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Code quality meets standards
 
    **Success Criteria:** Migration creates both tables with proper indexes and audit trigger
@@ -118,38 +118,38 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 2. **Create MessageCatalogueEntity Domain Model** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/db/MessageCatalogueEntitySpec.scala`
-   - [ ] [impl] Write test that creates MessageCatalogueEntity and verifies all fields
-   - [ ] [impl] Write test for `fromMessage` factory method with MessageId, Language, text, description, and user
-   - [ ] [impl] Write test that verifies Magnum can derive DbCodec for the entity
-   - [ ] [impl] Write test that verifies field name mapping (messageKey -> message_key via CamelToSnakeCase)
-   - [ ] [impl] Write test for Language type conversion to/from String
-   - [ ] [impl] Write test for Instant serialization/deserialization
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test fails because entity doesn't exist
-   - [ ] [reviewed] Test properly validates entity creation, factory method, and Magnum codec derivation
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/db/MessageCatalogueEntitySpec.scala`
+   - [x] [impl] Write test that creates MessageCatalogueEntity and verifies all fields
+   - [x] [impl] Write test for `fromMessage` factory method with MessageId, Language, text, description, and user
+   - [x] [impl] Write test that verifies Magnum can derive DbCodec for the entity
+   - [x] [impl] Write test that verifies field name mapping (messageKey -> message_key via CamelToSnakeCase)
+   - [x] [impl] Write test for Language type conversion to/from String
+   - [x] [impl] Write test for Instant serialization/deserialization
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test fails because entity doesn't exist
+   - [x] [reviewed] Test properly validates entity creation, factory method, and Magnum codec derivation
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/db/MessageCatalogueEntity.scala`
-   - [ ] [impl] Add case class with @Table(PostgresDbType, SqlNameMapper.CamelToSnakeCase) annotation
-   - [ ] [impl] Add fields: @Id id: Option[Long], messageKey: String, language: String, messageText: String, description: Option[String], createdAt: Instant, updatedAt: Instant, createdBy: Option[String], updatedBy: Option[String]
-   - [ ] [impl] Add `derives DbCodec` for Magnum
-   - [ ] [impl] Add implicit DbCodec instances for custom types if needed (Language, MessageId)
-   - [ ] [impl] Verify Magnum can encode/decode all field types (especially Instant, Option types)
-   - [ ] [impl] Create companion object with `fromMessage` factory method
-   - [ ] [impl] Factory method sets timestamps to now() and copies user to both createdBy and updatedBy
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test passes including codec derivation tests
-   - [ ] [reviewed] Implementation is correct and follows Magnum patterns
+   - [x] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/db/MessageCatalogueEntity.scala`
+   - [x] [impl] Add case class with @Table(PostgresDbType, SqlNameMapper.CamelToSnakeCase) annotation
+   - [x] [impl] Add fields: @Id id: Option[Long], messageKey: String, language: String, messageText: String, description: Option[String], createdAt: Instant, updatedAt: Instant, createdBy: Option[String], updatedBy: Option[String]
+   - [x] [impl] Add `derives DbCodec` for Magnum
+   - [x] [impl] Add implicit DbCodec instances for custom types if needed (Language, MessageId)
+   - [x] [impl] Verify Magnum can encode/decode all field types (especially Instant, Option types)
+   - [x] [impl] Create companion object with `fromMessage` factory method
+   - [x] [impl] Factory method sets timestamps to now() and copies user to both createdBy and updatedBy
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test passes including codec derivation tests
+   - [x] [reviewed] Implementation is correct and follows Magnum patterns
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review entity for immutability and proper field types
-   - [ ] [impl] Ensure MessageId and Language types are properly converted to/from String
-   - [ ] [impl] Verify CamelToSnakeCase mapping works correctly for all fields
-   - [ ] [impl] Add PURPOSE comment at top of file explaining what entity represents
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Code quality meets standards
+   - [x] [impl] Review entity for immutability and proper field types
+   - [x] [impl] Ensure MessageId and Language types are properly converted to/from String
+   - [x] [impl] Verify CamelToSnakeCase mapping works correctly for all fields
+   - [x] [impl] Add PURPOSE comment at top of file explaining what entity represents
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Code quality meets standards
 
    **Success Criteria:** MessageCatalogueEntity properly annotated for Magnum with factory method and working codec derivation
    **Testing:** Unit tests verify entity creation, Magnum codec derivation, and type conversions
@@ -157,48 +157,48 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 3. **Test Audit Trigger Functionality** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `sqldb/src/test/scala/works/iterative/sqldb/MessageCatalogueAuditTriggerSpec.scala`
-   - [ ] [impl] Write test that inserts message, updates message_text, verifies history entry created
-   - [ ] [impl] Write test that updates message but keeps same message_text, verifies NO history entry
-   - [ ] [impl] Write test that updates other fields (description), verifies NO history entry (only message_text changes trigger audit)
-   - [ ] [impl] Write test that verifies changed_by field in history matches updated_by from update
-   - [ ] [impl] Run test: `mill sqldb.test`
-   - [ ] [impl] Verify tests fail before trigger is working
-   - [ ] [reviewed] Tests properly validate trigger behavior
+   - [x] [impl] Create test file: `sqldb/src/test/scala/works/iterative/sqldb/MessageCatalogueAuditTriggerSpec.scala`
+   - [x] [impl] Write test that inserts message, updates message_text, verifies history entry created
+   - [x] [impl] Write test that updates message but keeps same message_text, verifies NO history entry
+   - [x] [impl] Write test that updates other fields (description), verifies NO history entry (only message_text changes trigger audit)
+   - [x] [impl] Write test that verifies changed_by field in history matches updated_by from update
+   - [x] [impl] Run test: `mill sqldb.test`
+   - [x] [impl] Verify tests fail before trigger is working
+   - [x] [reviewed] Tests properly validate trigger behavior
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Verify trigger function logic in migration is correct
-   - [ ] [impl] Verify trigger only fires on UPDATE when message_text changes (WHEN clause)
-   - [ ] [impl] Verify trigger captures old_message_text, new_message_text, and updated_by correctly
-   - [ ] [impl] Fix any issues found in trigger implementation
-   - [ ] [impl] Run test: `mill sqldb.test`
-   - [ ] [impl] Verify all tests pass
-   - [ ] [reviewed] Trigger correctly implements audit logic
+   - [x] [impl] Verify trigger function logic in migration is correct
+   - [x] [impl] Verify trigger only fires on UPDATE when message_text changes (WHEN clause)
+   - [x] [impl] Verify trigger captures old_message_text, new_message_text, and updated_by correctly
+   - [x] [impl] Fix any issues found in trigger implementation
+   - [x] [impl] Run test: `mill sqldb.test`
+   - [x] [impl] Verify all tests pass
+   - [x] [reviewed] Trigger correctly implements audit logic
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review trigger for edge cases (NULL handling, empty strings)
-   - [ ] [impl] Ensure changed_by captures updated_by correctly
-   - [ ] [impl] Add test for multiple updates (verify multiple history entries)
-   - [ ] [impl] Run all related tests: `mill sqldb.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Trigger is robust and handles edge cases
+   - [x] [impl] Review trigger for edge cases (NULL handling, empty strings)
+   - [x] [impl] Ensure changed_by captures updated_by correctly
+   - [x] [impl] Add test for multiple updates (verify multiple history entries)
+   - [x] [impl] Run all related tests: `mill sqldb.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Trigger is robust and handles edge cases
 
    **Success Criteria:** Audit trigger correctly logs only message_text changes with proper metadata
    **Testing:** Integration tests verify trigger behavior with real database operations
 
 #### Phase Success Criteria
 
-- [ ] [impl] Flyway migration V3__create_message_catalogue.sql created
+- [x] [impl] Flyway migration V1__create_message_catalogue.sql created
 - [ ] [reviewed] Migration script approved by code review
-- [ ] [impl] message_catalogue table with proper columns and constraints
+- [x] [impl] message_catalogue table with proper columns and constraints
 - [ ] [reviewed] Schema design approved
-- [ ] [impl] message_catalogue_history audit table with trigger
+- [x] [impl] message_catalogue_history audit table with trigger
 - [ ] [reviewed] Audit mechanism approved
-- [ ] [impl] MessageCatalogueEntity with Magnum annotations
+- [x] [impl] MessageCatalogueEntity with Magnum annotations
 - [ ] [reviewed] Entity implementation approved
-- [ ] [impl] All unit tests pass
+- [x] [impl] All unit tests pass
 - [ ] [reviewed] Test coverage and quality approved
-- [ ] [impl] Migration can be applied and rolled back successfully
+- [x] [impl] Migration can be applied and rolled back successfully
 - [ ] [reviewed] Phase validation approved
 
 ---
