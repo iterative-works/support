@@ -318,7 +318,7 @@ object sqldb extends JvmOnlyModule {
 
     override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
     override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
-    
+
     def moduleDeps = Seq(sqldb)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioTest,
@@ -327,6 +327,10 @@ object sqldb extends JvmOnlyModule {
       mvn"org.testcontainers:postgresql:1.20.4",
       mvn"com.dimafeng::testcontainers-scala-postgresql::0.41.5"
     )
+  }
+
+  object test extends BaseTests {
+    def moduleDeps = Seq(sqldb, sqldb.testing)
   }
 }
 

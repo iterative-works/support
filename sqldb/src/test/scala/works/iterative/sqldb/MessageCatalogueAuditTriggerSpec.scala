@@ -175,6 +175,40 @@ object MessageCatalogueAuditTriggerSpec extends ZIOSpecDefault:
           """.query[Long].run()
         historyCount = historyResult.head
       yield assertTrue(historyCount == 2)
+    },
+
+    test("updated_at timestamp automatically updates on any UPDATE") {
+      for
+        migrationService <- ZIO.service[FlywayMigrationService]
+        _ <- migrationService.clean()
+        _ <- migrationService.migrate()
+        pgTransactor <- ZIO.service[PostgreSQLTransactor]
+
+        // Insert a message
+        insertResult <- pgTransactor.transactor.transact:
+          sql"""
+            INSERT INTO message_catalogue (message_key, language, message_text, created_by, updated_by)
+            VALUES ('test.updated_at', 'en', 'Original text', 'test_user', 'test_user')
+            RETURNING id, updated_at
+          """.query[(Long, java.time.OffsetDateTime)].run()
+        (insertedId, originalUpdatedAt) = insertResult.head
+
+        // Update description (not message_text, to avoid triggering audit)
+        _ <- pgTransactor.transactor.transact:
+          sql"""
+            UPDATE message_catalogue
+            SET description = 'New description', updated_by = 'test_user'
+            WHERE id = $insertedId
+          """.update.run()
+
+        // Verify updated_at changed
+        newUpdatedAtResult <- pgTransactor.transactor.connect:
+          sql"""
+            SELECT updated_at FROM message_catalogue
+            WHERE id = $insertedId
+          """.query[java.time.OffsetDateTime].run()
+        newUpdatedAt = newUpdatedAtResult.head
+      yield assertTrue(newUpdatedAt.isAfter(originalUpdatedAt))
     }
   ).provideSomeShared[Scope](
     flywayMigrationServiceLayer
