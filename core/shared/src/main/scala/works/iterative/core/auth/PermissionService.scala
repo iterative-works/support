@@ -7,7 +7,15 @@ import works.iterative.core.UserMessage
 
 opaque type PermissionOp = String
 object PermissionOp:
-    def apply(op: String): PermissionOp = op
+    def apply(op: String): Validated[PermissionOp] =
+        Validation.fromPredicateWith(UserMessage("error.permission.op.empty"))(op)(
+            _.trim.nonEmpty
+        )
+
+    def unsafe(op: String): PermissionOp =
+        require(op.trim.nonEmpty, "Permission operation must be defined")
+        op
+
     def unapply(op: PermissionOp): Option[String] = Some(op)
 
     extension (op: PermissionOp) def value: String = op
@@ -55,11 +63,6 @@ object PermissionTarget:
             _ <- Validation.fromPredicateWith(UserMessage("error.namespace.colon"))(
                 n
             )(_.indexOf(':') == -1)
-        /* Seems to be unnecessary
-            _ <- Validation.fromPredicateWith(UserMessage("error.id.colon"))(i)(
-                _.indexOf(':') == -1
-            )
-         */
         yield
             val v = s"$n:$i"
             rel.fold(v)(r => s"${v}#${r}")
@@ -85,15 +88,21 @@ object PermissionTarget:
             namespace.trim.nonEmpty && id.trim.nonEmpty,
             "Both namespace and id must be defined"
         )
-        // TODO: escape instead of complaining
         require(
-            namespace.indexOf(':') == -1 && id.indexOf(':') == -1,
-            "Neither namespace nor id can contain ':'"
+            namespace.indexOf(':') == -1,
+            "Namespace cannot contain ':'"
         )
+        // Allow colons in id for URLs (e.g., http://example.com)
         val v = s"${namespace}:${id}"
         rel.fold(v)(r => s"${v}#${r}")
     end unsafe
 
+    // Extension methods parse on each call rather than caching.
+    // This is acceptable because:
+    // - PermissionTarget strings are short (typically < 100 chars)
+    // - Split operations are O(n) where n is small
+    // - Caching would add memory overhead and complexity
+    // - These are not called in tight loops (permission checks are batched)
     extension (target: PermissionTarget)
         def namespace: String = target.split(":", 2).head
         def value: String = target.split(":", 2).last.takeWhile(_ != '#')
@@ -103,6 +112,11 @@ object PermissionTarget:
     end extension
 end PermissionTarget
 
+/** Permission service interface for checking user permissions on resources.
+  *
+  * NOTE: This interface is application-layer (uses ZIO effects), not domain.
+  * Pure domain logic lives in PermissionLogic.
+  */
 trait PermissionService:
     def isAllowed(
         subj: Option[UserInfo],
@@ -115,6 +129,33 @@ trait PermissionService:
         action: PermissionOp,
         obj: PermissionTarget
     ): UIO[Boolean] = isAllowed(Some(subj), action, obj)
+
+    /** List all resource IDs in a namespace that the user is allowed to access.
+      *
+      * This is a reverse lookup operation useful for efficient authorization-aware queries.
+      * Instead of checking permission on each resource individually, this method returns
+      * all resources the user can access in one call.
+      *
+      * Usage example:
+      * {{{
+      *   // List all documents this user can edit
+      *   permissionService.listAllowed(user, PermissionOp("edit"), "document")
+      *     .map { documentIds =>
+      *       // Query database for only these document IDs
+      *       documentRepository.findByIds(documentIds)
+      *     }
+      * }}}
+      *
+      * @param subj The user information
+      * @param action The permission operation to check
+      * @param namespace The resource namespace to search
+      * @return UIO[Set[String]] - Set of resource IDs the user can access
+      */
+    def listAllowed(
+        subj: UserInfo,
+        action: PermissionOp,
+        namespace: String
+    ): UIO[Set[String]]
 end PermissionService
 
 object PermissionService:
