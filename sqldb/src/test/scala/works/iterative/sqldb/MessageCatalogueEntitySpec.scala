@@ -13,9 +13,9 @@ import java.time.Instant
 object MessageCatalogueEntitySpec extends ZIOSpecDefault:
 
   def spec = suite("MessageCatalogueEntitySpec")(
-    test("creates MessageCatalogueEntity with all fields") {
+    test("creates MessageCatalogue with all fields") {
       val now = Instant.now()
-      val entity = MessageCatalogueEntity(
+      val entity = MessageCatalogue(
         id = Some(1L),
         messageKey = "test.key",
         language = "en",
@@ -41,7 +41,7 @@ object MessageCatalogueEntitySpec extends ZIOSpecDefault:
     },
 
     test("fromMessage factory method creates entity with correct fields") {
-      val entity = MessageCatalogueEntity.fromMessage(
+      val entity = MessageCatalogue.fromMessage(
         MessageId("welcome.message"),
         Language.EN,
         "Welcome to the application",
@@ -64,21 +64,21 @@ object MessageCatalogueEntitySpec extends ZIOSpecDefault:
     test("Magnum can derive DbCodec for the entity") {
       // This test verifies that Magnum can properly encode/decode the entity
       // If DbCodec derivation fails, this test won't compile
-      val codec = summon[DbCodec[MessageCatalogueEntity]]
+      val codec = summon[DbCodec[MessageCatalogue]]
       assertTrue(codec != null)
     },
 
     test("field name mapping uses CamelToSnakeCase") {
       // This test verifies that Magnum can derive TableInfo with CamelToSnakeCase mapping
       // If the @Table annotation is incorrect, this test won't compile
-      val tableInfo = TableInfo[MessageCatalogueEntity, MessageCatalogueEntity, Long]
+      val tableInfo = TableInfo[MessageCatalogue, MessageCatalogue, Long]
 
       // Verify TableInfo is not null (implicitly tests @Table annotation and derives)
       assertTrue(tableInfo != null)
     },
 
     test("Language type converts to/from String") {
-      val entity = MessageCatalogueEntity(
+      val entity = MessageCatalogue(
         id = None,
         messageKey = "test",
         language = "cs", // Language as String in entity
@@ -95,7 +95,7 @@ object MessageCatalogueEntitySpec extends ZIOSpecDefault:
 
     test("Instant serialization works correctly") {
       val now = Instant.now()
-      val entity = MessageCatalogueEntity(
+      val entity = MessageCatalogue(
         id = None,
         messageKey = "test",
         language = "en",
