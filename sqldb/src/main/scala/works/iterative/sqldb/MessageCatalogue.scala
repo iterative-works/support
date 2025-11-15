@@ -1,10 +1,11 @@
-// PURPOSE: Domain entity representing message catalogue entries in the database
-// PURPOSE: Maps between domain types (MessageId, Language) and database columns with Magnum ORM
+// PURPOSE: Database entity representing message catalogue entries in the database
+// PURPOSE: Maps between domain model and database columns with Magnum ORM
 
 package works.iterative.sqldb
 
 import com.augustnagro.magnum.*
 import works.iterative.core.{Language, MessageId}
+import works.iterative.core.model.MessageCatalogueData
 import java.time.{Instant, OffsetDateTime, ZoneOffset}
 
 given DbCodec[Instant] =
@@ -35,9 +36,35 @@ case class MessageCatalogue(
     updatedAt: Instant,
     createdBy: Option[String],
     updatedBy: Option[String]
-) derives DbCodec
+) derives DbCodec:
+    /** Converts this database row to domain model */
+    def toDomain: MessageCatalogueData =
+        MessageCatalogueData(
+            messageKey = MessageId(messageKey),
+            language = Language.unsafe(language),
+            messageText = messageText,
+            description = description,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            createdBy = createdBy,
+            updatedBy = updatedBy
+        )
+end MessageCatalogue
 
 object MessageCatalogue:
+    /** Converts domain model to database row for insertion */
+    def fromDomain(data: MessageCatalogueData): MessageCatalogueCreator =
+        MessageCatalogueCreator(
+            messageKey = data.messageKey.value,
+            language = data.language.toString,
+            messageText = data.messageText,
+            description = data.description,
+            createdAt = data.createdAt,
+            updatedAt = data.updatedAt,
+            createdBy = data.createdBy,
+            updatedBy = data.updatedBy
+        )
+
     def fromMessage(
         key: MessageId,
         lang: Language,
