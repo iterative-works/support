@@ -6,9 +6,7 @@ import zio.test.*
 import zio.test.Assertion.*
 import org.pac4j.core.profile.CommonProfile
 import works.iterative.core.auth.*
-import works.iterative.core.auth.service.*
 import works.iterative.core.*
-import scala.jdk.CollectionConverters.*
 
 object Pac4jAuthenticationAdapterSpec extends ZIOSpecDefault:
 

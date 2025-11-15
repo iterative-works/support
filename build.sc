@@ -401,7 +401,7 @@ object e2eTesting extends JvmOnlyModule {
   def moduleName = "e2e-testing"
   def description = "IW Support E2E Testing Library"
   def moduleDeps = Seq(core.jvm)
-  
+
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
     // Cucumber for BDD testing
     mvn"io.cucumber::cucumber-scala::8.23.1",
@@ -411,6 +411,35 @@ object e2eTesting extends JvmOnlyModule {
     // Typesafe config for configuration
     mvn"com.typesafe:config:1.4.3"
   )
+}
+
+// Server module with HTTP submodule - JVM only
+object server extends Module {
+  object http extends JvmOnlyModule {
+    def moduleName = "server-http"
+    def description = "IW Support Server HTTP Library"
+    def moduleDeps = Seq(core.jvm, tapir.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig ++
+      Dependencies.tapirServerJvm ++ Seq(
+        IWMillDeps.scalatags,
+        IWMillDeps.zioLoggingSlf4j,
+        IWMillDeps.zioConfigTypesafe,
+        IWMillDeps.zioConfigMagnolia,
+        IWMillDeps.zioInteropCats,
+        // Tapir files support for static files
+        mvn"com.softwaremill.sttp.tapir::tapir-files::${IWMillVersions.tapir}",
+        // HTTP4s Blaze Server
+        mvn"org.http4s::http4s-blaze-server::${IWMillVersions.http4sBlaze}",
+        // Pac4j HTTP4s integration
+        mvn"org.pac4j::http4s-pac4j::${IWMillVersions.http4sPac4J}",
+        // Pac4j OIDC
+        mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
+        mvn"org.pac4j:pac4j-core:${IWMillVersions.pac4j}"
+      ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+
+    object test extends BaseTests
+  }
 }
 
 // Root aggregate module
@@ -427,7 +456,8 @@ object root extends BaseModule {
     mongo, sqldb, sqldb.testing, email,
     codecs.jvm, codecs.js,
     ui.jvm, ui.js,
-    e2eTesting
+    e2eTesting,
+    server.http
   )
 }
 
