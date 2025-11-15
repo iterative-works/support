@@ -1,57 +1,150 @@
-// PURPOSE: Tests for Flyway migration V1 that creates message_catalogue tables
-// PURPOSE: Verifies database schema is created correctly with proper constraints and indexes
+// PURPOSE: Tests for MessageCatalogueMigration to verify JSON to SQL migration functionality
+// PURPOSE: Ensures correct parsing, conversion, and bulk insertion of messages from JSON resources
 
 package works.iterative.sqldb
 
 import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
+import works.iterative.core.{Language, MessageId}
+import works.iterative.core.repository.MessageCatalogueRepository
 import works.iterative.sqldb.testing.PostgreSQLTestingLayers.*
-import works.iterative.sqldb.testing.MigrateAspects.*
-import com.augustnagro.magnum.magzio.*
-import java.sql.Connection
+import works.iterative.sqldb.FlywayMigrationService
+import works.iterative.sqldb.migration.MessageCatalogueMigration
 
 object MessageCatalogueMigrationSpec extends ZIOSpecDefault:
 
   def spec = suite("MessageCatalogueMigrationSpec")(
-    test("migration creates message_catalogue and message_catalogue_history tables") {
+    test("migrateFromJson successfully migrates 5 sample messages") {
       for
-        // Clean and migrate
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        // Check tables exist
-        pgTransactor <- ZIO.service[PostgreSQLTransactor]
-        catalogueResult <- pgTransactor.transactor.connect:
-          sql"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'message_catalogue')"
-            .query[Boolean]
-            .run()
-        catalogueExists = catalogueResult.headOption.getOrElse(false)
-        historyResult <- pgTransactor.transactor.connect:
-          sql"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'message_catalogue_history')"
-            .query[Boolean]
-            .run()
-        historyExists = historyResult.headOption.getOrElse(false)
-      yield assertTrue(catalogueExists && historyExists)
+        repository <- ZIO.service[MessageCatalogueRepository]
+        // Migrate test messages
+        _ <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/test_messages.json"
+        )
+        // Verify all messages were inserted
+        messages <- repository.getAllForLanguage(Language.EN)
+      yield assertTrue(messages.size == 5)
     },
-    test("message_catalogue table has proper structure") {
+
+    test("migrateFromJson inserts messages with correct keys") {
       for
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        pgTransactor <- ZIO.service[PostgreSQLTransactor]
-        // Check columns exist
-        columns <- pgTransactor.transactor.connect:
-          sql"""SELECT column_name FROM information_schema.columns
-                WHERE table_schema = 'public' AND table_name = 'message_catalogue'
-                ORDER BY ordinal_position"""
-            .query[String]
-            .run()
-        expectedColumns = List("id", "message_key", "language", "message_text", "description",
-                               "created_at", "updated_at", "created_by", "updated_by")
-      yield assertTrue(columns == expectedColumns)
+        repository <- ZIO.service[MessageCatalogueRepository]
+        _ <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/test_messages.json"
+        )
+        messages <- repository.getAllForLanguage(Language.EN)
+        messageKeys = messages.map(_.messageKey.value).toSet
+      yield assertTrue(
+        messageKeys.contains("test.message.one") &&
+        messageKeys.contains("test.message.two") &&
+        messageKeys.contains("test.message.three") &&
+        messageKeys.contains("test.message.four") &&
+        messageKeys.contains("test.message.five")
+      )
+    },
+
+    test("migrateFromJson inserts messages with correct text") {
+      for
+        migrationService <- ZIO.service[FlywayMigrationService]
+        _ <- migrationService.clean()
+        _ <- migrationService.migrate()
+        repository <- ZIO.service[MessageCatalogueRepository]
+        _ <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/test_messages.json"
+        )
+        messages <- repository.getAllForLanguage(Language.EN)
+        messageOne = messages.find(_.messageKey.value == "test.message.one")
+      yield assertTrue(
+        messageOne.isDefined &&
+        messageOne.get.messageText == "First test message"
+      )
+    },
+
+    test("migrateFromJson adds migration description to messages") {
+      for
+        migrationService <- ZIO.service[FlywayMigrationService]
+        _ <- migrationService.clean()
+        _ <- migrationService.migrate()
+        repository <- ZIO.service[MessageCatalogueRepository]
+        _ <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/test_messages.json"
+        )
+        messages <- repository.getAllForLanguage(Language.EN)
+        message = messages.head
+      yield assertTrue(
+        message.description.isDefined &&
+        message.description.get.contains("Migrated from /test_messages.json")
+      )
+    },
+
+    test("migrateFromJson handles messages with special characters") {
+      for
+        migrationService <- ZIO.service[FlywayMigrationService]
+        _ <- migrationService.clean()
+        _ <- migrationService.migrate()
+        repository <- ZIO.service[MessageCatalogueRepository]
+        _ <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/test_messages.json"
+        )
+        messages <- repository.getAllForLanguage(Language.EN)
+        messageFive = messages.find(_.messageKey.value == "test.message.five")
+      yield assertTrue(
+        messageFive.isDefined &&
+        messageFive.get.messageText == "Fifth test message with special chars: áčďěňš"
+      )
+    },
+
+    test("migrateFromJson fails with descriptive error for missing resource") {
+      for
+        migrationService <- ZIO.service[FlywayMigrationService]
+        _ <- migrationService.clean()
+        _ <- migrationService.migrate()
+        repository <- ZIO.service[MessageCatalogueRepository]
+        result <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/nonexistent.json"
+        ).either
+      yield assertTrue(
+        result.isLeft &&
+        result.left.exists(_.getMessage.contains("Resource not found"))
+      )
+    },
+
+    test("migrateFromJson fails with descriptive error for invalid JSON") {
+      for
+        migrationService <- ZIO.service[FlywayMigrationService]
+        _ <- migrationService.clean()
+        _ <- migrationService.migrate()
+        repository <- ZIO.service[MessageCatalogueRepository]
+        result <- MessageCatalogueMigration.migrateFromJson(
+          repository,
+          Language.EN,
+          "/invalid.json"
+        ).either
+      yield assertTrue(
+        result.isLeft &&
+        result.left.exists(_.getMessage.contains("Failed to parse JSON"))
+      )
     }
   ).provideSomeShared[Scope](
+    MessageCatalogueRepository.layer,
     flywayMigrationServiceLayer
   ) @@ sequential
-end MessageCatalogueMigrationSpec
