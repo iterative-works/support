@@ -7,6 +7,7 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 import works.iterative.core.Language
+import works.iterative.core.repository.MessageCatalogueRepository
 import works.iterative.sqldb.testing.PostgreSQLTestingLayers.*
 import com.augustnagro.magnum.magzio.*
 
@@ -38,21 +39,21 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             "Test message 1",
             Some("Description 1"),
             Some("testuser")
-          ),
+          ).toDomain,
           MessageCatalogue.fromMessage(
             works.iterative.core.MessageId("test.key2"),
             Language.EN,
             "Test message 2",
             Some("Description 2"),
             Some("testuser")
-          ),
+          ).toDomain,
           MessageCatalogue.fromMessage(
             works.iterative.core.MessageId("test.key3"),
             Language.EN,
             "Test message 3",
             None,
             Some("testuser")
-          )
+          ).toDomain
         )
         _ <- repository.bulkInsert(entities)
         // Verify messages were inserted
@@ -74,14 +75,14 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             "Test message",
             Some("Description"),
             Some("testuser")
-          )
+          ).toDomain
         )
         _ <- repository.bulkInsert(entities)
         // Attempt SQL injection - this should be safely parameterized
         // We create a malicious "language" value that would drop the table if not parameterized
         maliciousLanguage = "en'; DROP TABLE message_catalogue; --"
         // This should return empty (no match) rather than executing the DROP
-        result <- repository.getAllForLanguage(Language.unsafe(maliciousLanguage)).catchAll(_ => ZIO.succeed(Seq.empty))
+        result <- repository.getAllForLanguage(Language.unsafe(maliciousLanguage))
         // Verify table still exists by querying it
         messages <- repository.getAllForLanguage(Language.EN)
       yield assertTrue(result.isEmpty && messages.nonEmpty)
@@ -101,7 +102,7 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             "First message",
             None,
             Some("testuser")
-          )
+          ).toDomain
         )
         _ <- repository.bulkInsert(entities1)
         // Attempt to insert duplicate key for same language
@@ -112,7 +113,7 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             "Second message",
             None,
             Some("testuser")
-          )
+          ).toDomain
         )
         // This should fail with constraint violation
         result <- repository.bulkInsert(entities2).either
@@ -133,7 +134,7 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             s"Message $i",
             Some(s"Description $i"),
             Some("testuser")
-          )
+          ).toDomain
         }
         _ <- repository.bulkInsert(entities)
         // Verify all were inserted
@@ -155,14 +156,14 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             "English message 1",
             None,
             Some("testuser")
-          ),
+          ).toDomain,
           MessageCatalogue.fromMessage(
             works.iterative.core.MessageId("test.en.key2"),
             Language.EN,
             "English message 2",
             None,
             Some("testuser")
-          )
+          ).toDomain
         )
         entitiesCS = Seq(
           MessageCatalogue.fromMessage(
@@ -171,7 +172,7 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
             "Czech message 1",
             None,
             Some("testuser")
-          )
+          ).toDomain
         )
         _ <- repository.bulkInsert(entitiesEN)
         _ <- repository.bulkInsert(entitiesCS)
@@ -182,8 +183,8 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
       yield assertTrue(
         messagesEN.size == 2 &&
         messagesCS.size == 1 &&
-        messagesEN.forall(_.language == "en") &&
-        messagesCS.forall(_.language == "cs")
+        messagesEN.forall(_.language == Language.EN) &&
+        messagesCS.forall(_.language == Language.CS)
       )
     }
   ).provideSomeShared[Scope](

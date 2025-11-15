@@ -1,4 +1,4 @@
-// PURPOSE: Tests for MessageCatalogueEntity domain model
+// PURPOSE: Tests for MessageCatalogue database entity
 // PURPOSE: Verifies entity creation, factory methods, and Magnum codec derivation
 
 package works.iterative.sqldb
@@ -10,9 +10,9 @@ import works.iterative.core.{Language, MessageId}
 import com.augustnagro.magnum.*
 import java.time.Instant
 
-object MessageCatalogueEntitySpec extends ZIOSpecDefault:
+object MessageCatalogueRowSpec extends ZIOSpecDefault:
 
-  def spec = suite("MessageCatalogueEntitySpec")(
+  def spec = suite("MessageCatalogueRowSpec")(
     test("creates MessageCatalogue with all fields") {
       val now = Instant.now()
       val entity = MessageCatalogue(
@@ -71,7 +71,7 @@ object MessageCatalogueEntitySpec extends ZIOSpecDefault:
     test("field name mapping uses CamelToSnakeCase") {
       // This test verifies that Magnum can derive TableInfo with CamelToSnakeCase mapping
       // If the @Table annotation is incorrect, this test won't compile
-      val tableInfo = TableInfo[MessageCatalogue, MessageCatalogue, Long]
+      val tableInfo = TableInfo[MessageCatalogueCreator, MessageCatalogue, Long]
 
       // Verify TableInfo is not null (implicitly tests @Table annotation and derives)
       assertTrue(tableInfo != null)
@@ -113,4 +113,4 @@ object MessageCatalogueEntitySpec extends ZIOSpecDefault:
       )
     }
   )
-end MessageCatalogueEntitySpec
+end MessageCatalogueRowSpec
