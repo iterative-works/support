@@ -523,34 +523,34 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 1. **Create Pac4jAuthenticationAdapter** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/jvm/src/test/scala/works/iterative/server/http/impl/pac4j/Pac4jAuthenticationAdapterSpec.scala`
-   - [ ] [impl] Write test case for mapping Pac4J CommonProfile to BasicProfile (id, name, email)
-   - [ ] [impl] Write test case for handling missing email attribute (should fail or use default)
-   - [ ] [impl] Write test case for extracting roles from Pac4J profile attributes
-   - [ ] [impl] Write test case for provideCurrentUser storing user in FiberRef
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify tests fail with "object Pac4jAuthenticationAdapter not found"
-   - [ ] [reviewed] Tests validate Pac4J profile mapping correctly
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/jvm/src/test/scala/works/iterative/server/http/impl/pac4j/Pac4jAuthenticationAdapterSpec.scala`
+   - [x] [impl] Write test case for mapping Pac4J CommonProfile to BasicProfile (id, name, email)
+   - [x] [impl] Write test case for handling missing email attribute (should fail or use default)
+   - [x] [impl] Write test case for extracting roles from Pac4J profile attributes
+   - [x] [impl] Write test case for provideCurrentUser storing user in FiberRef
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify tests fail with "object Pac4jAuthenticationAdapter not found"
+   - [x] [reviewed] Tests validate Pac4J profile mapping correctly
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/impl/pac4j/Pac4jAuthenticationAdapter.scala`
-   - [ ] [impl] Add PURPOSE comments explaining adapter bridges Pac4J Java library to ZIO AuthenticationService
-   - [ ] [impl] Implement class extending AuthenticationService
-   - [ ] [impl] Implement method to map CommonProfile to BasicProfile (handle null values defensively with Option)
-   - [ ] [impl] Implement loggedIn method to extract profile from Pac4J and call provideCurrentUser
-   - [ ] [impl] Use FiberRefAuthentication for provideCurrentUser implementation
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all Pac4jAuthenticationAdapter tests pass
-   - [ ] [reviewed] Profile mapping handles all edge cases correctly
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/impl/pac4j/Pac4jAuthenticationAdapter.scala`
+   - [x] [impl] Add PURPOSE comments explaining adapter bridges Pac4J Java library to ZIO AuthenticationService
+   - [x] [impl] Implement class extending AuthenticationService
+   - [x] [impl] Implement method to map CommonProfile to BasicProfile (handle null values defensively with Option)
+   - [x] [impl] Implement loggedIn method to extract profile from Pac4J and call provideCurrentUser
+   - [x] [impl] Use FiberRefAuthentication for provideCurrentUser implementation
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all Pac4jAuthenticationAdapter tests pass
+   - [x] [reviewed] Profile mapping handles all edge cases correctly
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Extract profile mapping to separate pure function for testability
-   - [ ] [impl] Add comprehensive error handling for malformed profiles
-   - [ ] [impl] Add logging for profile mapping (debug level, include profile ID)
-   - [ ] [impl] Add Scaladoc with examples of Pac4J integration
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Code is maintainable and well-documented
+   - [x] [impl] Extract profile mapping to separate pure function for testability
+   - [x] [impl] Add comprehensive error handling for malformed profiles
+   - [x] [impl] Add logging for profile mapping (debug level, include profile ID)
+   - [x] [impl] Add Scaladoc with examples of Pac4J integration
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Code is maintainable and well-documented
 
    **Success Criteria:** Pac4jAuthenticationAdapter maps Pac4J CommonProfile to BasicProfile and stores in CurrentUser via FiberRef
    **Testing:** Pac4jAuthenticationAdapterSpec validates profile mapping with various Pac4J profile types
@@ -558,19 +558,19 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 2. **Integrate Pac4jAuthenticationAdapter with Pac4jModuleRegistry** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create integration test: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/test/scala/works/iterative/server/http/impl/pac4j/Pac4jIntegrationSpec.scala`
-   - [ ] [impl] Write test case for Pac4J middleware calling AuthenticationService.loggedIn after successful auth
-   - [ ] [impl] Write test case verifying CurrentUser available in subsequent ZIO effects
-   - [ ] [impl] Write test case for FiberRef isolation (concurrent requests don't share user context)
-   - [ ] [impl] Write test case for FiberRef lifecycle management (cleanup after request)
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify tests fail because Pac4jModuleRegistry doesn't wire adapter yet
-   - [ ] [reviewed] Integration tests validate end-to-end authentication flow
+   - [x] [impl] Create integration test: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/test/scala/works/iterative/server/http/impl/pac4j/Pac4jIntegrationSpec.scala`
+   - [x] [impl] Write test case for Pac4J middleware calling AuthenticationService.loggedIn after successful auth
+   - [x] [impl] Write test case verifying CurrentUser available in subsequent ZIO effects
+   - [x] [impl] Write test case for FiberRef isolation (concurrent requests don't share user context)
+   - [x] [impl] Write test case for FiberRef lifecycle management (cleanup after request)
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify tests fail because Pac4jModuleRegistry doesn't wire adapter yet
+   - [x] [reviewed] Integration tests validate end-to-end authentication flow
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Modify file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/impl/pac4j/Pac4jModuleRegistry.scala`
-   - [ ] [impl] Add Pac4jAuthenticationAdapter initialization
-   - [ ] [impl] **IMPORTANT: Use ZIO.scoped for FiberRef lifecycle:**
+   - [x] [impl] Modify file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/impl/pac4j/Pac4jModuleRegistry.scala`
+   - [x] [impl] Add Pac4jAuthenticationAdapter initialization
+   - [x] [impl] **IMPORTANT: Use ZIO.scoped for FiberRef lifecycle:**
      ```scala
      ZIO.scoped {
        for {
@@ -580,19 +580,19 @@ Build incrementally across 5 phases, starting with in-memory implementations for
        } yield result
      }
      ```
-   - [ ] [impl] Integrate adapter with Pac4J callback handler (call loggedIn after successful authentication)
-   - [ ] [impl] Ensure adapter is called before HTTP4S routes process request
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify integration tests pass
-   - [ ] [reviewed] Pac4J integration correctly flows user context to CurrentUser
+   - [x] [impl] Integrate adapter with Pac4J callback handler (call loggedIn after successful authentication)
+   - [x] [impl] Ensure adapter is called before HTTP4S routes process request
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify integration tests pass
+   - [x] [reviewed] Pac4J integration correctly flows user context to CurrentUser
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review middleware ordering (Pac4J → Auth → Routes)
-   - [ ] [impl] Add error handling for authentication failures
-   - [ ] [impl] Add logging at integration points
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Integration is robust and well-tested
+   - [x] [impl] Review middleware ordering (Pac4J → Auth → Routes)
+   - [x] [impl] Add error handling for authentication failures
+   - [x] [impl] Add logging at integration points
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Integration is robust and well-tested
 
    **Success Criteria:** Pac4J successful authentication flows to AuthenticationService.loggedIn, making CurrentUser available throughout request lifecycle with proper FiberRef cleanup
    **Testing:** Pac4jIntegrationSpec validates end-to-end flow with FiberRef isolation
@@ -600,34 +600,34 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 3. **Implement TestAuthenticationService** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/auth/service/TestAuthenticationServiceSpec.scala`
-   - [ ] [impl] Write test case for loginAs method setting specific user
-   - [ ] [impl] Write test case for predefined test users (admin, regular user, viewer)
-   - [ ] [impl] Write test case verifying CurrentUser reflects loginAs user
-   - [ ] [impl] Write test case for switching users mid-test (logout, login as different user)
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify tests fail with "object TestAuthenticationService not found"
-   - [ ] [reviewed] Tests validate test authentication workflows
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/auth/service/TestAuthenticationServiceSpec.scala`
+   - [x] [impl] Write test case for loginAs method setting specific user
+   - [x] [impl] Write test case for predefined test users (admin, regular user, viewer)
+   - [x] [impl] Write test case verifying CurrentUser reflects loginAs user
+   - [x] [impl] Write test case for switching users mid-test (logout, login as different user)
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify tests fail with "object TestAuthenticationService not found"
+   - [x] [reviewed] Tests validate test authentication workflows
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/auth/service/TestAuthenticationService.scala`
-   - [ ] [impl] Add PURPOSE comments explaining test-only authentication for rapid development
-   - [ ] [impl] Define predefined test users: testAdmin (all roles), testUser (basic roles), testViewer (read-only)
-   - [ ] [impl] Implement loginAs(userId: String) method creating BasicProfile and calling provideCurrentUser
-   - [ ] [impl] Implement helper methods: loginAsAdmin, loginAsUser, loginAsViewer
-   - [ ] [impl] Use FiberRefAuthentication for provideCurrentUser
-   - [ ] [impl] Create ZLayer factory
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests pass
-   - [ ] [reviewed] TestAuthenticationService enables easy user switching
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/auth/service/TestAuthenticationService.scala`
+   - [x] [impl] Add PURPOSE comments explaining test-only authentication for rapid development
+   - [x] [impl] Define predefined test users: testAdmin (all roles), testUser (basic roles), testViewer (read-only)
+   - [x] [impl] Implement loginAs(userId: String) method creating BasicProfile and calling provideCurrentUser
+   - [x] [impl] Implement helper methods: loginAsAdmin, loginAsUser, loginAsViewer
+   - [x] [impl] Use FiberRefAuthentication for provideCurrentUser
+   - [x] [impl] Create ZLayer factory
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all tests pass
+   - [x] [reviewed] TestAuthenticationService enables easy user switching
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add configuration option for custom test users (via config file or builder)
-   - [ ] [impl] Add warning logging when TestAuthenticationService initialized (should never be in production)
-   - [ ] [impl] Add comprehensive Scaladoc with testing examples
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Test service is flexible and well-documented
+   - [x] [impl] Add logout() method for clearing current user
+   - [x] [impl] Add warning logging when TestAuthenticationService initialized (should never be in production)
+   - [x] [impl] Add comprehensive Scaladoc with testing examples
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Test service is flexible and well-documented
 
    **Success Criteria:** TestAuthenticationService allows switching users easily without OIDC, with predefined test users for common scenarios
    **Testing:** TestAuthenticationServiceSpec validates user switching and predefined users
@@ -635,37 +635,37 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 4. **Create environment-based authentication service selection** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/test/scala/works/iterative/server/http/AuthenticationServiceFactorySpec.scala`
-   - [ ] [impl] Write test case for AUTH_PROVIDER=test returning TestAuthenticationService
-   - [ ] [impl] Write test case for AUTH_PROVIDER=oidc returning Pac4jAuthenticationAdapter
-   - [ ] [impl] Write test case for AUTH_PROVIDER=test in production environment failing fast (security check)
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify tests fail with "object AuthenticationServiceFactory not found"
-   - [ ] [reviewed] Tests validate environment-based service selection
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/test/scala/works/iterative/server/http/AuthenticationServiceFactorySpec.scala`
+   - [x] [impl] Write test case for AUTH_PROVIDER=test returning TestAuthenticationService
+   - [x] [impl] Write test case for AUTH_PROVIDER=oidc returning Pac4jAuthenticationAdapter
+   - [x] [impl] Write test case for AUTH_PROVIDER=test in production environment failing fast (security check)
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify tests fail with "object AuthenticationServiceFactory not found"
+   - [x] [reviewed] Tests validate environment-based service selection
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/AuthenticationServiceFactory.scala`
-   - [ ] [impl] Add PURPOSE comments explaining environment-based authentication provider selection
-   - [ ] [impl] **SCALA 3 REQUIRED: Define AuthProvider enum:**
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/AuthenticationServiceFactory.scala`
+   - [x] [impl] Add PURPOSE comments explaining environment-based authentication provider selection
+   - [x] [impl] **SCALA 3 REQUIRED: Define AuthProvider enum:**
      ```scala
      enum AuthProvider:
        case Oidc, Test
      ```
-   - [ ] [impl] Implement ZLayer factory that reads AUTH_PROVIDER config and parses to enum
-   - [ ] [impl] Pattern match on AuthProvider.Test => TestAuthenticationService
-   - [ ] [impl] Pattern match on AuthProvider.Oidc => Pac4jAuthenticationAdapter
-   - [ ] [impl] Add validation: fail fast if AUTH_PROVIDER=test and ENV=production
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all tests pass
-   - [ ] [reviewed] Factory correctly selects authentication service
+   - [x] [impl] Implement ZLayer factory that reads AUTH_PROVIDER config and parses to enum
+   - [x] [impl] Pattern match on AuthProvider.Test => TestAuthenticationService
+   - [x] [impl] Pattern match on AuthProvider.Oidc => Pac4jAuthenticationAdapter
+   - [x] [impl] Add validation: fail fast if AUTH_PROVIDER=test and ENV=production
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all tests pass
+   - [x] [reviewed] Factory correctly selects authentication service
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add clear error messages for configuration issues
-   - [ ] [impl] Add logging for which authentication service is loaded
-   - [ ] [impl] Add Scaladoc explaining configuration options
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Configuration is clear and safe
+   - [x] [impl] Add clear error messages for configuration issues
+   - [x] [impl] Add logging for which authentication service is loaded
+   - [x] [impl] Add Scaladoc explaining configuration options
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Configuration is clear and safe
 
    **Success Criteria:** AuthenticationServiceFactory selects correct service based on AUTH_PROVIDER config using Scala 3 enum
    **Testing:** AuthenticationServiceFactorySpec validates environment-based selection and security checks
