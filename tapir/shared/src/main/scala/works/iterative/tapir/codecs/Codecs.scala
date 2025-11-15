@@ -57,7 +57,7 @@ trait JsonCodecs:
     given JsonCodec[ICO] = validatedStringCodec(ICO)
 
     given JsonCodec[PermissionOp] =
-        JsonCodec.string.transform(PermissionOp(_), _.value)
+        JsonCodec.string.transform(PermissionOp.unsafe(_), _.value)
     given JsonCodec[PermissionTarget] = textCodec(PermissionTarget.apply)
 
     given JsonCodec[UserId] =
