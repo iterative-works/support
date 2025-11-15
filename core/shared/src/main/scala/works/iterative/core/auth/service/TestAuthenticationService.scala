@@ -6,60 +6,22 @@ package service
 import zio.*
 import works.iterative.core.*
 
-/**
- * Test authentication service providing predefined test users and easy user switching.
- *
- * WARNING: This service is for testing only and should never be used in production.
- *
- * Example usage:
- * {{{
- *   test("admin can access protected resource") {
- *     for
- *       auth <- ZIO.service[TestAuthenticationService]
- *       _ <- auth.loginAsAdmin()
- *       result <- auth.provideCurrentUser {
- *         protectedOperation()
- *       }
- *     yield assertTrue(result.isSuccess)
- *   }.provide(TestAuthenticationService.layer)
- * }}}
- */
-trait TestAuthenticationService extends AuthenticationService:
-    /**
-     * Login as a user with the specified userId.
-     * Creates a BasicProfile with the given userId and a synthetic access token.
-     */
-    def loginAs(userId: String): UIO[Unit]
+object TestAuthenticationService extends AuthenticationService:
+    private val currentUser: FiberRef[Option[AuthedUserInfo]] =
+        Unsafe.unsafely(FiberRef.unsafe.make(None))
 
-    /**
-     * Login as the predefined test admin user (test-admin).
-     */
-    def loginAsAdmin(): UIO[Unit]
+    override val currentUserInfo: UIO[Option[AuthedUserInfo]] = currentUser.get
 
-    /**
-     * Login as the predefined test user (test-user).
-     */
-    def loginAsUser(): UIO[Unit]
+    override def loggedIn(token: AccessToken, profile: BasicProfile): UIO[Unit] =
+        currentUser.set(Some(AuthedUserInfo(token, profile)))
 
-    /**
-     * Login as the predefined test viewer user (test-viewer).
-     */
-    def loginAsViewer(): UIO[Unit]
-
-    /**
-     * Clear the current user (logout).
-     */
-    def logout(): UIO[Unit]
-end TestAuthenticationService
-
-object TestAuthenticationService:
     /**
      * Predefined test admin user with admin role.
      */
     val testAdmin: BasicProfile = BasicProfile(
         subjectId = UserId.unsafe("test-admin"),
         userName = Some(UserName.unsafe("Test Admin")),
-        email = Some(Email.unsafe("admin@test.example")),
+        email = Some(Email.unsafe("admin@example.com")),
         avatar = None,
         roles = Set(UserRole.unsafe("admin"), UserRole.unsafe("user"))
     )
@@ -70,7 +32,7 @@ object TestAuthenticationService:
     val testUser: BasicProfile = BasicProfile(
         subjectId = UserId.unsafe("test-user"),
         userName = Some(UserName.unsafe("Test User")),
-        email = Some(Email.unsafe("user@test.example")),
+        email = Some(Email.unsafe("user@example.com")),
         avatar = None,
         roles = Set(UserRole.unsafe("user"))
     )
@@ -81,56 +43,69 @@ object TestAuthenticationService:
     val testViewer: BasicProfile = BasicProfile(
         subjectId = UserId.unsafe("test-viewer"),
         userName = Some(UserName.unsafe("Test Viewer")),
-        email = Some(Email.unsafe("viewer@test.example")),
+        email = Some(Email.unsafe("viewer@example.com")),
         avatar = None,
         roles = Set(UserRole.unsafe("viewer"))
     )
 
     /**
+     * Login as a user with the specified userId.
+     * Creates a BasicProfile with the given userId and a synthetic access token.
+     */
+    def loginAs(userId: String): UIO[Unit] =
+        val profile = BasicProfile(
+            subjectId = UserId.unsafe(userId),
+            userName = Some(UserName.unsafe(userId)),
+            email = None,
+            avatar = None,
+            roles = Set.empty
+        )
+        val token = AccessToken(s"test-token-$userId")
+        loggedIn(token, profile)
+
+    /**
+     * Login as the predefined test admin user (test-admin).
+     */
+    def loginAsAdmin(): UIO[Unit] =
+        loggedIn(AccessToken("test-token-admin"), testAdmin)
+
+    /**
+     * Login as the predefined test user (test-user).
+     */
+    def loginAsUser(): UIO[Unit] =
+        loggedIn(AccessToken("test-token-user"), testUser)
+
+    /**
+     * Login as the predefined test viewer user (test-viewer).
+     */
+    def loginAsViewer(): UIO[Unit] =
+        loggedIn(AccessToken("test-token-viewer"), testViewer)
+
+    /**
+     * Clear the current user (logout).
+     */
+    def logout(): UIO[Unit] =
+        currentUser.set(None)
+
+    /**
      * ZLayer providing TestAuthenticationService backed by FiberRef.
      *
      * WARNING: Logs a warning message on initialization to ensure developers know
-     * they're using test authentication.
+     * they're using test authentication. Fails if used in production.
      */
-    val layer: ZLayer[Any, Nothing, TestAuthenticationService] =
+    val layer: ZLayer[Any, Throwable, AuthenticationService] =
         ZLayer.scoped {
-            ZIO.logWarning("TestAuthenticationService instantiated - FAKE AUTHENTICATION FOR TESTING ONLY") *>
-            ZIO.logError("SECURITY: This service should never be used in production") *>
-            ZIO.succeed(TestAuthenticationServiceLive)
+            for
+                appEnv <- System.env("APP_ENV").map(_.getOrElse("development"))
+                _ <- ZIO.when(appEnv.toLowerCase == "production") {
+                    ZIO.fail(new IllegalStateException(
+                        "TestAuthenticationService cannot be used in production. " +
+                        "This is a security violation."
+                    ))
+                }
+                _ <- ZIO.logWarning("TestAuthenticationService instantiated - FAKE AUTHENTICATION FOR TESTING ONLY")
+                _ <- ZIO.logError("SECURITY: This service should never be used in production")
+            yield TestAuthenticationService
         }
 
-    private object TestAuthenticationServiceLive extends TestAuthenticationService:
-        private val currentUser: FiberRef[Option[AuthedUserInfo]] =
-            Unsafe.unsafely(
-                FiberRef.unsafe.make(None)
-            )
-
-        override val currentUserInfo: UIO[Option[AuthedUserInfo]] = currentUser.get
-
-        override def loggedIn(token: AccessToken, profile: BasicProfile): UIO[Unit] =
-            currentUser.set(Some(AuthedUserInfo(token, profile)))
-
-        override def loginAs(userId: String): UIO[Unit] =
-            val profile = BasicProfile(
-                subjectId = UserId.unsafe(userId),
-                userName = Some(UserName.unsafe(userId)),
-                email = None,
-                avatar = None,
-                roles = Set.empty
-            )
-            val token = AccessToken(s"test-token-$userId")
-            loggedIn(token, profile)
-
-        override def loginAsAdmin(): UIO[Unit] =
-            loggedIn(AccessToken("test-token-admin"), testAdmin)
-
-        override def loginAsUser(): UIO[Unit] =
-            loggedIn(AccessToken("test-token-user"), testUser)
-
-        override def loginAsViewer(): UIO[Unit] =
-            loggedIn(AccessToken("test-token-viewer"), testViewer)
-
-        override def logout(): UIO[Unit] =
-            currentUser.set(None)
-    end TestAuthenticationServiceLive
 end TestAuthenticationService

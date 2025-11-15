@@ -15,7 +15,7 @@ object AuthenticationServiceFactorySpec extends ZIOSpecDefault:
             TestSystem.putEnv("AUTH_PROVIDER", "test") *>
             TestSystem.putEnv("APP_ENV", "development") *>
             ZIO.serviceWith[AuthenticationService](service =>
-                assertTrue(service.isInstanceOf[TestAuthenticationService])
+                assertTrue(service == TestAuthenticationService)
             ).provide(AuthenticationServiceFactory.layer)
         },
 
@@ -26,7 +26,7 @@ object AuthenticationServiceFactorySpec extends ZIOSpecDefault:
             TestSystem.putEnv("OIDC_CLIENT_SECRET", "test-secret") *>
             TestSystem.putEnv("OIDC_DISCOVERY_URI", "https://example.com/.well-known/openid-configuration") *>
             ZIO.serviceWith[AuthenticationService](service =>
-                assertTrue(service.isInstanceOf[Pac4jAuthenticationAdapter])
+                assertTrue(service == Pac4jAuthenticationAdapter)
             ).provide(AuthenticationServiceFactory.layer)
         },
 

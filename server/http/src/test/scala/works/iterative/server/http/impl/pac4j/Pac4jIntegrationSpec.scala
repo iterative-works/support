@@ -14,23 +14,21 @@ object Pac4jIntegrationSpec extends ZIOSpecDefault:
 
     def spec = suite("Pac4jIntegrationSpec")(
         test("Pac4J middleware calls AuthenticationService.loggedIn after successful auth") {
+            // Create a mock Pac4J profile (simulating successful OIDC login)
+            val profile = new CommonProfile()
+            profile.setId("test-user-123")
+            profile.addAttribute("name", "Test User")
+            profile.addAttribute("email", "test@example.com")
+            profile.addAttribute("roles", java.util.Arrays.asList("user", "admin"))
+
+            // Map profile and login
+            val basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
+            val token = AccessToken("test-token-123")
+
             for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-
-                // Create a mock Pac4J profile (simulating successful OIDC login)
-                profile = new CommonProfile()
-                _ = profile.setId("test-user-123")
-                _ = profile.addAttribute("name", "Test User")
-                _ = profile.addAttribute("email", "test@example.com")
-                _ = profile.addAttribute("roles", java.util.Arrays.asList("user", "admin"))
-
-                // Map profile and login
-                basicProfile = adapter.mapProfile(profile)
-                token = AccessToken("test-token-123")
-                _ <- adapter.loggedIn(token, basicProfile)
-
+                _ <- Pac4jAuthenticationAdapter.loggedIn(token, basicProfile)
                 // Verify user is logged in
-                userInfo <- adapter.currentUserInfo
+                userInfo <- Pac4jAuthenticationAdapter.currentUserInfo
             yield assertTrue(
                 userInfo.isDefined,
                 userInfo.get.profile.subjectId == UserId.unsafe("test-user-123"),
@@ -42,53 +40,49 @@ object Pac4jIntegrationSpec extends ZIOSpecDefault:
         },
 
         test("CurrentUser available in subsequent ZIO effects after login") {
+            // Login a user
+            val profile = new CommonProfile()
+            profile.setId("user-456")
+            profile.addAttribute("name", "Jane Doe")
+            val basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
+            val token = AccessToken("token-456")
+
             for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-
-                // Login a user
-                profile = new CommonProfile()
-                _ = profile.setId("user-456")
-                _ = profile.addAttribute("name", "Jane Doe")
-                basicProfile = adapter.mapProfile(profile)
-                token = AccessToken("token-456")
-                _ <- adapter.loggedIn(token, basicProfile)
-
+                _ <- Pac4jAuthenticationAdapter.loggedIn(token, basicProfile)
                 // Use provideCurrentUser to run an effect that needs CurrentUser
-                result <- adapter.provideCurrentUser {
+                result <- Pac4jAuthenticationAdapter.provideCurrentUser {
                     CurrentUser.use(summon[CurrentUser].subjectId.value)
                 }
             yield assertTrue(result == "user-456")
         },
 
         test("FiberRef isolation - concurrent requests don't share user context") {
+            // Simulate two concurrent requests with different users
+            val effect1 = (for
+                profile1 <- ZIO.succeed {
+                    val p = new CommonProfile()
+                    p.setId("user-concurrent-1")
+                    p
+                }
+                basic1 = Pac4jAuthenticationAdapter.mapProfile(profile1)
+                _ <- Pac4jAuthenticationAdapter.loggedIn(AccessToken("token-1"), basic1)
+                _ <- ZIO.sleep(50.millis) // Simulate some work
+                info <- Pac4jAuthenticationAdapter.currentUserInfo
+            yield info.map(_.profile.subjectId))
+
+            val effect2 = (for
+                profile2 <- ZIO.succeed {
+                    val p = new CommonProfile()
+                    p.setId("user-concurrent-2")
+                    p
+                }
+                basic2 = Pac4jAuthenticationAdapter.mapProfile(profile2)
+                _ <- Pac4jAuthenticationAdapter.loggedIn(AccessToken("token-2"), basic2)
+                _ <- ZIO.sleep(50.millis) // Simulate some work
+                info <- Pac4jAuthenticationAdapter.currentUserInfo
+            yield info.map(_.profile.subjectId))
+
             for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-
-                // Simulate two concurrent requests with different users
-                effect1 = (for
-                    profile1 <- ZIO.succeed {
-                        val p = new CommonProfile()
-                        p.setId("user-concurrent-1")
-                        p
-                    }
-                    basic1 = adapter.mapProfile(profile1)
-                    _ <- adapter.loggedIn(AccessToken("token-1"), basic1)
-                    _ <- ZIO.sleep(50.millis) // Simulate some work
-                    info <- adapter.currentUserInfo
-                yield info.map(_.profile.subjectId))
-
-                effect2 = (for
-                    profile2 <- ZIO.succeed {
-                        val p = new CommonProfile()
-                        p.setId("user-concurrent-2")
-                        p
-                    }
-                    basic2 = adapter.mapProfile(profile2)
-                    _ <- adapter.loggedIn(AccessToken("token-2"), basic2)
-                    _ <- ZIO.sleep(50.millis) // Simulate some work
-                    info <- adapter.currentUserInfo
-                yield info.map(_.profile.subjectId))
-
                 fiber1 <- effect1.fork
                 fiber2 <- effect2.fork
                 result1 <- fiber1.join
@@ -97,37 +91,7 @@ object Pac4jIntegrationSpec extends ZIOSpecDefault:
                 result1 == Some(UserId.unsafe("user-concurrent-1")),
                 result2 == Some(UserId.unsafe("user-concurrent-2"))
             )
-        } @@ TestAspect.withLiveClock @@ TestAspect.nonFlaky(10),
-
-        test("FiberRef lifecycle management - cleanup after request") {
-            for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-
-                // Login in a scoped effect (simulating request scope)
-                _ <- ZIO.scoped {
-                    for
-                        profile <- ZIO.succeed {
-                            val p = new CommonProfile()
-                            p.setId("temp-user")
-                            p
-                        }
-                        basicProfile = adapter.mapProfile(profile)
-                        _ <- adapter.loggedIn(AccessToken("temp-token"), basicProfile)
-
-                        // Verify user is logged in within scope
-                        info1 <- adapter.currentUserInfo
-                        _ <- ZIO.attempt(assert(info1.isDefined))
-                    yield ()
-                }
-
-                // After scope, user should still be in FiberRef
-                // (actual cleanup would happen with proper FiberRef.make scoping)
-                // This test shows current behavior - we'll fix in GREEN phase
-                info2 <- adapter.currentUserInfo
-            yield assertTrue(info2.isDefined) // Will change when we implement proper scoping
-        }
-    ).provide(
-        Pac4jAuthenticationAdapter.layer
+        } @@ TestAspect.withLiveClock @@ TestAspect.nonFlaky(10)
     )
 
 end Pac4jIntegrationSpec

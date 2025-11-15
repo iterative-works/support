@@ -13,9 +13,8 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
     def spec = suite("TestAuthenticationService")(
         test("provides predefined testAdmin user") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAsAdmin()
-                user <- service.currentUser
+                _ <- TestAuthenticationService.loginAsAdmin()
+                user <- TestAuthenticationService.currentUser
             yield assertTrue(
                 user.isDefined,
                 user.get.subjectId == UserId.unsafe("test-admin"),
@@ -26,9 +25,8 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("provides predefined testUser user") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAsUser()
-                user <- service.currentUser
+                _ <- TestAuthenticationService.loginAsUser()
+                user <- TestAuthenticationService.currentUser
             yield assertTrue(
                 user.isDefined,
                 user.get.subjectId == UserId.unsafe("test-user"),
@@ -39,9 +37,8 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("provides predefined testViewer user") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAsViewer()
-                user <- service.currentUser
+                _ <- TestAuthenticationService.loginAsViewer()
+                user <- TestAuthenticationService.currentUser
             yield assertTrue(
                 user.isDefined,
                 user.get.subjectId == UserId.unsafe("test-viewer"),
@@ -52,9 +49,8 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("loginAs creates user with specified userId") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAs("custom-user-123")
-                user <- service.currentUser
+                _ <- TestAuthenticationService.loginAs("custom-user-123")
+                user <- TestAuthenticationService.currentUser
             yield assertTrue(
                 user.isDefined,
                 user.get.subjectId == UserId.unsafe("custom-user-123")
@@ -63,9 +59,8 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("loginAs creates synthetic AccessToken") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAs("token-test-user")
-                token <- service.currentAccessToken
+                _ <- TestAuthenticationService.loginAs("token-test-user")
+                token <- TestAuthenticationService.currentAccessToken
             yield assertTrue(
                 token.isDefined,
                 token.get.token.contains("token-test-user")
@@ -74,9 +69,8 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("CurrentUser is available after login") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAsAdmin()
-                userId <- service.provideCurrentUser {
+                _ <- TestAuthenticationService.loginAsAdmin()
+                userId <- TestAuthenticationService.provideCurrentUser {
                     CurrentUser.use(summon[CurrentUser].subjectId.value)
                 }
             yield assertTrue(userId == "test-admin")
@@ -84,11 +78,10 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("logout clears current user") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAsUser()
-                user1 <- service.currentUser
-                _ <- service.logout()
-                user2 <- service.currentUser
+                _ <- TestAuthenticationService.loginAsUser()
+                user1 <- TestAuthenticationService.currentUser
+                _ <- TestAuthenticationService.logout()
+                user2 <- TestAuthenticationService.currentUser
             yield assertTrue(
                 user1.isDefined,
                 user2.isEmpty
@@ -97,18 +90,15 @@ object TestAuthenticationServiceSpec extends ZIOSpecDefault:
 
         test("can switch between users") {
             for
-                service <- ZIO.service[TestAuthenticationService]
-                _ <- service.loginAsAdmin()
-                user1 <- service.currentUser
-                _ <- service.loginAsViewer()
-                user2 <- service.currentUser
+                _ <- TestAuthenticationService.loginAsAdmin()
+                user1 <- TestAuthenticationService.currentUser
+                _ <- TestAuthenticationService.loginAsViewer()
+                user2 <- TestAuthenticationService.currentUser
             yield assertTrue(
                 user1.get.subjectId == UserId.unsafe("test-admin"),
                 user2.get.subjectId == UserId.unsafe("test-viewer")
             )
         }
-    ).provide(
-        TestAuthenticationService.layer
     )
 
 end TestAuthenticationServiceSpec

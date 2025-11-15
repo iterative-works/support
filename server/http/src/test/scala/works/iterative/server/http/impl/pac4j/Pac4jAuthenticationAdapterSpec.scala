@@ -17,16 +17,13 @@ object Pac4jAuthenticationAdapterSpec extends ZIOSpecDefault:
             profile.addAttribute("name", "Test User")
             profile.addAttribute("email", "test@example.com")
 
-            val result = for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-                basicProfile <- ZIO.succeed(adapter.mapProfile(profile))
-            yield basicProfile
+            val basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
 
-            result.map { profile =>
-                assert(profile.subjectId)(equalTo(UserId.unsafe("test-user-123"))) &&
-                assert(profile.userName)(isSome(equalTo(UserName.unsafe("Test User")))) &&
-                assert(profile.email)(isSome(equalTo(Email.unsafe("test@example.com"))))
-            }
+            assertTrue(
+                basicProfile.subjectId == UserId.unsafe("test-user-123"),
+                basicProfile.userName == Some(UserName.unsafe("Test User")),
+                basicProfile.email == Some(Email.unsafe("test@example.com"))
+            )
         },
 
         test("handles missing email attribute with None") {
@@ -35,15 +32,12 @@ object Pac4jAuthenticationAdapterSpec extends ZIOSpecDefault:
             profile.addAttribute("name", "Test User 2")
             // No email attribute
 
-            val result = for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-                basicProfile <- ZIO.succeed(adapter.mapProfile(profile))
-            yield basicProfile
+            val basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
 
-            result.map { profile =>
-                assert(profile.subjectId)(equalTo(UserId.unsafe("test-user-456"))) &&
-                assert(profile.email)(isNone)
-            }
+            assertTrue(
+                basicProfile.subjectId == UserId.unsafe("test-user-456"),
+                basicProfile.email.isEmpty
+            )
         },
 
         test("extracts roles from Pac4J profile attributes") {
@@ -52,17 +46,12 @@ object Pac4jAuthenticationAdapterSpec extends ZIOSpecDefault:
             profile.addAttribute("name", "Admin User")
             profile.addAttribute("roles", java.util.Arrays.asList("admin", "user"))
 
-            val result = for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-                basicProfile <- ZIO.succeed(adapter.mapProfile(profile))
-            yield basicProfile
+            val basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
 
-            result.map { profile =>
-                assert(profile.roles)(
-                    contains(UserRole.unsafe("admin")) &&
-                    contains(UserRole.unsafe("user"))
-                )
-            }
+            assertTrue(
+                basicProfile.roles.contains(UserRole.unsafe("admin")),
+                basicProfile.roles.contains(UserRole.unsafe("user"))
+            )
         },
 
         test("provideCurrentUser stores user in FiberRef") {
@@ -72,22 +61,17 @@ object Pac4jAuthenticationAdapterSpec extends ZIOSpecDefault:
             profile.addAttribute("email", "fiber@test.com")
 
             val token = AccessToken("test-token-123")
+            val basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
 
-            val result = for
-                adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-                basicProfile = adapter.mapProfile(profile)
-                _ <- adapter.loggedIn(token, basicProfile)
-                currentUser <- adapter.currentUserInfo
-            yield currentUser
-
-            result.map { userInfo =>
-                assert(userInfo)(isSome) &&
-                assert(userInfo.map(_.profile.subjectId))(isSome(equalTo(UserId.unsafe("fiber-test-user")))) &&
-                assert(userInfo.map(_.token))(isSome(equalTo(token)))
-            }
+            for
+                _ <- Pac4jAuthenticationAdapter.loggedIn(token, basicProfile)
+                currentUser <- Pac4jAuthenticationAdapter.currentUserInfo
+            yield assertTrue(
+                currentUser.isDefined,
+                currentUser.map(_.profile.subjectId).contains(UserId.unsafe("fiber-test-user")),
+                currentUser.map(_.token).contains(token)
+            )
         }
-    ).provide(
-        Pac4jAuthenticationAdapter.layer
     )
 
 end Pac4jAuthenticationAdapterSpec

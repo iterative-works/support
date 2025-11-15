@@ -26,20 +26,21 @@ import scala.jdk.CollectionConverters.*
   * val token = AccessToken("oauth-token-123")
   *
   * for
-  *   adapter <- ZIO.service[Pac4jAuthenticationAdapter]
-  *   basicProfile = adapter.mapProfile(profile)
+  *   adapter <- ZIO.service[AuthenticationService]
+  *   basicProfile = Pac4jAuthenticationAdapter.mapProfile(profile)
   *   _ <- adapter.loggedIn(token, basicProfile)
   *   currentUser <- adapter.currentUserInfo
   * yield currentUser // Some(AuthedUserInfo(...))
   * }}}
   */
-class Pac4jAuthenticationAdapter extends AuthenticationService:
+object Pac4jAuthenticationAdapter extends AuthenticationService:
     private val currentUser: FiberRef[Option[AuthedUserInfo]] =
         Unsafe.unsafely(FiberRef.unsafe.make(None))
 
     override val currentUserInfo: UIO[Option[AuthedUserInfo]] = currentUser.get
 
     override def loggedIn(token: AccessToken, profile: BasicProfile): UIO[Unit] =
+        ZIO.logDebug(s"Mapped Pac4J profile: id=${profile.subjectId.value}, name=${profile.userName}, email=${profile.email}, roles=${profile.roles.size}") *>
         ZIO.logDebug(s"User logged in: ${profile.subjectId.value}") *>
         currentUser.set(Some(AuthedUserInfo(token, profile)))
 
@@ -51,7 +52,7 @@ class Pac4jAuthenticationAdapter extends AuthenticationService:
       *
       * @param profile Pac4J CommonProfile (Java object, may have null values)
       * @return BasicProfile with optional fields for missing data
-      * @throws IllegalArgumentException if profile ID is null
+      * @throws IllegalArgumentException if profile ID is null or empty
       *
       * Example:
       * {{{
@@ -66,9 +67,9 @@ class Pac4jAuthenticationAdapter extends AuthenticationService:
       * }}}
       */
     def mapProfile(profile: CommonProfile): BasicProfile =
-        val id = Option(profile.getId).getOrElse(
-            throw new IllegalArgumentException("Profile ID cannot be null")
-        )
+        val id = Option(profile.getId)
+            .filter(_.trim.nonEmpty)
+            .getOrElse(throw new IllegalArgumentException("Profile ID cannot be null or empty"))
 
         val name = Option(profile.getAttribute("name"))
             .map(_.toString)
@@ -79,12 +80,6 @@ class Pac4jAuthenticationAdapter extends AuthenticationService:
             .flatMap(e => if e.trim.nonEmpty then Some(Email.unsafe(e)) else None)
 
         val roles = extractRoles(profile)
-
-        Unsafe.unsafely {
-            Runtime.default.unsafe.run(
-                ZIO.logDebug(s"Mapped Pac4J profile: id=$id, name=$name, email=$email, roles=${roles.size}")
-            )
-        }
 
         BasicProfile(
             subjectId = UserId.unsafe(id),
@@ -115,9 +110,7 @@ class Pac4jAuthenticationAdapter extends AuthenticationService:
                 Set.empty
     end extractRoles
 
-end Pac4jAuthenticationAdapter
+    val layer: ZLayer[Any, Nothing, AuthenticationService] =
+        ZLayer.succeed(Pac4jAuthenticationAdapter)
 
-object Pac4jAuthenticationAdapter:
-    val layer: ZLayer[Any, Nothing, Pac4jAuthenticationAdapter] =
-        ZLayer.succeed(new Pac4jAuthenticationAdapter)
 end Pac4jAuthenticationAdapter
