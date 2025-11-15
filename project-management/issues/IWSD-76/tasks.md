@@ -348,35 +348,35 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 1. **Implement SqlMessageCatalogue with In-Memory Cache** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/impl/SqlMessageCatalogueSpec.scala`
-   - [ ] [impl] Write test that creates SqlMessageCatalogue with Map("test.key" -> "Test Message")
-   - [ ] [impl] Write test for `get(MessageId("test.key"))` returns Some("Test Message")
-   - [ ] [impl] Write test for `get(MessageId("missing"))` returns None
-   - [ ] [impl] Write test for `get(UserMessage("greet", "John"))` with template "Hello %s" returns "Hello John"
-   - [ ] [impl] Write test for formatting error handling matching InMemoryMessageCatalogue format
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify tests fail because SqlMessageCatalogue doesn't exist
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/impl/SqlMessageCatalogueSpec.scala`
+   - [x] [impl] Write test that creates SqlMessageCatalogue with Map("test.key" -> "Test Message")
+   - [x] [impl] Write test for `get(MessageId("test.key"))` returns Some("Test Message")
+   - [x] [impl] Write test for `get(MessageId("missing"))` returns None
+   - [x] [impl] Write test for `get(UserMessage("greet", "John"))` with template "Hello %s" returns "Hello John"
+   - [x] [impl] Write test for formatting error handling matching InMemoryMessageCatalogue format
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify tests fail because SqlMessageCatalogue doesn't exist
    - [ ] [reviewed] Tests validate synchronous message lookup
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/service/impl/SqlMessageCatalogue.scala`
-   - [ ] [impl] Create class extending MessageCatalogue trait
-   - [ ] [impl] Add constructor: `class SqlMessageCatalogue(override val language: Language, messages: Map[String, String])`
-   - [ ] [impl] Implement `get(id: MessageId)` as pure Map lookup: `messages.get(id)`
-   - [ ] [impl] Implement `get(msg: UserMessage)` with template.format(args*) and error format: `s"error formatting [${msg.id}]: '$template': ${exception.getMessage}"`
-   - [ ] [impl] Implement `root` returning this
-   - [ ] [impl] Implement `nested(prefixes*)` using NestedMessageCatalogue
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests pass
+   - [x] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/service/impl/SqlMessageCatalogue.scala`
+   - [x] [impl] Create class extending MessageCatalogue trait
+   - [x] [impl] Add constructor: `class SqlMessageCatalogue(override val language: Language, messages: Map[String, String])`
+   - [x] [impl] Implement `get(id: MessageId)` as pure Map lookup: `messages.get(id)`
+   - [x] [impl] Implement `get(msg: UserMessage)` with template.format(args*) and error format: `s"error formatting [${msg.id}]: '$template': ${exception.getMessage}"`
+   - [x] [impl] Implement `root` returning this
+   - [x] [impl] Implement `nested(prefixes*)` using NestedMessageCatalogue
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all tests pass
    - [ ] [reviewed] Implementation is pure and synchronous
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Verify formatting error handling matches InMemoryMessageCatalogue exactly
-   - [ ] [impl] Ensure no effects in get() methods (pure Map access, no ZIO effects)
-   - [ ] [impl] Add ScalaDoc explaining pre-loaded cache approach
-   - [ ] [impl] Add PURPOSE comment at top of file
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Verify formatting error handling matches InMemoryMessageCatalogue exactly
+   - [x] [impl] Ensure no effects in get() methods (pure Map access, no ZIO effects)
+   - [x] [impl] Add ScalaDoc explaining pre-loaded cache approach
+   - [x] [impl] Add PURPOSE comment at top of file
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Implementation matches InMemoryMessageCatalogue patterns exactly
 
    **Success Criteria:** SqlMessageCatalogue provides synchronous access to pre-loaded messages
@@ -385,37 +385,37 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 2. **Implement SqlMessageCatalogueService with Pre-load and Reload** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/impl/SqlMessageCatalogueServiceSpec.scala`
-   - [ ] [impl] Write test that creates service with empty repository and verifies it loads empty cache
-   - [ ] [impl] Write test for `messages` returning default language catalogue
-   - [ ] [impl] Write test for `forLanguage(Language.EN)` returning EN catalogue
-   - [ ] [impl] Write test that adds messages to repository and calls reload(Some(Language.EN))
-   - [ ] [impl] Write test that verifies catalogue updated after reload
-   - [ ] [impl] Write test for reload(None) that reloads all configured languages
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify tests fail because service doesn't exist
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/impl/SqlMessageCatalogueServiceSpec.scala`
+   - [x] [impl] Write test that creates service with empty repository and verifies it loads empty cache
+   - [x] [impl] Write test for `messages` returning default language catalogue
+   - [x] [impl] Write test for `forLanguage(Language.EN)` returning EN catalogue
+   - [x] [impl] Write test that adds messages to repository and calls reload(Some(Language.EN))
+   - [x] [impl] Write test that verifies catalogue updated after reload
+   - [x] [impl] Write test for reload(None) that reloads all configured languages
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify tests fail because service doesn't exist
    - [ ] [reviewed] Tests validate pre-load and reload functionality
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/service/impl/SqlMessageCatalogueService.scala`
-   - [ ] [impl] Create class with parameters: repository: MessageCatalogueRepository, cacheRef: Ref[Map[Language, Map[String, String]]], defaultLanguage: Language
-   - [ ] [impl] Implement `messages` by calling forLanguage(defaultLanguage)
-   - [ ] [impl] Implement `forLanguage(language)` by getting cache and creating SqlMessageCatalogue
-   - [ ] [impl] Implement `reload(language: Option[Language])` with pattern match on Some(lang) vs None
-   - [ ] [impl] For Some(lang): call repository.getAllForLanguage, convert to Map, update cacheRef for that language
-   - [ ] [impl] For None: get all languages from current cache, reload each, update entire cache
-   - [ ] [impl] Add logging with ZIO.logInfo for reload operations
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests pass
+   - [x] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/service/impl/SqlMessageCatalogueService.scala`
+   - [x] [impl] Create class with parameters: repository: MessageCatalogueRepository, cacheRef: Ref[Map[Language, Map[String, String]]], defaultLanguage: Language
+   - [x] [impl] Implement `messages` by calling forLanguage(defaultLanguage)
+   - [x] [impl] Implement `forLanguage(language)` by getting cache and creating SqlMessageCatalogue
+   - [x] [impl] Implement `reload(language: Option[Language])` with pattern match on Some(lang) vs None
+   - [x] [impl] For Some(lang): call repository.getAllForLanguage, convert to Map, update cacheRef for that language
+   - [x] [impl] For None: get all languages from current cache, reload each, update entire cache
+   - [x] [impl] Add logging with ZIO.logInfo for reload operations
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all tests pass
    - [ ] [reviewed] Service correctly manages cache lifecycle
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review error handling in reload (errors returned to caller, existing cache unchanged)
-   - [ ] [impl] Ensure reload is atomic (all-or-nothing update)
-   - [ ] [impl] Add ScalaDoc for reload method explaining when to use
-   - [ ] [impl] Add PURPOSE comment at top of file
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Review error handling in reload (errors returned to caller, existing cache unchanged)
+   - [x] [impl] Ensure reload is atomic (all-or-nothing update)
+   - [x] [impl] Add ScalaDoc for reload method explaining when to use
+   - [x] [impl] Add PURPOSE comment at top of file
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Service implementation is robust and maintainable
 
    **Success Criteria:** Service pre-loads messages at startup and supports reload
@@ -424,37 +424,37 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 3. **Create SqlMessageCatalogueService Factory and ZIO Layer** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Extend test file from previous task
-   - [ ] [impl] Write test using `SqlMessageCatalogueService.make` that pre-loads messages from repository
-   - [ ] [impl] Write test verifying service fails to create if repository throws error
-   - [ ] [impl] Write test for layer construction with Seq(Language.CS, Language.EN)
-   - [ ] [impl] Write test that service created by layer has messages pre-loaded
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify tests fail because make/layer don't exist
+   - [x] [impl] Extend test file from previous task
+   - [x] [impl] Write test using `SqlMessageCatalogueService.make` that pre-loads messages from repository
+   - [x] [impl] Write test verifying service fails to create if repository throws error
+   - [x] [impl] Write test for layer construction with Seq(Language.CS, Language.EN)
+   - [x] [impl] Write test that service created by layer has messages pre-loaded
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify tests fail because make/layer don't exist
    - [ ] [reviewed] Tests validate factory and layer behavior
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Add companion object to SqlMessageCatalogueService
-   - [ ] [impl] Implement `make(repository, languages, defaultLanguage): Task[SqlMessageCatalogueService]`
-   - [ ] [impl] In make: use ZIO.foreachPar to call repository.getAllForLanguage for each language in parallel
-   - [ ] [impl] Convert entities to Map[String, String] (messageKey -> messageText)
-   - [ ] [impl] Add logging showing load time per language: ZIO.logInfo(s"Loaded $lang: ${entities.size} messages")
-   - [ ] [impl] Create Ref with initial cache, log total message counts
-   - [ ] [impl] Return new SqlMessageCatalogueService instance
-   - [ ] [impl] Implement `layer(languages, defaultLanguage): URLayer[MessageCatalogueRepository, MessageCatalogueService]`
-   - [ ] [impl] Layer uses ZLayer.fromZIO calling make(...).orDie (fail-fast)
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests pass
+   - [x] [impl] Add companion object to SqlMessageCatalogueService
+   - [x] [impl] Implement `make(repository, languages, defaultLanguage): Task[SqlMessageCatalogueService]`
+   - [x] [impl] In make: use ZIO.foreachPar to call repository.getAllForLanguage for each language in parallel
+   - [x] [impl] Convert entities to Map[String, String] (messageKey -> messageText)
+   - [x] [impl] Add logging showing load time per language: ZIO.logInfo(s"Loaded $lang: ${entities.size} messages")
+   - [x] [impl] Create Ref with initial cache, log total message counts
+   - [x] [impl] Return new SqlMessageCatalogueService instance
+   - [x] [impl] Implement `layer(languages, defaultLanguage): URLayer[MessageCatalogueRepository, MessageCatalogueService]`
+   - [x] [impl] Layer uses ZLayer.fromZIO calling make(...).orDie (fail-fast)
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all tests pass
    - [ ] [reviewed] Factory and layer correctly implement fail-fast pattern
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Verify parallel loading works correctly (already implemented with ZIO.foreachPar)
-   - [ ] [impl] Ensure proper error messages when pre-load fails
-   - [ ] [impl] Add ScalaDoc explaining fail-fast approach (.orDie means app won't start if messages can't load)
-   - [ ] [impl] Verify layer composes properly with MessageCatalogueRepository.layer
-   - [ ] [impl] Add note documenting reload() design decision: stays on SqlMessageCatalogueService (not on trait) because JSON implementation can't reload
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Verify parallel loading works correctly (already implemented with ZIO.foreachPar)
+   - [x] [impl] Ensure proper error messages when pre-load fails
+   - [x] [impl] Add ScalaDoc explaining fail-fast approach (.orDie means app won't start if messages can't load)
+   - [x] [impl] Verify layer composes properly with MessageCatalogueRepository.layer
+   - [x] [impl] Add note documenting reload() design decision: stays on SqlMessageCatalogueService (not on trait) because JSON implementation can't reload
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Factory and layer implementation approved
 
    **Success Criteria:** Service can be created via factory or layer with pre-loaded messages
@@ -462,13 +462,13 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 
 #### Phase Success Criteria
 
-- [ ] [impl] SqlMessageCatalogue with pure in-memory lookup
+- [x] [impl] SqlMessageCatalogue with pure in-memory lookup
 - [ ] [reviewed] SqlMessageCatalogue implementation approved
-- [ ] [impl] SqlMessageCatalogueService with pre-load and reload
+- [x] [impl] SqlMessageCatalogueService with pre-load and reload
 - [ ] [reviewed] Service implementation approved
-- [ ] [impl] Factory method `make` for service creation
+- [x] [impl] Factory method `make` for service creation
 - [ ] [reviewed] Factory method approved
-- [ ] [impl] ZIO layer with fail-fast behavior
+- [x] [impl] ZIO layer with fail-fast behavior
 - [ ] [reviewed] Layer composition approved
 - [ ] [impl] All unit tests pass
 - [ ] [reviewed] Test coverage and quality approved
