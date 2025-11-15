@@ -2,9 +2,9 @@
 
 **Issue:** IWSD-74
 **Complexity:** Complex
-**Estimated Total Time:** 48 hours (updated from 44 hours)
+**Estimated Total Time:** 54 hours (updated from 48 hours, +6 hours for infrastructure)
 **Generated:** 2025-11-13
-**Updated:** 2025-11-15 (Applied critical issue fixes from plan review)
+**Updated:** 2025-11-15 (Applied critical issue fixes + infrastructure tasks)
 
 ## Overview
 
@@ -20,9 +20,9 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 
 ### Phase 1: Permission Foundation (In-Memory Implementation)
 
-**Objective:** Create working permission system with in-memory storage, enabling immediate testing of Zanzibar-inspired ReBAC model without database dependencies.
+**Objective:** Create working permission system with in-memory storage, enabling immediate testing of Zanzibar-inspired ReBAC model without database dependencies. Also establish metrics and configuration infrastructure.
 
-**Estimated Time:** 10 hours (updated from 9 hours)
+**Estimated Time:** 14 hours (updated from 10 hours, +4 hours for metrics and config validation)
 
 **Prerequisites:** None (foundational phase)
 
@@ -394,6 +394,97 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    **Success Criteria:** AlwaysAllowPermissionService exists for testing but has prominent warnings against production use
    **Testing:** AlwaysAllowPermissionServiceSpec validates always-allow behavior
 
+9. **Create Metrics Infrastructure** (TDD Cycle)
+
+   **RED - Write Failing Test:**
+   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/metrics/MetricsServiceSpec.scala`
+   - [ ] [impl] Write test case for recordCounter incrementing metric
+   - [ ] [impl] Write test case for recordTimer measuring duration
+   - [ ] [impl] Write test case for recordGauge setting value
+   - [ ] [impl] Write test case for test implementation (no-op, verifies it doesn't error)
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify tests fail with "trait MetricsService not found"
+   - [ ] [reviewed] Tests validate metrics API
+
+   **GREEN - Make Test Pass:**
+   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/metrics/MetricsService.scala`
+   - [ ] [impl] Add PURPOSE comments: Abstraction for recording application metrics
+   - [ ] [impl] Define trait MetricsService:
+     ```scala
+     trait MetricsService:
+       def recordCounter(name: String, tags: Map[String, String] = Map.empty): UIO[Unit]
+       def recordTimer(name: String, duration: Duration, tags: Map[String, String] = Map.empty): UIO[Unit]
+       def recordGauge(name: String, value: Double, tags: Map[String, String] = Map.empty): UIO[Unit]
+     ```
+   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/metrics/NoOpMetricsService.scala`
+   - [ ] [impl] Implement NoOpMetricsService with all methods returning ZIO.unit (for testing)
+   - [ ] [impl] Add ZLayer factory for NoOpMetricsService
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify all tests pass
+   - [ ] [reviewed] Metrics abstraction defined
+
+   **REFACTOR - Improve Quality:**
+   - [ ] [impl] Define standard metric names as constants:
+     - `permission.check.duration`
+     - `permission.check.infrastructure_failure`
+     - `auth.login.success`
+     - `auth.login.failure`
+   - [ ] [impl] Add Scaladoc explaining when to use each metric type
+   - [ ] [impl] Add note: Production implementation (ZIO Metrics/Micrometer) to be added in Phase 5
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify all tests still pass
+   - [ ] [reviewed] Metrics API is well-documented
+
+   **Success Criteria:** MetricsService abstraction exists with no-op implementation for immediate use
+   **Testing:** MetricsServiceSpec validates metrics API
+
+10. **Create Configuration Validation** (TDD Cycle)
+
+   **RED - Write Failing Test:**
+   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/config/ConfigValidatorSpec.scala`
+   - [ ] [impl] Write test case for missing required ENV var failing validation
+   - [ ] [impl] Write test case for invalid enum value failing with clear message
+   - [ ] [impl] Write test case for AUTH_PROVIDER=test in production environment failing
+   - [ ] [impl] Write test case for OIDC requiring OIDC_CLIENT_ID
+   - [ ] [impl] Write test case for validation collecting ALL errors (not stopping at first)
+   - [ ] [impl] Write test case for valid configuration passing
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify tests fail with "object ConfigValidator not found"
+   - [ ] [reviewed] Tests validate comprehensive config checking
+
+   **GREEN - Make Test Pass:**
+   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/config/ConfigValidator.scala`
+   - [ ] [impl] Add PURPOSE comments: Validates application configuration on startup
+   - [ ] [impl] Define case class ConfigValidationError(errors: List[String])
+   - [ ] [impl] Implement validateConfig returning Either[ConfigValidationError, ValidatedConfig]:
+     ```scala
+     def validateConfig(
+       authProvider: Option[String],
+       permissionService: Option[String],
+       environment: Option[String],
+       oidcClientId: Option[String]
+     ): Either[ConfigValidationError, ValidatedConfig]
+     ```
+   - [ ] [impl] Validate AUTH_PROVIDER parses to enum (Oidc | Test)
+   - [ ] [impl] Validate PERMISSION_SERVICE parses to enum (Memory | Database)
+   - [ ] [impl] Validate AUTH_PROVIDER=test forbidden when ENV=production
+   - [ ] [impl] Validate OIDC requires OIDC_CLIENT_ID, OIDC_CLIENT_SECRET, OIDC_DISCOVERY_URI
+   - [ ] [impl] Collect ALL errors before returning (use Validated or similar)
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify all tests pass
+   - [ ] [reviewed] Validation is comprehensive
+
+   **REFACTOR - Improve Quality:**
+   - [ ] [impl] Add helper for reading ENV vars with defaults
+   - [ ] [impl] Format error messages clearly (bullet list of issues)
+   - [ ] [impl] Add Scaladoc with examples of valid configurations
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify all tests still pass
+   - [ ] [reviewed] Configuration validation is clear and helpful
+
+   **Success Criteria:** Configuration validated on startup with clear error messages listing all issues
+   **Testing:** ConfigValidatorSpec validates all validation rules
+
 #### Phase Success Criteria
 
 - [ ] [impl] Opaque types provide compile-time safety for all domain IDs
@@ -408,10 +499,14 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 - [ ] [reviewed] InMemoryPermissionService implementation approved
 - [ ] [impl] Authorization helpers provide declarative guards (require, check, withPermission, filterAllowed)
 - [ ] [reviewed] Authorization helper API approved
+- [ ] [impl] MetricsService abstraction exists with no-op implementation
+- [ ] [reviewed] Metrics infrastructure approved
+- [ ] [impl] ConfigValidator validates all configuration on startup
+- [ ] [reviewed] Configuration validation approved
 - [ ] [impl] All unit tests pass: `mill core.shared.test`
 - [ ] [reviewed] Test coverage and quality approved (100% coverage of permission logic)
 - [ ] [impl] Can grant user "owner" on document:123, verify they have "view" via inheritance
-- [ ] [reviewed] Phase validation approved - working in-memory permission system
+- [ ] [reviewed] Phase validation approved - working in-memory permission system with infrastructure
 
 ---
 
@@ -896,7 +991,7 @@ All permission service implementations MUST fail closed (deny access) when error
     .catchAll(_ => ZIO.succeed(false))  // Fail closed with visibility
   ```
 
-**Estimated Time:** 11 hours (unchanged)
+**Estimated Time:** 13 hours (updated from 11 hours, +2 hours for audit logging)
 
 **Prerequisites:** Completion of Phase 3 (Authorization guards working with in-memory implementation)
 
@@ -944,7 +1039,105 @@ All permission service implementations MUST fail closed (deny access) when error
    **Success Criteria:** PermissionServiceFactory selects correct implementation based on PERMISSION_SERVICE config using Scala 3 enum
    **Testing:** PermissionServiceFactorySpec validates environment-based selection
 
-[Continue with remaining tasks from original Phase 4...]
+6. **Create Audit Logging Infrastructure** (TDD Cycle)
+
+   **RED - Write Failing Test:**
+   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/audit/AuditLogServiceSpec.scala`
+   - [ ] [impl] Write test case for logging permission check (userId, resource, action, result, timestamp)
+   - [ ] [impl] Write test case for logging authentication event (userId, event type, success/failure)
+   - [ ] [impl] Write test case for structured audit log format (JSON with all required fields)
+   - [ ] [impl] Write test case for test implementation (in-memory buffer for verification)
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify tests fail with "trait AuditLogService not found"
+   - [ ] [reviewed] Tests validate audit logging API
+
+   **GREEN - Make Test Pass:**
+   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/audit/AuditLogService.scala`
+   - [ ] [impl] Add PURPOSE comments: Security audit trail for authentication and authorization events
+   - [ ] [impl] Define case class AuditEvent(
+       timestamp: Instant,
+       userId: Option[UserId],
+       eventType: String,
+       resource: Option[String],
+       action: Option[String],
+       result: String,  // "allowed", "denied", "error"
+       reason: Option[String],
+       metadata: Map[String, String]
+     )
+   - [ ] [impl] Define trait AuditLogService:
+     ```scala
+     trait AuditLogService:
+       def logPermissionCheck(
+         userId: UserId,
+         resource: PermissionTarget,
+         action: PermissionOp,
+         result: Boolean,
+         reason: Option[String] = None
+       ): UIO[Unit]
+
+       def logAuthenticationEvent(
+         userId: Option[UserId],
+         eventType: String,  // "login", "logout", "login_failed"
+         success: Boolean,
+         metadata: Map[String, String] = Map.empty
+       ): UIO[Unit]
+     ```
+   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/audit/InMemoryAuditLogService.scala`
+   - [ ] [impl] Implement InMemoryAuditLogService with Ref[List[AuditEvent]] (for testing)
+   - [ ] [impl] Add ZLayer factory for InMemoryAuditLogService
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify all tests pass
+   - [ ] [reviewed] Audit logging API defined
+
+   **REFACTOR - Improve Quality:**
+   - [ ] [impl] Add helper method to format AuditEvent as JSON string
+   - [ ] [impl] Add Scaladoc explaining audit log retention and compliance requirements
+   - [ ] [impl] Add note: Production implementation (separate audit stream) to be added in Phase 5
+   - [ ] [impl] Consider: Should audit logs be separate from application logs? (Yes - recommend separate stream)
+   - [ ] [impl] Run test: `mill core.shared.test`
+   - [ ] [impl] Verify all tests still pass
+   - [ ] [reviewed] Audit logging is production-ready
+
+   **Success Criteria:** Audit logging infrastructure exists to track all permission checks and authentication events
+   **Testing:** AuditLogServiceSpec validates audit event recording
+
+7. **Integrate Audit Logging with DatabasePermissionService** (Update Task)
+
+   **Update Checklist:**
+   - [ ] [impl] Update DatabasePermissionService to inject AuditLogService
+   - [ ] [impl] Log permission check before returning result:
+     ```scala
+     for {
+       result <- repository.hasPermission(userId, resource)
+                   .tapError(error =>
+                     ZIO.logWarning(s"Permission check failed: $error") *>
+                     MetricsService.recordCounter("permission.check.infrastructure_failure")
+                   )
+                   .catchAll(_ => ZIO.succeed(false))
+       _ <- AuditLogService.logPermissionCheck(userId, resource, action, result)
+     } yield result
+     ```
+   - [ ] [impl] Ensure audit log written regardless of result (allowed/denied/error)
+   - [ ] [impl] Run test: `mill core.jvm.test`
+   - [ ] [impl] Verify audit events recorded for all permission checks
+   - [ ] [reviewed] Audit integration is comprehensive
+
+[Continue with remaining Phase 4 tasks if any...]
+
+#### Phase Success Criteria
+
+- [ ] [impl] DatabasePermissionService persists permissions to MongoDB
+- [ ] [reviewed] Database implementation approved
+- [ ] [impl] Fail-closed error handling with observability (logging + metrics)
+- [ ] [reviewed] Security pattern approved
+- [ ] [impl] Audit logging captures all permission checks and auth events
+- [ ] [reviewed] Audit trail approved
+- [ ] [impl] PermissionServiceFactory selects correct implementation using Scala 3 enum
+- [ ] [reviewed] Configuration validated
+- [ ] [impl] All tests pass: `mill core.jvm.test`
+- [ ] [reviewed] Phase validation approved - production-ready permission service
+
+---
 
 [Phase 5 remains unchanged from original]
 
@@ -960,7 +1153,7 @@ All permission service implementations MUST fail closed (deny access) when error
 
 ---
 
-**Tasks Status:** Updated with Critical Issue Fixes
+**Tasks Status:** Updated with Critical Issue Fixes + Infrastructure
 
 **Key Changes Applied:**
 1. ✅ Added Task 0: Define Domain Value Types (Scala 3 opaque types)
@@ -971,6 +1164,14 @@ All permission service implementations MUST fail closed (deny access) when error
 6. ✅ Added FiberRef lifecycle management
 7. ✅ Updated factories to use Scala 3 enums
 8. ✅ Added Tasks 6A/6B: Middleware and Typed Routes (flexible approaches)
-9. ✅ Increased time estimates to reflect additional tasks
+9. ✅ Added Task 9: Metrics Infrastructure (Phase 1, +2h)
+10. ✅ Added Task 10: Configuration Validation (Phase 1, +2h)
+11. ✅ Added Task 6-7: Audit Logging (Phase 4, +2h)
+12. ✅ Updated time estimate: 48 → 54 hours
+
+**Critical Infrastructure Added:**
+- MetricsService: Enables fail-closed observability (used in Phase 4)
+- ConfigValidator: Centralized configuration validation on startup
+- AuditLogService: Security audit trail for all auth/authz events
 
 **Start here:** Phase 1, Task 0 - Define Domain Value Types (RED: Write failing test)

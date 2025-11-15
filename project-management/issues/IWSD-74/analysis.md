@@ -176,6 +176,26 @@ This approach builds on existing abstractions, requires no breaking changes, and
 - `core/shared/src/main/scala/works/iterative/core/auth/AlwaysAllowPermissionService.scala`
   - Simple test implementation that always returns true
 
+**Create (Infrastructure Services):**
+- `core/shared/src/main/scala/works/iterative/core/metrics/MetricsService.scala`
+  - Abstraction for recording application metrics (counters, timers, gauges)
+  - Used by fail-closed error handling to track infrastructure failures
+  - Standard metric names: permission.check.duration, permission.check.infrastructure_failure, auth.login.success/failure
+- `core/shared/src/main/scala/works/iterative/core/metrics/NoOpMetricsService.scala`
+  - Test implementation (no-op, returns ZIO.unit)
+  - Production implementation (ZIO Metrics/Micrometer) added in Phase 5
+- `core/shared/src/main/scala/works/iterative/core/config/ConfigValidator.scala`
+  - Validates all configuration on startup (ENV vars, enum parsing, combinations)
+  - Collects ALL errors before failing (better UX than one-at-a-time)
+  - Validates: AUTH_PROVIDER, PERMISSION_SERVICE, environment checks, OIDC requirements
+- `core/shared/src/main/scala/works/iterative/core/audit/AuditLogService.scala`
+  - Security audit trail for authentication and authorization events
+  - Structured logging: timestamp, userId, eventType, resource, action, result, reason
+  - Methods: logPermissionCheck, logAuthenticationEvent
+- `core/shared/src/main/scala/works/iterative/core/audit/InMemoryAuditLogService.scala`
+  - Test implementation with Ref[List[AuditEvent]]
+  - Production implementation (separate audit stream) added in Phase 5
+
 **Modify:**
 - `core/shared/src/main/scala/works/iterative/core/auth/PermissionService.scala`
   - Add method: `listAllowed(subj: UserInfo, action: PermissionOp, namespace: String): UIO[Set[String]]`
@@ -544,38 +564,43 @@ if (usePermissionBasedAuth) {
 
 ## Complexity Assessment
 
-**Estimated Effort:** 40-48 hours (spread across 5 phases)
+**Estimated Effort:** 54 hours (spread across 5 phases)
 
 **Breakdown:**
-- **Phase 1 (InMemoryPermissionService + Authorization helpers)**: 8-10 hours
+- **Phase 1 (Permission Foundation + Infrastructure)**: 14 hours (updated from 10 hours)
   - RelationTuple, PermissionConfig: 2 hours
-  - InMemoryPermissionService implementation: 4 hours
+  - PermissionLogic (pure functions): 3 hours
+  - InMemoryPermissionService implementation: 3 hours
   - Authorization helper object: 2 hours
-  - Unit tests: 2 hours
+  - **Metrics infrastructure**: 2 hours
+  - **Configuration validation**: 2 hours
+  - Unit tests: included in above
 
-- **Phase 2 (Pac4J integration + TestAuthenticationService)**: 8-10 hours
+- **Phase 2 (Pac4J integration + TestAuthenticationService)**: 10 hours (unchanged)
   - Pac4jAuthenticationAdapter: 4 hours
   - TestAuthenticationService: 2 hours
   - Integration tests: 2 hours
   - Pac4J middleware integration: 2 hours
 
-- **Phase 3 (Authorization guards + service migration)**: 10-12 hours
+- **Phase 3 (Authorization guards + service migration)**: 14 hours (unchanged)
   - Update one service to use Authorization helpers: 3 hours
   - HTTP4S error handling integration: 2 hours
-  - End-to-end tests: 3 hours
-  - Documentation and examples: 2-4 hours
+  - Authorization middleware (Task 6A): 2 hours
+  - Typed route protection (Task 6B): 3 hours
+  - End-to-end tests: 2 hours
+  - Documentation and examples: 2 hours
 
-- **Phase 4 (DatabasePermissionService)**: 10-12 hours
+- **Phase 4 (DatabasePermissionService + Audit Logging)**: 13 hours (updated from 11 hours)
   - PermissionRepository interface and MongoDB impl: 4 hours
-  - DatabasePermissionService: 3 hours
-  - Database migration script: 2 hours
+  - DatabasePermissionService with fail-closed pattern: 3 hours
+  - **Audit logging infrastructure**: 2 hours
+  - Database migration script: 1 hour
   - Integration and performance tests: 3 hours
 
-- **Phase 5 (Optimization + production readiness)**: 4-6 hours
-  - Efficient query patterns (two-phase lookup): 2 hours
-  - Monitoring and logging: 1 hour
-  - Deployment runbook: 1 hour
-  - Performance testing and tuning: 2 hours
+- **Phase 5 (Optimization + production readiness)**: 3 hours (updated from 4-6 hours)
+  - Efficient query patterns (two-phase lookup): 1 hour
+  - Production metrics implementation: 1 hour
+  - Production audit stream configuration: 1 hour
 
 **Reasoning:**
 - Building on existing abstractions reduces design time
