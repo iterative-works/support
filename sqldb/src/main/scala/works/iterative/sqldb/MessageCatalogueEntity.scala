@@ -13,8 +13,19 @@ given DbCodec[Instant] =
         instant => instant.atOffset(ZoneOffset.UTC)
     )
 
+case class MessageCatalogueCreator(
+    messageKey: String,
+    language: String,
+    messageText: String,
+    description: Option[String],
+    createdAt: Instant,
+    updatedAt: Instant,
+    createdBy: Option[String],
+    updatedBy: Option[String]
+) derives DbCodec
+
 @Table(PostgresDbType, SqlNameMapper.CamelToSnakeCase)
-case class MessageCatalogueEntity(
+case class MessageCatalogue(
     @Id id: Option[Long],
     messageKey: String,
     language: String,
@@ -26,16 +37,16 @@ case class MessageCatalogueEntity(
     updatedBy: Option[String]
 ) derives DbCodec
 
-object MessageCatalogueEntity:
+object MessageCatalogue:
     def fromMessage(
         key: MessageId,
         lang: Language,
         text: String,
         desc: Option[String] = None,
         user: Option[String] = None
-    ): MessageCatalogueEntity =
+    ): MessageCatalogue =
         val now = Instant.now()
-        MessageCatalogueEntity(
+        MessageCatalogue(
             id = None,
             messageKey = key.value,
             language = lang.toString,
@@ -46,4 +57,16 @@ object MessageCatalogueEntity:
             createdBy = user,
             updatedBy = user
         )
-end MessageCatalogueEntity
+
+    def toCreator(entity: MessageCatalogue): MessageCatalogueCreator =
+        MessageCatalogueCreator(
+            messageKey = entity.messageKey,
+            language = entity.language,
+            messageText = entity.messageText,
+            description = entity.description,
+            createdAt = entity.createdAt,
+            updatedAt = entity.updatedAt,
+            createdBy = entity.createdBy,
+            updatedBy = entity.updatedBy
+        )
+end MessageCatalogue
