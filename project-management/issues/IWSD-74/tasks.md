@@ -672,20 +672,20 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 
 #### Phase Success Criteria
 
-- [ ] [impl] Pac4jAuthenticationAdapter correctly maps CommonProfile to BasicProfile
-- [ ] [reviewed] Pac4J integration approved
-- [ ] [impl] Pac4J successful authentication makes CurrentUser available throughout request
-- [ ] [reviewed] End-to-end authentication flow approved
-- [ ] [impl] FiberRef lifecycle properly managed (scoped, no leaks)
-- [ ] [reviewed] FiberRef usage approved
-- [ ] [impl] TestAuthenticationService enables user switching without OIDC
-- [ ] [reviewed] Test authentication service approved
-- [ ] [impl] AuthenticationServiceFactory selects correct provider based on config using Scala 3 enum
-- [ ] [reviewed] Environment-based configuration approved
-- [ ] [impl] All integration tests pass: `mill server.http.test`
-- [ ] [reviewed] Integration test coverage approved
-- [ ] [impl] Can login via Pac4J and access CurrentUser in service layer
-- [ ] [reviewed] Phase validation approved - working authentication integration
+- [x] [impl] Pac4jAuthenticationAdapter correctly maps CommonProfile to BasicProfile
+- [x] [reviewed] Pac4J integration approved
+- [x] [impl] Pac4J successful authentication makes CurrentUser available throughout request
+- [x] [reviewed] End-to-end authentication flow approved
+- [x] [impl] FiberRef lifecycle properly managed (scoped, no leaks)
+- [x] [reviewed] FiberRef usage approved
+- [x] [impl] TestAuthenticationService enables user switching without OIDC
+- [x] [reviewed] Test authentication service approved
+- [x] [impl] AuthenticationServiceFactory selects correct provider based on config using Scala 3 enum
+- [x] [reviewed] Environment-based configuration approved
+- [x] [impl] All integration tests pass: `mill server.http.test`
+- [x] [reviewed] Integration test coverage approved
+- [x] [impl] Can login via Pac4J and access CurrentUser in service layer
+- [x] [reviewed] Phase validation approved - working authentication integration
 
 ---
 
