@@ -7,7 +7,6 @@ import works.iterative.tapir.CustomTapir.*
 import works.iterative.core.*
 import works.iterative.core.czech.*
 import works.iterative.core.auth.*
-import works.iterative.core.auth.service.AuthenticationError
 import sttp.tapir.CodecFormat
 import sttp.tapir.Validator
 
