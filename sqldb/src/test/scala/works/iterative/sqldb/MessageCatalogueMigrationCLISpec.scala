@@ -4,45 +4,75 @@
 package works.iterative.sqldb
 
 import zio.test.*
+import works.iterative.sqldb.migration.MessageCatalogueMigrationCLI
 
 object MessageCatalogueMigrationCLISpec extends ZIOSpecDefault:
 
-  // Test CLI argument parsing and help functionality without database
   def spec = suite("MessageCatalogueMigrationCLISpec")(
     test("CLI parses language and resource arguments correctly") {
-      // This is tested implicitly through the migration tests
-      // The parseArgs method is private, so we test it indirectly
-      assertTrue(true)
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(
+          List("--language=en", "--resource=/test.json")
+        )
+      yield assertTrue(
+        result.isDefined &&
+        result.get.language == "en" &&
+        result.get.resourcePath == "/test.json" &&
+        !result.get.dryRun &&
+        !result.get.showHelp
+      )
     },
 
-    test("Migration functionality works (tested via MessageCatalogueMigrationSpec)") {
-      // The actual migration functionality is comprehensively tested in MessageCatalogueMigrationSpec
-      // CLI is just a thin wrapper that:
-      // 1. Parses arguments
-      // 2. Calls MessageCatalogueMigration.migrateFromJson
-      // All the important logic is tested in the migration spec
-      assertTrue(true)
+    test("CLI handles missing required arguments") {
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(List("--language=en"))
+      yield assertTrue(result.isEmpty)
     },
 
-    test("CLI supports --help flag (manual verification)") {
-      // The --help flag can be tested manually:
-      // Run: mill sqldb.runMain works.iterative.sqldb.migration.MessageCatalogueMigrationCLI --help
-      // Expected: Help message showing usage instructions
-      assertTrue(true)
+    test("CLI handles --help flag") {
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(List("--help"))
+      yield assertTrue(
+        result.isDefined &&
+        result.get.showHelp
+      )
     },
 
-    test("CLI supports --dry-run flag (manual verification)") {
-      // The --dry-run flag can be tested manually:
-      // Run: mill sqldb.runMain works.iterative.sqldb.migration.MessageCatalogueMigrationCLI --language=en --resource=/test_messages.json --dry-run
-      // Expected: Preview message without actual database insert
-      assertTrue(true)
+    test("CLI handles --dry-run flag") {
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(
+          List("--language=cs", "--resource=/msgs.json", "--dry-run")
+        )
+      yield assertTrue(
+        result.isDefined &&
+        result.get.dryRun &&
+        result.get.language == "cs" &&
+        result.get.resourcePath == "/msgs.json"
+      )
     },
 
-    test("CLI validates required arguments (manual verification)") {
-      // Can be tested manually by running CLI without required args
-      // Run: mill sqldb.runMain works.iterative.sqldb.migration.MessageCatalogueMigrationCLI
-      // Expected: Error message about invalid arguments
-      assertTrue(true)
+    test("CLI provides user-friendly error messages") {
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(List("--invalid"))
+      yield assertTrue(result.isEmpty)
+    },
+
+    test("CLI handles empty argument list") {
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(List())
+      yield assertTrue(result.isEmpty)
+    },
+
+    test("CLI handles arguments in different order") {
+      for
+        result <- MessageCatalogueMigrationCLI.parseArgs(
+          List("--resource=/test.json", "--language=en")
+        )
+      yield assertTrue(
+        result.isDefined &&
+        result.get.language == "en" &&
+        result.get.resourcePath == "/test.json"
+      )
     }
   )
 

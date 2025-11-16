@@ -31,7 +31,7 @@ object MessageCatalogueMigrationCLI extends ZIOAppDefault:
             ZIO.succeed(ExitCode.failure)
     yield exitCode
 
-  private def parseArgs(args: List[String]): UIO[Option[CliConfig]] =
+  private[sqldb] def parseArgs(args: List[String]): UIO[Option[CliConfig]] =
     ZIO.succeed {
       val argMap = args.foldLeft(Map.empty[String, String]) { (acc, arg) =>
         if arg.startsWith("--") then
