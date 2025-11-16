@@ -156,6 +156,32 @@ trait PermissionService:
         action: PermissionOp,
         namespace: String
     ): UIO[Set[String]]
+
+    /** Grant a permission relation to a user.
+      *
+      * @param userId The user to grant the permission to
+      * @param relation The permission relation (e.g., "owner", "editor", "viewer")
+      * @param target The permission target
+      * @return UIO[Unit]
+      */
+    def grantPermission(
+        userId: UserId,
+        relation: String,
+        target: PermissionTarget
+    ): UIO[Unit]
+
+    /** Revoke a permission relation from a user.
+      *
+      * @param userId The user to revoke the permission from
+      * @param relation The permission relation to revoke
+      * @param target The permission target
+      * @return UIO[Unit]
+      */
+    def revokePermission(
+        userId: UserId,
+        relation: String,
+        target: PermissionTarget
+    ): UIO[Unit]
 end PermissionService
 
 object PermissionService:

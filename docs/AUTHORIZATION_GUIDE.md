@@ -256,7 +256,7 @@ AuthErrorHandler maps to HTTP response
 Client receives 403 Forbidden with JSON:
 {
   "error": "Forbidden",
-  "resource": "document:123",
+  "resourceType": "document",
   "action": "edit"
 }
 ```
@@ -399,8 +399,7 @@ def createDocument(title: String): ZIO[CurrentUser & PermissionService, Authenti
     permService <- ZIO.service[PermissionService]
 
     // Grant owner permission
-    impl = permService.asInstanceOf[InMemoryPermissionService]
-    _ <- impl.addRelation(
+    _ <- permService.grantPermission(
       user.subjectId,
       "owner",
       PermissionTarget.unsafe("document", doc.id)
@@ -416,8 +415,7 @@ Grant multiple users different permissions on a folder:
 def shareFolder(folderId: String, userId: UserId, role: String): ZIO[PermissionService, Nothing, Unit] =
   for {
     permService <- ZIO.service[PermissionService]
-    impl = permService.asInstanceOf[InMemoryPermissionService]
-    _ <- impl.addRelation(
+    _ <- permService.grantPermission(
       userId,
       role,  // "owner", "member", or "viewer"
       PermissionTarget.unsafe("folder", folderId)
@@ -433,8 +431,7 @@ Remove a user's permission:
 def revokeAccess(userId: UserId, documentId: String): ZIO[PermissionService, Nothing, Unit] =
   for {
     permService <- ZIO.service[PermissionService]
-    impl = permService.asInstanceOf[InMemoryPermissionService]
-    _ <- impl.removeRelation(
+    _ <- permService.revokePermission(
       userId,
       "editor",  // or whatever relation to remove
       PermissionTarget.unsafe("document", documentId)

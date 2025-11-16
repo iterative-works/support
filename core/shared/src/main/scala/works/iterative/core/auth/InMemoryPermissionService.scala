@@ -98,6 +98,32 @@ class InMemoryPermissionService(
       PermissionLogic.listAllowed(subj.subjectId, action, namespace, tuples, config)
     }
 
+  /** Grant a permission relation to a user.
+    *
+    * @param userId The user to grant the permission to
+    * @param relation The permission relation
+    * @param target The permission target
+    * @return UIO[Unit]
+    */
+  def grantPermission(
+      userId: UserId,
+      relation: String,
+      target: PermissionTarget
+  ): UIO[Unit] = addRelation(userId, relation, target)
+
+  /** Revoke a permission relation from a user.
+    *
+    * @param userId The user to revoke the permission from
+    * @param relation The permission relation to revoke
+    * @param target The permission target
+    * @return UIO[Unit]
+    */
+  def revokePermission(
+      userId: UserId,
+      relation: String,
+      target: PermissionTarget
+  ): UIO[Unit] = removeRelation(userId, relation, target)
+
 end InMemoryPermissionService
 
 object InMemoryPermissionService:

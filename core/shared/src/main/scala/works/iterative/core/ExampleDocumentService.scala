@@ -94,8 +94,7 @@ class ExampleDocumentService():
 
       // Grant owner permission to the creator
       permService <- ZIO.service[PermissionService]
-      impl = permService.asInstanceOf[InMemoryPermissionService]
-      _ <- impl.addRelation(
+      _ <- permService.grantPermission(
         currentUser.subjectId,
         "owner",
         documentTarget(doc.id)
@@ -117,7 +116,9 @@ class ExampleDocumentService():
       newTitle: String
   ): ZIO[CurrentUser & PermissionService, AuthenticationError, Document] =
     Authorization.require(PermissionOp.unsafe("edit"), documentTarget(id)) {
-      ZIO.succeed(Document(id, newTitle, "owner-id"))
+      // In real implementation, would fetch document from database to get actual ownerId
+      // This is placeholder data for demonstration purposes
+      ZIO.succeed(Document(id, newTitle, "placeholder-owner-id"))
     }
 
   /** Delete a document.

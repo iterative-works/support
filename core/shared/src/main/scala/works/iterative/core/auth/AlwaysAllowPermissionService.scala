@@ -51,6 +51,20 @@ class AlwaysAllowPermissionService extends PermissionService:
       namespace: String
   ): UIO[Set[String]] =
     ZIO.succeed(Set.empty)
+
+  override def grantPermission(
+      userId: UserId,
+      relation: String,
+      target: PermissionTarget
+  ): UIO[Unit] =
+    ZIO.unit
+
+  override def revokePermission(
+      userId: UserId,
+      relation: String,
+      target: PermissionTarget
+  ): UIO[Unit] =
+    ZIO.unit
 end AlwaysAllowPermissionService
 
 object AlwaysAllowPermissionService:

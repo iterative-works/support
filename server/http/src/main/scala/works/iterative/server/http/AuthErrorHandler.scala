@@ -86,15 +86,18 @@ object AuthErrorHandler:
 
   /** Format forbidden error as JSON.
     *
-    * Includes resource and action information to help clients understand
-    * what permission was required.
+    * Includes resource type and action information to help clients understand
+    * what permission was required. The resource identifier is sanitized to only
+    * include the namespace (type), not the specific ID, to prevent information
+    * disclosure about resource existence and ID formats.
     *
-    * @param resource The resource identifier
+    * @param resource The resource identifier (format: "namespace:id")
     * @param action The attempted action
-    * @return JSON string with error, resource, and action fields
+    * @return JSON string with error, resource type, and action fields
     */
   private def formatForbiddenError(resource: String, action: String): String =
-    s"""{"error": "Forbidden", "resource": "$resource", "action": "$action"}"""
+    val resourceType = resource.split(":").headOption.getOrElse("resource")
+    s"""{"error": "Forbidden", "resourceType": "$resourceType", "action": "$action"}"""
 
   /** Log authentication failure for security monitoring.
     *

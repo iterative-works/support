@@ -711,7 +711,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [impl] Use TestAuthenticationService and InMemoryPermissionService for testing
    - [x] [impl] Run test: `mill core.jvm.test` (was core.shared.test)
    - [x] [impl] Verify tests fail with "Not found: type ExampleDocumentService"
-   - [ ] [reviewed] Tests validate service-level authorization guards
+   - [x] [reviewed] Tests validate service-level authorization guards
 
    **GREEN - Make Test Pass:**
    - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/ExampleDocumentService.scala`
@@ -722,7 +722,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [impl] Implement listDocuments using Authorization.filterAllowed to filter results by permission
    - [x] [impl] Run test: `mill core.jvm.test`
    - [x] [impl] Verify all ExampleDocumentService tests pass (6 tests passed)
-   - [ ] [reviewed] Service correctly uses authorization guards
+   - [x] [reviewed] Service correctly uses authorization guards
 
    **REFACTOR - Improve Quality:**
    - [x] [impl] Extract permission target construction to helper method (documentTarget)
@@ -730,7 +730,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [impl] Ensure consistent error types (AuthenticationError for auth failures)
    - [x] [impl] Run test: `mill core.jvm.test`
    - [x] [impl] Verify all tests still pass
-   - [ ] [reviewed] Service is clean example for other developers
+   - [x] [reviewed] Service is clean example for other developers
 
    **Success Criteria:** ExampleDocumentService demonstrates Authorization.require, Authorization.filterAllowed patterns with comprehensive tests
    **Testing:** ExampleDocumentServiceSpec validates authorization guards with permission granted/denied scenarios
@@ -745,7 +745,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [impl] Write test case for error response including appropriate message
    - [x] [impl] Run test: `mill server.http.test`
    - [x] [impl] Verify tests fail with "Not found: AuthErrorHandler"
-   - [ ] [reviewed] Tests validate HTTP error handling for auth failures
+   - [x] [reviewed] Tests validate HTTP error handling for auth failures
 
    **GREEN - Make Test Pass:**
    - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/AuthErrorHandler.scala`
@@ -756,7 +756,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [impl] Include error message in response body (JSON format)
    - [x] [impl] Run test: `mill server.http.test`
    - [x] [impl] Verify all tests pass (7 tests passed)
-   - [ ] [reviewed] Error handling correctly maps errors to HTTP status codes
+   - [x] [reviewed] Error handling correctly maps errors to HTTP status codes
 
    **REFACTOR - Improve Quality:**
    - [x] [impl] Extract error message formatting to separate functions (formatSimpleError, formatUnauthenticatedError, formatForbiddenError)
@@ -764,7 +764,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [impl] Ensure sensitive information not leaked in error messages (sanitizeMessage removes tokens)
    - [x] [impl] Run test: `mill server.http.test`
    - [x] [impl] Verify all tests still pass (7 tests passed)
-   - [ ] [reviewed] Error handling is secure and well-tested
+   - [x] [reviewed] Error handling is secure and well-tested
 
    **Success Criteria:** AuthErrorHandler correctly maps AuthenticationError to 401/403 HTTP responses with appropriate messages
    **Testing:** AuthErrorHandlerSpec validates error mapping for various scenarios
@@ -780,7 +780,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [ ] [impl] Use TestAuthenticationService and setup test permissions
    - [ ] [impl] Run test: `mill server.http.test`
    - [ ] [impl] Verify tests fail with "object ExampleDocumentRoutes not found"
-   - [ ] [reviewed] HTTP route tests validate end-to-end authorization
+   - [x] [reviewed] HTTP route tests validate end-to-end authorization
 
    **GREEN - Make Test Pass:**
    - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/ExampleDocumentRoutes.scala`
@@ -790,14 +790,14 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [ ] [impl] NOTE: Full middleware/typed routes integration comes in Tasks 6A/6B
    - [ ] [impl] Run test: `mill server.http.test`
    - [ ] [impl] Verify all route tests pass
-   - [ ] [reviewed] Routes correctly integrate authorization and error handling
+   - [x] [reviewed] Routes correctly integrate authorization and error handling
 
    **REFACTOR - Improve Quality:**
    - [ ] [impl] Add request logging (user ID, endpoint, permission checked)
    - [ ] [impl] Add Scaladoc with authorization examples
    - [ ] [impl] Run test: `mill server.http.test`
    - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Routes are clean and reusable pattern
+   - [x] [reviewed] Routes are clean and reusable pattern
 
    **Success Criteria:** Example HTTP4S routes demonstrate authorization integration with proper 401/403 error handling
    **Testing:** ExampleDocumentRoutesSpec validates HTTP routes with various permission scenarios

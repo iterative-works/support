@@ -65,7 +65,7 @@ object AuthErrorHandlerSpec extends ZIOSpecDefault:
       )
     },
 
-    test("Forbidden error response includes resource and action") {
+    test("Forbidden error response includes resource type and action") {
       val error = AuthenticationError.Forbidden("document:456", "delete")
       val response = AuthErrorHandler.toResponse(error)
 
@@ -73,8 +73,9 @@ object AuthErrorHandlerSpec extends ZIOSpecDefault:
       val bodyString = response.bodyText.compile.toList.unsafeRunSync().mkString
 
       // Check body contains expected fields
+      // Note: resourceType is sanitized to only show namespace (document), not full ID (document:456)
       assertTrue(
-        bodyString.contains("document:456"),
+        bodyString.contains("\"resourceType\": \"document\""),
         bodyString.contains("delete"),
         bodyString.contains("error") || bodyString.contains("Forbidden")
       )
