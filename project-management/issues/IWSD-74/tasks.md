@@ -702,34 +702,34 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 1. **Create example service using Authorization.require** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/ExampleDocumentServiceSpec.scala`
-   - [ ] [impl] Write test case for createDocument succeeding when user authenticated
-   - [ ] [impl] Write test case for updateDocument succeeding when user has "edit" permission
-   - [ ] [impl] Write test case for updateDocument failing with Forbidden when user lacks permission
-   - [ ] [impl] Write test case for deleteDocument requiring "delete" permission
-   - [ ] [impl] Write test case for listDocuments using Authorization.filterAllowed to show only permitted documents
-   - [ ] [impl] Use TestAuthenticationService and InMemoryPermissionService for testing
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify tests fail with "object ExampleDocumentService not found"
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/jvm/src/test/scala/works/iterative/core/ExampleDocumentServiceSpec.scala` (NOTE: in jvm not shared)
+   - [x] [impl] Write test case for createDocument succeeding when user authenticated
+   - [x] [impl] Write test case for updateDocument succeeding when user has "edit" permission
+   - [x] [impl] Write test case for updateDocument failing with Forbidden when user lacks permission
+   - [x] [impl] Write test case for deleteDocument requiring "delete" permission
+   - [x] [impl] Write test case for listDocuments using Authorization.filterAllowed to show only permitted documents
+   - [x] [impl] Use TestAuthenticationService and InMemoryPermissionService for testing
+   - [x] [impl] Run test: `mill core.jvm.test` (was core.shared.test)
+   - [x] [impl] Verify tests fail with "Not found: type ExampleDocumentService"
    - [ ] [reviewed] Tests validate service-level authorization guards
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/ExampleDocumentService.scala`
-   - [ ] [impl] Add PURPOSE comments explaining example service demonstrating authorization patterns
-   - [ ] [impl] Implement createDocument using Authorization.require for authenticated-only access
-   - [ ] [impl] Implement updateDocument(id) using Authorization.require(PermissionOp("edit"), PermissionTarget.unsafe("document", id))
-   - [ ] [impl] Implement deleteDocument(id) using Authorization.require(PermissionOp("delete"), PermissionTarget.unsafe("document", id))
-   - [ ] [impl] Implement listDocuments using Authorization.filterAllowed to filter results by permission
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all ExampleDocumentService tests pass
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/ExampleDocumentService.scala`
+   - [x] [impl] Add PURPOSE comments explaining example service demonstrating authorization patterns
+   - [x] [impl] Implement createDocument using Authorization.require for authenticated-only access
+   - [x] [impl] Implement updateDocument(id) using Authorization.require(PermissionOp("edit"), PermissionTarget.unsafe("document", id))
+   - [x] [impl] Implement deleteDocument(id) using Authorization.require(PermissionOp("delete"), PermissionTarget.unsafe("document", id))
+   - [x] [impl] Implement listDocuments using Authorization.filterAllowed to filter results by permission
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all ExampleDocumentService tests pass (6 tests passed)
    - [ ] [reviewed] Service correctly uses authorization guards
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Extract permission target construction to helper method
-   - [ ] [impl] Add comprehensive Scaladoc showing authorization patterns
-   - [ ] [impl] Ensure consistent error types (AuthenticationError for auth failures)
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Extract permission target construction to helper method (documentTarget)
+   - [x] [impl] Add comprehensive Scaladoc showing authorization patterns
+   - [x] [impl] Ensure consistent error types (AuthenticationError for auth failures)
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Service is clean example for other developers
 
    **Success Criteria:** ExampleDocumentService demonstrates Authorization.require, Authorization.filterAllowed patterns with comprehensive tests
@@ -738,32 +738,32 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 2. **Create HTTP4S error handling for authentication/authorization** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/test/scala/works/iterative/server/http/AuthErrorHandlerSpec.scala`
-   - [ ] [impl] Write test case for AuthenticationError.Unauthenticated returning 401 Unauthorized
-   - [ ] [impl] Write test case for AuthenticationError.Forbidden returning 403 Forbidden
-   - [ ] [impl] Write test case for other errors returning 500 Internal Server Error
-   - [ ] [impl] Write test case for error response including appropriate message
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify tests fail with "object AuthErrorHandler not found"
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/test/scala/works/iterative/server/http/AuthErrorHandlerSpec.scala`
+   - [x] [impl] Write test case for AuthenticationError.Unauthenticated returning 401 Unauthorized
+   - [x] [impl] Write test case for AuthenticationError.Forbidden returning 403 Forbidden
+   - [x] [impl] Write test cases for InvalidCredentials, TokenExpired, InvalidToken returning 401
+   - [x] [impl] Write test case for error response including appropriate message
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify tests fail with "Not found: AuthErrorHandler"
    - [ ] [reviewed] Tests validate HTTP error handling for auth failures
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/AuthErrorHandler.scala`
-   - [ ] [impl] Add PURPOSE comments explaining auth error mapping to HTTP status codes
-   - [ ] [impl] Implement error handler that catches AuthenticationError (pattern match on enum)
-   - [ ] [impl] Map Unauthenticated errors to 401 Unauthorized response
-   - [ ] [impl] Map Forbidden errors to 403 Forbidden response
-   - [ ] [impl] Include error message in response body (JSON format)
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all tests pass
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/server/http/src/main/scala/works/iterative/server/http/AuthErrorHandler.scala`
+   - [x] [impl] Add PURPOSE comments explaining auth error mapping to HTTP status codes
+   - [x] [impl] Implement error handler that catches AuthenticationError (pattern match on enum)
+   - [x] [impl] Map Unauthenticated errors to 401 Unauthorized response
+   - [x] [impl] Map Forbidden errors to 403 Forbidden response
+   - [x] [impl] Include error message in response body (JSON format)
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all tests pass (7 tests passed)
    - [ ] [reviewed] Error handling correctly maps errors to HTTP status codes
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Extract error message formatting to separate function
-   - [ ] [impl] Add logging for authentication failures (info level)
-   - [ ] [impl] Ensure sensitive information not leaked in error messages
-   - [ ] [impl] Run test: `mill server.http.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Extract error message formatting to separate functions (formatSimpleError, formatUnauthenticatedError, formatForbiddenError)
+   - [x] [impl] Add logging for authentication failures (info level via logAuthFailure)
+   - [x] [impl] Ensure sensitive information not leaked in error messages (sanitizeMessage removes tokens)
+   - [x] [impl] Run test: `mill server.http.test`
+   - [x] [impl] Verify all tests still pass (7 tests passed)
    - [ ] [reviewed] Error handling is secure and well-tested
 
    **Success Criteria:** AuthErrorHandler correctly maps AuthenticationError to 401/403 HTTP responses with appropriate messages
