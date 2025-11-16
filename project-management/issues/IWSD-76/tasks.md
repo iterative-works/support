@@ -490,38 +490,38 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 1. **Create JSON to SQL Migration Script** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/migration/MessageCatalogueMigrationSpec.scala`
-   - [ ] [impl] Create test JSON resource file with 5 sample messages
-   - [ ] [impl] Write test that calls `migrateFromJson` with test resource path
-   - [ ] [impl] Write test that verifies messages inserted into repository
-   - [ ] [impl] Write test that verifies message count matches JSON entries
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test fails because migration doesn't exist
-   - [ ] [reviewed] Test validates end-to-end migration process
+   - [x] [impl] Create test file: `sqldb/src/test/scala/works/iterative/sqldb/MessageCatalogueMigrationSpec.scala`
+   - [x] [impl] Create test JSON resource file with 5 sample messages
+   - [x] [impl] Write test that calls `migrateFromJson` with test resource path
+   - [x] [impl] Write test that verifies messages inserted into repository
+   - [x] [impl] Write test that verifies message count matches JSON entries
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test fails because migration doesn't exist
+   - [x] [reviewed] Test validates end-to-end migration process
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/migration/MessageCatalogueMigration.scala`
-   - [ ] [impl] Create object with method `migrateFromJson(repository, language, jsonResourcePath): Task[Unit]`
-   - [ ] [impl] Load JSON resource using getClass.getResourceAsStream
-   - [ ] [impl] Parse JSON as Map[String, String] using zio-json
-   - [ ] [impl] Convert each entry to MessageCatalogueEntity using fromMessage factory
-   - [ ] [impl] Add description field: "Migrated from {jsonResourcePath}"
-   - [ ] [impl] Handle large message files by processing in batches if needed (document behavior)
-   - [ ] [impl] Add progress logging for migrations with 100+ messages
-   - [ ] [impl] Call repository.bulkInsert with all entities (or batches)
-   - [ ] [impl] Add logging with ZIO.logInfo showing count of migrated messages
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test passes
-   - [ ] [reviewed] Migration correctly transfers all messages
+   - [x] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/migration/MessageCatalogueMigration.scala`
+   - [x] [impl] Create object with method `migrateFromJson(repository, language, jsonResourcePath): Task[Unit]`
+   - [x] [impl] Load JSON resource using getClass.getResourceAsStream
+   - [x] [impl] Parse JSON as Map[String, String] using zio-json
+   - [x] [impl] Convert each entry to MessageCatalogueEntity using fromMessage factory
+   - [x] [impl] Add description field: "Migrated from {jsonResourcePath}"
+   - [x] [impl] Handle large message files by processing in batches if needed (document behavior)
+   - [x] [impl] Add progress logging for migrations with 100+ messages
+   - [x] [impl] Call repository.bulkInsert with all entities (or batches)
+   - [x] [impl] Add logging with ZIO.logInfo showing count of migrated messages
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test passes
+   - [x] [reviewed] Migration correctly transfers all messages
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add error handling for missing resource file
-   - [ ] [impl] Add error handling for invalid JSON format
-   - [ ] [impl] Consider dry-run mode that doesn't insert (for validation)
-   - [ ] [impl] Add PURPOSE comment at top of file
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Migration is robust with good error messages
+   - [x] [impl] Add error handling for missing resource file
+   - [x] [impl] Add error handling for invalid JSON format
+   - [x] [impl] Consider dry-run mode that doesn't insert (for validation)
+   - [x] [impl] Add PURPOSE comment at top of file
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Migration is robust with good error messages
 
    **Success Criteria:** Migration script successfully imports JSON messages to database
    **Testing:** Test with real JSON resource verifies complete data transfer
@@ -529,34 +529,34 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 2. **Create Migration CLI Tool** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/migration/MessageCatalogueMigrationCLISpec.scala`
-   - [ ] [impl] Write test that runs CLI with arguments: --language=en --resource=/messages_en.json
-   - [ ] [impl] Write test that verifies CLI output shows success message
-   - [ ] [impl] Write test that CLI exits with error code if resource missing
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test fails because CLI doesn't exist
-   - [ ] [reviewed] Test validates CLI argument parsing and execution
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/migration/MessageCatalogueMigrationCLISpec.scala`
+   - [x] [impl] Write test that runs CLI with arguments: --language=en --resource=/messages_en.json
+   - [x] [impl] Write test that verifies CLI output shows success message
+   - [x] [impl] Write test that CLI exits with error code if resource missing
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test fails because CLI doesn't exist
+   - [x] [reviewed] Test validates CLI argument parsing and execution
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/migration/MessageCatalogueMigrationCLI.scala`
-   - [ ] [impl] Create object extending ZIOAppDefault
-   - [ ] [impl] Parse command-line arguments for --language and --resource
-   - [ ] [impl] Set up ZIO layers: PostgreSQLDatabaseSupport >>> PostgreSQLTransactor.layer >>> MessageCatalogueRepository.layer
-   - [ ] [impl] Call MessageCatalogueMigration.migrateFromJson with parsed arguments
-   - [ ] [impl] Print success message on completion
-   - [ ] [impl] Print error message and exit with code 1 on failure
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test passes
-   - [ ] [reviewed] CLI provides user-friendly interface to migration
+   - [x] [impl] Create file: `core/jvm/src/main/scala/works/iterative/core/migration/MessageCatalogueMigrationCLI.scala`
+   - [x] [impl] Create object extending ZIOAppDefault
+   - [x] [impl] Parse command-line arguments for --language and --resource
+   - [x] [impl] Set up ZIO layers: PostgreSQLDatabaseSupport >>> PostgreSQLTransactor.layer >>> MessageCatalogueRepository.layer
+   - [x] [impl] Call MessageCatalogueMigration.migrateFromJson with parsed arguments
+   - [x] [impl] Print success message on completion
+   - [x] [impl] Print error message and exit with code 1 on failure
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test passes
+   - [x] [reviewed] CLI provides user-friendly interface to migration
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add --dry-run flag to preview migration without inserting
-   - [ ] [impl] Add --help flag showing usage instructions
-   - [ ] [impl] Improve error messages to guide user
-   - [ ] [impl] Add PURPOSE comment at top of file
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] CLI is user-friendly and robust
+   - [x] [impl] Add --dry-run flag to preview migration without inserting
+   - [x] [impl] Add --help flag showing usage instructions
+   - [x] [impl] Improve error messages to guide user
+   - [x] [impl] Add PURPOSE comment at top of file
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] CLI is user-friendly and robust
 
    **Success Criteria:** CLI tool allows easy migration of JSON messages to SQL
    **Testing:** Tests verify CLI handles valid and invalid inputs correctly
@@ -564,48 +564,48 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 3. **Test Migration with Real messages.json Files** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/migration/RealMessageMigrationSpec.scala`
-   - [ ] [impl] Copy existing /ui/scenarios/src/main/static/resources/messages.json to test resources
-   - [ ] [impl] Write test that migrates real CS messages file
-   - [ ] [impl] Write test that verifies all messages from file are in database
-   - [ ] [impl] Write test that SqlMessageCatalogue can retrieve all migrated messages
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test fails if migration incomplete
-   - [ ] [reviewed] Test validates migration with production data
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/migration/RealMessageMigrationSpec.scala`
+   - [x] [impl] Copy existing /ui/scenarios/src/main/static/resources/messages.json to test resources
+   - [x] [impl] Write test that migrates real CS messages file
+   - [x] [impl] Write test that verifies all messages from file are in database
+   - [x] [impl] Write test that SqlMessageCatalogue can retrieve all migrated messages
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test fails if migration incomplete
+   - [x] [reviewed] Test validates migration with production data
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Fix any issues found with real message file format
-   - [ ] [impl] Handle edge cases in message text (special characters, quotes, etc.)
-   - [ ] [impl] Ensure all messages migrate successfully
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify test passes with 100% of messages migrated
-   - [ ] [reviewed] Migration handles real-world data correctly
+   - [x] [impl] Fix any issues found with real message file format
+   - [x] [impl] Handle edge cases in message text (special characters, quotes, etc.)
+   - [x] [impl] Ensure all messages migrate successfully
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify test passes with 100% of messages migrated
+   - [x] [reviewed] Migration handles real-world data correctly
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review migration performance with large message files
-   - [ ] [impl] Consider batch size for bulkInsert if needed
-   - [ ] [impl] Add validation that verifies message count before and after
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
-   - [ ] [reviewed] Migration is production-ready
+   - [x] [impl] Review migration performance with large message files
+   - [x] [impl] Consider batch size for bulkInsert if needed
+   - [x] [impl] Add validation that verifies message count before and after
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
+   - [x] [reviewed] Migration is production-ready
 
    **Success Criteria:** Real messages.json files successfully migrate to database
    **Testing:** Tests with actual project message files verify complete migration
 
 #### Phase Success Criteria
 
-- [ ] [impl] MessageCatalogueMigration object with migrateFromJson method
-- [ ] [reviewed] Migration implementation approved
-- [ ] [impl] CLI tool for running migrations
-- [ ] [reviewed] CLI usability approved
-- [ ] [impl] Tests with sample JSON pass
-- [ ] [reviewed] Sample data tests approved
-- [ ] [impl] Tests with real messages.json files pass
-- [ ] [reviewed] Production data migration validated
-- [ ] [impl] All unit tests pass
-- [ ] [reviewed] Test coverage and quality approved
-- [ ] [impl] Migration handles edge cases (special characters, large files)
-- [ ] [reviewed] Edge case handling validated
+- [x] [impl] MessageCatalogueMigration object with migrateFromJson method
+- [x] [reviewed] Migration implementation approved
+- [x] [impl] CLI tool for running migrations
+- [x] [reviewed] CLI usability approved
+- [x] [impl] Tests with sample JSON pass
+- [x] [reviewed] Sample data tests approved
+- [x] [impl] Tests with real messages.json files pass
+- [x] [reviewed] Production data migration validated
+- [x] [impl] All unit tests pass
+- [x] [reviewed] Test coverage and quality approved
+- [x] [impl] Migration handles edge cases (special characters, large files)
+- [x] [reviewed] Edge case handling validated
 
 ---
 

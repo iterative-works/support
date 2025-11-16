@@ -8,7 +8,6 @@ import zio.json.*
 import works.iterative.core.{Language, MessageId}
 import works.iterative.core.repository.MessageCatalogueRepository
 import works.iterative.sqldb.MessageCatalogue
-import java.time.Instant
 
 object MessageCatalogueMigration:
 
@@ -60,11 +59,17 @@ object MessageCatalogueMigration:
    * @return Task containing JSON content as string
    */
   private def loadJsonResource(resourcePath: String): Task[String] =
-    ZIO.attempt {
-      val stream = getClass.getResourceAsStream(resourcePath)
-      if stream == null then
-        throw new RuntimeException(s"Resource not found: $resourcePath")
-      scala.io.Source.fromInputStream(stream, "UTF-8").mkString
-    }
+    ZIO.acquireReleaseWith(
+      acquire = ZIO.attempt {
+        val stream = getClass.getResourceAsStream(resourcePath)
+        if stream == null then
+          throw new RuntimeException(s"Resource not found: $resourcePath")
+        scala.io.Source.fromInputStream(stream, "UTF-8")
+      }
+    )(
+      release = source => ZIO.succeed(source.close())
+    )(
+      use = source => ZIO.attempt(source.mkString)
+    )
 
 end MessageCatalogueMigration
