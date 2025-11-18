@@ -31,10 +31,10 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 0. **Define Domain Value Types (Scala 3 Opaque Types)** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/auth/DomainTypesSpec.scala`
-   - [ ] [impl] Write test case for UserId creation and value extraction
-   - [ ] [impl] Write test case for PermissionOp creation
-   - [ ] [impl] **CRITICAL: Write comprehensive PermissionTarget validation tests:**
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/auth/DomainTypesSpec.scala`
+   - [x] [impl] Write test case for UserId creation and value extraction
+   - [x] [impl] Write test case for PermissionOp creation
+   - [x] [impl] **CRITICAL: Write comprehensive PermissionTarget validation tests:**
      - Valid format: "document:123" → Right(PermissionTarget)
      - Valid with underscore: "task_list:abc-123" → Right(PermissionTarget)
      - Invalid: missing colon → Left(ValidationError)
@@ -43,17 +43,17 @@ Build incrementally across 5 phases, starting with in-memory implementations for
      - Invalid: namespace > 50 chars → Left(ValidationError)
      - Invalid: empty namespace → Left(ValidationError)
      - Invalid: empty objectId → Left(ValidationError)
-   - [ ] [impl] Write test case for PermissionTarget.unsafe constructor (no validation)
-   - [ ] [impl] Write test case for namespace and objectId extraction
-   - [ ] [impl] Write test case that UserId cannot be assigned to PermissionOp (type safety)
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify tests fail with "type UserId not found"
+   - [x] [impl] Write test case for PermissionTarget.unsafe constructor (no validation)
+   - [x] [impl] Write test case for namespace and objectId extraction
+   - [x] [impl] Write test case that UserId cannot be assigned to PermissionOp (type safety)
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify tests fail with "type UserId not found"
    - [x] [reviewed] Tests validate type-safe domain identifiers with strict input validation
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/auth/DomainTypes.scala`
-   - [ ] [impl] Add PURPOSE comments: Type-safe domain identifiers using Scala 3 opaque types
-   - [ ] [impl] **SCALA 3 REQUIRED: Define UserId as opaque type:**
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/auth/DomainTypes.scala`
+   - [x] [impl] Add PURPOSE comments: Type-safe domain identifiers using Scala 3 opaque types
+   - [x] [impl] **SCALA 3 REQUIRED: Define UserId as opaque type:**
      ```scala
      opaque type UserId = String
      object UserId:
@@ -61,7 +61,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
        extension (id: UserId)
          def value: String = id
      ```
-   - [ ] [impl] **SCALA 3 REQUIRED: Define PermissionOp as opaque type:**
+   - [x] [impl] **SCALA 3 REQUIRED: Define PermissionOp as opaque type:**
      ```scala
      opaque type PermissionOp = String
      object PermissionOp:
@@ -69,7 +69,7 @@ Build incrementally across 5 phases, starting with in-memory implementations for
        extension (op: PermissionOp)
          def value: String = op
      ```
-   - [ ] [impl] **SCALA 3 REQUIRED: Define PermissionTarget as opaque type with validation:**
+   - [x] [impl] **SCALA 3 REQUIRED: Define PermissionTarget as opaque type with validation:**
      ```scala
      opaque type PermissionTarget = String
      object PermissionTarget:
@@ -87,16 +87,16 @@ Build incrementally across 5 phases, starting with in-memory implementations for
          def namespace: String = target.split(":").head
          def objectId: String = target.split(":").last
      ```
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all type tests pass
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify all type tests pass
    - [x] [reviewed] Opaque types provide zero-cost compile-time safety
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add comprehensive Scaladoc explaining opaque types benefits
-   - [ ] [impl] Add usage examples in documentation
-   - [ ] [impl] Ensure validation errors are descriptive
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Add comprehensive Scaladoc explaining opaque types benefits
+   - [x] [impl] Add usage examples in documentation
+   - [x] [impl] Ensure validation errors are descriptive
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify all tests still pass
    - [x] [reviewed] Type definitions are clear and well-documented
 
    **Success Criteria:** All domain IDs use opaque types with compile-time safety and runtime validation
@@ -232,30 +232,30 @@ Build incrementally across 5 phases, starting with in-memory implementations for
    - [x] [reviewed] Tests cover both direct and inherited permissions
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/auth/InMemoryPermissionService.scala`
-   - [ ] [impl] Add PURPOSE comments explaining in-memory ReBAC permission service for testing/simple deployments
-   - [ ] [impl] Add NOTE: This is application-layer infrastructure (effects + storage), not domain
-   - [ ] [impl] Implement class with `Ref[Set[RelationTuple]]` storage
-   - [ ] [impl] **KEY: Call PermissionLogic.isAllowed (pure function) from implementation:**
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/auth/InMemoryPermissionService.scala`
+   - [x] [impl] Add PURPOSE comments explaining in-memory ReBAC permission service for testing/simple deployments
+   - [x] [impl] Add NOTE: This is application-layer infrastructure (effects + storage), not domain
+   - [x] [impl] Implement class with `Ref[Set[RelationTuple]]` storage
+   - [x] [impl] **KEY: Call PermissionLogic.isAllowed (pure function) from implementation:**
      ```scala
      def isAllowed(userId: UserId, action: PermissionOp, target: PermissionTarget): UIO[Boolean] =
        storage.get.map { tuples =>
          PermissionLogic.isAllowed(userId, action, target, tuples, config)
        }
      ```
-   - [ ] [impl] Implement addRelation, removeRelation using Ref.update
-   - [ ] [impl] Implement listAllowed calling PermissionLogic.listAllowed
-   - [ ] [impl] Create ZLayer factory method with ZLayer.fromZIO pattern (lazy initialization)
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all InMemoryPermissionService tests pass
+   - [x] [impl] Implement addRelation, removeRelation using Ref.update
+   - [x] [impl] Implement listAllowed calling PermissionLogic.listAllowed
+   - [x] [impl] Create ZLayer factory method with ZLayer.fromZIO pattern (lazy initialization)
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify all InMemoryPermissionService tests pass
    - [x] [reviewed] Implementation correctly delegates to pure logic
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add error handling (fail closed on unexpected cases)
-   - [ ] [impl] Optimize listAllowed query (single Ref.get, filter in memory)
-   - [ ] [impl] Add comprehensive Scaladoc with usage examples
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Add error handling (fail closed on unexpected cases)
+   - [x] [impl] Optimize listAllowed query (single Ref.get, filter in memory)
+   - [x] [impl] Add comprehensive Scaladoc with usage examples
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify all tests still pass
    - [x] [reviewed] Code is efficient and maintainable
 
    **Success Criteria:** InMemoryPermissionService correctly checks permissions by delegating to pure PermissionLogic
@@ -487,25 +487,25 @@ Build incrementally across 5 phases, starting with in-memory implementations for
 
 #### Phase Success Criteria
 
-- [ ] [impl] Opaque types provide compile-time safety for all domain IDs
+- [x] [impl] Opaque types provide compile-time safety for all domain IDs
 - [x] [reviewed] Scala 3 type definitions approved
-- [ ] [impl] PermissionLogic provides pure, testable permission checking functions
+- [x] [impl] PermissionLogic provides pure, testable permission checking functions
 - [x] [reviewed] FCIS separation approved (pure logic vs effects)
-- [ ] [impl] RelationTuple case class correctly represents (user, relation, target) triples
+- [x] [impl] RelationTuple case class correctly represents (user, relation, target) triples
 - [x] [reviewed] RelationTuple design approved
-- [ ] [impl] PermissionConfig defines namespace-specific permission inheritance rules with depth limits
+- [x] [impl] PermissionConfig defines namespace-specific permission inheritance rules with depth limits
 - [x] [reviewed] PermissionConfig design approved
-- [ ] [impl] InMemoryPermissionService checks permissions by delegating to pure PermissionLogic
+- [x] [impl] InMemoryPermissionService checks permissions by delegating to pure PermissionLogic
 - [x] [reviewed] InMemoryPermissionService implementation approved
-- [ ] [impl] Authorization helpers provide declarative guards (require, check, withPermission, filterAllowed)
+- [x] [impl] Authorization helpers provide declarative guards (require, check, withPermission, filterAllowed)
 - [x] [reviewed] Authorization helper API approved
-- [ ] [impl] MetricsService abstraction exists with no-op implementation
+- [x] [impl] MetricsService abstraction exists with no-op implementation
 - [x] [reviewed] Metrics infrastructure approved
-- [ ] [impl] ConfigValidator validates all configuration on startup
+- [x] [impl] ConfigValidator validates all configuration on startup
 - [x] [reviewed] Configuration validation approved
-- [ ] [impl] All unit tests pass: `mill core.shared.test`
+- [x] [impl] All unit tests pass: `mill core.shared.test`
 - [x] [reviewed] Test coverage and quality approved (100% coverage of permission logic)
-- [ ] [impl] Can grant user "owner" on document:123, verify they have "view" via inheritance
+- [x] [impl] Can grant user "owner" on document:123, verify they have "view" via inheritance
 - [x] [reviewed] Phase validation approved - working in-memory permission system with infrastructure
 
 ---
