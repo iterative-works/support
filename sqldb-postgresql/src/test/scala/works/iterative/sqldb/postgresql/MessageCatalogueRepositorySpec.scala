@@ -8,7 +8,7 @@ import zio.test.*
 import zio.test.TestAspect.*
 import works.iterative.core.Language
 import works.iterative.core.repository.MessageCatalogueRepository
-import works.iterative.sqldb.testing.PostgreSQLTestingLayers.*
+import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*
 import com.augustnagro.magnum.magzio.*
 
 object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
@@ -188,7 +188,7 @@ object MessageCatalogueRepositorySpec extends ZIOSpecDefault:
       )
     }
   ).provideSomeShared[Scope](
-    MessageCatalogueRepository.layer,
+    PostgreSQLMessageCatalogueRepository.layer,
     flywayMigrationServiceLayer
   ) @@ sequential
 end MessageCatalogueRepositorySpec

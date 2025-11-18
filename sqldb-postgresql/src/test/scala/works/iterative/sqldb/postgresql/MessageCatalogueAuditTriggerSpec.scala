@@ -6,7 +6,7 @@ package works.iterative.sqldb.postgresql
 import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
-import works.iterative.sqldb.testing.PostgreSQLTestingLayers.*
+import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*
 import com.augustnagro.magnum.magzio.*
 
 object MessageCatalogueAuditTriggerSpec extends ZIOSpecDefault:

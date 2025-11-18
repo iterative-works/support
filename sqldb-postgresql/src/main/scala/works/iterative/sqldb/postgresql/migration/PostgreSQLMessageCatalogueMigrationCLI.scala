@@ -94,7 +94,7 @@ object MessageCatalogueMigrationCLI extends ZIOAppDefault:
 
     program
       .provideSomeLayer[Scope](
-        PostgreSQLDatabaseSupport.layer >>> MessageCatalogueRepository.layer
+        PostgreSQLDatabaseSupport.layer >>> PostgreSQLMessageCatalogueRepository.layer
       )
       .catchAll { error =>
         Console.printLineError(s"Migration failed: ${error.getMessage}") *>
