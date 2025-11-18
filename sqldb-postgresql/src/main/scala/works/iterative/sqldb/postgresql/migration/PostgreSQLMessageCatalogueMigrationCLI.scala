@@ -1,12 +1,12 @@
 // PURPOSE: Command-line interface for migrating message catalogue from JSON files to SQL database
 // PURPOSE: Parses arguments, sets up layers, and executes migration with user-friendly output
 
-package works.iterative.sqldb.migration
+package works.iterative.sqldb.postgresql.migration
 
 import zio.*
 import works.iterative.core.Language
 import works.iterative.core.repository.MessageCatalogueRepository
-import works.iterative.sqldb.*
+import works.iterative.sqldb.postgresql.*
 
 object MessageCatalogueMigrationCLI extends ZIOAppDefault:
 

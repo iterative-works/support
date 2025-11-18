@@ -1,7 +1,7 @@
 // PURPOSE: Tests for MessageCatalogueMigration to verify JSON to SQL migration functionality
 // PURPOSE: Ensures correct parsing, conversion, and bulk insertion of messages from JSON resources
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 import zio.test.*

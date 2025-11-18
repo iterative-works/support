@@ -1,7 +1,7 @@
 // PURPOSE: Database entity representing message catalogue entries in the database
 // PURPOSE: Maps between domain model and database columns with Magnum ORM
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import com.augustnagro.magnum.*
 import works.iterative.core.{Language, MessageId}

@@ -1,7 +1,7 @@
 // PURPOSE: Tests for real messages.json file migration to verify production data compatibility
 // PURPOSE: Ensures migration handles actual project message files with all edge cases
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 import zio.test.*

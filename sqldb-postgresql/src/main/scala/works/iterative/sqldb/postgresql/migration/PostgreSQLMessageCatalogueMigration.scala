@@ -1,13 +1,13 @@
 // PURPOSE: Migration tool to import message catalogue entries from JSON files to SQL database
 // PURPOSE: Handles JSON parsing, batch processing, and bulk insertion of messages
 
-package works.iterative.sqldb.migration
+package works.iterative.sqldb.postgresql.migration
 
 import zio.*
 import zio.json.*
 import works.iterative.core.{Language, MessageId}
 import works.iterative.core.repository.MessageCatalogueRepository
-import works.iterative.sqldb.MessageCatalogue
+import works.iterative.sqldb.postgresql.MessageCatalogue
 
 object MessageCatalogueMigration:
 
