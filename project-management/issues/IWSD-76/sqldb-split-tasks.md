@@ -157,7 +157,8 @@ sqldb-postgresql/
   src/
     main/
       scala/works/iterative/sqldb/postgresql/
-      resources/db/migration/postgresql/
+      resources/
+        db/migration/postgresql/           ← Database-specific directory
     test/
       scala/works/iterative/sqldb/postgresql/
       resources/
@@ -170,7 +171,8 @@ sqldb-postgresql/
 
 - Migration files:
   - `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.postgresql.sql`
-  - Move to `sqldb-postgresql/src/main/resources/db/migration/postgresql/`
+  - Move to `sqldb-postgresql/src/main/resources/db/migration/postgresql/V1__create_message_catalogue.sql`
+  - **Note:** Remove `.postgresql` suffix - directory path indicates database type
 
 - Migration tool:
   - `sqldb/src/main/scala/works/iterative/sqldb/migration/MessageCatalogueMigration.scala`
@@ -201,9 +203,10 @@ sqldb-postgresql/
    - Update to use Magnum MySQL codecs
    - Adjust for any MySQL-specific SQL differences
 
-2. **Migration:** `sqldb-mysql/src/main/resources/db/migration/mysql/V1__create_message_catalogue.mysql.sql`
+2. **Migration:** `sqldb-mysql/src/main/resources/db/migration/mysql/V1__create_message_catalogue.sql`
    - Already created in `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.mysql.sql`
-   - Move to this location
+   - Move to `sqldb-mysql/src/main/resources/db/migration/mysql/V1__create_message_catalogue.sql`
+   - **Note:** Remove `.mysql` suffix - directory path indicates database type
 
 3. **`MySQLMessageCatalogueMigration.scala`**
    - Copy and adapt from PostgreSQL version
@@ -258,19 +261,113 @@ object MySQLMessageCatalogueRepository {
 }
 ```
 
-### Phase 4: Update Tests
+### Phase 4: Flyway Configuration for Consuming Applications
 
-#### 4.1 Update `sqldb.testing` Module
+#### 4.1 Migration Location Configuration
+
+**Important:** Consuming applications must configure Flyway to use the correct migration directory.
+
+**PostgreSQL Projects:**
+```scala
+// Example Flyway configuration
+FlywayConfig(
+  locations = Seq("classpath:db/migration/postgresql")
+)
+```
+
+**MySQL Projects:**
+```scala
+// Example Flyway configuration
+FlywayConfig(
+  locations = Seq("classpath:db/migration/mysql")
+)
+```
+
+**Why This Matters:**
+- By default, Flyway looks in `classpath:db/migration`
+- Our migrations are in `db/migration/postgresql/` or `db/migration/mysql/`
+- Without configuration, Flyway won't find the migrations
+- Each database module packages only its own migrations
+
+#### 4.2 Document Configuration Requirements
+
+**Create documentation** (in README or migration guide):
+
+```markdown
+## Flyway Configuration
+
+When using `sqldb-postgresql`, configure Flyway migration location:
+
+```scala
+import works.iterative.sqldb.FlywayMigrationService
+
+val flywayConfig = FlywayConfig(
+  locations = Seq("classpath:db/migration/postgresql"),
+  // ... other config
+)
+```
+
+When using `sqldb-mysql`, use:
+
+```scala
+val flywayConfig = FlywayConfig(
+  locations = Seq("classpath:db/migration/mysql"),
+  // ... other config
+)
+```
+```
+
+#### 4.3 Testing Layer Configuration
+
+**Update testing layers to configure migration locations:**
+
+**PostgreSQL Testing:**
+```scala
+// In sqldb-postgresql/testing-support/
+object PostgreSQLTestingLayers {
+  val flywayMigrationServiceLayer = ZLayer {
+    for {
+      config <- ZIO.config(FlywayMigrationServiceConfig.config)
+      // Force PostgreSQL migration location
+      updatedConfig = config.copy(
+        locations = Seq("classpath:db/migration/postgresql")
+      )
+      service <- FlywayMigrationService.make(updatedConfig)
+    } yield service
+  }
+}
+```
+
+**MySQL Testing:**
+```scala
+// In sqldb-mysql/testing-support/
+object MySQLTestingLayers {
+  val flywayMigrationServiceLayer = ZLayer {
+    for {
+      config <- ZIO.config(FlywayMigrationServiceConfig.config)
+      // Force MySQL migration location
+      updatedConfig = config.copy(
+        locations = Seq("classpath:db/migration/mysql")
+      )
+      service <- FlywayMigrationService.make(updatedConfig)
+    } yield service
+  }
+}
+```
+
+### Phase 5: Update Tests
+
+#### 5.1 Update `sqldb.testing` Module
 
 **Keep database-agnostic test utilities in `sqldb/testing-support/`**
 
-#### 4.2 Create PostgreSQL Testing Module
+#### 5.2 Create PostgreSQL Testing Module
 
 **Location:** `sqldb-postgresql/testing-support/`
 - Move `PostgreSQLTestingLayers.scala` here
 - Move PostgreSQL-specific test utilities
 
-#### 4.3 Create MySQL Testing Module
+#### 5.3 Create MySQL Testing Module
 
 **Location:** `sqldb-mysql/testing-support/`
 - Create `MySQLTestingLayers.scala` (mirror PostgreSQL version)
@@ -355,8 +452,10 @@ mill sqldb-mysql.test
 - `sqldb/src/main/scala/works/iterative/sqldb/migration/MessageCatalogueMigrationCLI.scala` → **Move to sqldb-postgresql**
 
 ### Migration Files
-- `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.postgresql.sql` → **Move to sqldb-postgresql/resources**
-- `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.mysql.sql` → **Move to sqldb-mysql/resources**
+- `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.postgresql.sql`
+  → **Move to** `sqldb-postgresql/src/main/resources/db/migration/postgresql/V1__create_message_catalogue.sql` (remove suffix)
+- `core/jvm/src/main/resources/db/migration/V1__create_message_catalogue.mysql.sql`
+  → **Move to** `sqldb-mysql/src/main/resources/db/migration/mysql/V1__create_message_catalogue.sql` (remove suffix)
 
 ### Test Files
 - `sqldb/src/test/scala/works/iterative/sqldb/*` → **Move to sqldb-postgresql/src/test**
