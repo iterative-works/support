@@ -2,6 +2,7 @@
 // PURPOSE: Verifies repository operations including security (SQL injection) and data integrity
 
 package works.iterative.sqldb.postgresql
+import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
 
 import zio.*
 import zio.test.*
