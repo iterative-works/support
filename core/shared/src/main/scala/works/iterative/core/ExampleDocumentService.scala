@@ -115,11 +115,14 @@ class ExampleDocumentService():
       id: String,
       newTitle: String
   ): ZIO[CurrentUser & PermissionService, AuthenticationError, Document] =
-    Authorization.require(PermissionOp.unsafe("edit"), documentTarget(id)) {
-      // In real implementation, would fetch document from database to get actual ownerId
-      // This is placeholder data for demonstration purposes
-      ZIO.succeed(Document(id, newTitle, "placeholder-owner-id"))
-    }
+    for {
+      currentUser <- ZIO.service[CurrentUser]
+      doc <- Authorization.require(PermissionOp.unsafe("edit"), documentTarget(id)) {
+        // In real implementation, would fetch document from database
+        // For demonstration, we use current user ID as a placeholder
+        ZIO.succeed(Document(id, newTitle, currentUser.subjectId.value))
+      }
+    } yield doc
 
   /** Delete a document.
     *
