@@ -8,13 +8,13 @@ import works.iterative.core.Language
 import works.iterative.core.model.MessageCatalogueData
 import works.iterative.core.repository.MessageCatalogueRepository
 
-object MessageCatalogueRepository:
+object PostgreSQLMessageCatalogueRepository:
   /** ZIO layer for MessageCatalogueRepository
     * Wires PostgreSQLTransactor to MessageCatalogueRepositoryImpl
     */
   val layer: URLayer[PostgreSQLTransactor, MessageCatalogueRepository] =
     ZLayer.fromFunction((ts: PostgreSQLTransactor) => MessageCatalogueRepositoryImpl(ts))
-end MessageCatalogueRepository
+end PostgreSQLMessageCatalogueRepository
 
 case class MessageCatalogueRepositoryImpl(ts: PostgreSQLTransactor) extends MessageCatalogueRepository:
   import com.augustnagro.magnum.Repo
