@@ -299,21 +299,18 @@ object sqldb extends JvmOnlyModule {
   def description = "IW Support SQL Database Library"
   def moduleDeps = Seq(core.jvm)
   
-  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ 
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++
     Dependencies.zioConfig ++ Seq(
       IWMillDeps.magnumZIO,
-      IWMillDeps.magnumPG,
       IWMillDeps.chimney,
       mvn"org.flywaydb:flyway-core:11.4.0",
-      mvn"org.flywaydb:flyway-database-postgresql:11.4.0",
-      mvn"org.postgresql:postgresql:42.7.5",
       mvn"com.zaxxer:HikariCP:6.2.1"
     )
   
   // Testing support sub-module
   object testing extends JvmOnlyModule {
     def moduleName = "sqldb-testing"
-    def description = "IW Support SQL Database Testing Library"
+    def description = "IW Support SQL Database Testing Library - Core"
     override def moduleDir = sqldb.moduleDir / "testing-support"
 
     override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
@@ -323,14 +320,69 @@ object sqldb extends JvmOnlyModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioTest,
       IWMillDeps.logbackClassic,
-      mvn"org.testcontainers:testcontainers:1.20.4",
+      mvn"org.testcontainers:testcontainers:1.20.4"
+    )
+  }
+
+  object test extends BaseTests {
+    def moduleDeps = Seq(sqldb, sqldb.testing)
+  }
+}
+
+// PostgreSQL-specific SQL Database implementation
+object `sqldb-postgresql` extends JvmOnlyModule {
+  def moduleName = "sqldb-postgresql"
+  def description = "IW Support SQL Database Library - PostgreSQL Implementation"
+  def moduleDeps = Seq(sqldb)
+
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.magnumPG,
+    mvn"org.flywaydb:flyway-database-postgresql:11.4.0",
+    mvn"org.postgresql:postgresql:42.7.5"
+  )
+
+  // Testing module for PostgreSQL
+  object testing extends JvmOnlyModule {
+    def moduleName = "sqldb-postgresql-testing"
+    def description = "IW Support PostgreSQL Testing Library"
+    def moduleDeps = Seq(`sqldb-postgresql`, sqldb.testing)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
       mvn"org.testcontainers:postgresql:1.20.4",
       mvn"com.dimafeng::testcontainers-scala-postgresql::0.41.5"
     )
   }
 
   object test extends BaseTests {
-    def moduleDeps = Seq(sqldb, sqldb.testing)
+    def moduleDeps = Seq(`sqldb-postgresql`, `sqldb-postgresql`.testing)
+  }
+}
+
+// MySQL/MariaDB-specific SQL Database implementation
+object `sqldb-mysql` extends JvmOnlyModule {
+  def moduleName = "sqldb-mysql"
+  def description = "IW Support SQL Database Library - MySQL/MariaDB Implementation"
+  def moduleDeps = Seq(sqldb)
+
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.magnumZIO,
+    mvn"org.flywaydb:flyway-database-mysql:11.4.0",
+    mvn"com.mysql:mysql-connector-j:9.1.0"
+  )
+
+  // Testing module for MySQL
+  object testing extends JvmOnlyModule {
+    def moduleName = "sqldb-mysql-testing"
+    def description = "IW Support MySQL Testing Library"
+    def moduleDeps = Seq(`sqldb-mysql`, sqldb.testing)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.testcontainers:mysql:1.20.4"
+    )
+  }
+
+  object test extends BaseTests {
+    def moduleDeps = Seq(`sqldb-mysql`, `sqldb-mysql`.testing)
   }
 }
 
