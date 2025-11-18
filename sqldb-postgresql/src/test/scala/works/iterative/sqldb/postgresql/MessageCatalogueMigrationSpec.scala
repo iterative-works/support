@@ -8,8 +8,8 @@ import zio.test.*
 import zio.test.TestAspect.*
 import works.iterative.core.{Language, MessageId}
 import works.iterative.core.repository.MessageCatalogueRepository
-import works.iterative.sqldb.testing.PostgreSQLTestingLayers.*
-import works.iterative.sqldb.FlywayMigrationService
+import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*
+import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
 import works.iterative.sqldb.migration.MessageCatalogueMigration
 
 object MessageCatalogueMigrationSpec extends ZIOSpecDefault:
@@ -145,6 +145,6 @@ object MessageCatalogueMigrationSpec extends ZIOSpecDefault:
       )
     }
   ).provideSomeShared[Scope](
-    MessageCatalogueRepository.layer,
+    PostgreSQLMessageCatalogueRepository.layer,
     flywayMigrationServiceLayer
   ) @@ sequential
