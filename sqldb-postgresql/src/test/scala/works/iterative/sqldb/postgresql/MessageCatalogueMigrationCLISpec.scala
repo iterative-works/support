@@ -2,6 +2,7 @@
 // PURPOSE: Ensures CLI provides user-friendly interface with proper error messages
 
 package works.iterative.sqldb.postgresql
+import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
 
 import zio.test.*
 import works.iterative.sqldb.migration.MessageCatalogueMigrationCLI

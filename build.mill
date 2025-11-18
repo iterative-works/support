@@ -345,6 +345,11 @@ object `sqldb-postgresql` extends JvmOnlyModule {
   object testing extends JvmOnlyModule {
     def moduleName = "sqldb-postgresql-testing"
     def description = "IW Support PostgreSQL Testing Library"
+    override def moduleDir = `sqldb-postgresql`.moduleDir / "testing-support"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
     def moduleDeps = Seq(`sqldb-postgresql`, sqldb.testing)
 
     def mvnDeps = super.mvnDeps() ++ Seq(
@@ -374,6 +379,11 @@ object `sqldb-mysql` extends JvmOnlyModule {
   object testing extends JvmOnlyModule {
     def moduleName = "sqldb-mysql-testing"
     def description = "IW Support MySQL Testing Library"
+    override def moduleDir = `sqldb-mysql`.moduleDir / "testing-support"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
     def moduleDeps = Seq(`sqldb-mysql`, sqldb.testing)
 
     def mvnDeps = super.mvnDeps() ++ Seq(
