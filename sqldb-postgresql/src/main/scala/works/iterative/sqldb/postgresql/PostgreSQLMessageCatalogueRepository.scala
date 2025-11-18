@@ -1,7 +1,7 @@
 // PURPOSE: Repository implementation for accessing message catalogue data from the database
 // PURPOSE: Provides PostgreSQL-specific implementation with Magnum ORM
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 import works.iterative.core.Language

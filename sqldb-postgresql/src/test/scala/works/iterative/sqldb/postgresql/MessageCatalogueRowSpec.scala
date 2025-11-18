@@ -1,7 +1,7 @@
 // PURPOSE: Tests for MessageCatalogue database entity
 // PURPOSE: Verifies entity creation, factory methods, and Magnum codec derivation
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 import zio.test.*

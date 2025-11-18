@@ -1,7 +1,7 @@
 // PURPOSE: Tests for message_catalogue audit trigger functionality
 // PURPOSE: Verifies that history entries are created only when message_text changes
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 import zio.test.*

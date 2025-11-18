@@ -1,7 +1,7 @@
 // PURPOSE: Tests for MessageCatalogueMigrationCLI to verify argument parsing and help display
 // PURPOSE: Ensures CLI provides user-friendly interface with proper error messages
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.test.*
 import works.iterative.sqldb.migration.MessageCatalogueMigrationCLI

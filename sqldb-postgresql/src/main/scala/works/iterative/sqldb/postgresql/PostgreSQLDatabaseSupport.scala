@@ -1,4 +1,4 @@
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 

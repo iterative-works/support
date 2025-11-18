@@ -1,7 +1,7 @@
 // PURPOSE: Unit tests for MessageCatalogueRepository interface and basic functionality
 // PURPOSE: Verifies repository operations including security (SQL injection) and data integrity
 
-package works.iterative.sqldb
+package works.iterative.sqldb.postgresql
 
 import zio.*
 import zio.test.*
