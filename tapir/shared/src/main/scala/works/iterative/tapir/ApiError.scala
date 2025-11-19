@@ -1,6 +1,6 @@
 package works.iterative.tapir
 
-import works.iterative.core.auth.service.AuthenticationError
+import works.iterative.core.auth.AuthenticationError
 
 sealed trait ApiError[+ClientError]
 object ApiError:

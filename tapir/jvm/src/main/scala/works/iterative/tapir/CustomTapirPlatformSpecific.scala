@@ -13,7 +13,7 @@ import java.net.URI
 import sttp.capabilities.zio.ZioStreams
 import works.iterative.core.auth.service.AuthenticationService
 import works.iterative.core.auth.CurrentUser
-import works.iterative.core.auth.service.AuthenticationError
+import works.iterative.core.auth.AuthenticationError
 
 trait CustomTapirPlatformSpecific extends ZTapir with SttpClientInterpreter:
     self: CustomTapir =>

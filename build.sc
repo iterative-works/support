@@ -187,15 +187,29 @@ trait NestedCrossModule extends CrossModule {
 object core extends CrossModule {
   def moduleName = "core"
   def description = "IW Support Core Library"
-  
+
   object jvm extends JvmModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull
     object test extends BaseTests
   }
-  
+
   object js extends JsModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull ++ Seq(IWMillDeps.scalaJsDom)
     object test extends BaseScalaJSTests
+  }
+
+  // Testing utilities sub-module
+  object testUtils extends JvmOnlyModule {
+    def moduleName = "core-test-utils"
+    def description = "IW Support Core Testing Utilities"
+    override def moduleDir = core.moduleDir / "testUtils"
+    override def intellijModulePath: os.Path = core.moduleDir / "testUtils"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
+    def moduleDeps = Seq(core.jvm)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
   }
 }
 
@@ -401,7 +415,7 @@ object e2eTesting extends JvmOnlyModule {
   def moduleName = "e2e-testing"
   def description = "IW Support E2E Testing Library"
   def moduleDeps = Seq(core.jvm)
-  
+
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
     // Cucumber for BDD testing
     mvn"io.cucumber::cucumber-scala::8.23.1",
@@ -413,21 +427,51 @@ object e2eTesting extends JvmOnlyModule {
   )
 }
 
+// Server module with HTTP submodule - JVM only
+object server extends Module {
+  object http extends JvmOnlyModule {
+    def moduleName = "server-http"
+    def description = "IW Support Server HTTP Library"
+    def moduleDeps = Seq(core.jvm, tapir.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig ++
+      Dependencies.tapirServerJvm ++ Seq(
+        IWMillDeps.scalatags,
+        IWMillDeps.zioLoggingSlf4j,
+        IWMillDeps.zioConfigTypesafe,
+        IWMillDeps.zioConfigMagnolia,
+        IWMillDeps.zioInteropCats,
+        // Tapir files support for static files
+        mvn"com.softwaremill.sttp.tapir::tapir-files::${IWMillVersions.tapir}",
+        // HTTP4s Blaze Server
+        mvn"org.http4s::http4s-blaze-server::${IWMillVersions.http4sBlaze}",
+        // Pac4j HTTP4s integration
+        mvn"org.pac4j::http4s-pac4j::${IWMillVersions.http4sPac4J}",
+        // Pac4j OIDC
+        mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
+        mvn"org.pac4j:pac4j-core:${IWMillVersions.pac4j}"
+      ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+
+    object test extends BaseTests
+  }
+}
+
 // Root aggregate module
 object root extends BaseModule {
   def artifactName = "iw-support"
   override def publishVersion = "0.0.0"
   def pomSettings = CommonPomSettings("IW Support Root Aggregate")
-  
+
   def moduleDeps = Seq(
-    core.jvm, core.js,
+    core.jvm, core.js, core.testUtils,
     entity.jvm, entity.js,
     serviceSpecs.jvm, serviceSpecs.js,
     tapir.jvm, tapir.js,
     mongo, sqldb, sqldb.testing, email,
     codecs.jvm, codecs.js,
     ui.jvm, ui.js,
-    e2eTesting
+    e2eTesting,
+    server.http
   )
 }
 

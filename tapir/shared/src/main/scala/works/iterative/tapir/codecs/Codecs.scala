@@ -7,7 +7,6 @@ import works.iterative.tapir.CustomTapir.*
 import works.iterative.core.*
 import works.iterative.core.czech.*
 import works.iterative.core.auth.*
-import works.iterative.core.auth.service.AuthenticationError
 import sttp.tapir.CodecFormat
 import sttp.tapir.Validator
 
@@ -57,7 +56,7 @@ trait JsonCodecs:
     given JsonCodec[ICO] = validatedStringCodec(ICO)
 
     given JsonCodec[PermissionOp] =
-        JsonCodec.string.transform(PermissionOp(_), _.value)
+        JsonCodec.string.transform(PermissionOp.unsafe(_), _.value)
     given JsonCodec[PermissionTarget] = textCodec(PermissionTarget.apply)
 
     given JsonCodec[UserId] =

@@ -3,14 +3,6 @@ package service
 
 import zio.*
 import works.iterative.core.UserMessage
-import works.iterative.core.HasUserMessage
-
-case class AuthenticationError(userMessage: UserMessage)
-    extends RuntimeException(s"Authentication error: ${userMessage}")
-    with HasUserMessage
-
-object AuthenticationError:
-    val NotLoggedIn = AuthenticationError(UserMessage("error.not.logged.in"))
 
 trait AuthenticationService:
     def loggedIn(user: AuthedUserInfo): UIO[Unit] =
@@ -32,7 +24,8 @@ trait AuthenticationService:
         currentUserInfo.flatMap {
             case Some(info) =>
                 effect.provideSome[R](ZLayer.succeed(CurrentUser(info.profile)))
-            case None => ZIO.fail(AuthenticationError.NotLoggedIn)
+            case None =>
+                ZIO.fail(AuthenticationError.Unauthenticated(UserMessage("error.auth.unauthenticated")))
         }
 end AuthenticationService
 
