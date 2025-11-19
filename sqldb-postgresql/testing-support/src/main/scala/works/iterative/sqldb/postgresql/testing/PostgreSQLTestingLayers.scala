@@ -1,5 +1,4 @@
-package works.iterative.sqldb
-package testing
+package works.iterative.sqldb.postgresql.testing
 
 import zio.*
 import com.dimafeng.testcontainers.PostgreSQLContainer
@@ -7,6 +6,8 @@ import org.testcontainers.utility.DockerImageName
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import javax.sql.DataSource
 import com.augustnagro.magnum.magzio.*
+import works.iterative.sqldb.{FlywayConfig, FlywayMigrationService}
+import works.iterative.sqldb.postgresql.{PostgreSQLDataSource, PostgreSQLTransactor, PostgreSQLFlywayMigrationService}
 
 object PostgreSQLTestingLayers:
 
@@ -57,8 +58,9 @@ object PostgreSQLTestingLayers:
         postgreSQLDataSourceLayer >+> PostgreSQLTransactor.managedLayer
 
     // Create a custom Flyway config that allows cleaning the database
+    // PostgreSQL-specific migration location
     val testFlywayConfig = FlywayConfig(
-        locations = FlywayConfig.DefaultLocation :: Nil,
+        locations = "classpath:db/migration/postgresql" :: Nil,
         cleanDisabled = false
     )
 
@@ -68,6 +70,6 @@ object PostgreSQLTestingLayers:
         Throwable,
         PostgreSQLDataSource & PostgreSQLTransactor & FlywayMigrationService
     ] =
-        postgreSQLTransactorLayer >+> FlywayMigrationService.layerWithConfig(testFlywayConfig)
+        postgreSQLTransactorLayer >+> PostgreSQLFlywayMigrationService.layerWithConfig(testFlywayConfig)
 
 end PostgreSQLTestingLayers

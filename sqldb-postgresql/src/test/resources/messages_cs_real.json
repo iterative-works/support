@@ -1,0 +1,13 @@
+{
+    "dokument.loading": "Nahrávám dokument '%s' ...",
+    "dokument.akce.details": "Detaily",
+    "dokument.detaily": "Detaily dokumentu",
+    "dokument.nazev": "Název",
+    "dokument.jazyk": "Jazyk",
+    "jazyk.cs": "čeština",
+    "jazyk.en": "angličtina",
+    "dokument.vlastnik": "Vlastník",
+    "dokument.autor": "Autor",
+    "dokument.schvalovatele": "Schvalují",
+    "error.server": "Chyba serveru"
+}
