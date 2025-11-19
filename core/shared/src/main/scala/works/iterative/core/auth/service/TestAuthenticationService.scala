@@ -1,5 +1,5 @@
-// PURPOSE: Provides fake authentication service for testing with predefined test users
-// PURPOSE: Allows test code to switch between test users and access CurrentUser context
+// PURPOSE: Provides flexible fake authentication service for testing
+// PURPOSE: Allows test code to create users with project-specific roles and switch between them
 package works.iterative.core.auth
 package service
 
@@ -15,71 +15,66 @@ object TestAuthenticationService extends AuthenticationService:
     override def loggedIn(token: AccessToken, profile: BasicProfile): UIO[Unit] =
         currentUser.set(Some(AuthedUserInfo(token, profile)))
 
-    /**
-     * Predefined test admin user with admin role.
-     */
-    val testAdmin: BasicProfile = BasicProfile(
-        subjectId = UserId.unsafe("test-admin"),
-        userName = Some(UserName.unsafe("Test Admin")),
-        email = Some(Email.unsafe("admin@example.com")),
-        avatar = None,
-        roles = Set(UserRole.unsafe("admin"), UserRole.unsafe("user"))
-    )
-
-    /**
-     * Predefined test user with user role.
-     */
-    val testUser: BasicProfile = BasicProfile(
-        subjectId = UserId.unsafe("test-user"),
-        userName = Some(UserName.unsafe("Test User")),
-        email = Some(Email.unsafe("user@example.com")),
-        avatar = None,
-        roles = Set(UserRole.unsafe("user"))
-    )
-
-    /**
-     * Predefined test viewer user with viewer role.
-     */
-    val testViewer: BasicProfile = BasicProfile(
-        subjectId = UserId.unsafe("test-viewer"),
-        userName = Some(UserName.unsafe("Test Viewer")),
-        email = Some(Email.unsafe("viewer@example.com")),
-        avatar = None,
-        roles = Set(UserRole.unsafe("viewer"))
-    )
-
-    /**
-     * Login as a user with the specified userId.
-     * Creates a BasicProfile with the given userId and a synthetic access token.
-     */
-    def loginAs(userId: String): UIO[Unit] =
+    /** Login as a user with specified profile attributes.
+      *
+      * This is the main method for test authentication. Projects define their own
+      * test users with roles/attributes that match their domain.
+      *
+      * Usage example:
+      * {{{
+      *   TestAuthenticationService.loginAs(
+      *     userId = "user-123",
+      *     userName = Some("John Doe"),
+      *     email = Some("john@example.com"),
+      *     roles = Set("editor", "viewer")
+      *   )
+      * }}}
+      *
+      * @param userId User identifier
+      * @param userName Optional user display name (defaults to userId if not provided)
+      * @param email Optional email address
+      * @param roles Set of role names (project-specific)
+      * @param avatar Optional avatar URL
+      */
+    def loginAs(
+        userId: String,
+        userName: Option[String] = None,
+        email: Option[String] = None,
+        roles: Set[String] = Set.empty,
+        avatar: Option[String] = None
+    ): UIO[Unit] =
         val profile = BasicProfile(
             subjectId = UserId.unsafe(userId),
-            userName = Some(UserName.unsafe(userId)),
-            email = None,
-            avatar = None,
-            roles = Set.empty
+            userName = userName.map(UserName.unsafe).orElse(Some(UserName.unsafe(userId))),
+            email = email.map(Email.unsafe),
+            avatar = avatar.map(Avatar.unsafe),
+            roles = roles.map(UserRole.unsafe)
         )
         val token = AccessToken(s"test-token-$userId")
         loggedIn(token, profile)
 
-    /**
-     * Login as the predefined test admin user (test-admin).
-     */
-    def loginAsAdmin(): UIO[Unit] =
-        loggedIn(AccessToken("test-token-admin"), testAdmin)
-
-    /**
-     * Login as the predefined test user (test-user).
-     */
-    def loginAsUser(): UIO[Unit] =
-        loggedIn(AccessToken("test-token-user"), testUser)
-
-    /**
-     * Login as the predefined test viewer user (test-viewer).
-     */
-    def loginAsViewer(): UIO[Unit] =
-        loggedIn(AccessToken("test-token-viewer"), testViewer)
+    /** Login with a fully constructed BasicProfile.
+      *
+      * Useful when you need complete control over the profile or want to
+      * define test user constants in your project's test utilities.
+      *
+      * Usage example:
+      * {{{
+      *   val testEditor = BasicProfile(
+      *     subjectId = UserId.unsafe("editor-1"),
+      *     userName = Some(UserName.unsafe("Jane Editor")),
+      *     email = Some(Email.unsafe("jane@example.com")),
+      *     avatar = None,
+      *     roles = Set(UserRole.unsafe("editor"))
+      *   )
+      *   TestAuthenticationService.loginWithProfile(testEditor)
+      * }}}
+      *
+      * @param profile The user profile to authenticate
+      */
+    def loginWithProfile(profile: BasicProfile): UIO[Unit] =
+        val token = AccessToken(s"test-token-${profile.subjectId.value}")
+        loggedIn(token, profile)
 
     /**
      * Clear the current user (logout).
