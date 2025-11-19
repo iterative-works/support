@@ -371,7 +371,7 @@ object `sqldb-mysql` extends JvmOnlyModule {
 
   def mvnDeps = super.mvnDeps() ++ Seq(
     IWMillDeps.magnumZIO,
-    mvn"org.flywaydb:flyway-database-mysql:11.4.0",
+    mvn"org.flywaydb:flyway-mysql:11.4.0",
     mvn"com.mysql:mysql-connector-j:9.1.0"
   )
 
@@ -387,7 +387,8 @@ object `sqldb-mysql` extends JvmOnlyModule {
     def moduleDeps = Seq(`sqldb-mysql`, sqldb.testing)
 
     def mvnDeps = super.mvnDeps() ++ Seq(
-      mvn"org.testcontainers:mysql:1.20.4"
+      mvn"org.testcontainers:mysql:1.20.4",
+      mvn"com.dimafeng::testcontainers-scala-mysql::0.41.5"
     )
   }
 
