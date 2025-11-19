@@ -29,16 +29,7 @@ enum Environment:
   case Production
 
 object ConfigValidator:
-  /** Read environment variable with optional default value.
-    *
-    * @param name Environment variable name
-    * @param default Default value if variable is not set
-    * @return The value or None
-    */
-  def getEnv(name: String, default: Option[String] = None): Option[String] =
-    sys.env.get(name).orElse(default)
-
-  /** Validate application configuration from environment variables.
+  /** Validate application configuration.
     *
     * Accumulates all validation errors before returning, making it easy to fix
     * all configuration issues at once rather than one at a time.
@@ -47,27 +38,34 @@ object ConfigValidator:
     *
     * Development with test authentication:
     * {{{
-    *   ENV=development
-    *   AUTH_PROVIDER=test
-    *   PERMISSION_SERVICE=memory
+    *   validateConfig(
+    *     authProvider = Some("test"),
+    *     permissionService = Some("memory"),
+    *     environment = Some("development"),
+    *     oidcClientId = None,
+    *     oidcClientSecret = None,
+    *     oidcDiscoveryUri = None
+    *   )
     * }}}
     *
     * Production with OIDC authentication:
     * {{{
-    *   ENV=production
-    *   AUTH_PROVIDER=oidc
-    *   OIDC_CLIENT_ID=my-client-id
-    *   OIDC_CLIENT_SECRET=my-secret
-    *   OIDC_DISCOVERY_URI=https://auth.example.com/.well-known/openid-configuration
-    *   PERMISSION_SERVICE=database
+    *   validateConfig(
+    *     authProvider = Some("oidc"),
+    *     permissionService = Some("database"),
+    *     environment = Some("production"),
+    *     oidcClientId = Some("my-client-id"),
+    *     oidcClientSecret = Some("my-secret"),
+    *     oidcDiscoveryUri = Some("https://auth.example.com/.well-known/openid-configuration")
+    *   )
     * }}}
     *
-    * @param authProvider AUTH_PROVIDER env var (oidc | test)
-    * @param permissionService PERMISSION_SERVICE env var (memory | database)
-    * @param environment ENV env var (development | production)
-    * @param oidcClientId OIDC_CLIENT_ID env var (required for oidc)
-    * @param oidcClientSecret OIDC_CLIENT_SECRET env var (required for oidc)
-    * @param oidcDiscoveryUri OIDC_DISCOVERY_URI env var (required for oidc)
+    * @param authProvider Auth provider value (oidc | test)
+    * @param permissionService Permission service type (memory | database)
+    * @param environment Environment (development | production)
+    * @param oidcClientId OIDC client ID (required for oidc)
+    * @param oidcClientSecret OIDC client secret (required for oidc)
+    * @param oidcDiscoveryUri OIDC discovery URI (required for oidc)
     * @return Either validation errors or validated config
     */
   def validateConfig(
