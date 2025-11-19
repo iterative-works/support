@@ -3,6 +3,8 @@
 
 package works.iterative.core.auth
 
+import works.iterative.core.UserMessage
+
 /** Authentication and authorization error types.
   *
   * This enum defines all possible authentication and authorization failures
@@ -16,9 +18,9 @@ enum AuthenticationError extends Exception:
     *
     * Typically maps to HTTP 401 Unauthorized.
     *
-    * @param message Description of why authentication failed
+    * @param message User-facing message with translation ID
     */
-  case Unauthenticated(message: String)
+  case Unauthenticated(message: UserMessage)
 
   /** User is authenticated but lacks permission for the requested operation.
     *
@@ -45,18 +47,16 @@ enum AuthenticationError extends Exception:
     *
     * Typically maps to HTTP 401 Unauthorized.
     *
-    * @param reason Description of why token is invalid
+    * @param message User-facing message with translation ID
     */
-  case InvalidToken(reason: String)
+  case InvalidToken(message: UserMessage)
 
 end AuthenticationError
 
 object AuthenticationError:
   /** Helper to create an Unauthenticated error for missing token. */
-  def missingToken: AuthenticationError = Unauthenticated("No authentication token provided")
-
-  /** Helper to create an Unauthenticated error for missing user. */
-  def missingUser: AuthenticationError = Unauthenticated("User not found in context")
+  def missingToken: AuthenticationError =
+    Unauthenticated(UserMessage("error.auth.missing_token"))
 
   /** Helper to create a Forbidden error for resource access.
     *
@@ -67,6 +67,7 @@ object AuthenticationError:
     Forbidden(target.value, action.value)
 
   /** Helper to create an InvalidToken error for JWT issues. */
-  def invalidJwt(reason: String): AuthenticationError = InvalidToken(s"Invalid JWT: $reason")
+  def invalidJwt(reason: String): AuthenticationError =
+    InvalidToken(UserMessage("error.auth.invalid_token"))
 
 end AuthenticationError

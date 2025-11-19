@@ -7,6 +7,7 @@ import org.http4s.*
 import org.http4s.dsl.io.*
 import cats.effect.IO
 import works.iterative.core.auth.AuthenticationError
+import works.iterative.core.UserMessage
 import org.slf4j.LoggerFactory
 
 /** Error handler for authentication and authorization failures.
@@ -44,7 +45,7 @@ object AuthErrorHandler:
   def toResponse(error: AuthenticationError): Response[IO] =
     error match
       case AuthenticationError.Unauthenticated(message) =>
-        logAuthFailure("unauthenticated", sanitizeMessage(message))
+        logAuthFailure("unauthenticated", message.toString)
         Response[IO](Status.Unauthorized)
           .withEntity(formatUnauthenticatedError(message))
 
@@ -56,33 +57,33 @@ object AuthErrorHandler:
       case AuthenticationError.InvalidCredentials =>
         logAuthFailure("invalid_credentials", "login attempt failed")
         Response[IO](Status.Unauthorized)
-          .withEntity(formatSimpleError("Invalid credentials provided"))
+          .withEntity(formatSimpleError(UserMessage("error.auth.invalid_credentials")))
 
       case AuthenticationError.TokenExpired =>
         logAuthFailure("token_expired", "expired token presented")
         Response[IO](Status.Unauthorized)
-          .withEntity(formatSimpleError("Authentication token has expired"))
+          .withEntity(formatSimpleError(UserMessage("error.auth.token_expired")))
 
-      case AuthenticationError.InvalidToken(reason) =>
-        logAuthFailure("invalid_token", sanitizeMessage(reason))
+      case AuthenticationError.InvalidToken(message) =>
+        logAuthFailure("invalid_token", message.toString)
         Response[IO](Status.Unauthorized)
-          .withEntity(formatSimpleError(s"Invalid token: ${sanitizeMessage(reason)}"))
+          .withEntity(formatSimpleError(message))
 
   /** Format simple error message as JSON.
     *
-    * @param message Error message
-    * @return JSON string with error field
+    * @param message User message with translation ID
+    * @return JSON string with messageId field
     */
-  private def formatSimpleError(message: String): String =
-    s"""{"error": "$message"}"""
+  private def formatSimpleError(message: UserMessage): String =
+    s"""{"messageId": "${message.id.value}"}"""
 
   /** Format unauthenticated error as JSON.
     *
-    * @param message Error message
-    * @return JSON string with message field
+    * @param message User message with translation ID
+    * @return JSON string with error and messageId fields
     */
-  private def formatUnauthenticatedError(message: String): String =
-    s"""{"error": "Unauthenticated", "message": "$message"}"""
+  private def formatUnauthenticatedError(message: UserMessage): String =
+    s"""{"error": "Unauthenticated", "messageId": "${message.id.value}"}"""
 
   /** Format forbidden error as JSON.
     *
@@ -106,34 +107,9 @@ object AuthErrorHandler:
     * be monitored but not treated as errors.
     *
     * @param errorType Type of authentication error
-    * @param details Additional context (sanitized)
+    * @param details Additional context
     */
   private def logAuthFailure(errorType: String, details: String): Unit =
     logger.info(s"Authentication failure: type=$errorType details=$details")
-
-  /** Sanitize message to prevent information leakage.
-    *
-    * Removes potentially sensitive information from error messages
-    * before logging or returning to client. This prevents leaking:
-    * - Full token values
-    * - Internal system details
-    * - Stack traces
-    *
-    * @param message Original error message
-    * @return Sanitized message safe for logging/response
-    */
-  private def sanitizeMessage(message: String): String =
-    // Truncate long messages that might contain tokens
-    val maxLength = 100
-    val truncated = if message.length > maxLength then
-      message.take(maxLength) + "..."
-    else
-      message
-
-    // Remove common sensitive patterns
-    truncated
-      .replaceAll("Bearer \\S+", "Bearer [REDACTED]")
-      .replaceAll("token=\\S+", "token=[REDACTED]")
-      .replaceAll("jwt=\\S+", "jwt=[REDACTED]")
 
 end AuthErrorHandler

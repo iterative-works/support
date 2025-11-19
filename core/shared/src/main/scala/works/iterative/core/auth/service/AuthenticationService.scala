@@ -2,6 +2,7 @@ package works.iterative.core.auth
 package service
 
 import zio.*
+import works.iterative.core.UserMessage
 
 trait AuthenticationService:
     def loggedIn(user: AuthedUserInfo): UIO[Unit] =
@@ -23,7 +24,8 @@ trait AuthenticationService:
         currentUserInfo.flatMap {
             case Some(info) =>
                 effect.provideSome[R](ZLayer.succeed(CurrentUser(info.profile)))
-            case None => ZIO.fail(AuthenticationError.missingUser)
+            case None =>
+                ZIO.fail(AuthenticationError.Unauthenticated(UserMessage("error.auth.unauthenticated")))
         }
 end AuthenticationService
 

@@ -5,7 +5,6 @@ import sttp.tapir.Endpoint
 import sttp.capabilities.WebSockets
 import sttp.capabilities.zio.ZioStreams
 import works.iterative.core.auth.AccessToken
-import works.iterative.core.auth.AuthenticationError
 import works.iterative.core.auth.service.AuthenticationService
 
 /** Create effectful methods to perform the endpoint operation.
@@ -69,7 +68,8 @@ class AuthenticatedApiClientFactory(
               case ApiError.AuthFailure(error)    => Cause.die(error)
             }
           })
-        case None => ZIO.die(AuthenticationError.missingUser)
+        case None =>
+          ZIO.dieMessage("No authenticated user available - AuthenticationService layer not properly configured")
       }
 
 object ApiClientFactory:

@@ -7,8 +7,8 @@ import zio.*
 import zio.test.*
 import zio.test.Assertion.*
 import works.iterative.core.auth.*
+import works.iterative.core.UserMessage
 import org.http4s.*
-import org.http4s.dsl.io.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 
@@ -16,7 +16,7 @@ object AuthErrorHandlerSpec extends ZIOSpecDefault:
 
   def spec = suite("AuthErrorHandlerSpec")(
     test("Unauthenticated error returns 401 Unauthorized") {
-      val error = AuthenticationError.Unauthenticated("No token provided")
+      val error = AuthenticationError.Unauthenticated(UserMessage("error.auth.missing_token"))
       val response = AuthErrorHandler.toResponse(error)
 
       assertTrue(
@@ -56,7 +56,7 @@ object AuthErrorHandlerSpec extends ZIOSpecDefault:
     },
 
     test("InvalidToken error returns 401 Unauthorized") {
-      val error = AuthenticationError.InvalidToken("Malformed JWT")
+      val error = AuthenticationError.InvalidToken(UserMessage("error.auth.invalid_token"))
       val response = AuthErrorHandler.toResponse(error)
 
       assertTrue(
@@ -69,11 +69,8 @@ object AuthErrorHandlerSpec extends ZIOSpecDefault:
       val error = AuthenticationError.Forbidden("document:456", "delete")
       val response = AuthErrorHandler.toResponse(error)
 
-      // Read response body
       val bodyString = response.bodyText.compile.toList.unsafeRunSync().mkString
 
-      // Check body contains expected fields
-      // Note: resourceType is sanitized to only show namespace (document), not full ID (document:456)
       assertTrue(
         bodyString.contains("\"resourceType\": \"document\""),
         bodyString.contains("delete"),
@@ -81,14 +78,51 @@ object AuthErrorHandlerSpec extends ZIOSpecDefault:
       )
     },
 
-    test("Unauthenticated error response includes message") {
-      val error = AuthenticationError.Unauthenticated("Session expired")
+    test("Unauthenticated error response includes messageId") {
+      val error = AuthenticationError.Unauthenticated(UserMessage("error.auth.session_expired"))
       val response = AuthErrorHandler.toResponse(error)
 
       val bodyString = response.bodyText.compile.toList.unsafeRunSync().mkString
 
       assertTrue(
-        bodyString.contains("Session expired") || bodyString.contains("message")
+        bodyString.contains("error.auth.session_expired"),
+        bodyString.contains("messageId")
+      )
+    },
+
+    test("InvalidToken error response includes messageId") {
+      val error = AuthenticationError.InvalidToken(UserMessage("error.auth.malformed_jwt"))
+      val response = AuthErrorHandler.toResponse(error)
+
+      val bodyString = response.bodyText.compile.toList.unsafeRunSync().mkString
+
+      assertTrue(
+        bodyString.contains("error.auth.malformed_jwt"),
+        bodyString.contains("messageId")
+      )
+    },
+
+    test("InvalidCredentials error response includes messageId") {
+      val error = AuthenticationError.InvalidCredentials
+      val response = AuthErrorHandler.toResponse(error)
+
+      val bodyString = response.bodyText.compile.toList.unsafeRunSync().mkString
+
+      assertTrue(
+        bodyString.contains("error.auth.invalid_credentials"),
+        bodyString.contains("messageId")
+      )
+    },
+
+    test("TokenExpired error response includes messageId") {
+      val error = AuthenticationError.TokenExpired
+      val response = AuthErrorHandler.toResponse(error)
+
+      val bodyString = response.bodyText.compile.toList.unsafeRunSync().mkString
+
+      assertTrue(
+        bodyString.contains("error.auth.token_expired"),
+        bodyString.contains("messageId")
       )
     }
   )
