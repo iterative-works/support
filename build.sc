@@ -187,15 +187,29 @@ trait NestedCrossModule extends CrossModule {
 object core extends CrossModule {
   def moduleName = "core"
   def description = "IW Support Core Library"
-  
+
   object jvm extends JvmModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull
     object test extends BaseTests
   }
-  
+
   object js extends JsModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull ++ Seq(IWMillDeps.scalaJsDom)
     object test extends BaseScalaJSTests
+  }
+
+  // Testing utilities sub-module
+  object testUtils extends JvmOnlyModule {
+    def moduleName = "core-test-utils"
+    def description = "IW Support Core Testing Utilities"
+    override def moduleDir = core.moduleDir / "testUtils"
+    override def intellijModulePath: os.Path = core.moduleDir / "testUtils"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
+    def moduleDeps = Seq(core.jvm)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
   }
 }
 
@@ -447,9 +461,9 @@ object root extends BaseModule {
   def artifactName = "iw-support"
   override def publishVersion = "0.0.0"
   def pomSettings = CommonPomSettings("IW Support Root Aggregate")
-  
+
   def moduleDeps = Seq(
-    core.jvm, core.js,
+    core.jvm, core.js, core.testUtils,
     entity.jvm, entity.js,
     serviceSpecs.jvm, serviceSpecs.js,
     tapir.jvm, tapir.js,

@@ -17,26 +17,8 @@ import zio.*
   * This service:
   * - Returns true for all isAllowed checks regardless of user/action/resource
   * - Returns empty set for listAllowed (cannot enumerate all possible resources)
-  * - Logs a warning when instantiated to prevent accidental production use
   */
 class AlwaysAllowPermissionService extends PermissionService:
-
-  def logWarning: UIO[Unit] =
-    val isProd =
-      sys.env.get("ENV").exists(_.toLowerCase.contains("prod")) ||
-      sys.env.get("ENVIRONMENT").exists(_.toLowerCase.contains("prod")) ||
-      sys.env.get("APP_ENV").exists(_.toLowerCase.contains("prod"))
-
-    for {
-      _ <- ZIO.logWarning("AlwaysAllowPermissionService instantiated - ALL PERMISSIONS GRANTED")
-      _ <- ZIO.logError("SECURITY: This service bypasses all authorization checks")
-      _ <- ZIO.when(isProd) {
-        ZIO.die(new IllegalStateException(
-          "AlwaysAllowPermissionService cannot be used in production environment. " +
-          "Detected production via environment variables."
-        ))
-      }
-    } yield ()
 
   override def isAllowed(
       subj: Option[UserInfo],
@@ -69,10 +51,5 @@ end AlwaysAllowPermissionService
 
 object AlwaysAllowPermissionService:
   val layer: ZLayer[Any, Nothing, PermissionService] =
-    ZLayer.fromZIO(
-      for {
-        service <- ZIO.succeed(AlwaysAllowPermissionService())
-        _ <- service.logWarning
-      } yield service
-    )
+    ZLayer.succeed(AlwaysAllowPermissionService())
 end AlwaysAllowPermissionService
