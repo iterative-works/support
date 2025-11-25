@@ -4,6 +4,7 @@
 package works.iterative.core.audit
 
 import zio.*
+import zio.json.*
 import works.iterative.core.auth.{UserId, PermissionTarget, PermissionOp}
 import java.time.Instant
 
@@ -33,25 +34,20 @@ case class AuditEvent(
 ):
   /** Format audit event as JSON string.
     *
-    * This is a simple JSON formatter suitable for log aggregation systems.
-    * For production, consider using a proper JSON library (zio-json, circe, etc.)
-    * or structured logging framework.
+    * Uses zio-json for safe JSON encoding to prevent injection attacks.
     *
     * @return JSON representation of the audit event
     */
   def formatAsJson: String =
-    val userIdJson = userId.map(id => s""""userId":"${id.value}"""").getOrElse(""""userId":null""")
-    val resourceJson = resource.map(r => s""""resource":"$r"""").getOrElse(""""resource":null""")
-    val actionJson = action.map(a => s""""action":"$a"""").getOrElse(""""action":null""")
-    val reasonJson = reason.map(r => s""""reason":"$r"""").getOrElse(""""reason":null""")
-    val metadataJson = if metadata.isEmpty then
-      """"metadata":{}"""
-    else
-      val entries = metadata.map { case (k, v) => s""""$k":"$v"""" }.mkString(",")
-      s""""metadata":{$entries}"""
-
-    s"""{$userIdJson,"eventType":"$eventType",$resourceJson,$actionJson,"result":"$result",$reasonJson,"timestamp":"$timestamp",$metadataJson}"""
+    import AuditEvent.given
+    this.toJson
 end AuditEvent
+
+object AuditEvent:
+  @annotation.nowarn("msg=Given search preference")
+  given JsonEncoder[UserId] = JsonEncoder[String].contramap(_.value)
+  given JsonEncoder[Instant] = JsonEncoder[String].contramap(_.toString)
+  given JsonEncoder[AuditEvent] = DeriveJsonEncoder.gen[AuditEvent]
 
 /** Service for logging security audit events.
   *

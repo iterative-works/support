@@ -22,6 +22,18 @@ object PermissionServiceFactorySpec extends ZIOSpecDefault:
       } yield assertTrue(service.isInstanceOf[InMemoryPermissionService])
     },
 
+    test("PERMISSION_SERVICE=database fails fast when not implemented") {
+      val config = ValidatedConfig(
+        authProvider = AuthProvider.Test,
+        permissionService = PermissionServiceType.Database,
+        environment = Environment.Development
+      )
+
+      for {
+        exit <- PermissionServiceFactory.make(config).exit
+      } yield assertTrue(exit.isFailure)
+    },
+
     // NOTE: DatabasePermissionService doesn't exist yet, so this test is commented out
     // Uncomment when DatabasePermissionService is implemented
     /*
@@ -37,21 +49,6 @@ object PermissionServiceFactorySpec extends ZIOSpecDefault:
       } yield assertTrue(service.isInstanceOf[DatabasePermissionService])
     },
     */
-
-    test("invalid PermissionServiceType fails with clear error") {
-      // This test validates the exhaustiveness of pattern matching
-      // Scala 3 enums ensure compile-time exhaustiveness checking,
-      // so this test primarily validates the factory is well-structured
-      val config = ValidatedConfig(
-        authProvider = AuthProvider.Test,
-        permissionService = PermissionServiceType.Memory,
-        environment = Environment.Development
-      )
-
-      for {
-        service <- PermissionServiceFactory.make(config)
-      } yield assertTrue(service != null)
-    }
   ).provide(
     ZLayer.succeed(PermissionConfig.default)  // Provide PermissionConfig dependency
   )

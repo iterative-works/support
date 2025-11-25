@@ -33,12 +33,7 @@ object PermissionServiceFactory:
         }.flatten
 
       case PermissionServiceType.Database =>
-        // TODO: DatabasePermissionService not yet implemented
-        // For now, fall back to InMemoryPermissionService with a warning
-        ZIO.logWarning("DatabasePermissionService not yet implemented, falling back to InMemoryPermissionService") *>
-        ZIO.serviceWith[PermissionConfig] { permConfig =>
-          InMemoryPermissionService.make(permConfig)
-        }.flatten
+        ZIO.dieMessage("DatabasePermissionService not yet implemented. Configure PERMISSION_SERVICE=memory instead.")
 
   /** ZLayer factory for PermissionService based on ValidatedConfig.
     *
