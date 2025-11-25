@@ -210,6 +210,8 @@ object core extends CrossModule {
 
     def moduleDeps = Seq(core.jvm)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+
+    object test extends BaseTests
   }
 }
 
