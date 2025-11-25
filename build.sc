@@ -188,14 +188,37 @@ object core extends CrossModule {
   def moduleName = "core"
   def description = "IW Support Core Library"
 
-  object jvm extends JvmModule {
-    def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull
-    object test extends BaseTests
+  trait CoreModule extends SharedModule {
+    trait CoreTests extends BaseTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / "shared" / "src" / "test" / "scala"
+      )
+
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
   }
 
-  object js extends JsModule {
+  object jvm extends JvmModule with CoreModule {
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull
+    object test extends CoreTests
+  }
+
+  object js extends JsModule with CoreModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull ++ Seq(IWMillDeps.scalaJsDom)
-    object test extends BaseScalaJSTests
+
+    trait JsCoreTests extends BaseScalaJSTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / "shared" / "src" / "test" / "scala"
+      )
+
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
+
+    object test extends JsCoreTests
   }
 
   // Testing utilities sub-module

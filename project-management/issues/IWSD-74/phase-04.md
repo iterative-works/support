@@ -74,19 +74,19 @@ All permission service implementations MUST fail closed (deny access) when error
 6. **Create Audit Logging Infrastructure** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/audit/AuditLogServiceSpec.scala`
-   - [ ] [impl] Write test case for logging permission check (userId, resource, action, result, timestamp)
-   - [ ] [impl] Write test case for logging authentication event (userId, event type, success/failure)
-   - [ ] [impl] Write test case for structured audit log format (JSON with all required fields)
-   - [ ] [impl] Write test case for test implementation (in-memory buffer for verification)
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify tests fail with "trait AuditLogService not found"
+   - [x] [impl] Create test file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/test/scala/works/iterative/core/audit/AuditLogServiceSpec.scala`
+   - [x] [impl] Write test case for logging permission check (userId, resource, action, result, timestamp)
+   - [x] [impl] Write test case for logging authentication event (userId, event type, success/failure)
+   - [x] [impl] Write test case for structured audit log format (JSON with all required fields)
+   - [x] [impl] Write test case for test implementation (in-memory buffer for verification)
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify tests fail with "trait AuditLogService not found"
    - [ ] [reviewed] Tests validate audit logging API
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/audit/AuditLogService.scala`
-   - [ ] [impl] Add PURPOSE comments: Security audit trail for authentication and authorization events
-   - [ ] [impl] Define case class AuditEvent(
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/audit/AuditLogService.scala`
+   - [x] [impl] Add PURPOSE comments: Security audit trail for authentication and authorization events
+   - [x] [impl] Define case class AuditEvent(
        timestamp: Instant,
        userId: Option[UserId],
        eventType: String,
@@ -96,7 +96,7 @@ All permission service implementations MUST fail closed (deny access) when error
        reason: Option[String],
        metadata: Map[String, String]
      )
-   - [ ] [impl] Define trait AuditLogService:
+   - [x] [impl] Define trait AuditLogService:
      ```scala
      trait AuditLogService:
        def logPermissionCheck(
@@ -114,20 +114,20 @@ All permission service implementations MUST fail closed (deny access) when error
          metadata: Map[String, String] = Map.empty
        ): UIO[Unit]
      ```
-   - [ ] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/audit/InMemoryAuditLogService.scala`
-   - [ ] [impl] Implement InMemoryAuditLogService with Ref[List[AuditEvent]] (for testing)
-   - [ ] [impl] Add ZLayer factory for InMemoryAuditLogService
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests pass
+   - [x] [impl] Create file: `/home/mph/.local/share/par/worktrees/d105e143/IWSD-74/core/shared/src/main/scala/works/iterative/core/audit/InMemoryAuditLogService.scala`
+   - [x] [impl] Implement InMemoryAuditLogService with Ref[List[AuditEvent]] (for testing)
+   - [x] [impl] Add ZLayer factory for InMemoryAuditLogService
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify all tests pass
    - [ ] [reviewed] Audit logging API defined
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add helper method to format AuditEvent as JSON string
-   - [ ] [impl] Add Scaladoc explaining audit log retention and compliance requirements
-   - [ ] [impl] Add note: Production implementation (separate audit stream) to be added in Phase 5
-   - [ ] [impl] Consider: Should audit logs be separate from application logs? (Yes - recommend separate stream)
-   - [ ] [impl] Run test: `mill core.shared.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Add helper method to format AuditEvent as JSON string
+   - [x] [impl] Add Scaladoc explaining audit log retention and compliance requirements
+   - [x] [impl] Add note: Production implementation (separate audit stream) to be added in Phase 5
+   - [x] [impl] Consider: Should audit logs be separate from application logs? (Yes - recommend separate stream)
+   - [x] [impl] Run test: `mill core.shared.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Audit logging is production-ready
 
    **Success Criteria:** Audit logging infrastructure exists to track all permission checks and authentication events
