@@ -2,7 +2,6 @@ package works.iterative.ui.components.laminar.forms
 
 import works.iterative.core.*
 import zio.prelude.Validation
-import works.iterative.core.UserMessage
 import scala.util.Try
 
 trait InputSchema[A]:

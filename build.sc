@@ -84,7 +84,11 @@ object Dependencies {
 /** Base trait for all IW Support modules */
 trait BaseModule extends IWScalaModule with IWPublishModule { outer =>
   override def publishVersion = CommonVersion.publishVersion
-  
+
+  override def scalacOptions = Task {
+    super.scalacOptions() ++ Seq("-source:3.7")
+  }
+
   override def sources = Task.Sources("src/main/scala")
   override def resources = Task.Sources("src/main/resources")
   
