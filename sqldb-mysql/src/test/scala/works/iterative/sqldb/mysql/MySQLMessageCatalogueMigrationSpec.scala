@@ -9,7 +9,7 @@ import zio.test.TestAspect.*
 import works.iterative.core.{Language, MessageId}
 import works.iterative.core.repository.MessageCatalogueRepository
 import works.iterative.sqldb.mysql.testing.MySQLTestingLayers.*
-import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
+import works.iterative.sqldb.FlywayMigrationService
 import works.iterative.sqldb.mysql.migration.MySQLMessageCatalogueMigration
 
 object MySQLMessageCatalogueMigrationSpec extends ZIOSpecDefault:

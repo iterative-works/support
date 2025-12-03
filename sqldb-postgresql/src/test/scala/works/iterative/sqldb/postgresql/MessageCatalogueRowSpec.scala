@@ -2,7 +2,6 @@
 // PURPOSE: Verifies entity creation, factory methods, and Magnum codec derivation
 
 package works.iterative.sqldb.postgresql
-import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
 
 import zio.*
 import zio.test.*

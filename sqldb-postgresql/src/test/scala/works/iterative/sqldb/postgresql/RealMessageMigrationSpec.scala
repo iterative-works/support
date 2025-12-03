@@ -2,7 +2,7 @@
 // PURPOSE: Ensures migration handles actual project message files with all edge cases
 
 package works.iterative.sqldb.postgresql
-import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
+import works.iterative.sqldb.FlywayMigrationService
 
 import zio.*
 import zio.test.*

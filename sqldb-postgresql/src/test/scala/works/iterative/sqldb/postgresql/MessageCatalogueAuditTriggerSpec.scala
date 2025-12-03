@@ -2,7 +2,7 @@
 // PURPOSE: Verifies that history entries are created only when message_text changes
 
 package works.iterative.sqldb.postgresql
-import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
+import works.iterative.sqldb.FlywayMigrationService
 
 import zio.*
 import zio.test.*

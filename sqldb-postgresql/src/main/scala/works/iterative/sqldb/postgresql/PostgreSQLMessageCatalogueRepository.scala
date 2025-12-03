@@ -24,7 +24,7 @@ case class MessageCatalogueRepositoryImpl(ts: PostgreSQLTransactor) extends Mess
 
   override def getAllForLanguage(language: Language): Task[Seq[MessageCatalogueData]] =
     ts.transactor.connect:
-      sql"SELECT * FROM message_catalogue WHERE language = $language"
+      sql"SELECT * FROM message_catalogue WHERE language = ${language.value}"
         .query[MessageCatalogue]
         .run()
         .map(row => row.toDomain)

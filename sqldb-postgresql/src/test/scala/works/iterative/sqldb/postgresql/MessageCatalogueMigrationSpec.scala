@@ -9,7 +9,7 @@ import zio.test.TestAspect.*
 import works.iterative.core.{Language, MessageId}
 import works.iterative.core.repository.MessageCatalogueRepository
 import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*
-import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
+import works.iterative.sqldb.FlywayMigrationService
 import works.iterative.sqldb.postgresql.migration.MessageCatalogueMigration
 
 object MessageCatalogueMigrationSpec extends ZIOSpecDefault:
