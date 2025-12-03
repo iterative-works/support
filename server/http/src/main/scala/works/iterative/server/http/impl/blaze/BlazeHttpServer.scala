@@ -5,8 +5,6 @@ import zio.*
 import zio.interop.catz.*
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.*
-import cats.*
-import zio.interop.catz.*
 import works.iterative.tapir.BaseUri
 import org.http4s.server.Router
 import org.http4s.server.websocket.WebSocketBuilder2

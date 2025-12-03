@@ -5,7 +5,6 @@ import java.time.LocalDate
 import works.iterative.core.*
 import java.time.Instant
 import works.iterative.ui.TimeUtils
-import works.iterative.core.UserMessage
 import LaminarExtensions.*
 
 trait HtmlRenderable[A]:

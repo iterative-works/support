@@ -4,13 +4,12 @@ package repository
 package impl
 
 import zio.*
+import zio.json.*
 import io.getquill.jdbczio.Quill
 import io.getquill.*
-import zio.json.*
-import io.getquill.SnakeCase
 import java.sql.Timestamp
 
-class MariaDBFormReadRepository(quill: Quill.Mysql[SnakeCase]) extends FormReadRepository:
+class MariaDBFormReadRepository(quill: Quill.Mysql[io.getquill.SnakeCase]) extends FormReadRepository:
     import quill.*
     import MariaDBFormReadRepository.{*, given}
 
@@ -56,6 +55,6 @@ object MariaDBFormReadRepository:
 
     val layer: URLayer[javax.sql.DataSource, FormReadRepository] = ZLayer {
         for ds <- ZIO.service[javax.sql.DataSource]
-        yield MariaDBFormReadRepository(Quill.Mysql(SnakeCase, ds))
+        yield MariaDBFormReadRepository(Quill.Mysql(io.getquill.SnakeCase, ds))
     }
 end MariaDBFormReadRepository

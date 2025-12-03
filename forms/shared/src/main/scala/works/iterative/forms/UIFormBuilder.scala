@@ -3,7 +3,6 @@ package portaly.forms
 import works.iterative.ui.model.forms.*
 import zio.prelude.fx.ZPure
 import zio.ZEnvironment
-import works.iterative.ui.model.forms.FormState
 
 class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => UIForm] = None):
     def buildForm(
