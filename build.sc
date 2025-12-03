@@ -401,7 +401,7 @@ object e2eTesting extends JvmOnlyModule {
   def moduleName = "e2e-testing"
   def description = "IW Support E2E Testing Library"
   def moduleDeps = Seq(core.jvm)
-  
+
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
     // Cucumber for BDD testing
     mvn"io.cucumber::cucumber-scala::8.23.1",
@@ -413,20 +413,684 @@ object e2eTesting extends JvmOnlyModule {
   )
 }
 
+// ============================================================================
+// Phase 1: Foundation modules
+// ============================================================================
+
+// HashiCorp integrations module - cross-compiled
+object hashicorp extends CrossModule {
+  def moduleName = "hashicorp"
+  def description = "IW Support HashiCorp Library"
+
+  object jvm extends JvmModule {
+    def moduleDeps = Seq(core.jvm, serviceSpecs.jvm, tapir.jvm)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+
+  object js extends JsModule {
+    def moduleDeps = Seq(core.js, serviceSpecs.js, tapir.js)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+}
+
+// Forms core module - cross-compiled (nested at forms/core)
+object formsCore extends CrossModule {
+  def moduleName = "forms-core"
+  def description = "IW Support Forms Core Library"
+
+  trait FormsCoreModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "core"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+  }
+
+  object jvm extends JvmModule with FormsCoreModule {
+    def moduleDeps = Seq(core.jvm)
+  }
+
+  object js extends JsModule with FormsCoreModule {
+    def moduleDeps = Seq(core.js)
+  }
+}
+
+// Files core module - cross-compiled (nested at files/core)
+object filesCore extends CrossModule {
+  def moduleName = "files-core"
+  def description = "IW Support Files Core Library"
+
+  trait FilesCoreModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "files" / "core"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+  }
+
+  object jvm extends JvmModule with FilesCoreModule {
+    def moduleDeps = Seq(core.jvm)
+
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+
+  object js extends JsModule with FilesCoreModule {
+    def moduleDeps = Seq(core.js)
+
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(IWMillDeps.scalaJsDom)
+  }
+}
+
+// Scenarios module - cross-compiled
+object scenarios extends CrossModule {
+  def moduleName = "scenarios"
+  def description = "IW Support Scenarios Library"
+
+  object jvm extends JvmModule {
+    def moduleDeps = Seq(core.jvm)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
+      mvn"dev.zio::zio-http::${IWMillVersions.zioHttp}"
+    )
+  }
+
+  object js extends JsModule {
+    def moduleDeps = Seq(core.js)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+}
+
+// ============================================================================
+// Phase 2: Second-level modules
+// ============================================================================
+
+// UI core module - cross-compiled (nested at ui/core)
+object uiCore extends CrossModule {
+  def moduleName = "ui-core"
+  def description = "IW Support UI Core Library"
+
+  trait UICoreModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "ui" / "core"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+  }
+
+  object jvm extends JvmModule with UICoreModule {
+    def moduleDeps = Seq(formsCore.jvm)
+
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+
+  object js extends JsModule with UICoreModule {
+    def moduleDeps = Seq(formsCore.js)
+
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+}
+
+// Files REST adapter module - cross-compiled (nested at files/adapters/rest)
+object filesRest extends CrossModule {
+  def moduleName = "files-rest"
+  def description = "IW Support Files REST Library"
+
+  trait FilesRestModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "files" / "adapters" / "rest"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+  }
+
+  object jvm extends JvmModule with FilesRestModule {
+    def moduleDeps = Seq(filesCore.jvm, tapir.jvm)
+
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+
+  object js extends JsModule with FilesRestModule {
+    def moduleDeps = Seq(filesCore.js, tapir.js)
+
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+}
+
+// Akka Persistence support module - JVM only
+object akkaPersistence extends JvmOnlyModule {
+  def moduleName = "akka-persistence"
+  def description = "IW Support Akka Persistence Library"
+  def moduleDeps = Seq(core.jvm, entity.jvm)
+
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ Dependencies.zioConfig ++ Seq(
+    // Akka dependencies (all using Scala 2.13 with Scala 3 compatibility)
+    mvn"com.typesafe.akka::akka-persistence-typed::${IWMillVersions.akka}".withDottyCompat(scalaVersion()),
+    mvn"com.typesafe.akka::akka-cluster-sharding-typed::${IWMillVersions.akka}".withDottyCompat(scalaVersion()),
+    mvn"com.lightbend.akka::akka-persistence-jdbc::5.1.0".withDottyCompat(scalaVersion()),
+    // Akka Projection dependencies
+    mvn"com.lightbend.akka::akka-projection-core::${IWMillVersions.akkaProjection}".withDottyCompat(scalaVersion()),
+    mvn"com.lightbend.akka::akka-projection-eventsourced::${IWMillVersions.akkaProjection}".withDottyCompat(scalaVersion()),
+    mvn"com.lightbend.akka::akka-projection-slick::${IWMillVersions.akkaProjection}".withDottyCompat(scalaVersion()),
+    mvn"com.typesafe.akka::akka-persistence-query::${IWMillVersions.akka}".withDottyCompat(scalaVersion()),
+    // Slick dependencies
+    mvn"com.typesafe.slick::slick::${IWMillVersions.slick}".withDottyCompat(scalaVersion()),
+    mvn"com.typesafe.slick::slick-hikaricp::${IWMillVersions.slick}".withDottyCompat(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+}
+
+// Paygate payment gateway support module - JVM only
+object paygate extends JvmOnlyModule {
+  def moduleName = "paygate"
+  def description = "IW Support Paygate Library"
+  def moduleDeps = Seq(core.jvm, tapir.jvm)
+
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ Dependencies.zioConfig ++ Seq(
+    IWMillDeps.sttpClientZio,
+    mvn"com.softwaremill.sttp.client3::zio-json::${IWMillVersions.sttpClient3}"
+  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+}
+
+// ============================================================================
+// Phase 3: Third-level modules
+// ============================================================================
+
+// UI Forms module - cross-compiled (nested at ui/forms)
+object uiForms extends CrossModule {
+  def moduleName = "ui-forms"
+  def description = "IW Support UI Forms Library"
+
+  trait UIFormsModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "ui" / "forms"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+  }
+
+  object jvm extends JvmModule with UIFormsModule {
+    def moduleDeps = Seq(ui.jvm, filesCore.jvm)
+
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+
+  object js extends JsModule with UIFormsModule {
+    def moduleDeps = Seq(ui.js, filesCore.js)
+
+    override def sources = Task.Sources(
+      moduleDir / "js" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+  }
+}
+
+// UI Scalatags module - cross-compiled (nested at ui/scalatags)
+object uiScalatags extends CrossModule {
+  def moduleName = "ui-scalatags"
+  def description = "IW Support UI Scalatags Library"
+
+  trait UIScalatagsModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "ui" / "scalatags"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+  }
+
+  object jvm extends JvmModule with UIScalatagsModule {
+    def moduleDeps = Seq(uiCore.jvm)
+
+    override def sources = Task.Sources(
+      moduleDir / "jvm" / "src" / "main" / "scala",
+      moduleDir / "shared" / "src" / "main" / "scala"
+    )
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      IWMillDeps.scalatags,
+      IWMillDeps.zioInteropCats,
+      mvn"org.http4s::http4s-core::${IWMillVersions.http4s}"
+    )
+  }
+
+  object js extends JsModule with UIScalatagsModule {
+    def moduleDeps = Seq(uiCore.js)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(IWMillDeps.scalatags)
+  }
+}
+
+// HTTP server support module - JVM only (located at server/http)
+object http extends JvmOnlyModule {
+  def moduleName = "http"
+  def description = "IW Support HTTP Server Library"
+
+  override def moduleDir = super.moduleDir / os.up / "server" / "http"
+
+  def moduleDeps = Seq(core.jvm, codecs.jvm, tapir.jvm)
+
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig ++ Seq(
+    mvn"dev.zio::zio-config-typesafe::${IWMillVersions.zioConfig}",
+    mvn"dev.zio::zio-config-magnolia::${IWMillVersions.zioConfig}",
+    mvn"dev.zio::zio-logging-slf4j::${IWMillVersions.zioLogging}",
+    IWMillDeps.zioInteropCats,
+    IWMillDeps.tapirCore,
+    IWMillDeps.tapirZIO,
+    IWMillDeps.tapirZIOJson,
+    mvn"com.softwaremill.sttp.tapir::tapir-files::${IWMillVersions.tapir}",
+    IWMillDeps.tapirZIOHttp4sServer,
+    mvn"org.http4s::http4s-blaze-server::${IWMillVersions.http4sBlaze}",
+    mvn"org.pac4j::http4s-pac4j::${IWMillVersions.http4sPac4J}",
+    mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
+    IWMillDeps.scalatags
+  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+}
+
+// Files Mongo adapter module - JVM only (located at files/adapters/mongo)
+object filesMongo extends JvmOnlyModule {
+  def moduleName = "files-mongo"
+  def description = "IW Support Files MongoDB Library"
+
+  override def moduleDir = super.moduleDir / os.up / "files" / "adapters" / "mongo"
+
+  def moduleDeps = Seq(filesCore.jvm, mongo)
+
+  // Integration test module
+  object it extends BaseTests {
+    override def moduleDir = filesMongo.moduleDir / "it"
+    override def intellijModulePath: os.Path = filesMongo.moduleDir / "it" / "src/test"
+
+    override def sources = Task.Sources(filesMongo.moduleDir / "it" / "src" / "test" / "scala")
+    override def resources = Task.Sources(filesMongo.moduleDir / "it" / "src" / "test" / "resources")
+
+    def moduleDeps = Seq(filesMongo)
+
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig
+  }
+}
+
+// Files UI adapter module - JS only (located at files/adapters/ui)
+object filesUI extends BaseScalaJSModule {
+  def artifactName = "iw-support-files-ui"
+
+  override def moduleDir = super.moduleDir / os.up / "files" / "adapters" / "ui"
+
+  def pomSettings = CommonPomSettings("IW Support Files UI Library")
+
+  def moduleDeps = Seq(filesCore.js, ui.js)
+}
+
+// ============================================================================
+// Phase 4: High-level modules
+// ============================================================================
+
+// Autocomplete module - cross-compiled
+object autocomplete extends CrossModule {
+  def moduleName = "autocomplete"
+  def description = "IW Support Autocomplete Library"
+
+  object jvm extends JvmModule {
+    def moduleDeps = Seq(core.jvm, tapir.jvm, ui.jvm, uiForms.jvm)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(IWMillDeps.quill)
+  }
+
+  object js extends JsModule {
+    def moduleDeps = Seq(core.js, tapir.js, ui.js, uiForms.js, filesUI)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+}
+
+// Forms HTTP module - JVM only (located at forms/http)
+object formsHttp extends JvmOnlyModule {
+  def moduleName = "forms-http"
+  def description = "IW Support Forms HTTP Library"
+
+  override def moduleDir = super.moduleDir / os.up / "forms" / "http"
+
+  def moduleDeps = Seq(formsCore.jvm, http)
+}
+
+// Files integration tests module - JVM only (located at files/it)
+object filesIT extends JvmOnlyModule {
+  def moduleName = "files-it"
+  def description = "IW Support Files Integration Tests"
+
+  override def moduleDir = super.moduleDir / os.up / "files" / "it"
+
+  def moduleDeps = Seq(filesRest.jvm, http)
+}
+
+// ============================================================================
+// Phase 5: Application modules
+// ============================================================================
+
+// Forms module - cross-compiled
+object forms extends CrossModule {
+  def moduleName = "forms"
+  def description = "IW Support Forms Library"
+
+  object jvm extends JvmModule {
+    def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, filesRest.jvm, email, paygate, filesMongo)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
+      IWMillDeps.zioConfigTypesafe,
+      mvn"org.scala-lang.modules::scala-xml::2.2.0",
+      mvn"org.apache.xmlgraphics:fop:2.9",
+      mvn"io.github.arainko::ducktape::0.1.11"
+    )
+  }
+
+  object js extends JsModule {
+    def moduleDeps = Seq(core.js, codecs.js, autocomplete.js, filesRest.js)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+}
+
+// Forms scenarios module - cross-compiled (located at forms/scenarios)
+object formsScenarios extends CrossModule {
+  def moduleName = "forms-scenarios"
+  def description = "IW Support Forms Scenarios"
+
+  trait FormsScenariosModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "scenarios"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+
+    // Skip publishing for test scenarios
+    override def publishVersion = "0.0.0"
+  }
+
+  object jvm extends JvmModule with FormsScenariosModule {
+    def moduleDeps = Seq(forms.jvm, scenarios.jvm)
+  }
+
+  object js extends JsModule with FormsScenariosModule {
+    def moduleDeps = Seq(forms.js, scenarios.js)
+  }
+}
+
+// Files UI scenarios module - cross-compiled (located at files/adapters/ui/scenarios)
+object filesUIScenarios extends CrossModule {
+  def moduleName = "files-ui-scenarios"
+  def description = "IW Support Files UI Scenarios"
+
+  trait FilesUIScenariosModule extends SharedModule {
+    override def moduleDir = super.moduleDir / os.up / os.up / "files" / "adapters" / "ui" / "scenarios"
+
+    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+
+    override def sources = Task {
+      super.sources() ++ sharedSources()
+    }
+
+    override def resources = Task {
+      super.resources() ++ sharedResources()
+    }
+
+    // Skip publishing for test scenarios
+    override def publishVersion = "0.0.0"
+  }
+
+  object jvm extends JvmModule with FilesUIScenariosModule {
+    def moduleDeps = Seq(filesCore.jvm, filesRest.jvm, ui.jvm, scenarios.jvm)
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"dev.zio::zio-http-htmx::3.0.0-RC6"
+    )
+  }
+
+  object js extends JsModule with FilesUIScenariosModule {
+    def moduleDeps = Seq(filesCore.js, filesRest.js, ui.js, scenarios.js, filesUI)
+  }
+}
+
+// Scenarios UI module - JS only with Vite support (located at ui/scenarios)
+object scenariosUI extends BaseScalaJSModule {
+  def artifactName = "iw-support-scenarios-ui"
+
+  override def moduleDir = super.moduleDir / os.up / "ui" / "scenarios"
+
+  // Skip publishing for internal scenarios
+  override def publishVersion = "0.0.0"
+
+  def pomSettings = CommonPomSettings("IW Support Scenarios UI")
+
+  def moduleDeps = Seq(ui.js, uiForms.js)
+
+  // Enable main module initializer
+  def scalaJSUseMainModuleInitializer = true
+
+  override def moduleKind = Task {
+    ModuleKind.ESModule
+  }
+
+  override def moduleSplitStyle = Task {
+    ModuleSplitStyle.SmallModulesFor(List("works.iterative"))
+  }
+
+  // Add custom scalac option for source map URI
+  override def scalacOptions = Task {
+    super.scalacOptions() ++ Seq(
+      s"-scalajs-mapSourceURI:${moduleDir.toNIO.toUri.toString}->/mdr/poptavky/@fs${moduleDir.toString}/"
+    )
+  }
+
+  // Custom tasks for Vite integration
+  def viteConfig = Task.Source(moduleDir / "vite.config.js")
+  def packageJson = Task.Source(moduleDir / "package.json")
+
+  // Install npm dependencies
+  def npmInstall() = Task.Command {
+    os.proc("yarn", "install").call(cwd = moduleDir)
+  }
+
+  // PID file for tracking Vite dev server
+  def viteDevPidFile = Task { Task.dest / "vite.pid" }
+
+  // Check if process is running
+  def isProcessRunning(pid: String): Boolean = {
+    try {
+      os.proc("ps", "-p", pid).call(check = false).exitCode == 0
+    } catch {
+      case _: Exception => false
+    }
+  }
+
+  // Run Vite dev server in background with PID management
+  def viteDev() = Task.Command {
+    npmInstall()
+    fastLinkJS()
+
+    val pidFile = viteDevPidFile()
+    val pidOpt = if (os.exists(pidFile)) {
+      try Some(os.read(pidFile).trim) catch {
+        case _: Exception => None
+      }
+    } else None
+
+    pidOpt match {
+      case Some(pid) if isProcessRunning(pid) =>
+        println(s"✅ Vite dev server already running with PID $pid")
+        println(s"   Access the server at http://localhost:5173")
+        println(s"   ScalaJS output: ${fastLinkJS().dest.path}")
+      case _ =>
+        // Kill old process if PID exists but process is dead
+        pidOpt.foreach { pid =>
+          println(s"⚠️  Previous Vite process (PID $pid) is not running, cleaning up...")
+          try { os.proc("kill", "-9", pid).call(check = false) } catch { case _: Exception => }
+        }
+
+        println("🚀 Starting Vite development server...")
+        println(s"   ScalaJS output: ${fastLinkJS().dest.path}")
+
+        // Start the server in background
+        val process = os.proc("yarn", "run", "dev")
+          .spawn(cwd = moduleDir, stdout = os.Inherit, stderr = os.Inherit)
+
+        // Get the PID using ProcessHandle
+        val pid = process.wrapped.pid().toString
+        os.write.over(pidFile, pid)
+
+        println(s"✅ Vite dev server started with PID $pid")
+        println(s"   Access the server at http://localhost:5173")
+        println(s"   To stop: mill scenariosUI.viteStop")
+    }
+    ()  // Explicitly return Unit
+  }
+
+  // Stop the Vite dev server
+  def viteStop() = Task.Command {
+    val pidFile = viteDevPidFile()
+    if (os.exists(pidFile)) {
+      val pid = os.read(pidFile).trim
+      if (isProcessRunning(pid)) {
+        println(s"🛑 Stopping Vite dev server (PID $pid)...")
+        os.proc("kill", pid).call(check = false)
+        os.remove(pidFile)
+        println("✅ Vite dev server stopped")
+      } else {
+        println("⚠️  Vite dev server is not running")
+        os.remove(pidFile)
+      }
+    } else {
+      println("⚠️  No Vite dev server PID file found")
+    }
+    ()  // Explicitly return Unit
+  }
+
+  // Build with Vite (depends on fullLinkJS for production)
+  def viteBuild() = Task.Command {
+    fullLinkJS()
+    println(s"Building with Vite...")
+    os.proc("yarn", "run", "build", "--outDir", Task.dest).call(cwd = moduleDir)
+  }
+}
+
 // Root aggregate module
 object root extends BaseModule {
   def artifactName = "iw-support"
   override def publishVersion = "0.0.0"
   def pomSettings = CommonPomSettings("IW Support Root Aggregate")
-  
+
   def moduleDeps = Seq(
+    // Core modules
     core.jvm, core.js,
     entity.jvm, entity.js,
     serviceSpecs.jvm, serviceSpecs.js,
     tapir.jvm, tapir.js,
-    mongo, sqldb, sqldb.testing, email,
+
+    // Storage modules
+    mongo, sqldb, sqldb.testing,
+
+    // Communication modules
+    email, paygate,
+
+    // Support modules
     codecs.jvm, codecs.js,
+    hashicorp.jvm, hashicorp.js,
+    akkaPersistence,
+
+    // File handling
+    filesCore.jvm, filesCore.js,
+    filesRest.jvm, filesRest.js,
+    filesMongo, filesUI, filesIT,
+
+    // UI modules
+    uiCore.jvm, uiCore.js,
     ui.jvm, ui.js,
+    uiForms.jvm, uiForms.js,
+    uiScalatags.jvm, uiScalatags.js,
+
+    // Server modules
+    http,
+
+    // Application modules
+    autocomplete.jvm, autocomplete.js,
+
+    // Forms modules
+    formsCore.jvm, formsCore.js,
+    forms.jvm, forms.js,
+    formsHttp,
+
+    // Scenarios and testing
+    scenarios.jvm, scenarios.js,
+    formsScenarios.jvm, formsScenarios.js,
+    filesUIScenarios.jvm, filesUIScenarios.js,
+    scenariosUI,
+
+    // E2E Testing
     e2eTesting
   )
 }
@@ -435,7 +1099,7 @@ object root extends BaseModule {
 def verifyBuild() = Task.Command {
   println("Verifying build structure...")
   println(s"Total modules: ${root.moduleDeps.size}")
-  
+
   // Run compile on a sample of modules to verify
   core.jvm.compile()
   core.js.compile()
@@ -450,4 +1114,76 @@ def runAllTests() = Task.Command {
   tapir.jvm.test.testForked()
   tapir.js.test.testForked()
   println("All tests completed!")
+}
+
+// Verify module for comprehensive checks
+object verify extends Module {
+  // Compile all modules via root aggregate
+  def compile() = Task.Command {
+    root.compile()
+    println("✅ All modules compiled successfully!")
+  }
+
+  // Run all tests
+  def test() = Task.Command {
+    core.jvm.test.testForked()
+    core.js.test.testForked()
+    tapir.jvm.test.testForked()
+    tapir.js.test.testForked()
+    println("✅ All tests passed!")
+  }
+
+  // Format check
+  def checkFormat() = Task.Command {
+    core.jvm.checkFormat()
+    core.js.checkFormat()
+    entity.jvm.checkFormat()
+    entity.js.checkFormat()
+    serviceSpecs.jvm.checkFormat()
+    serviceSpecs.js.checkFormat()
+    tapir.jvm.checkFormat()
+    tapir.js.checkFormat()
+    mongo.checkFormat()
+    sqldb.checkFormat()
+    sqldb.testing.checkFormat()
+    email.checkFormat()
+    codecs.jvm.checkFormat()
+    codecs.js.checkFormat()
+    formsCore.jvm.checkFormat()
+    formsCore.js.checkFormat()
+    filesCore.jvm.checkFormat()
+    filesCore.js.checkFormat()
+    uiCore.jvm.checkFormat()
+    uiCore.js.checkFormat()
+    ui.jvm.checkFormat()
+    ui.js.checkFormat()
+    uiForms.jvm.checkFormat()
+    uiForms.js.checkFormat()
+    uiScalatags.jvm.checkFormat()
+    uiScalatags.js.checkFormat()
+    akkaPersistence.checkFormat()
+    paygate.checkFormat()
+    hashicorp.jvm.checkFormat()
+    hashicorp.js.checkFormat()
+    http.checkFormat()
+    autocomplete.jvm.checkFormat()
+    autocomplete.js.checkFormat()
+    filesRest.jvm.checkFormat()
+    filesRest.js.checkFormat()
+    filesMongo.checkFormat()
+    filesUI.checkFormat()
+    filesIT.checkFormat()
+    scenarios.jvm.checkFormat()
+    scenarios.js.checkFormat()
+    forms.jvm.checkFormat()
+    forms.js.checkFormat()
+    formsHttp.checkFormat()
+    formsScenarios.jvm.checkFormat()
+    formsScenarios.js.checkFormat()
+    filesUIScenarios.jvm.checkFormat()
+    filesUIScenarios.js.checkFormat()
+    scenariosUI.checkFormat()
+    e2eTesting.checkFormat()
+    println("✅ Code formatting is correct!")
+  }
 }
