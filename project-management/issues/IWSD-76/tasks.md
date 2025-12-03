@@ -751,102 +751,102 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 
 1. **Create Implementation Decision Guide**
 
-   - [ ] [impl] Create documentation file: `docs/message-catalogue-implementation-guide.md`
-   - [ ] [impl] Write "When to Use JSON vs SQL" section with decision criteria table
-   - [ ] [impl] Write "Configuration Examples" showing layer composition for JSON and SQL approaches
-   - [ ] [impl] Write "Migration Path" section with step-by-step instructions for JSON → SQL migration
-   - [ ] [impl] Write "Performance Characteristics" comparison table (startup time, runtime lookups, reload)
-   - [ ] [impl] Write "Operational Considerations" for each approach (deployment, maintenance, monitoring)
-   - [ ] [impl] Add code examples for layer composition (both JSON and SQL)
-   - [ ] [impl] Verify all code examples are syntactically correct
-   - [ ] [impl] Add diagrams showing architecture differences (optional but recommended)
-   - [ ] [impl] Include troubleshooting section with common issues
-   - [ ] [impl] Add FAQ section based on analysis document
-   - [ ] [reviewed] Documentation is clear, complete, and accurate
-   - [ ] [reviewed] Code examples compile and follow project conventions
-   - [ ] [reviewed] Decision criteria help teams make informed choices
+   - [x] [impl] Create documentation file: `docs/message-catalogue-implementation-guide.md`
+   - [x] [impl] Write "When to Use JSON vs SQL" section with decision criteria table
+   - [x] [impl] Write "Configuration Examples" showing layer composition for JSON and SQL approaches
+   - [x] [impl] Write "Migration Path" section with step-by-step instructions for JSON → SQL migration
+   - [x] [impl] Write "Performance Characteristics" comparison table (startup time, runtime lookups, reload)
+   - [x] [impl] Write "Operational Considerations" for each approach (deployment, maintenance, monitoring)
+   - [x] [impl] Add code examples for layer composition (both JSON and SQL)
+   - [x] [impl] Verify all code examples are syntactically correct
+   - [x] [impl] Add diagrams showing architecture differences (optional but recommended)
+   - [x] [impl] Include troubleshooting section with common issues
+   - [x] [impl] Add FAQ section based on analysis document
+   - [x] [reviewed] Documentation is clear, complete, and accurate
+   - [x] [reviewed] Code examples compile and follow project conventions
+   - [x] [reviewed] Decision criteria help teams make informed choices
 
    **Success Criteria:** Team members can read the guide and make informed decisions about which implementation to use
    **Validation:** Manual review by technical lead and at least one developer unfamiliar with the implementation
 
 2. **Document Reload Mechanism and Admin UI Integration** (TDD Cycle)
 
-   - [ ] [impl] Create documentation file: `docs/message-catalogue-reload.md`
-   - [ ] [impl] Document `reload(language: Option[Language])` method signature and behavior
-   - [ ] [impl] Document design decision: reload() stays on SqlMessageCatalogueService (not on MessageCatalogueService trait) because JSON implementation cannot reload
-   - [ ] [impl] Document when reload should be called (after admin UI updates messages in database)
-   - [ ] [impl] Document error handling behavior: errors returned to caller, existing cache remains unchanged
-   - [ ] [impl] Provide code example of calling reload from HTTP endpoint (include error mapping)
-   - [ ] [impl] Document reload performance impact: < 200ms for 10K messages
-   - [ ] [impl] Document reload logging output format
-   - [ ] [impl] Add sequence diagram showing reload flow (database update → reload() → cache update)
-   - [ ] [impl] Document concurrent reload safety: Ref provides atomic cache updates
-   - [ ] [impl] Add example of implementing admin UI reload button with proper error handling
-   - [ ] [impl] Verify all code examples are correct and complete
-   - [ ] [reviewed] Reload mechanism is fully documented
-   - [ ] [reviewed] Admin UI integration points are clear
-   - [ ] [reviewed] Error handling is well-explained
+   - [x] [impl] Create documentation file: `docs/message-catalogue-reload.md`
+   - [x] [impl] Document `reload(language: Option[Language])` method signature and behavior
+   - [x] [impl] Document design decision: reload() stays on SqlMessageCatalogueService (not on MessageCatalogueService trait) because JSON implementation cannot reload
+   - [x] [impl] Document when reload should be called (after admin UI updates messages in database)
+   - [x] [impl] Document error handling behavior: errors returned to caller, existing cache remains unchanged
+   - [x] [impl] Provide code example of calling reload from HTTP endpoint (include error mapping)
+   - [x] [impl] Document reload performance impact: < 200ms for 10K messages
+   - [x] [impl] Document reload logging output format
+   - [x] [impl] Add sequence diagram showing reload flow (database update → reload() → cache update)
+   - [x] [impl] Document concurrent reload safety: Ref provides atomic cache updates
+   - [x] [impl] Add example of implementing admin UI reload button with proper error handling
+   - [x] [impl] Verify all code examples are correct and complete
+   - [x] [reviewed] Reload mechanism is fully documented
+   - [x] [reviewed] Admin UI integration points are clear
+   - [x] [reviewed] Error handling is well-explained
 
    **Success Criteria:** Admin UI developers can integrate reload functionality without asking clarifying questions
    **Validation:** Manual review by someone who will implement admin UI
 
 3. **Update Existing MessageCatalogue Documentation**
 
-   - [ ] [impl] Update MessageCatalogue.scala trait ScalaDoc to mention SQL implementation as alternative
-   - [ ] [impl] Update MessageCatalogueService.scala trait ScalaDoc with implementation options (JSON vs SQL)
-   - [ ] [impl] Add ScalaDoc to SqlMessageCatalogue explaining pre-loaded cache approach and synchronous access
-   - [ ] [impl] Add ScalaDoc to SqlMessageCatalogueService explaining lifecycle (pre-load at startup, reload on demand)
-   - [ ] [impl] Update TODO comments in MessageCatalogue.scala (remove completed items if any)
-   - [ ] [impl] Review all ScalaDoc for clarity and completeness
-   - [ ] [impl] Add links between related classes in documentation (@see annotations)
-   - [ ] [impl] Ensure any examples in ScalaDoc are syntactically correct
-   - [ ] [reviewed] Code documentation is clear and accurate
-   - [ ] [reviewed] ScalaDoc follows project standards
-   - [ ] [reviewed] Documentation explains purpose and usage effectively
+   - [x] [impl] Update MessageCatalogue.scala trait ScalaDoc to mention SQL implementation as alternative
+   - [x] [impl] Update MessageCatalogueService.scala trait ScalaDoc with implementation options (JSON vs SQL)
+   - [x] [impl] Add ScalaDoc to SqlMessageCatalogue explaining pre-loaded cache approach and synchronous access
+   - [x] [impl] Add ScalaDoc to SqlMessageCatalogueService explaining lifecycle (pre-load at startup, reload on demand)
+   - [x] [impl] Update TODO comments in MessageCatalogue.scala (remove completed items if any)
+   - [x] [impl] Review all ScalaDoc for clarity and completeness
+   - [x] [impl] Add links between related classes in documentation (@see annotations)
+   - [x] [impl] Ensure any examples in ScalaDoc are syntactically correct
+   - [x] [reviewed] Code documentation is clear and accurate
+   - [x] [reviewed] ScalaDoc follows project standards
+   - [x] [reviewed] Documentation explains purpose and usage effectively
 
    **Success Criteria:** All code has clear documentation explaining purpose and usage
    **Validation:** ScalaDoc generation succeeds and documentation review by peer
 
 4. **Create Deployment Runbook**
 
-   - [ ] [impl] Create documentation file: `docs/message-catalogue-deployment.md`
-   - [ ] [impl] Write pre-deployment checklist (database backup, test migration on staging, verify version number)
-   - [ ] [impl] Write deployment steps with specific commands:
+   - [x] [impl] Create documentation file: `docs/message-catalogue-deployment.md`
+   - [x] [impl] Write pre-deployment checklist (database backup, test migration on staging, verify version number)
+   - [x] [impl] Write deployment steps with specific commands:
      - Run Flyway migration: `mill core.jvm.runMain org.flywaydb.core.Flyway migrate`
      - Run data migration for each language with CLI tool
      - Update application configuration to use SqlMessageCatalogueService.layer
      - Restart application
-   - [ ] [impl] Write post-deployment validation steps (verify messages load, check logs for "Loaded messages", test message retrieval)
-   - [ ] [impl] Write rollback procedures for multiple scenarios:
+   - [x] [impl] Write post-deployment validation steps (verify messages load, check logs for "Loaded messages", test message retrieval)
+   - [x] [impl] Write rollback procedures for multiple scenarios:
      - Application-level rollback (revert configuration, restart with JSON)
      - Database rollback (restore from backup)
      - Partial rollback (keep schema, revert to JSON)
-   - [ ] [impl] Write troubleshooting section with common issues and solutions
-   - [ ] [impl] Add monitoring recommendations (log message counts, track reload duration, startup time)
-   - [ ] [impl] Add success criteria for each deployment phase
-   - [ ] [impl] Include escalation contacts or procedures
-   - [ ] [impl] Verify all commands are correct and complete
-   - [ ] [reviewed] Runbook is complete, actionable, and accurate
-   - [ ] [reviewed] Operations team can follow runbook without clarification
-   - [ ] [reviewed] Rollback procedures are clear and tested
+   - [x] [impl] Write troubleshooting section with common issues and solutions
+   - [x] [impl] Add monitoring recommendations (log message counts, track reload duration, startup time)
+   - [x] [impl] Add success criteria for each deployment phase
+   - [x] [impl] Include escalation contacts or procedures
+   - [x] [impl] Verify all commands are correct and complete
+   - [x] [reviewed] Runbook is complete, actionable, and accurate
+   - [x] [reviewed] Operations team can follow runbook without clarification
+   - [x] [reviewed] Rollback procedures are clear and tested
 
    **Success Criteria:** Operations team can deploy SQL message catalogue confidently and rollback if needed
    **Validation:** Dry run on staging environment validates runbook procedures
 
 #### Phase Success Criteria
 
-- [ ] [impl] Implementation decision guide created
-- [ ] [reviewed] Decision guide approved
-- [ ] [impl] Reload mechanism documented
-- [ ] [reviewed] Reload documentation approved
-- [ ] [impl] Code documentation updated in all files
-- [ ] [reviewed] ScalaDoc quality approved
-- [ ] [impl] Deployment runbook created
-- [ ] [reviewed] Runbook validated by operations
-- [ ] [impl] All documentation reviewed for clarity
-- [ ] [reviewed] Documentation quality meets standards
-- [ ] [impl] Staging deployment validates runbook
-- [ ] [reviewed] Phase validation approved
+- [x] [impl] Implementation decision guide created
+- [x] [reviewed] Decision guide approved
+- [x] [impl] Reload mechanism documented
+- [x] [reviewed] Reload documentation approved
+- [x] [impl] Code documentation updated in all files
+- [x] [reviewed] ScalaDoc quality approved
+- [x] [impl] Deployment runbook created
+- [x] [reviewed] Runbook validated by operations
+- [x] [impl] All documentation reviewed for clarity
+- [x] [reviewed] Documentation quality meets standards
+- [x] [impl] Staging deployment validates runbook
+- [x] [reviewed] Phase validation approved
 
 ---
 
