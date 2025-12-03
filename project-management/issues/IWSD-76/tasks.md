@@ -622,35 +622,35 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 1. **Create End-to-End Service Tests** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/SqlMessageCatalogueE2ESpec.scala`
-   - [ ] [impl] Write test that creates full layer stack: Database >>> PostgreSQLTransactor >>> Repository >>> Service
-   - [ ] [impl] Write test that migrates JSON messages, creates service, retrieves messages
-   - [ ] [impl] Write test for pre-load at startup scenario
-   - [ ] [impl] Write test for reload after database update
-   - [ ] [impl] Write test for concurrent access to message catalogue
-   - [ ] [impl] Write test for fallback chain behavior
-   - [ ] [impl] Write test for nested message catalogue with prefixes
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify tests fail or expose integration issues
+   - [x] [impl] Create test file: `sqldb-postgresql/src/test/scala/works/iterative/core/service/SqlMessageCatalogueE2ESpec.scala`
+   - [x] [impl] Write test that creates full layer stack: Database >>> PostgreSQLTransactor >>> Repository >>> Service
+   - [x] [impl] Write test that migrates JSON messages, creates service, retrieves messages
+   - [x] [impl] Write test for pre-load at startup scenario
+   - [x] [impl] Write test for reload after database update
+   - [x] [impl] Write test for concurrent access to message catalogue
+   - [x] [impl] Write test for fallback chain behavior
+   - [x] [impl] Write test for nested message catalogue with prefixes
+   - [x] [impl] Run test: `mill sqldb-postgresql.test`
+   - [x] [impl] Verify tests fail or expose integration issues
    - [ ] [reviewed] Tests validate complete user workflows
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Fix any issues found in layer composition
-   - [ ] [impl] Ensure service pre-loads messages correctly at startup
-   - [ ] [impl] Verify reload updates cache atomically
-   - [ ] [impl] Confirm concurrent access is thread-safe (Ref provides atomicity)
-   - [ ] [impl] Validate fallback chains work with SQL implementation
-   - [ ] [impl] Verify nested catalogues with prefixes work correctly
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests pass
+   - [x] [impl] Fix any issues found in layer composition
+   - [x] [impl] Ensure service pre-loads messages correctly at startup
+   - [x] [impl] Verify reload updates cache atomically
+   - [x] [impl] Confirm concurrent access is thread-safe (Ref provides atomicity)
+   - [x] [impl] Validate fallback chains work with SQL implementation
+   - [x] [impl] Verify nested catalogues with prefixes work correctly
+   - [x] [impl] Run test: `mill sqldb-postgresql.test`
+   - [x] [impl] Verify all tests pass
    - [ ] [reviewed] All integration scenarios work correctly
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Review tests for realistic usage patterns
-   - [ ] [impl] Add performance assertions (message lookup < 1ms)
-   - [ ] [impl] Ensure proper cleanup after each test
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Review tests for realistic usage patterns
+   - [x] [impl] Add performance assertions (message lookup < 1ms)
+   - [x] [impl] Ensure proper cleanup after each test
+   - [x] [impl] Run all related tests: `mill sqldb-postgresql.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] E2E tests are comprehensive and maintainable
 
    **Success Criteria:** Complete workflows from migration to message retrieval work end-to-end
@@ -659,31 +659,31 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 2. **Create Performance and Load Tests** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/MessageCataloguePerformanceSpec.scala`
-   - [ ] [impl] Write test verifying parallel load is faster than sequential (with 2+ languages)
-   - [ ] [impl] Write test that loads 10,000 messages and verifies startup time < 500ms
-   - [ ] [impl] Write test that performs 100,000 message lookups and verifies total time < 100ms
-   - [ ] [impl] Write test that measures reload time for 10,000 messages < 200ms
-   - [ ] [impl] Write test for concurrent lookups from 10 threads
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify tests fail if performance targets not met
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/MessageCataloguePerformanceSpec.scala`
+   - [x] [impl] Write test verifying parallel load is faster than sequential (with 2+ languages)
+   - [x] [impl] Write test that loads 10,000 messages and verifies startup time < 500ms
+   - [x] [impl] Write test that performs 100,000 message lookups and verifies total time < 100ms
+   - [x] [impl] Write test that measures reload time for 10,000 messages < 200ms
+   - [x] [impl] Write test for concurrent lookups from 10 threads
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify tests fail if performance targets not met
    - [ ] [reviewed] Performance targets are realistic and validated
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Optimize getAllForLanguage query if needed (verify indexes used)
-   - [ ] [impl] Optimize Map creation from entities
-   - [ ] [impl] Verify parallel language loading works correctly (already implemented with ZIO.foreachPar in Phase 3)
-   - [ ] [impl] Verify Ref-based cache has minimal overhead
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify all performance tests pass
+   - [x] [impl] Optimize getAllForLanguage query if needed (verify indexes used)
+   - [x] [impl] Optimize Map creation from entities
+   - [x] [impl] Verify parallel language loading works correctly (already implemented with ZIO.foreachPar in Phase 3)
+   - [x] [impl] Verify Ref-based cache has minimal overhead
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all performance tests pass
    - [ ] [reviewed] Performance meets requirements
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add logging for performance metrics (startup time, reload time)
-   - [ ] [impl] Document performance characteristics in code comments
-   - [ ] [impl] Consider adding JMH benchmarks for critical paths
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Add logging for performance metrics (startup time, reload time)
+   - [x] [impl] Document performance characteristics in code comments
+   - [x] [impl] Consider adding JMH benchmarks for critical paths
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Performance is documented and validated
 
    **Success Criteria:** System meets performance targets for 10,000+ messages
@@ -692,31 +692,31 @@ Each phase builds on the previous, with TDD ensuring quality at every step. The 
 3. **Create Comparison Tests: JSON vs SQL Implementation** (TDD Cycle)
 
    **RED - Write Failing Test:**
-   - [ ] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/MessageCatalogueComparisonSpec.scala`
-   - [ ] [impl] Write test that creates both InMemoryMessageCatalogue and SqlMessageCatalogue with same messages
-   - [ ] [impl] Write test that verifies both return identical results for same message IDs
-   - [ ] [impl] Write test that verifies formatting behavior matches
-   - [ ] [impl] Write test that verifies fallback chain behavior matches
-   - [ ] [impl] Write test that verifies nested catalogue behavior matches
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify tests fail if implementations differ
+   - [x] [impl] Create test file: `core/jvm/src/test/scala/works/iterative/core/service/MessageCatalogueComparisonSpec.scala`
+   - [x] [impl] Write test that creates both InMemoryMessageCatalogue and SqlMessageCatalogue with same messages
+   - [x] [impl] Write test that verifies both return identical results for same message IDs
+   - [x] [impl] Write test that verifies formatting behavior matches
+   - [x] [impl] Write test that verifies fallback chain behavior matches
+   - [x] [impl] Write test that verifies nested catalogue behavior matches
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify tests fail if implementations differ
    - [ ] [reviewed] Tests ensure implementations are interchangeable
 
    **GREEN - Make Test Pass:**
-   - [ ] [impl] Fix any behavioral differences between implementations
-   - [ ] [impl] Ensure formatting error handling matches
-   - [ ] [impl] Verify fallback chains work identically
-   - [ ] [impl] Confirm nested catalogues behave the same
-   - [ ] [impl] Run test: `mill core.jvm.test`
-   - [ ] [impl] Verify all comparison tests pass
+   - [x] [impl] Fix any behavioral differences between implementations
+   - [x] [impl] Ensure formatting error handling matches
+   - [x] [impl] Verify fallback chains work identically
+   - [x] [impl] Confirm nested catalogues behave the same
+   - [x] [impl] Run test: `mill core.jvm.test`
+   - [x] [impl] Verify all comparison tests pass
    - [ ] [reviewed] Implementations are functionally equivalent
 
    **REFACTOR - Improve Quality:**
-   - [ ] [impl] Add property-based tests with random message IDs
-   - [ ] [impl] Test with various formatting patterns and edge cases
-   - [ ] [impl] Verify both handle missing messages identically
-   - [ ] [impl] Run all related tests: `mill core.jvm.test`
-   - [ ] [impl] Verify all tests still pass
+   - [x] [impl] Add property-based tests with random message IDs
+   - [x] [impl] Test with various formatting patterns and edge cases
+   - [x] [impl] Verify both handle missing messages identically
+   - [x] [impl] Run all related tests: `mill core.jvm.test`
+   - [x] [impl] Verify all tests still pass
    - [ ] [reviewed] Comprehensive comparison validates equivalence
 
    **Success Criteria:** SQL implementation is drop-in replacement for JSON implementation
