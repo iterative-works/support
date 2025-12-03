@@ -14,7 +14,7 @@ import scala.annotation.tailrec
   *
   * Implementations:
   * - [[works.iterative.ui.JsonMessageCatalogue]] - Frontend implementation using JSON dictionaries (ScalaJS)
-  * - [[works.iterative.core.service.impl.SqlMessageCatalogue]] - Backend implementation with database-backed cache (JVM)
+  * - [[works.iterative.core.service.impl.InMemoryMessageCatalogue]] - Backend implementation with pre-loaded in-memory cache (JVM)
   *
   * @see [[works.iterative.core.service.MessageCatalogueService]] for service-level access to message catalogues
   */

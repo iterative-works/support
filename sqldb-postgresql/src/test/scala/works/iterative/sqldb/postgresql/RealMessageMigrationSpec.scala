@@ -73,7 +73,7 @@ object RealMessageMigrationSpec extends ZIOSpecDefault:
       )
     },
 
-    test("SqlMessageCatalogue can retrieve all migrated real messages") {
+    test("message catalogue service can retrieve all migrated real messages") {
       for
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()

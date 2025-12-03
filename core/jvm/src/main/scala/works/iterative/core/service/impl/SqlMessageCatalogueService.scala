@@ -36,7 +36,7 @@ import works.iterative.core.service.MessageCatalogueService
   * @param cacheRef Reference to the in-memory cache of messages by language
   * @param defaultLanguage The default language to use when messages() is called
   *
-  * @see [[SqlMessageCatalogue]] for the message catalogue implementation
+  * @see [[InMemoryMessageCatalogue]] for the message catalogue implementation
   * @see [[works.iterative.core.repository.MessageCatalogueRepository]] for database access
   * @see docs/message-catalogue-reload.md for reload mechanism documentation
   */
@@ -52,7 +52,7 @@ class SqlMessageCatalogueService(
   override def forLanguage(language: Language): UIO[MessageCatalogue] =
     cacheRef.get.map { cache =>
       val messages = cache.getOrElse(language, Map.empty)
-      new SqlMessageCatalogue(language, messages)
+      new InMemoryMessageCatalogue(language, messages)
     }
 
   /** Reloads messages from the database for specified language(s).
