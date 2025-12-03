@@ -5,8 +5,7 @@ package works.iterative.sqldb.mysql
 
 import zio.*
 import works.iterative.core.Language
-import works.iterative.core.model.MessageCatalogueData
-import works.iterative.core.repository.MessageCatalogueRepository
+import works.iterative.sqldb.{MessageCatalogueData, MessageCatalogueRepository}
 
 object MySQLMessageCatalogueRepository:
   /** ZIO layer for MessageCatalogueRepository

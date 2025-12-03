@@ -1,11 +1,10 @@
-// PURPOSE: Repository trait for accessing message catalogue data from the database
+// PURPOSE: Repository trait for accessing message catalogue data from SQL databases
 // PURPOSE: Provides methods for retrieving and inserting message catalogue entities
 
-package works.iterative.core.repository
+package works.iterative.sqldb
 
 import zio.*
 import works.iterative.core.Language
-import works.iterative.core.model.MessageCatalogueData
 
 trait MessageCatalogueRepository:
   /** Retrieves all message catalogue entries for a specific language.

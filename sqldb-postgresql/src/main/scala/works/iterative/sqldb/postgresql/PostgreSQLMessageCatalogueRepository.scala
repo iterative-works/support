@@ -5,8 +5,7 @@ package works.iterative.sqldb.postgresql
 
 import zio.*
 import works.iterative.core.Language
-import works.iterative.core.model.MessageCatalogueData
-import works.iterative.core.repository.MessageCatalogueRepository
+import works.iterative.sqldb.{MessageCatalogueData, MessageCatalogueRepository}
 
 object PostgreSQLMessageCatalogueRepository:
   /** ZIO layer for MessageCatalogueRepository

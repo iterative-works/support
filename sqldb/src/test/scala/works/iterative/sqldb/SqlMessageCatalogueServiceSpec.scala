@@ -1,14 +1,11 @@
 // PURPOSE: Test suite for SqlMessageCatalogueService validating pre-load and reload functionality
 // PURPOSE: Verifies cache management and message catalogue lifecycle
 
-package works.iterative.core
-package service.impl
+package works.iterative.sqldb
 
 import zio.*
 import zio.test.*
 import works.iterative.core.{Language, MessageId}
-import works.iterative.core.model.MessageCatalogueData
-import works.iterative.core.repository.MessageCatalogueRepository
 import java.time.Instant
 
 object SqlMessageCatalogueServiceSpec extends ZIOSpecDefault:

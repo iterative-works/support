@@ -7,9 +7,7 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 import works.iterative.core.{Language, MessageId}
-import works.iterative.core.repository.MessageCatalogueRepository
-import works.iterative.core.service.impl.SqlMessageCatalogueService
-import works.iterative.core.model.MessageCatalogueData
+import works.iterative.sqldb.{MessageCatalogueData, MessageCatalogueRepository, SqlMessageCatalogueService}
 import works.iterative.sqldb.FlywayMigrationService
 import works.iterative.sqldb.postgresql.PostgreSQLMessageCatalogueRepository
 import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*

@@ -22,7 +22,7 @@ import zio.*
   * - Non-technical users manage messages via admin UI
   * - Backend applications requiring runtime message updates
   *
-  * @see [[works.iterative.core.service.impl.SqlMessageCatalogueService]] for SQL implementation with reload support
+  * @see [[works.iterative.sqldb.SqlMessageCatalogueService]] for SQL implementation with reload support
   */
 trait MessageCatalogueService:
     def messages: UIO[MessageCatalogue]

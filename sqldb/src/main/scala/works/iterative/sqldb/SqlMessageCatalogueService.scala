@@ -1,12 +1,12 @@
 // PURPOSE: MessageCatalogueService implementation with database-backed pre-loaded cache
 // PURPOSE: Manages message catalogue lifecycle with pre-load at startup and reload capability
 
-package works.iterative.core
-package service.impl
+package works.iterative.sqldb
 
 import zio.*
-import works.iterative.core.repository.MessageCatalogueRepository
+import works.iterative.core.{Language, MessageCatalogue}
 import works.iterative.core.service.MessageCatalogueService
+import works.iterative.core.service.impl.InMemoryMessageCatalogue
 
 /** MessageCatalogueService implementation with database-backed pre-loaded cache.
   *
@@ -36,8 +36,8 @@ import works.iterative.core.service.MessageCatalogueService
   * @param cacheRef Reference to the in-memory cache of messages by language
   * @param defaultLanguage The default language to use when messages() is called
   *
-  * @see [[InMemoryMessageCatalogue]] for the message catalogue implementation
-  * @see [[works.iterative.core.repository.MessageCatalogueRepository]] for database access
+  * @see [[works.iterative.core.service.impl.InMemoryMessageCatalogue]] for the message catalogue implementation
+  * @see [[MessageCatalogueRepository]] for database access
   * @see docs/message-catalogue-reload.md for reload mechanism documentation
   */
 class SqlMessageCatalogueService(

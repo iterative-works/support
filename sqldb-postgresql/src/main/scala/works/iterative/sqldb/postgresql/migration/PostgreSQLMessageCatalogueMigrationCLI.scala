@@ -5,7 +5,7 @@ package works.iterative.sqldb.postgresql.migration
 
 import zio.*
 import works.iterative.core.Language
-import works.iterative.core.repository.MessageCatalogueRepository
+import works.iterative.sqldb.MessageCatalogueRepository
 import works.iterative.sqldb.postgresql.*
 
 object MessageCatalogueMigrationCLI extends ZIOAppDefault:

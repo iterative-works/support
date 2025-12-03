@@ -7,7 +7,7 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 import works.iterative.core.Language
-import works.iterative.core.repository.MessageCatalogueRepository
+import works.iterative.sqldb.MessageCatalogueRepository
 import works.iterative.sqldb.FlywayMigrationService
 import works.iterative.sqldb.mysql.testing.MySQLTestingLayers.*
 

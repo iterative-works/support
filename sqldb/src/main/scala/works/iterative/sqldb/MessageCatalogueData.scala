@@ -1,14 +1,13 @@
-// PURPOSE: Domain model representing a message catalogue entry
-// PURPOSE: Pure domain object with no infrastructure concerns
+// PURPOSE: Data model representing a message catalogue entry for SQL storage
+// PURPOSE: Contains persistence fields for database storage and audit tracking
 
-package works.iterative.core.model
+package works.iterative.sqldb
 
 import works.iterative.core.{Language, MessageId}
 import java.time.Instant
 
-/** Domain model representing a message catalogue entry.
-  * This is a pure domain object with no database or infrastructure concerns.
-  * Used across all layers except the infrastructure layer which maps to/from this type.
+/** Data model representing a message catalogue entry for SQL storage.
+  * Contains persistence-related fields for database storage and audit tracking.
   *
   * @param messageKey The unique message identifier
   * @param language The language code for this message

@@ -6,7 +6,7 @@ package works.iterative.sqldb.mysql.migration
 import zio.*
 import zio.json.*
 import works.iterative.core.{Language, MessageId}
-import works.iterative.core.repository.MessageCatalogueRepository
+import works.iterative.sqldb.MessageCatalogueRepository
 import works.iterative.sqldb.mysql.MessageCatalogue
 
 object MySQLMessageCatalogueMigration:
