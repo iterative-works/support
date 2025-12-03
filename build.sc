@@ -159,20 +159,14 @@ trait JvmOnlyModule extends BaseModule {
 // Nested cross-module helper
 trait NestedCrossModule extends CrossModule {
   def parentPath: os.RelPath
-  
+
   trait NestedSharedModule extends SharedModule {
     override def moduleDir = super.moduleDir / os.up / os.up / parentPath
-    
+
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-    
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-    
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
+    // Note: sources and resources are NOT overridden here because SharedModule already
+    // extends FullCrossScalaModule which adds sharedSources/sharedResources automatically
   }
   
   trait NestedJvmModule extends NestedSharedModule
@@ -443,14 +437,6 @@ object formsCore extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
   }
 
   object jvm extends JvmModule with FormsCoreModule {
@@ -472,14 +458,6 @@ object filesCore extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
   }
 
   object jvm extends JvmModule with FilesCoreModule {
@@ -537,14 +515,6 @@ object uiCore extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
   }
 
   object jvm extends JvmModule with UICoreModule {
@@ -576,14 +546,6 @@ object filesRest extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
   }
 
   object jvm extends JvmModule with FilesRestModule {
@@ -653,14 +615,6 @@ object uiForms extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
   }
 
   object jvm extends JvmModule with UIFormsModule {
@@ -692,14 +646,6 @@ object uiScalatags extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
   }
 
   object jvm extends JvmModule with UIScalatagsModule {
@@ -860,14 +806,6 @@ object formsScenarios extends CrossModule {
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
 
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
-
     // Skip publishing for test scenarios
     override def publishVersion = "0.0.0"
   }
@@ -891,14 +829,6 @@ object filesUIScenarios extends CrossModule {
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    override def sources = Task {
-      super.sources() ++ sharedSources()
-    }
-
-    override def resources = Task {
-      super.resources() ++ sharedResources()
-    }
 
     // Skip publishing for test scenarios
     override def publishVersion = "0.0.0"
