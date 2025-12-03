@@ -1,26 +1,27 @@
-package works.iterative.sqldb
+package works.iterative.sqldb.mysql
 
 import zio.*
+import works.iterative.sqldb.{FlywayConfig, FlywayMigrationService}
 
-/** Base trait for PostgreSQL database modules that provides common infrastructure
+/** Base trait for MySQL database modules that provides common infrastructure
   *
   * This trait orchestrates the creation of database infrastructure components like datasource,
   * transactor, and migration management. It's the foundation layer for database modules.
   *
   * Classification: Infrastructure Configuration
   */
-object PostgreSQLDatabaseSupport:
+object MySQLDatabaseSupport:
     /** Base database infrastructure type including data source and transactor
       */
-    type BaseDatabaseInfrastructure = PostgreSQLDataSource & PostgreSQLTransactor
+    type BaseDatabaseInfrastructure = MySQLDataSource & MySQLTransactor
 
     /** Creates a ZLayer with the base database infrastructure (DataSource & Transactor)
       */
     val layer: ZLayer[Scope, Throwable, BaseDatabaseInfrastructure] =
         // Create the shared data source
-        val dataSourceLayer = PostgreSQLDataSource.managedLayer
+        val dataSourceLayer = MySQLDataSource.managedLayer
         // Create the transactor from the data source
-        val transactorLayer = dataSourceLayer >+> PostgreSQLTransactor.managedLayer
+        val transactorLayer = dataSourceLayer >+> MySQLTransactor.managedLayer
 
         // Return the combined layer
         transactorLayer
@@ -47,9 +48,9 @@ object PostgreSQLDatabaseSupport:
         val flywayConfig = createFlywayConfig(additionalLocations)
 
         // Create the underlying layers
-        val dataSourceLayer = PostgreSQLDataSource.managedLayer
-        val transactorLayer = dataSourceLayer >+> PostgreSQLTransactor.managedLayer
-        val flywayLayer = dataSourceLayer >>> FlywayMigrationService.layerWithConfig(flywayConfig)
+        val dataSourceLayer = MySQLDataSource.managedLayer
+        val transactorLayer = dataSourceLayer >+> MySQLTransactor.managedLayer
+        val flywayLayer = dataSourceLayer >>> MySQLFlywayMigrationService.layerWithConfig(flywayConfig)
 
         // Combine layers to create the final ZLayer with both infrastructure and migration service
         val combinedLayer = transactorLayer ++ flywayLayer
@@ -73,12 +74,12 @@ object PostgreSQLDatabaseSupport:
     def migrate(
         additionalLocations: List[String] = List.empty
     ): ZIO[Scope, Throwable, Unit] =
-        val dataSourceLayer = PostgreSQLDataSource.managedLayer
+        val dataSourceLayer = MySQLDataSource.managedLayer
 
         // Create flyway config using the helper method
         val flywayConfig = createFlywayConfig(additionalLocations)
 
-        val flywayLayer = dataSourceLayer >>> FlywayMigrationService.layerWithConfig(flywayConfig)
+        val flywayLayer = dataSourceLayer >>> MySQLFlywayMigrationService.layerWithConfig(flywayConfig)
 
         ZIO.scoped {
             for
@@ -90,4 +91,4 @@ object PostgreSQLDatabaseSupport:
             yield ()
         }
     end migrate
-end PostgreSQLDatabaseSupport
+end MySQLDatabaseSupport

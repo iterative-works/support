@@ -1,0 +1,7 @@
+{
+  "test.message.one": "First test message",
+  "test.message.two": "Second test message",
+  "test.message.three": "Third test message with 'quotes'",
+  "test.message.four": "Fourth test message with \"double quotes\"",
+  "test.message.five": "Fifth test message with special chars: áčďěňš"
+}

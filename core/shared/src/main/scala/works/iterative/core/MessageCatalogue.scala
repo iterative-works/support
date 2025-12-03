@@ -6,8 +6,20 @@ import scala.annotation.tailrec
 // TODO: generic message catalogue
 // we need to be able to render HTML messages
 // like a list of items for example
+
+/** Message catalogue for accessing localized messages by key.
+  *
+  * This trait provides the core interface for retrieving messages in a specific language.
+  * Messages can be simple strings or templates with placeholders for formatting.
+  *
+  * Implementations:
+  * - [[works.iterative.ui.JsonMessageCatalogue]] - Frontend implementation using JSON dictionaries (ScalaJS)
+  * - [[works.iterative.core.service.impl.InMemoryMessageCatalogue]] - Backend implementation with pre-loaded in-memory cache (JVM)
+  *
+  * @see [[works.iterative.core.service.MessageCatalogueService]] for service-level access to message catalogues
+  */
 trait MessageCatalogue:
-    // Languate of this message catalogue
+    // Language of this message catalogue
     def language: Language
     // These need to be implemented
     def get(id: MessageId): Option[String]
