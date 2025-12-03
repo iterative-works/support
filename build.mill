@@ -653,7 +653,7 @@ object akkaPersistence extends JvmOnlyModule {
     // Slick dependencies
     mvn"com.typesafe.slick::slick::${IWMillVersions.slick}".withDottyCompat(scalaVersion()),
     mvn"com.typesafe.slick::slick-hikaricp::${IWMillVersions.slick}".withDottyCompat(scalaVersion())
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // Paygate payment gateway support module - JVM only
@@ -665,7 +665,7 @@ object paygate extends JvmOnlyModule {
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ Dependencies.zioConfig ++ Seq(
     IWMillDeps.sttpClientZio,
     mvn"com.softwaremill.sttp.client3::zio-json::${IWMillVersions.sttpClient3}"
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // ============================================================================
@@ -760,7 +760,7 @@ object http extends JvmOnlyModule {
     mvn"org.pac4j::http4s-pac4j::${IWMillVersions.http4sPac4J}",
     mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
     IWMillDeps.scalatags
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // Files Mongo adapter module - JVM only (located at files/adapters/mongo)
@@ -775,7 +775,6 @@ object filesMongo extends JvmOnlyModule {
   // Integration test module
   object it extends BaseTests {
     override def moduleDir = filesMongo.moduleDir / "it"
-    override def intellijModulePath: os.Path = filesMongo.moduleDir / "it" / "src/test"
 
     override def sources = Task.Sources(filesMongo.moduleDir / "it" / "src" / "test" / "scala")
     override def resources = Task.Sources(filesMongo.moduleDir / "it" / "src" / "test" / "resources")
@@ -934,7 +933,7 @@ object scenariosUI extends BaseScalaJSModule {
   }
 
   override def moduleSplitStyle = Task {
-    ModuleSplitStyle.SmallModulesFor(List("works.iterative"))
+    ModuleSplitStyle.SmallModulesFor("works.iterative")
   }
 
   // Add custom scalac option for source map URI

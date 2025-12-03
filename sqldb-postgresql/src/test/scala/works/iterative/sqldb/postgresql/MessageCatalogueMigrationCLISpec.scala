@@ -5,7 +5,7 @@ package works.iterative.sqldb.postgresql
 import works.iterative.sqldb.{FlywayMigrationService, FlywayConfig}
 
 import zio.test.*
-import works.iterative.sqldb.migration.MessageCatalogueMigrationCLI
+import works.iterative.sqldb.postgresql.migration.MessageCatalogueMigrationCLI
 
 object MessageCatalogueMigrationCLISpec extends ZIOSpecDefault:
 

@@ -11,7 +11,7 @@ import works.iterative.core.{Language, MessageId}
 import works.iterative.core.repository.MessageCatalogueRepository
 import works.iterative.core.service.impl.SqlMessageCatalogueService
 import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*
-import works.iterative.sqldb.migration.MessageCatalogueMigration
+import works.iterative.sqldb.postgresql.migration.MessageCatalogueMigration
 
 object RealMessageMigrationSpec extends ZIOSpecDefault:
 
