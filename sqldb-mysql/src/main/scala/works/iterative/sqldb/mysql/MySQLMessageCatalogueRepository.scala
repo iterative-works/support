@@ -33,6 +33,6 @@ case class MessageCatalogueRepositoryImpl(ts: MySQLTransactor) extends MessageCa
     ZIO.logInfo(s"Bulk inserting ${entities.size} messages") *>
       ts.transactor.transact:
         val creators = entities.map(MessageCatalogue.fromDomain)
-        repo.insertAllReturning(creators)
+        repo.insertAll(creators)
       .unit
 end MessageCatalogueRepositoryImpl

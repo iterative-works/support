@@ -18,7 +18,10 @@ object MySQLTestingLayers:
         ZLayer {
             ZIO.acquireRelease {
                 ZIO.attempt {
-                    val container = MySQLContainer.Def(dockerImageName = mysqlImage).start()
+                    val container = MySQLContainer.Def(
+                        dockerImageName = mysqlImage,
+                        configurationOverride = Some("tc-mysql-conf")
+                    ).start()
                     container
                 }
             }(container =>
