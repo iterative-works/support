@@ -162,26 +162,26 @@ trait PermissionService:
       * @param userId The user to grant the permission to
       * @param relation The permission relation (e.g., "owner", "editor", "viewer")
       * @param target The permission target
-      * @return UIO[Unit]
+      * @return UIO[Boolean] - true if successful, false if failed
       */
     def grantPermission(
         userId: UserId,
         relation: String,
         target: PermissionTarget
-    ): UIO[Unit]
+    ): UIO[Boolean]
 
     /** Revoke a permission relation from a user.
       *
       * @param userId The user to revoke the permission from
       * @param relation The permission relation to revoke
       * @param target The permission target
-      * @return UIO[Unit]
+      * @return UIO[Boolean] - true if successful, false if failed
       */
     def revokePermission(
         userId: UserId,
         relation: String,
         target: PermissionTarget
-    ): UIO[Unit]
+    ): UIO[Boolean]
 end PermissionService
 
 object PermissionService:

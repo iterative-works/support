@@ -103,26 +103,26 @@ class InMemoryPermissionService(
     * @param userId The user to grant the permission to
     * @param relation The permission relation
     * @param target The permission target
-    * @return UIO[Unit]
+    * @return UIO[Boolean] - always true for in-memory implementation
     */
   def grantPermission(
       userId: UserId,
       relation: String,
       target: PermissionTarget
-  ): UIO[Unit] = addRelation(userId, relation, target)
+  ): UIO[Boolean] = addRelation(userId, relation, target).as(true)
 
   /** Revoke a permission relation from a user.
     *
     * @param userId The user to revoke the permission from
     * @param relation The permission relation to revoke
     * @param target The permission target
-    * @return UIO[Unit]
+    * @return UIO[Boolean] - always true for in-memory implementation
     */
   def revokePermission(
       userId: UserId,
       relation: String,
       target: PermissionTarget
-  ): UIO[Unit] = removeRelation(userId, relation, target)
+  ): UIO[Boolean] = removeRelation(userId, relation, target).as(true)
 
 end InMemoryPermissionService
 

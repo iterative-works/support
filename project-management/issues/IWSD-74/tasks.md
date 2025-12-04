@@ -1,8 +1,8 @@
 # Implementation Tasks: Investigate authentication for HTTP4S server
 
 **Issue:** IWSD-74
-**Total Phases:** 4
-**Completed Phases:** 4/4
+**Total Phases:** 5
+**Completed Phases:** 5/5
 **Complexity:** Complex
 **Estimated Total Time:** 54 hours (updated from 48 hours, +6 hours for infrastructure)
 **Generated:** 2025-11-13
@@ -41,12 +41,20 @@ Build incrementally across 4 phases, starting with in-memory implementations for
 - **Tasks:** 8 tasks - See [phase-03.md](./phase-03.md)
 - **Prerequisites:** Completion of Phase 2 (AuthenticationService and CurrentUser available)
 
-### Phase 4: Database Persistence (Production PermissionService)
+### Phase 4: Audit Logging Infrastructure
 - [x] [phase-complete] Phase implementation and review complete
-- **Objective:** Implement production-ready permission storage using MongoDB, enabling persistent permissions that survive server restarts and scale beyond in-memory limits.
-- **Estimated Time:** 13 hours (updated from 11 hours, +2 hours for audit logging)
-- **Tasks:** 7 tasks - See [phase-04.md](./phase-04.md)
-- **Prerequisites:** Completion of Phase 3 (Authorization guards working with in-memory implementation)
+- **Objective:** Create audit logging infrastructure for tracking permission checks and authentication events.
+- **Estimated Time:** 4 hours
+- **Tasks:** 2 tasks (AuditLogService + InMemoryAuditLogService) - See [phase-04.md](./phase-04.md)
+- **Prerequisites:** Completion of Phase 3
+- **Note:** PermissionServiceFactory was removed - applications wire layers directly
+
+### Phase 5: Database Persistence (Production PermissionService)
+- [x] [phase-complete] Phase implementation and review complete
+- **Objective:** Implement production-ready permission storage using a database, enabling persistent permissions that survive server restarts and scale beyond in-memory limits.
+- **Estimated Time:** 10 hours
+- **Tasks:** See [phase-05.md](./phase-05.md)
+- **Prerequisites:** Completion of Phase 4 (Audit logging infrastructure available)
 
 ## Testing Strategy
 
@@ -109,4 +117,4 @@ Build incrementally across 4 phases, starting with in-memory implementations for
 
 ---
 
-**Next Steps:** Begin with Phase 4 - see [phase-04.md](./phase-04.md)
+**Next Steps:** Begin with Phase 5 - see [phase-05.md](./phase-05.md)
