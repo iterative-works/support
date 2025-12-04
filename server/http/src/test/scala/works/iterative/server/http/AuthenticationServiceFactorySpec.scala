@@ -1,5 +1,5 @@
 // PURPOSE: Tests for AuthenticationServiceFactory selecting correct authentication implementation
-// PURPOSE: Validates AUTH_PROVIDER environment variable handling and production safety checks
+// PURPOSE: Validates auth_provider config handling and production safety checks
 package works.iterative.server.http
 
 import zio.*
@@ -11,29 +11,28 @@ import works.iterative.server.http.impl.pac4j.Pac4jAuthenticationAdapter
 object AuthenticationServiceFactorySpec extends ZIOSpecDefault:
 
     def spec = suite("AuthenticationServiceFactory")(
-        test("AUTH_PROVIDER=test provides TestAuthenticationService") {
-            TestSystem.putEnv("AUTH_PROVIDER", "test") *>
-            TestSystem.putEnv("APP_ENV", "development") *>
+        test("auth_provider=test provides TestAuthenticationService") {
             ZIO.serviceWith[AuthenticationService](service =>
                 assertTrue(service == TestAuthenticationService)
             ).provide(AuthenticationServiceFactory.layer)
-        },
+        } @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map(
+            "auth_provider" -> "test",
+            "env" -> "development"
+        ))),
 
-        test("AUTH_PROVIDER=oidc provides Pac4jAuthenticationAdapter") {
-            TestSystem.putEnv("AUTH_PROVIDER", "oidc") *>
-            TestSystem.putEnv("APP_ENV", "development") *>
-            TestSystem.putEnv("OIDC_CLIENT_ID", "test-client") *>
-            TestSystem.putEnv("OIDC_CLIENT_SECRET", "test-secret") *>
-            TestSystem.putEnv("OIDC_DISCOVERY_URI", "https://example.com/.well-known/openid-configuration") *>
+        test("auth_provider=oidc provides Pac4jAuthenticationAdapter") {
             ZIO.serviceWith[AuthenticationService](service =>
                 assertTrue(service == Pac4jAuthenticationAdapter)
             ).provide(AuthenticationServiceFactory.layer)
-        },
+        } @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map(
+            "auth_provider" -> "oidc",
+            "env" -> "development"
+        ))),
 
-        test("AUTH_PROVIDER=test with APP_ENV=production fails with clear error") {
-            val effect = TestSystem.putEnv("AUTH_PROVIDER", "test") *>
-                TestSystem.putEnv("APP_ENV", "production") *>
-                ZIO.service[AuthenticationService].provide(AuthenticationServiceFactory.layer)
+        test("auth_provider=test with env=production fails with clear error") {
+            val effect = ZIO.scoped {
+                AuthenticationServiceFactory.layer.build
+            }
 
             for
                 exit <- effect.exit
@@ -44,37 +43,44 @@ object AuthenticationServiceFactorySpec extends ZIOSpecDefault:
                     completed = _ => false
                 )
             )
-        },
+        } @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map(
+            "auth_provider" -> "test",
+            "env" -> "production"
+        ))),
 
-        test("missing AUTH_PROVIDER fails with clear error") {
-            val effect = ZIO.service[AuthenticationService]
-                .provide(AuthenticationServiceFactory.layer)
-
-            for
-                exit <- effect.exit
-            yield assertTrue(
-                exit.isFailure,
-                exit.foldExit(
-                    failed = err => err.toString.contains("AUTH_PROVIDER"),
-                    completed = _ => false
-                )
-            )
-        },
-
-        test("invalid AUTH_PROVIDER value fails with clear error") {
-            val effect = TestSystem.putEnv("AUTH_PROVIDER", "invalid") *>
-                ZIO.service[AuthenticationService].provide(AuthenticationServiceFactory.layer)
+        test("missing auth_provider fails with clear error") {
+            val effect = ZIO.scoped {
+                AuthenticationServiceFactory.layer.build
+            }
 
             for
                 exit <- effect.exit
             yield assertTrue(
                 exit.isFailure,
                 exit.foldExit(
-                    failed = err => err.toString.contains("invalid") && err.toString.contains("AUTH_PROVIDER"),
+                    failed = err => err.toString.contains("auth_provider"),
                     completed = _ => false
                 )
             )
-        }
+        } @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map.empty)),
+
+        test("invalid auth_provider value fails with clear error") {
+            val effect = ZIO.scoped {
+                AuthenticationServiceFactory.layer.build
+            }
+
+            for
+                exit <- effect.exit
+            yield assertTrue(
+                exit.isFailure,
+                exit.foldExit(
+                    failed = err => err.toString.contains("invalid") || err.toString.contains("auth_provider"),
+                    completed = _ => false
+                )
+            )
+        } @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map(
+            "auth_provider" -> "invalid"
+        )))
     )
 
 end AuthenticationServiceFactorySpec

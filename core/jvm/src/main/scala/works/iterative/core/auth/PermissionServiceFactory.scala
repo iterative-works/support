@@ -1,14 +1,14 @@
 // PURPOSE: Factory for creating permission service instances based on environment configuration
-// PURPOSE: Selects between InMemoryPermissionService and DatabasePermissionService using Scala 3 enum
+// PURPOSE: Selects between InMemoryPermissionService and DatabasePermissionService using ZIO Config
 
 package works.iterative.core.auth
 
 import zio.*
-import works.iterative.core.config.{ValidatedConfig, PermissionServiceType}
+import works.iterative.core.config.PermissionServiceType
 
 object PermissionServiceFactory:
 
-  /** Create a PermissionService based on validated configuration.
+  /** Create a PermissionService based on configuration.
     *
     * This factory uses the PermissionServiceType enum to select the appropriate
     * implementation:
@@ -21,11 +21,11 @@ object PermissionServiceFactory:
     * - Set PERMISSION_SERVICE=memory for in-memory service
     * - Set PERMISSION_SERVICE=database for database-backed service
     *
-    * @param config Validated application configuration
+    * @param serviceType The type of permission service to create
     * @return ZIO effect that creates the appropriate PermissionService
     */
-  def make(config: ValidatedConfig): URIO[PermissionConfig, PermissionService] =
-    config.permissionService match
+  def make(serviceType: PermissionServiceType): URIO[PermissionConfig, PermissionService] =
+    serviceType match
       case PermissionServiceType.Memory =>
         ZIO.logInfo("Loading InMemoryPermissionService") *>
         ZIO.serviceWith[PermissionConfig] { permConfig =>
@@ -35,25 +35,26 @@ object PermissionServiceFactory:
       case PermissionServiceType.Database =>
         ZIO.dieMessage("DatabasePermissionService not yet implemented. Configure PERMISSION_SERVICE=memory instead.")
 
-  /** ZLayer factory for PermissionService based on ValidatedConfig.
+  /** ZLayer factory for PermissionService using ZIO Config.
     *
-    * Requires ValidatedConfig and PermissionConfig in the environment.
-    * Provides PermissionService.
+    * Reads PERMISSION_SERVICE from configuration and creates the appropriate
+    * PermissionService implementation.
+    *
+    * Requires PermissionConfig in the environment.
     *
     * Example usage:
     * {{{
     *   val app = ZLayer.make[PermissionService](
     *     PermissionServiceFactory.layer,
-    *     ValidatedConfig.layer,
     *     PermissionConfig.layer
     *   )
     * }}}
     */
-  val layer: ZLayer[ValidatedConfig & PermissionConfig, Nothing, PermissionService] =
+  val layer: ZLayer[PermissionConfig, Config.Error, PermissionService] =
     ZLayer.fromZIO {
       for {
-        config <- ZIO.service[ValidatedConfig]
-        service <- make(config)
+        serviceType <- ZIO.config(PermissionServiceType.configDescriptor.nested("permission_service"))
+        service <- make(serviceType)
       } yield service
     }
 

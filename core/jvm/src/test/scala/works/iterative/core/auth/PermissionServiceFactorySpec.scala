@@ -5,52 +5,45 @@ package works.iterative.core.auth
 
 import zio.*
 import zio.test.*
-import works.iterative.core.config.{PermissionServiceType, ValidatedConfig, AuthProvider, Environment}
+import works.iterative.core.config.PermissionServiceType
 
 object PermissionServiceFactorySpec extends ZIOSpecDefault:
 
   def spec = suite("PermissionServiceFactorySpec")(
     test("PERMISSION_SERVICE=memory returns InMemoryPermissionService") {
-      val config = ValidatedConfig(
-        authProvider = AuthProvider.Test,
-        permissionService = PermissionServiceType.Memory,
-        environment = Environment.Development
-      )
-
       for {
-        service <- PermissionServiceFactory.make(config)
+        service <- PermissionServiceFactory.make(PermissionServiceType.Memory)
       } yield assertTrue(service.isInstanceOf[InMemoryPermissionService])
     },
 
     test("PERMISSION_SERVICE=database fails fast when not implemented") {
-      val config = ValidatedConfig(
-        authProvider = AuthProvider.Test,
-        permissionService = PermissionServiceType.Database,
-        environment = Environment.Development
-      )
-
       for {
-        exit <- PermissionServiceFactory.make(config).exit
+        exit <- PermissionServiceFactory.make(PermissionServiceType.Database).exit
       } yield assertTrue(exit.isFailure)
     },
 
-    // NOTE: DatabasePermissionService doesn't exist yet, so this test is commented out
-    // Uncomment when DatabasePermissionService is implemented
-    /*
-    test("PERMISSION_SERVICE=database returns DatabasePermissionService") {
-      val config = ValidatedConfig(
-        authProvider = AuthProvider.Test,
-        permissionService = PermissionServiceType.Database,
-        environment = Environment.Development
+    test("layer reads config and creates InMemoryPermissionService") {
+      for {
+        service <- ZIO.service[PermissionService]
+      } yield assertTrue(service.isInstanceOf[InMemoryPermissionService])
+    }.provide(
+        PermissionServiceFactory.layer,
+        ZLayer.succeed(PermissionConfig.default)
+      ) @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map("permission_service" -> "memory"))),
+
+    test("layer fails with clear error for invalid config") {
+      val testEffect = ZIO.scoped {
+        PermissionServiceFactory.layer.build
+      }.provide(
+        ZLayer.succeed(PermissionConfig.default)
       )
 
       for {
-        service <- PermissionServiceFactory.make(config)
-      } yield assertTrue(service.isInstanceOf[DatabasePermissionService])
-    },
-    */
+        exit <- testEffect.exit
+      } yield assertTrue(exit.isFailure)
+    } @@ TestAspect.withConfigProvider(ConfigProvider.fromMap(Map("permission_service" -> "invalid")))
   ).provide(
-    ZLayer.succeed(PermissionConfig.default)  // Provide PermissionConfig dependency
+    ZLayer.succeed(PermissionConfig.default)
   )
 
 end PermissionServiceFactorySpec
