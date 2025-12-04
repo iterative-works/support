@@ -1,5 +1,5 @@
 //| mvnDeps:
-//| - works.iterative::mill-iw-support::0.1.0-SNAPSHOT
+//| - works.iterative::mill-iw-support::0.1.1-SNAPSHOT
 import mill._
 import mill.scalalib._
 import mill.scalajslib._
@@ -30,7 +30,7 @@ object CommonPomSettings {
 
 /** Common version for all published modules */
 object CommonVersion {
-  val publishVersion = "0.1.10-SNAPSHOT"
+  val publishVersion = "0.1.11-SNAPSHOT"
 }
 
 /** Common dependency groups */
@@ -73,7 +73,7 @@ object Dependencies {
     mvn"com.github.ghik:silencer-lib_2.13:1.4.2".withConfiguration("provided")
   )
   
-  def withSilencer(deps: Seq[Dep])(implicit scalaVersion: String): Seq[Dep] = 
+  def withSilencer(deps: Seq[Dep])(using scalaVersion: String): Seq[Dep] =
     deps ++ Seq(mvn"com.github.ghik::silencer-lib::1.4.2".withConfiguration("provided").withDottyCompat(scalaVersion))
 }
 
@@ -95,8 +95,7 @@ trait BaseModule extends IWScalaModule with IWPublishModule { outer =>
   // Inner test trait (matching original structure)
   trait BaseTests extends ScalaTests with TestModule.ZioTest {
     override def moduleDir = outer.moduleDir
-    override def intellijModulePath: os.Path = outer.moduleDir / "src/test"
-    
+
     override def sources = Task.Sources("src/test/scala")
     override def resources = Task.Sources("src/test/resources")
     
@@ -111,8 +110,7 @@ trait BaseScalaJSModule extends BaseModule with ScalaJSModule { outer =>
   trait BaseScalaJSTests extends ScalaJSTests with TestModule.ZioTest {
     override def scalaJSVersion = "1.19.0"
     override def moduleDir = outer.moduleDir
-    override def intellijModulePath: os.Path = outer.moduleDir / "src/test"
-    
+
     override def sources = Task.Sources("src/test/scala")
     override def resources = Task.Sources("src/test/resources")
     
@@ -224,7 +222,6 @@ object core extends CrossModule {
     def moduleName = "core-test-utils"
     def description = "IW Support Core Testing Utilities"
     override def moduleDir = core.moduleDir / "testUtils"
-    override def intellijModulePath: os.Path = core.moduleDir / "testUtils"
 
     override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
     override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
@@ -320,16 +317,15 @@ object mongo extends JvmOnlyModule {
   def description = "IW Support MongoDB Library"
   def moduleDeps = Seq(core.jvm)
   
-  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ 
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++
     Dependencies.zioConfig ++ Seq(
       IWMillDeps.zioInteropReactiveStreams,
       mvn"org.mongodb.scala::mongo-scala-driver::4.2.3".withDottyCompat(scalaVersion())
-    ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+    ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
   
   object it extends BaseTests {
     override def moduleDir = mongo.moduleDir / "it"
-    override def intellijModulePath: os.Path = mongo.moduleDir / "it" / "src/test"
-    
+
     override def sources = Task.Sources(mongo.moduleDir / "it" / "src" / "test" / "scala")
     override def resources = Task.Sources(mongo.moduleDir / "it" / "src" / "test" / "resources")
     
@@ -345,35 +341,101 @@ object sqldb extends JvmOnlyModule {
   def description = "IW Support SQL Database Library"
   def moduleDeps = Seq(core.jvm)
   
-  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ 
+  def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++
     Dependencies.zioConfig ++ Seq(
       IWMillDeps.magnumZIO,
-      IWMillDeps.magnumPG,
       IWMillDeps.chimney,
       mvn"org.flywaydb:flyway-core:11.4.0",
-      mvn"org.flywaydb:flyway-database-postgresql:11.4.0",
-      mvn"org.postgresql:postgresql:42.7.5",
       mvn"com.zaxxer:HikariCP:6.2.1"
     )
   
   // Testing support sub-module
   object testing extends JvmOnlyModule {
     def moduleName = "sqldb-testing"
-    def description = "IW Support SQL Database Testing Library"
+    def description = "IW Support SQL Database Testing Library - Core"
     override def moduleDir = sqldb.moduleDir / "testing-support"
-    override def intellijModulePath: os.Path = sqldb.moduleDir / "testing-support"
-    
+
     override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
     override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
-    
+
     def moduleDeps = Seq(sqldb)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioTest,
       IWMillDeps.logbackClassic,
-      mvn"org.testcontainers:testcontainers:1.20.4",
+      mvn"org.testcontainers:testcontainers:1.20.4"
+    )
+  }
+
+  object test extends BaseTests {
+    def moduleDeps = Seq(sqldb, sqldb.testing)
+  }
+}
+
+// PostgreSQL-specific SQL Database implementation
+object `sqldb-postgresql` extends JvmOnlyModule {
+  def moduleName = "sqldb-postgresql"
+  def description = "IW Support SQL Database Library - PostgreSQL Implementation"
+  def moduleDeps = Seq(sqldb)
+
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.magnumPG,
+    mvn"org.flywaydb:flyway-database-postgresql:11.4.0",
+    mvn"org.postgresql:postgresql:42.7.5"
+  )
+
+  // Testing module for PostgreSQL
+  object testing extends JvmOnlyModule {
+    def moduleName = "sqldb-postgresql-testing"
+    def description = "IW Support PostgreSQL Testing Library"
+    override def moduleDir = `sqldb-postgresql`.moduleDir / "testing-support"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
+    def moduleDeps = Seq(`sqldb-postgresql`, sqldb.testing)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
       mvn"org.testcontainers:postgresql:1.20.4",
       mvn"com.dimafeng::testcontainers-scala-postgresql::0.41.5"
     )
+  }
+
+  object test extends BaseTests {
+    def moduleDeps = Seq(`sqldb-postgresql`, `sqldb-postgresql`.testing)
+  }
+}
+
+// MySQL/MariaDB-specific SQL Database implementation
+object `sqldb-mysql` extends JvmOnlyModule {
+  def moduleName = "sqldb-mysql"
+  def description = "IW Support SQL Database Library - MySQL/MariaDB Implementation"
+  def moduleDeps = Seq(sqldb)
+
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    IWMillDeps.magnumZIO,
+    mvn"org.flywaydb:flyway-mysql:11.4.0",
+    mvn"com.mysql:mysql-connector-j:9.1.0"
+  )
+
+  // Testing module for MySQL
+  object testing extends JvmOnlyModule {
+    def moduleName = "sqldb-mysql-testing"
+    def description = "IW Support MySQL Testing Library"
+    override def moduleDir = `sqldb-mysql`.moduleDir / "testing-support"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
+    def moduleDeps = Seq(`sqldb-mysql`, sqldb.testing)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.testcontainers:mysql:1.20.4",
+      mvn"com.dimafeng::testcontainers-scala-mysql::0.41.5"
+    )
+  }
+
+  object test extends BaseTests {
+    def moduleDeps = Seq(`sqldb-mysql`, `sqldb-mysql`.testing)
   }
 }
 
@@ -385,7 +447,7 @@ object email extends JvmOnlyModule {
   
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig ++ Seq(
     mvn"org.apache.commons:commons-email:1.5"
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // Codecs module - pure shared sources
@@ -633,7 +695,7 @@ object akkaPersistence extends JvmOnlyModule {
     // Slick dependencies
     mvn"com.typesafe.slick::slick::${IWMillVersions.slick}".withDottyCompat(scalaVersion()),
     mvn"com.typesafe.slick::slick-hikaricp::${IWMillVersions.slick}".withDottyCompat(scalaVersion())
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // Paygate payment gateway support module - JVM only
@@ -645,7 +707,7 @@ object paygate extends JvmOnlyModule {
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioJson ++ Dependencies.zioConfig ++ Seq(
     IWMillDeps.sttpClientZio,
     mvn"com.softwaremill.sttp.client3::zio-json::${IWMillVersions.sttpClient3}"
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 }
 
 // ============================================================================
@@ -740,11 +802,10 @@ object http extends JvmOnlyModule {
     mvn"org.pac4j::http4s-pac4j::${IWMillVersions.http4sPac4J}",
     mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
     IWMillDeps.scalatags
-  ) ++ Dependencies.withSilencer(Seq())(scalaVersion())
+  ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
 
   object test extends BaseTests {
     override def moduleDir = http.moduleDir
-    override def intellijModulePath: os.Path = http.moduleDir / "src/test"
   }
 }
 
@@ -760,7 +821,6 @@ object filesMongo extends JvmOnlyModule {
   // Integration test module
   object it extends BaseTests {
     override def moduleDir = filesMongo.moduleDir / "it"
-    override def intellijModulePath: os.Path = filesMongo.moduleDir / "it" / "src/test"
 
     override def sources = Task.Sources(filesMongo.moduleDir / "it" / "src" / "test" / "scala")
     override def resources = Task.Sources(filesMongo.moduleDir / "it" / "src" / "test" / "resources")
@@ -919,7 +979,7 @@ object scenariosUI extends BaseScalaJSModule {
   }
 
   override def moduleSplitStyle = Task {
-    ModuleSplitStyle.SmallModulesFor(List("works.iterative"))
+    ModuleSplitStyle.SmallModulesFor("works.iterative")
   }
 
   // Add custom scalac option for source map URI
@@ -1022,9 +1082,9 @@ object scenariosUI extends BaseScalaJSModule {
 
 // Root aggregate module
 object root extends BaseModule {
-  def artifactName = "iw-support"
-  override def publishVersion = "0.0.0"
-  def pomSettings = CommonPomSettings("IW Support Root Aggregate")
+  def artifactName = "iw-support-all"
+  override def publishVersion = CommonVersion.publishVersion
+  def pomSettings = CommonPomSettings("IW Support - Convenience aggregate for all modules")
 
   def moduleDeps = Seq(
     // Core modules
