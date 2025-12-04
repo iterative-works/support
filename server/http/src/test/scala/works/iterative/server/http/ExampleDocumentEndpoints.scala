@@ -7,7 +7,6 @@ import zio.*
 import zio.json.*
 import sttp.capabilities.zio.ZioStreams
 import works.iterative.tapir.CustomTapir.{*, given}
-import works.iterative.tapir.ApiError
 import works.iterative.core.auth.*
 import works.iterative.core.auth.service.AuthenticationService
 import works.iterative.core.ExampleDocumentService

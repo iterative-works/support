@@ -7,7 +7,6 @@ import zio.*
 import zio.test.*
 import zio.test.Assertion.*
 import works.iterative.core.auth.*
-import works.iterative.core.auth.service.AuthenticationService
 import works.iterative.core.ExampleDocumentService
 import works.iterative.core.Document
 import works.iterative.core.UserName
@@ -44,8 +43,8 @@ object ExampleDocumentEndpointsSpec extends ZIOSpecDefault:
       // Full HTTP integration testing will be in E2E tests (Task 4)
       for {
         _ <- ZIO.attempt {
-          val endpoints = ExampleDocumentEndpoints
-          // If this compiles, the endpoints exist with correct types
+          // Reference endpoints to verify they compile with correct types
+          val _ = ExampleDocumentEndpoints.all
           assertTrue(true)
         }
       } yield assertCompletes
