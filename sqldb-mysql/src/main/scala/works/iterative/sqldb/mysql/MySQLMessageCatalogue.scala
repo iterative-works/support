@@ -6,13 +6,8 @@ package works.iterative.sqldb.mysql
 import com.augustnagro.magnum.*
 import works.iterative.core.{Language, MessageId}
 import works.iterative.sqldb.MessageCatalogueData
-import java.time.{Instant, OffsetDateTime, ZoneOffset}
-
-given DbCodec[Instant] =
-    DbCodec[OffsetDateTime].biMap(
-        odt => odt.toInstant,
-        instant => instant.atOffset(ZoneOffset.UTC)
-    )
+import java.time.Instant
+import MySQLDbCodecs.given
 
 case class MessageCatalogueCreator(
     messageKey: String,

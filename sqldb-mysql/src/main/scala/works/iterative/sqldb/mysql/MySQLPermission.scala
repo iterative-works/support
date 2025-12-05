@@ -5,13 +5,8 @@ package works.iterative.sqldb.mysql
 
 import com.augustnagro.magnum.*
 import works.iterative.core.auth.{RelationTuple, UserId, PermissionTarget}
-import java.time.{Instant, OffsetDateTime, ZoneOffset}
-
-given DbCodec[OffsetDateTime] =
-  DbCodec[Instant].biMap(
-    instant => instant.atOffset(ZoneOffset.UTC),
-    odt => odt.toInstant
-  )
+import java.time.OffsetDateTime
+import MySQLDbCodecs.given
 
 /** Creator entity for inserting new permission tuples (without ID) */
 case class PermissionCreator(
