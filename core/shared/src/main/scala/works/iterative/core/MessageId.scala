@@ -20,6 +20,6 @@ object MessageId:
         def /(id: String): MessageId = append(id)
     end extension
 
-    inline given Conversion[String, MessageId] with
-        inline def apply(id: String): MessageId = MessageId(id)
+    given Conversion[String, MessageId] with
+        def apply(id: String): MessageId = MessageId(id)
 end MessageId

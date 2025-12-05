@@ -3,8 +3,7 @@ package works.iterative.tapir
 import works.iterative.tapir.ApiError.AuthFailure
 
 import zio.*
-import works.iterative.core.auth.service.AuthenticationError
-import works.iterative.core.UserMessage
+import works.iterative.core.auth.AuthenticationError
 import works.iterative.core.auth.UserId
 
 final case class ApiKeyConfig(
@@ -26,7 +25,7 @@ class LiveApiKeyGuard(config: ApiKeyConfig) extends ApiKeyGuard:
         apiToUser.get(apiKey) match
             case Some(user) => ZIO.succeed(UserId.unsafe(user))
             case _ =>
-                ZIO.fail(AuthFailure(AuthenticationError(UserMessage("error.invalid.api.key"))))
+                ZIO.fail(AuthFailure(AuthenticationError.InvalidCredentials))
 end LiveApiKeyGuard
 
 object LiveApiKeyGuard:

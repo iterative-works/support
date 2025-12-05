@@ -2,7 +2,6 @@ package works.iterative.testing.e2e
 
 import io.cucumber.scala.*
 import com.microsoft.playwright.*
-import com.typesafe.config.ConfigFactory
 
 /**
  * Base trait for Cucumber test runners using Playwright.

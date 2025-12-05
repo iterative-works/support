@@ -7,9 +7,7 @@ import works.iterative.tapir.CustomTapir.*
 import works.iterative.core.*
 import works.iterative.core.czech.*
 import works.iterative.core.auth.*
-import works.iterative.core.auth.service.AuthenticationError
 import sttp.tapir.CodecFormat
-import sttp.tapir.Validator
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
@@ -57,7 +55,7 @@ trait JsonCodecs:
     given JsonCodec[ICO] = validatedStringCodec(ICO)
 
     given JsonCodec[PermissionOp] =
-        JsonCodec.string.transform(PermissionOp(_), _.value)
+        JsonCodec.string.transform(PermissionOp.unsafe(_), _.value)
     given JsonCodec[PermissionTarget] = textCodec(PermissionTarget.apply)
 
     given JsonCodec[UserId] =
@@ -109,8 +107,10 @@ end JsonCodecs
 
 trait TapirCodecs:
     given fromValidatedStringSchema[A](using
-        ValidatedStringFactory[A]
-    ): Schema[A] = Schema.string
+        factory: ValidatedStringFactory[A]
+    ): Schema[A] =
+        val _ = factory // suppress unused warning - factory needed for type inference
+        Schema.string
 
     given fromValidatedStringTapirCodec[A](using
         factory: ValidatedStringFactory[A]

@@ -14,14 +14,17 @@ object MySQLTestingLayers:
     private val mysqlImage = DockerImageName.parse("mysql:8.0")
 
     // Define a layer for test container
+    // Use same pattern as PostgreSQL: create container, then start it separately
     val mysqlContainer: ZLayer[Scope, Throwable, MySQLContainer] =
         ZLayer {
             ZIO.acquireRelease {
                 ZIO.attempt {
-                    val container = MySQLContainer.Def(
-                        dockerImageName = mysqlImage,
-                        configurationOverride = Some("tc-mysql-conf")
-                    ).start()
+                    val container = MySQLContainer(
+                        mysqlImageVersion = mysqlImage,
+                        // Mount config to allow trigger creation without SUPER privilege
+                        configurationOverride = "tc-mysql-conf"
+                    )
+                    container.start()
                     container
                 }
             }(container =>

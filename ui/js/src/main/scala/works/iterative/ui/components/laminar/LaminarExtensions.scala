@@ -59,7 +59,7 @@ trait ActionExtensions:
                             for
                                 act <- el.dataset.get("action_op")
                                 arg <- el.dataset.get("action_target")
-                            yield (PermissionOp(act), PermissionTarget.unsafe(arg))
+                            yield (PermissionOp.unsafe(act), PermissionTarget.unsafe(arg))
                         case _ => None
                 case _ => None
     end ActionLink

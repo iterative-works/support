@@ -183,15 +183,57 @@ trait NestedCrossModule extends CrossModule {
 object core extends CrossModule {
   def moduleName = "core"
   def description = "IW Support Core Library"
-  
-  object jvm extends JvmModule {
-    def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull
-    object test extends BaseTests
+
+  trait CoreModule extends SharedModule {
+    trait CoreTests extends BaseTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / "shared" / "src" / "test" / "scala"
+      )
+
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
   }
-  
-  object js extends JsModule {
+
+  object jvm extends JvmModule with CoreModule {
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull
+    object test extends CoreTests
+  }
+
+  object js extends JsModule with CoreModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioFull ++ Seq(IWMillDeps.scalaJsDom)
-    object test extends BaseScalaJSTests
+
+    trait JsCoreTests extends BaseScalaJSTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / "shared" / "src" / "test" / "scala"
+      )
+
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
+
+    object test extends JsCoreTests
+  }
+
+  // Testing utilities sub-module
+  object testUtils extends JvmOnlyModule {
+    def moduleName = "core-test-utils"
+    def description = "IW Support Core Testing Utilities"
+    override def moduleDir = core.moduleDir / "testUtils"
+
+    override def sources = Task.Sources(moduleDir / "src" / "main" / "scala")
+    override def resources = Task.Sources(moduleDir / "src" / "main" / "resources")
+
+    def moduleDeps = Seq(core.jvm)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+
+    object test extends BaseTests {
+      override def moduleDir = core.testUtils.moduleDir
+      override def sources = Task.Sources(moduleDir / "src" / "test" / "scala")
+      override def resources = Task.Sources(moduleDir / "src" / "test" / "resources")
+    }
   }
 }
 
@@ -761,6 +803,10 @@ object http extends JvmOnlyModule {
     mvn"org.pac4j:pac4j-oidc:${IWMillVersions.pac4j}",
     IWMillDeps.scalatags
   ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
+
+  object test extends BaseTests {
+    override def moduleDir = http.moduleDir
+  }
 }
 
 // Files Mongo adapter module - JVM only (located at files/adapters/mongo)
@@ -1042,7 +1088,7 @@ object root extends BaseModule {
 
   def moduleDeps = Seq(
     // Core modules
-    core.jvm, core.js,
+    core.jvm, core.js, core.testUtils,
     entity.jvm, entity.js,
     serviceSpecs.jvm, serviceSpecs.js,
     tapir.jvm, tapir.js,

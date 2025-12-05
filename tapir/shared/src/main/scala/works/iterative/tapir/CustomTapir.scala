@@ -5,7 +5,7 @@ import sttp.tapir.json.zio.TapirJsonZio
 import sttp.tapir.TapirAliases
 import works.iterative.core.auth.AccessToken
 import sttp.capabilities.zio.ZioStreams
-import works.iterative.core.auth.service.AuthenticationError
+import works.iterative.core.auth.AuthenticationError
 import sttp.model.StatusCode
 import sttp.client3.SttpBackend
 import works.iterative.tapir.codecs.Codecs.given

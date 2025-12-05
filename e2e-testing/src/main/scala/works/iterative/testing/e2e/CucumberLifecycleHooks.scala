@@ -12,11 +12,11 @@ object CucumberLifecycleHooks extends ScalaDsl with EN with CS:
     BeforeAll { () =>
         val config = loadConfig()
         PlaywrightTestContext.initialize(config)
-    }: Unit
-    
+    }
+
     AfterAll { () =>
         PlaywrightTestContext.cleanup()
-    }: Unit
+    }
     
     After { (_: Scenario) =>
         PlaywrightTestContext.getTestData().clear()
