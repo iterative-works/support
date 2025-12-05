@@ -42,7 +42,8 @@ CREATE INDEX idx_message_history_catalogue_id ON message_catalogue_history(messa
 CREATE INDEX idx_message_history_changed_at ON message_catalogue_history(changed_at);
 
 -- Create trigger to log message_text changes
--- Note: MySQL requires DELIMITER change for trigger definition
+-- Flyway supports DELIMITER statement for MySQL stored procedures and triggers
+
 DELIMITER //
 
 CREATE TRIGGER message_catalogue_audit
@@ -74,7 +75,7 @@ BEGIN
             NULL
         );
     END IF;
-END//
+END //
 
 DELIMITER ;
 
