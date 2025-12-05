@@ -32,8 +32,8 @@ object FileRef:
     import FileStore.Metadata
 
     private def metadata(
-        fileType: Option[String] = None,
-        size: Option[Long] = None
+        fileType: Option[String],
+        size: Option[Long]
     ): Metadata =
         List(
             fileType.map(Metadata.FileType -> _),

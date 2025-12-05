@@ -66,8 +66,11 @@ object AuthenticationError:
   def forbidden(target: PermissionTarget, action: PermissionOp): AuthenticationError =
     Forbidden(target.value, action.value)
 
-  /** Helper to create an InvalidToken error for JWT issues. */
+  /** Helper to create an InvalidToken error for JWT issues.
+    *
+    * @param reason The reason for the invalid JWT (included in message args)
+    */
   def invalidJwt(reason: String): AuthenticationError =
-    InvalidToken(UserMessage("error.auth.invalid_token"))
+    InvalidToken(UserMessage("error.auth.invalid_token", reason))
 
 end AuthenticationError

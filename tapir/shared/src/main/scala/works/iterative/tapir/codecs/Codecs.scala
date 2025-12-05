@@ -8,7 +8,6 @@ import works.iterative.core.*
 import works.iterative.core.czech.*
 import works.iterative.core.auth.*
 import sttp.tapir.CodecFormat
-import sttp.tapir.Validator
 
 private[codecs] case class TextEncoding(
     pml: Option[PlainMultiLine],
@@ -108,8 +107,10 @@ end JsonCodecs
 
 trait TapirCodecs:
     given fromValidatedStringSchema[A](using
-        ValidatedStringFactory[A]
-    ): Schema[A] = Schema.string
+        factory: ValidatedStringFactory[A]
+    ): Schema[A] =
+        val _ = factory // suppress unused warning - factory needed for type inference
+        Schema.string
 
     given fromValidatedStringTapirCodec[A](using
         factory: ValidatedStringFactory[A]

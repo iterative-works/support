@@ -37,7 +37,7 @@ object DocumentCounterBehavior:
             .withEnforcedReplies[Command, Event, State](
                 persistenceId = PersistenceId("DocumentCounter", persistenceId),
                 emptyState = DocumentCounterState(0),
-                commandHandler = (state, command) =>
+                commandHandler = (_, command) =>
                     command match
                         case Next(replyTo) =>
                             Effect

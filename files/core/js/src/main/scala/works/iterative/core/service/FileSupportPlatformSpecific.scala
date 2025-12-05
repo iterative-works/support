@@ -7,9 +7,9 @@ import scala.scalajs.js.typedarray.Int8Array
 trait FileSupportPlatformSpecific:
     type FileRepr = org.scalajs.dom.File
 
-    extension (f: FileRepr)
-        def name: String = f.name
+    // Note: name extension not needed - org.scalajs.dom.File already has .name property
 
+    extension (f: FileRepr)
         def toStream: Stream[Throwable, Byte] =
             ZStream.unfoldChunkZIO(f.stream().getReader())(reader =>
                 ZIO

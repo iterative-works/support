@@ -7,7 +7,6 @@ import org.mongodb.scala.model.Filters.*
 import org.bson.json.JsonObject
 import org.mongodb.scala.model.ReplaceOptions
 import org.mongodb.scala.bson.conversions.Bson
-import org.mongodb.scala.model.Filters
 
 case class MongoConfig(uri: String)
 
