@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# PURPOSE: Thin bootstrap script for iw-cli
+# PURPOSE: Downloads and caches versioned releases, delegates to iw-run
+#
+# Environment variables:
+#   IW_HOME - Use local development directory instead of cached version
+#             Example: IW_HOME=/path/to/iw-cli ./iw --list
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/.iw/config.conf"
+CACHE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/iw/versions"
+
+# Read version from config file, default to "latest"
+read_version() {
+    if [ -f "$CONFIG_FILE" ]; then
+        # Extract version from HOCON config (simple grep approach)
+        local version=$(grep -E '^version\s*=' "$CONFIG_FILE" | sed 's/^version\s*=\s*"\?\([^"]*\)"\?/\1/' | tr -d ' ')
+        if [ -n "$version" ]; then
+            echo "$version"
+            return
+        fi
+    fi
+    echo "latest"
+}
+
+# Download and extract release tarball
+download_release() {
+    local version="$1"
+    local version_dir="$CACHE_DIR/$version"
+
+    echo "Downloading iw-cli version $version..." >&2
+
+    # Create cache directory
+    mkdir -p "$CACHE_DIR"
+
+    # Download tarball from GitHub releases
+    local tarball_url="https://github.com/iterative-works/iw-cli/releases/download/v${version}/iw-cli-${version}.tar.gz"
+    local temp_file=$(mktemp)
+
+    if ! curl -L -f -o "$temp_file" "$tarball_url" 2>&1; then
+        rm -f "$temp_file"
+        echo "Error: Failed to download iw-cli version $version" >&2
+        echo "URL: $tarball_url" >&2
+        exit 1
+    fi
+
+    # Extract to version directory
+    mkdir -p "$version_dir"
+    tar -xzf "$temp_file" -C "$version_dir" --strip-components=1
+    rm -f "$temp_file"
+
+    echo "Downloaded and extracted to $version_dir" >&2
+}
+
+# Main execution
+main() {
+    # IW_HOME override for local development
+    if [ -n "${IW_HOME:-}" ]; then
+        local iw_run="$IW_HOME/iw-run"
+        if [ ! -f "$iw_run" ]; then
+            echo "Error: IW_HOME set but $iw_run not found" >&2
+            exit 1
+        fi
+        # Detect directory structure: dev (.iw/commands/) vs release (commands/)
+        local commands_dir core_dir
+        if [ -d "$IW_HOME/.iw/commands" ]; then
+            commands_dir="$IW_HOME/.iw/commands"
+            core_dir="$IW_HOME/.iw/core"
+        else
+            commands_dir="$IW_HOME/commands"
+            core_dir="$IW_HOME/core"
+        fi
+        IW_PROJECT_DIR="$SCRIPT_DIR" IW_COMMANDS_DIR="$commands_dir" IW_CORE_DIR="$core_dir" exec "$iw_run" "$@"
+    fi
+
+    local version=$(read_version)
+    local version_dir="$CACHE_DIR/$version"
+    local iw_run="$version_dir/iw-run"
+
+    # Check if version is installed
+    if [ ! -f "$iw_run" ]; then
+        download_release "$version"
+
+        # Bootstrap the installation (pre-compile for offline use)
+        IW_PROJECT_DIR="$SCRIPT_DIR" "$iw_run" --bootstrap
+    fi
+
+    # Delegate to iw-run with project directory
+    IW_PROJECT_DIR="$SCRIPT_DIR" exec "$iw_run" "$@"
+}
+
+main "$@"
