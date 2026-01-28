@@ -1,3 +1,5 @@
+//| repositories:
+//| - https://maven.pkg.github.com/iterative-works/iw-project-support
 //| mvnDeps:
 //| - works.iterative::mill-iw-support::0.1.1-SNAPSHOT
 import mill._
