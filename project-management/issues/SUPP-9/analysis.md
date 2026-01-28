@@ -2,7 +2,7 @@
 
 **Issue:** SUPP-9
 **Created:** 2026-01-28
-**Status:** Draft
+**Status:** Ready for Implementation
 **Classification:** Feature
 
 ## Problem Statement
@@ -48,10 +48,10 @@ Scenario: PR with compilation errors fails CI
 **Complexity:** Straightforward
 
 **Technical Feasibility:**
-This is straightforward because we already have a working SBT build system with cross-compilation. The main work is creating the GitHub Actions workflow YAML and configuring caching for SBT dependencies.
+This is straightforward because we already have a working Mill build system with cross-compilation. The main work is creating the GitHub Actions workflow YAML and configuring caching for Coursier dependencies.
 
 **Key technical challenges:**
-- Setting up proper caching for SBT and Coursier to avoid slow CI runs
+- Setting up proper caching for Mill and Coursier to avoid slow CI runs
 - Ensuring both JVM and JS modules compile in the workflow
 - Handling the multi-module structure correctly
 
@@ -59,7 +59,7 @@ This is straightforward because we already have a working SBT build system with 
 - `.github/workflows/ci.yml` exists and runs on PR creation
 - Workflow compiles all JVM modules successfully
 - Workflow compiles all JS modules successfully
-- SBT dependencies are cached between runs
+- Coursier dependencies are cached between runs
 - Failed compilation shows clear error messages in CI logs
 
 ---
@@ -102,7 +102,7 @@ Straightforward because we already have tests in the project (found `*Spec.scala
 
 **Acceptance:**
 - CI workflow includes a test job that runs after compilation
-- Test job executes `sbt test` successfully
+- Test job executes `mill __.test` successfully
 - Failed tests show clear error messages
 - Test results are visible in CI logs
 - Integration tests are either excluded or properly handled
@@ -137,11 +137,11 @@ Scenario: PR with unformatted code fails formatting check
 **Complexity:** Straightforward
 
 **Technical Feasibility:**
-Very straightforward because Scalafmt 3.7.17 is already configured (`.scalafmt.conf` exists). We just need to run `sbt scalafmtCheckAll` in the workflow.
+Very straightforward because Scalafmt 3.7.17 is already configured (`.scalafmt.conf` exists). We just need to run `mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll` or equivalent in the workflow.
 
 **Acceptance:**
 - CI workflow includes formatting check job
-- Job runs `sbt scalafmtCheckAll` (or equivalent)
+- Job runs Mill scalafmt check command
 - Unformatted code causes CI to fail
 - Formatting errors show which files need formatting
 - Formatting check runs quickly (can be parallel with other jobs)
@@ -286,7 +286,7 @@ Straightforward because GitHub Actions supports parallel jobs natively. This is 
 **Acceptance:**
 - CI workflow has separate jobs for compilation, tests, and formatting
 - Jobs run in parallel where possible
-- Shared SBT and Coursier caches work across jobs
+- Shared Mill and Coursier caches work across jobs
 - Job status is clearly visible in GitHub PR UI
 - Failed jobs provide clear error messages
 - Workflow triggers on push to main and PRs to main
@@ -334,6 +334,52 @@ Straightforward documentation work. Main challenge is making it clear and action
 
 ---
 
+### Story 8: Scalafix enforces FP principles
+
+```gherkin
+Feature: Scalafix validates code quality
+  As a team using AI agents
+  I want automated enforcement of FP principles
+  So that code follows our standards regardless of who wrote it
+
+Scenario: PR with FP-compliant code passes Scalafix check
+  Given I create a PR with code changes
+  And the code follows FP principles (no nulls, vars, etc.)
+  When GitHub Actions CI runs
+  Then the Scalafix check job succeeds
+  And I see a green check for linting
+
+Scenario: PR with FP violations fails Scalafix check
+  Given I create a PR with code changes
+  And the code contains a null or var
+  When GitHub Actions CI runs
+  Then the Scalafix check job fails
+  And I see which rules were violated in the CI logs
+  And the PR shows a red X for linting
+```
+
+**Estimated Effort:** 2-3h
+**Complexity:** Straightforward
+
+**Technical Feasibility:**
+Straightforward because Scalafix has Mill plugin support and sensible default rules. Main work is configuration and testing the rules work correctly with Scala 3.
+
+**Key technical challenges:**
+- Ensuring Scalafix rules work with Scala 3.7
+- Choosing appropriate rules that catch issues without being too noisy
+- Integrating with Mill build system
+
+**Acceptance:**
+- `.scalafix.conf` exists with configured rules
+- Mill build includes Scalafix plugin
+- CI workflow includes Scalafix check job
+- `DisableSyntax` catches null, var usage
+- `ExplicitResultTypes` enforces explicit return types on public APIs
+- `NoValInForComprehension` catches mutable vals in for-comps
+- Scalafix violations cause CI to fail with clear error messages
+
+---
+
 ## Architectural Sketch
 
 **Purpose:** List WHAT components each story needs, not HOW they're implemented.
@@ -346,15 +392,15 @@ Straightforward documentation work. Main challenge is making it clear and action
 - Compilation job definition
 
 **Build System Integration:**
-- SBT compile commands for JVM modules
-- SBT compile commands for JS modules
+- Mill compile commands for JVM modules
+- Mill compile commands for JS modules
 - Coursier cache configuration
-- SBT cache configuration
+- Mill cache configuration
 
 **Infrastructure:**
 - GitHub Actions runner (ubuntu-latest likely)
 - Java/JDK setup (version 21 based on current environment)
-- SBT installation
+- Mill installation
 
 ---
 
@@ -365,7 +411,7 @@ Straightforward documentation work. Main challenge is making it clear and action
 - Job dependencies (depends on compilation)
 
 **Test Execution:**
-- SBT test command for unit tests
+- Mill test command for unit tests
 - Test result reporting
 - Test failure output formatting
 
@@ -382,7 +428,7 @@ Straightforward documentation work. Main challenge is making it clear and action
 - Formatting check job in `.github/workflows/ci.yml`
 
 **Formatting Verification:**
-- SBT scalafmtCheckAll command
+- Mill scalafmt check command
 - Scalafmt configuration (already exists: `.scalafmt.conf`)
 - Formatting error output
 
@@ -413,7 +459,7 @@ Straightforward documentation work. Main challenge is making it clear and action
 - Hook installer or setup mechanism
 
 **Test Execution:**
-- SBT test command (full or subset)
+- Mill test command (unit tests only per decision)
 - Test result capture
 - Error reporting to user
 - Exit code handling
@@ -454,194 +500,89 @@ Straightforward documentation work. Main challenge is making it clear and action
 
 ---
 
-## Technical Risks & Uncertainties
+### For Story 8: Scalafix enforces FP principles
 
-### CLARIFY: Git hook implementation approach
+**Scalafix Configuration:**
+- `.scalafix.conf` - Rule configuration file
+- Mill plugin for Scalafix
 
-The issue mentions multiple options but doesn't specify which to use. We need to choose the implementation strategy for git hooks.
+**Rules to Enable:**
+- `DisableSyntax` - Ban null, var, mutable constructs
+- `ExplicitResultTypes` - Require explicit return types
+- `NoValInForComprehension` - Prevent mutable vals in for-comps
 
-**Questions to answer:**
-1. Which hook implementation approach should we use: shell scripts, sbt-git-hooks plugin, pre-commit framework, or lefthook?
-2. Do contributors primarily work on Linux/macOS, or do we need Windows support?
-3. Is there a team preference for any of these tools?
-4. Should hooks be automatically installed (e.g., via SBT plugin) or manually installed by contributors?
-
-**Options:**
-
-- **Option A: Simple shell scripts committed to `.git-hooks/` directory**
-  - Pros: No dependencies, full control, easy to customize, works everywhere
-  - Cons: Requires manual installation, contributors must remember to install, no hook management features
-
-- **Option B: sbt-git-hooks plugin**
-  - Pros: Automatic installation via SBT, integrates well with Scala projects, hooks defined in build.sbt
-  - Cons: Adds plugin dependency, less flexible than shell scripts, SBT-specific
-
-- **Option C: pre-commit framework (Python-based)**
-  - Pros: Rich ecosystem of hooks, automatic installation, supports multiple languages, widely used
-  - Cons: Requires Python, adds external dependency, might be overkill for our needs
-
-- **Option D: lefthook (Go-based)**
-  - Pros: Fast, language-agnostic, YAML configuration, parallel hook execution, popular in modern projects
-  - Cons: Requires Go or binary installation, adds external dependency, learning curve
-
-**Impact:** Affects Stories 4 and 5. Decision determines hook installation process, contributor setup complexity, and maintainability.
-
-**Recommendation pending clarification:** I'd lean toward Option A (shell scripts) or Option D (lefthook) depending on whether we want minimal dependencies or modern features. But this should be Michal's call based on team preferences and existing tooling.
+**CI Integration:**
+- Scalafix check job in workflow
+- Clear error output for violations
 
 ---
 
-### CLARIFY: Test suite characteristics
+## Resolved Technical Decisions
 
-The full test suite runtime and characteristics are unknown, which affects multiple stories.
+### RESOLVED: Git hook implementation approach
 
-**Questions to answer:**
-1. How long does the full test suite take to run (`sbt test`)?
-2. Do integration tests (mongo-it, files-mongo-it) require external services (MongoDB)?
-3. Should integration tests run in CI, or only unit tests?
-4. Should pre-push hook run all tests, or only fast unit tests?
-5. Are there test categorization or tagging in place (unit vs integration)?
+**Decision:** Option A - Simple shell scripts committed to `.git-hooks/` directory
 
-**Options:**
-
-- **Option A: Run all tests everywhere (CI and pre-push hook)**
-  - Pros: Maximum confidence, catches all issues
-  - Cons: Slow feedback, may frustrate contributors if tests take too long
-
-- **Option B: Run only unit tests in hooks, all tests in CI**
-  - Pros: Fast local feedback, comprehensive CI coverage
-  - Cons: Contributors might push code that fails integration tests
-
-- **Option C: Run unit tests in pre-push hook, integration tests only in CI, unit tests in pre-commit**
-  - Pros: Balanced approach, fast commits, reasonable push time, comprehensive CI
-  - Cons: More complex setup, requires test categorization
-
-**Impact:** Affects Stories 2, 5, and 6. Decision determines CI runtime, contributor workflow smoothness, and test coverage strategy.
-
-**Recommendation pending clarification:** Measure test suite runtime first, then decide. If under 1 minute, Option A is fine. If 1-3 minutes, Option B. If longer, Option C with test categorization.
+**Rationale:** No external dependencies, full control. Future plan: iw-cli will provide a command to check and set up hooks across projects on a per-project basis.
 
 ---
 
-### CLARIFY: Integration test infrastructure
+### RESOLVED: Test suite characteristics
 
-Integration tests exist (mongo-it, files-mongo-it) but their infrastructure needs are unclear.
+**Decision:** Option C - Unit tests in pre-push hook, integration tests in CI only
 
-**Questions to answer:**
-1. Do integration tests use Docker containers (e.g., Testcontainers)?
-2. Do integration tests require external MongoDB installation?
-3. Should CI run integration tests?
-4. If CI runs integration tests, do we need service containers in the workflow?
-5. Are integration tests reliable and fast enough for CI?
+- **Pre-push hook:** Unit tests only (fast feedback)
+- **CI:** All tests including integration tests
+- **Developer:** Runs integration tests manually when needed
 
-**Options:**
-
-- **Option A: Skip integration tests in CI initially (Stories 1-3), add later**
-  - Pros: Faster initial implementation, simpler CI workflow
-  - Cons: Less comprehensive coverage, integration issues not caught in CI
-
-- **Option B: Run integration tests with Docker/Testcontainers in CI**
-  - Pros: Comprehensive testing, catches integration issues
-  - Cons: Slower CI, requires service container setup, potential flakiness
-
-- **Option C: Run integration tests only on main branch, not on PRs**
-  - Pros: Faster PR feedback, still catches issues before release
-  - Cons: Integration issues discovered late, might block main branch
-
-**Impact:** Affects Story 2 and potentially Story 6. Decision determines CI complexity and test coverage.
-
-**Recommendation pending clarification:** Start with Option A, implement basic CI without integration tests first, then add integration test support in a follow-up story once we understand the infrastructure needs.
+**Build system note:** Project uses Mill, not SBT.
 
 ---
 
-### CLARIFY: Scalafix configuration
+### RESOLVED: Integration test infrastructure
 
-The issue mentions "Scalafix (if configured)" but it's unclear if it's set up.
+**Decision:** Skip MongoDB integration tests in CI for now
 
-**Questions to answer:**
-1. Is Scalafix configured in this project?
-2. If not, should we add it as part of this feature?
-3. What Scalafix rules should we enforce?
-4. Should Scalafix run in CI, pre-commit hook, or both?
+**Investigation findings:**
+- MongoDB tests (`mongo-it`, `files-mongo-it`) do NOT use Testcontainers
+- They require external MongoDB and use `TestAspect.ifEnvSet("MONGO_URI")`
+- Tests skip gracefully without the env var (no failure)
+- SQL tests DO have proper Testcontainers support (reference implementation exists)
 
-**Options:**
-
-- **Option A: Skip Scalafix entirely (not configured, not mentioned in requirements)**
-  - Pros: Simpler implementation, fewer moving parts
-  - Cons: Missing potential code quality checks
-
-- **Option B: Add Scalafix configuration as part of this feature**
-  - Pros: Better code quality, consistent patterns, catches issues early
-  - Cons: Increases scope significantly, requires rule selection and configuration
-
-- **Option C: Add Scalafix in a separate future issue**
-  - Pros: Keeps this feature focused, allows proper Scalafix setup later
-  - Cons: Delays Scalafix benefits
-
-**Impact:** Affects Story 3 and Story 4 if Scalafix is included. Decision determines CI and hook complexity.
-
-**Recommendation pending clarification:** Option A or C. The issue says "(if configured)" which implies it's optional. Skip Scalafix in this feature unless Michal explicitly wants it included.
+**Follow-up:** Created GitHub issue #10 to convert MongoDB integration tests to Testcontainers.
 
 ---
 
-### CLARIFY: Workflow triggering strategy
+### RESOLVED: Scalafix configuration
 
-The issue specifies "Push to main, Pull requests to main" but some details need clarification.
+**Decision:** Option B - Add Scalafix configuration as part of this feature
 
-**Questions to answer:**
-1. Should CI run on push to any branch, or only main and PR branches?
-2. Should CI run on draft PRs?
-3. Should CI run differently for main vs PRs (e.g., integration tests only on main)?
-4. Should we have separate workflows for PR validation vs main branch?
+**Rationale:** With AI agents writing code, automated enforcement of FP principles provides valuable safety net. Rules to include:
+- `DisableSyntax` (null, var, mutable constructs)
+- `ExplicitResultTypes` (documents ZIO effects)
+- `NoValInForComprehension` (immutable FP style)
 
-**Options:**
-
-- **Option A: Single workflow that runs on both push to main and PR to main**
-  - Pros: Simpler, consistent behavior, easier to maintain
-  - Cons: Might run redundantly (PR merge triggers both PR and push)
-
-- **Option B: Separate workflows for PR and main with different job configurations**
-  - Pros: Can run different checks (integration tests on main only)
-  - Cons: More complex, potential duplication
-
-- **Option C: Single workflow with conditional jobs based on trigger**
-  - Pros: Single workflow file, different behavior when needed
-  - Cons: More complex workflow logic
-
-**Impact:** Affects Story 1 and Story 6. Decision determines workflow structure and CI behavior.
-
-**Recommendation pending clarification:** Start with Option A (simplest), refactor to Option C if we need different behavior for main vs PRs.
+Added as **Story 8** below.
 
 ---
 
-### CLARIFY: Dependency caching strategy
+### RESOLVED: Workflow triggering strategy
 
-SBT and Coursier caching is mentioned but strategy needs definition.
+**Decision:** CI triggers on PRs to main only
 
-**Questions to answer:**
-1. What should be cached: SBT boot directory, Coursier cache, target directories, all of the above?
-2. Should cache be shared across all jobs or per-job?
-3. What should be the cache key: `build.sbt` hash, lock file, date-based?
-4. Should we cache compiled artifacts (target directories) or only dependencies?
+**Rationale:** PRs are where the bulk of verification happens. Direct pushes to main are rare, manual, and intentional - can run CI manually if needed.
 
-**Options:**
+---
 
-- **Option A: Cache only dependency downloads (Coursier cache)**
-  - Pros: Simple, safe, always compiles from scratch
-  - Cons: Slower CI, doesn't leverage compiled artifacts
+### RESOLVED: Dependency caching strategy
 
-- **Option B: Cache dependencies and compiled artifacts (target directories)**
-  - Pros: Faster CI, reuses compilation
-  - Cons: Larger cache, potential for stale artifacts, cache invalidation complexity
+**Decision:** Option A - Conservative caching (Coursier/Mill cache only)
 
-- **Option C: Aggressive caching with careful invalidation**
-  - Pros: Maximum speed
-  - Cons: Complex, risk of cache-related bugs
-
-**Impact:** Affects Story 1 and Story 6. Decision determines CI speed and complexity.
-
-**Recommendation pending clarification:** Start with Option A (conservative), measure CI time, then optimize to Option B if needed. Typical SBT project caching includes:
-- `~/.sbt`
-- `~/.ivy2/cache`
+Cache only dependency downloads:
 - `~/.cache/coursier`
+- `~/.mill`
+
+Start simple, measure CI time, optimize to include compiled artifacts later if needed
 
 ---
 
@@ -655,33 +596,26 @@ SBT and Coursier caching is mentioned but strategy needs definition.
 - Story 5 (Pre-push hook validates tests pass): 3-4 hours
 - Story 6 (Comprehensive CI workflow with parallel jobs): 2-3 hours
 - Story 7 (Documentation for contributors): 2-3 hours
+- Story 8 (Scalafix enforces FP principles): 2-3 hours
 
-**Total Range:** 17-25 hours
+**Total Range:** 19-28 hours
 
-**Confidence:** Medium
+**Confidence:** High
 
 **Reasoning:**
-- **Medium confidence** because several CLARIFY markers need resolution before we have full clarity
-- CI workflow implementation is well-understood (Stories 1-3), hence tighter estimates
-- Git hook implementation has more uncertainty (Stories 4-5) due to tooling choice and environment variations
-- Test suite characteristics are unknown, which affects Stories 2 and 5 estimates
-- Integration test handling is unclear, which could add time to Story 2
-- Estimates assume straightforward implementation with modern GitHub Actions features
-- Estimates assume no major issues with multi-module cross-compilation in CI
-- Documentation (Story 7) estimate assumes standard contributor guide, not extensive troubleshooting docs
+- **High confidence** because all CLARIFY markers have been resolved
+- CI workflow implementation is well-understood (Stories 1-3, 8), hence tighter estimates
+- Git hook implementation uses simple shell scripts (Stories 4-5), reducing complexity
+- MongoDB integration tests will be skipped in CI (auto-skip without MONGO_URI)
+- Build system is Mill (not SBT), which has good CI support
+- Scalafix has Mill plugin support and sensible default rules
 
 **Factors contributing to estimate:**
-- **GitHub Actions experience**: Workflow creation is standard work, but multi-module SBT project adds complexity
-- **Caching strategy**: Proper SBT caching setup will take experimentation to optimize
-- **Hook implementation**: Choice of tooling significantly affects implementation time (shell scripts faster than framework setup)
-- **Testing unknowns**: Integration test handling could add 2-4 hours if complex infrastructure needed
-- **Cross-compilation**: JVM + JS compilation in CI might have edge cases to handle
-
-**Estimate adjustments based on CLARIFY resolution:**
-- If integration tests need Docker services in CI: +2-4 hours to Story 2
-- If we choose pre-commit framework or lefthook: +1-2 hours to Stories 4-5 for setup
-- If we add Scalafix configuration: +3-5 hours to Stories 3-4
-- If test suite is very slow (>5 minutes): +2-3 hours to Stories 2 and 5 for optimization
+- **GitHub Actions experience**: Workflow creation is standard work
+- **Mill build**: Multi-module Mill project with JVM + JS cross-compilation
+- **Caching strategy**: Conservative approach (dependencies only) simplifies setup
+- **Hook implementation**: Shell scripts are straightforward, no framework overhead
+- **Scalafix**: Standard configuration with well-documented rules
 
 ---
 
@@ -820,6 +754,29 @@ Each story should have verification steps to confirm it works correctly.
 
 ---
 
+### Story 8: Scalafix enforces FP principles
+
+**Manual Testing:**
+1. Add Scalafix plugin to Mill build
+2. Create `.scalafix.conf` with configured rules
+3. Run Scalafix locally on well-formed code
+4. Verify it passes
+5. Introduce a `null` or `var` in code
+6. Run Scalafix and verify it catches the violation
+7. Add Scalafix check to CI workflow
+8. Push changes and verify CI catches violations
+
+**Validation:**
+- Scalafix plugin integrates with Mill
+- `.scalafix.conf` contains appropriate rules
+- `DisableSyntax` catches null, var usage
+- `ExplicitResultTypes` enforces explicit return types
+- `NoValInForComprehension` catches mutable vals
+- CI job runs Scalafix check
+- Violations show clear error messages
+
+---
+
 **Test Data Strategy:**
 - Use actual project code for CI testing (real compilation, real tests)
 - Create intentional failures for negative testing (syntax errors, test failures, formatting issues)
@@ -852,7 +809,7 @@ None. This feature does not modify application code or data models.
 
 **Workflow secrets:**
 - None required for public workflows
-- EBS Nexus credentials might already be available as repository secrets (see `EBS_NEXUS_USERNAME`, `EBS_NEXUS_PASSWORD` in project/project/plugins.sbt)
+- EBS Nexus credentials might already be available as repository secrets (see `EBS_NEXUS_USERNAME`, `EBS_NEXUS_PASSWORD` in build configuration)
 
 ### Rollout Strategy
 
@@ -897,11 +854,11 @@ Not applicable - workflows and hooks are opt-in by nature.
 
 **Before starting Story 1:**
 - GitHub repository with Actions enabled (should already be the case)
-- Understanding of SBT build system (already established)
+- Understanding of Mill build system (already established)
 - Decision on CLARIFY markers (especially hook implementation approach)
 
 **Project knowledge:**
-- Scala 3.7.0, SBT build system
+- Scala 3.7.0, Mill build system
 - Multi-module project with JVM + JS cross-compilation
 - Scalafmt 3.7.17 configured
 - Test framework in use (appears to be specs-based tests)
@@ -952,31 +909,34 @@ Not applicable - workflows and hooks are opt-in by nature.
 
 2. **Story 3: CI validates code formatting** - Quick win, runs fast in parallel with compilation, catches trivial issues early
 
-3. **Story 2: CI runs test suite on PR** - Adds test validation to CI, requires resolving test strategy CLARIFY marker
+3. **Story 8: Scalafix enforces FP principles** - Add linting for FP violations, complements formatting check
 
-4. **Story 6: Comprehensive CI workflow with parallel jobs** - Optimizes Stories 1-3, improves feedback speed, best done after understanding real CI performance
+4. **Story 2: CI runs test suite on PR** - Adds test validation to CI
 
-5. **Story 4: Pre-commit hook validates formatting locally** - Establishes git hook pattern and installation process, catches formatting issues before commit
+5. **Story 6: Comprehensive CI workflow with parallel jobs** - Optimizes Stories 1-4, improves feedback speed
 
-6. **Story 5: Pre-push hook validates tests pass** - Adds test validation locally, follows pattern from Story 4, prevents pushing broken code
+6. **Story 4: Pre-commit hook validates formatting locally** - Establishes git hook pattern and installation process, catches formatting issues before commit
 
-7. **Story 7: Documentation for contributors** - Documents the complete CI and hook setup, best done when everything else is working
+7. **Story 5: Pre-push hook validates tests pass** - Adds test validation locally, follows pattern from Story 4, prevents pushing broken code
+
+8. **Story 7: Documentation for contributors** - Documents the complete CI and hook setup, best done when everything else is working
 
 **Iteration Plan:**
 
-### Iteration 1: Basic CI (Stories 1, 3) - Core validation foundation
+### Iteration 1: Basic CI (Stories 1, 3, 8) - Core validation foundation
 **Goal:** Get basic automated validation working in CI
 **Deliverables:**
 - GitHub Actions workflow compiling all modules
-- Formatting check in CI
+- Formatting check in CI (Scalafmt)
+- Linting check in CI (Scalafix)
 - Green/red status on PRs
-**Duration:** 4-6 hours
-**Value:** Immediate feedback on compilation and formatting issues
+**Duration:** 6-9 hours
+**Value:** Immediate feedback on compilation, formatting, and FP violations
 
 ### Iteration 2: Complete CI (Stories 2, 6) - Comprehensive automated checks
 **Goal:** Add test execution and optimize workflow performance
 **Deliverables:**
-- Tests running in CI
+- Tests running in CI (unit + integration where available)
 - Parallel job execution
 - Optimized caching
 **Duration:** 4-6 hours
@@ -986,8 +946,8 @@ Not applicable - workflows and hooks are opt-in by nature.
 **Goal:** Provide local validation before pushing to remote
 **Deliverables:**
 - Pre-commit hook for formatting
-- Pre-push hook for tests
-- Hook installation mechanism
+- Pre-push hook for unit tests
+- Shell scripts in `.git-hooks/` directory
 **Duration:** 7-10 hours
 **Value:** Catch issues locally, reduce CI failures, faster developer feedback
 
@@ -995,7 +955,7 @@ Not applicable - workflows and hooks are opt-in by nature.
 **Goal:** Ensure all contributors can use CI and hooks effectively
 **Deliverables:**
 - Contributor documentation
-- Setup instructions
+- Hook installation instructions
 - Troubleshooting guide
 **Duration:** 2-3 hours
 **Value:** Lower barrier to entry, self-service setup, reduced support burden
@@ -1015,24 +975,21 @@ Not applicable - workflows and hooks are opt-in by nature.
 
 ---
 
-**Analysis Status:** Ready for Review - Pending CLARIFY Marker Resolution
+**Analysis Status:** Ready for Implementation
+
+**All decisions resolved:**
+- ✅ Git hooks: Shell scripts (iw-cli will manage later)
+- ✅ Test strategy: Unit tests in pre-push, integration in CI
+- ✅ Integration tests: Skip MongoDB in CI (issue #10 for Testcontainers)
+- ✅ Scalafix: Include with FP enforcement rules
+- ✅ CI triggers: PRs to main only
+- ✅ Caching: Conservative (dependencies only)
 
 **Next Steps:**
 
-1. **Resolve CLARIFY markers with Michal:**
-   - Hook implementation approach (shell scripts vs framework)
-   - Test suite characteristics (runtime, integration tests)
-   - Integration test infrastructure needs
-   - Scalafix inclusion decision
-   - Workflow triggering strategy
-   - Dependency caching strategy
+1. Run `/iterative-works:ag-create-tasks SUPP-9` to map stories to implementation phases
+2. Run `/iterative-works:ag-implement SUPP-9` for iterative story-by-story implementation
 
-2. **After CLARIFY resolution:**
-   - Run `/iterative-works:ag-create-tasks SUPP-9` to map stories to implementation phases
-   - Run `/iterative-works:ag-implement SUPP-9` for iterative story-by-story implementation
-
-3. **Before starting implementation:**
-   - Measure test suite runtime (`time sbt test`)
-   - Confirm Java/JDK version for CI (appears to be Java 21)
-   - Verify GitHub Actions is enabled on repository
-   - Check if integration tests can run without external services
+**Before starting implementation:**
+- Confirm Java/JDK version for CI (appears to be Java 21)
+- Verify GitHub Actions is enabled on repository
