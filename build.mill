@@ -2,8 +2,6 @@
 //| - https://maven.pkg.github.com/iterative-works/iw-project-support
 //| mvnDeps:
 //| - works.iterative::mill-iw-support::0.1.1-SNAPSHOT
-//| repositories:
-//| - https://nexus.e-bs.cz/repository/maven-snapshots/
 import mill._
 import mill.scalalib._
 import mill.scalajslib._

@@ -38,10 +38,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mill-
 
-      - name: Configure Nexus credentials
+      - name: Configure GitHub Packages credentials
         run: |
           mkdir -p ~/.config/coursier
-          echo "nexus.e-bs.cz ${{ secrets.EBS_NEXUS_USERNAME }}:${{ secrets.EBS_NEXUS_PASSWORD }}" > ~/.config/coursier/credentials.properties
+          echo "maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" > ~/.config/coursier/credentials.properties
 
       - name: Compile all modules
         run: ./mill __.compile
