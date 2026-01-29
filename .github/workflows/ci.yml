@@ -11,6 +11,9 @@ jobs:
   compile:
     name: Compile
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
 
     steps:
       - name: Checkout code
