@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "issue_id": "SUPP-9",
+  "status": "analysis_ready",
+  "phase": 0,
+  "step": "analysis",
+  "branch": "SUPP-9",
+  "pr_url": null,
+  "git_sha": "cee1756e0d020c91b00d74962b8035755fc17963",
+  "last_updated": "2026-01-28T11:56:38Z",
+  "message": "Analysis complete - all decisions resolved, ready for implementation",
+  "artifacts": [
+    {"label": "Analysis", "path": "project-management/issues/SUPP-9/analysis.md"}
+  ]
+}

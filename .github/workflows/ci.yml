@@ -1,0 +1,47 @@
+# PURPOSE: CI workflow that validates compilation of all modules on pull requests.
+# PURPOSE: Ensures code compiles for both JVM and ScalaJS platforms before merge.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Cache Coursier dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/coursier
+          key: ${{ runner.os }}-coursier-${{ hashFiles('build.mill') }}
+          restore-keys: |
+            ${{ runner.os }}-coursier-
+
+      - name: Cache Mill
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mill
+          key: ${{ runner.os }}-mill-${{ hashFiles('.mill-version') }}
+          restore-keys: |
+            ${{ runner.os }}-mill-
+
+      - name: Compile all modules
+        env:
+          COURSIER_CREDENTIALS: maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
+        run: ./mill __.compile
