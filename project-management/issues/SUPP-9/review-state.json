@@ -1,15 +1,20 @@
 {
-  "version": 1,
+  "version": 2,
   "issue_id": "SUPP-9",
-  "status": "analysis_ready",
-  "phase": 0,
-  "step": "analysis",
+  "status": "context_ready",
+  "phase": 2,
+  "step": "tasks",
   "branch": "SUPP-9",
   "pr_url": null,
-  "git_sha": "cee1756e0d020c91b00d74962b8035755fc17963",
-  "last_updated": "2026-01-28T11:56:38Z",
-  "message": "Analysis complete - all decisions resolved, ready for implementation",
+  "git_sha": "968a6356e556437d2e28ca3424230251ba3df010",
+  "last_updated": "2026-01-29T10:30:00Z",
+  "batch_mode": false,
+  "phase_checkpoints": {
+    "2": { "context_sha": "968a6356e556437d2e28ca3424230251ba3df010" }
+  },
+  "message": "Phase 2 context ready for review",
   "artifacts": [
-    {"label": "Analysis", "path": "project-management/issues/SUPP-9/analysis.md"}
+    {"label": "Analysis", "path": "project-management/issues/SUPP-9/analysis.md"},
+    {"label": "Phase 2 Context", "path": "project-management/issues/SUPP-9/phase-02-context.md"}
   ]
 }
