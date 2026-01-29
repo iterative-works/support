@@ -9,11 +9,12 @@ final case class Action(
 )
 
 object Action:
-  def apply(op: String, target: String): Validated[Action] =
-    for
-      o <- PermissionOp(op)
-      t <- PermissionTarget(target)
-    yield Action(o, t)
+    def apply(op: String, target: String): Validated[Action] =
+        for
+            o <- PermissionOp(op)
+            t <- PermissionTarget(target)
+        yield Action(o, t)
 
-  def unsafe(op: String, target: String): Action =
-    apply(PermissionOp.unsafe(op), PermissionTarget.unsafe(target))
+    def unsafe(op: String, target: String): Action =
+        apply(PermissionOp.unsafe(op), PermissionTarget.unsafe(target))
+end Action

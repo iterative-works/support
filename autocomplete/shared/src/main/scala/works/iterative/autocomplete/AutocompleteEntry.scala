@@ -12,3 +12,4 @@ object AutocompleteEntry:
 
     object keys:
         val href: String = "href"
+end AutocompleteEntry

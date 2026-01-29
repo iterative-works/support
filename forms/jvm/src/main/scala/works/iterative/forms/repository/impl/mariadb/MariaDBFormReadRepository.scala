@@ -9,7 +9,8 @@ import io.getquill.jdbczio.Quill
 import io.getquill.*
 import java.sql.Timestamp
 
-class MariaDBFormReadRepository(quill: Quill.Mysql[io.getquill.SnakeCase]) extends FormReadRepository:
+class MariaDBFormReadRepository(quill: Quill.Mysql[io.getquill.SnakeCase])
+    extends FormReadRepository:
     import quill.*
     import MariaDBFormReadRepository.{*, given}
 

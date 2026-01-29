@@ -8,8 +8,8 @@ import works.iterative.core.UserMessage
 
 case class InvalidValue(message: UserMessage | HtmlElement)
 
-object InvalidValue {
-  def apply(message: MessageId): InvalidValue = InvalidValue(
-    UserMessage(message)
-  )
-}
+object InvalidValue:
+    def apply(message: MessageId): InvalidValue = InvalidValue(
+        UserMessage(message)
+    )
+end InvalidValue

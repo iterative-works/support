@@ -79,6 +79,7 @@ object MessageCatalogue:
             createdBy = user,
             updatedBy = user
         )
+    end fromMessage
 
     def toCreator(entity: MessageCatalogue): MessageCatalogueCreator =
         MessageCatalogueCreator(

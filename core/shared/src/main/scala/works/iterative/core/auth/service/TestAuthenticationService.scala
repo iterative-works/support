@@ -17,8 +17,8 @@ object TestAuthenticationService extends AuthenticationService:
 
     /** Login as a user with specified profile attributes.
       *
-      * This is the main method for test authentication. Projects define their own
-      * test users with roles/attributes that match their domain.
+      * This is the main method for test authentication. Projects define their own test users with
+      * roles/attributes that match their domain.
       *
       * Usage example:
       * {{{
@@ -30,11 +30,16 @@ object TestAuthenticationService extends AuthenticationService:
       *   )
       * }}}
       *
-      * @param userId User identifier
-      * @param userName Optional user display name (defaults to userId if not provided)
-      * @param email Optional email address
-      * @param roles Set of role names (project-specific)
-      * @param avatar Optional avatar URL
+      * @param userId
+      *   User identifier
+      * @param userName
+      *   Optional user display name (defaults to userId if not provided)
+      * @param email
+      *   Optional email address
+      * @param roles
+      *   Set of role names (project-specific)
+      * @param avatar
+      *   Optional avatar URL
       */
     def loginAs(
         userId: String,
@@ -52,11 +57,12 @@ object TestAuthenticationService extends AuthenticationService:
         )
         val token = AccessToken(s"test-token-$userId")
         loggedIn(token, profile)
+    end loginAs
 
     /** Login with a fully constructed BasicProfile.
       *
-      * Useful when you need complete control over the profile or want to
-      * define test user constants in your project's test utilities.
+      * Useful when you need complete control over the profile or want to define test user constants
+      * in your project's test utilities.
       *
       * Usage example:
       * {{{
@@ -70,24 +76,24 @@ object TestAuthenticationService extends AuthenticationService:
       *   TestAuthenticationService.loginWithProfile(testEditor)
       * }}}
       *
-      * @param profile The user profile to authenticate
+      * @param profile
+      *   The user profile to authenticate
       */
     def loginWithProfile(profile: BasicProfile): UIO[Unit] =
         val token = AccessToken(s"test-token-${profile.subjectId.value}")
         loggedIn(token, profile)
+    end loginWithProfile
 
-    /**
-     * Clear the current user (logout).
-     */
+    /** Clear the current user (logout).
+      */
     def logout(): UIO[Unit] =
         currentUser.set(None)
 
-    /**
-     * ZLayer providing TestAuthenticationService backed by FiberRef.
-     *
-     * WARNING: Logs a warning message on initialization to ensure developers know
-     * they're using test authentication. Fails if used in production.
-     */
+    /** ZLayer providing TestAuthenticationService backed by FiberRef.
+      *
+      * WARNING: Logs a warning message on initialization to ensure developers know they're using
+      * test authentication. Fails if used in production.
+      */
     val layer: ZLayer[Any, Throwable, AuthenticationService] =
         ZLayer.scoped {
             for
@@ -95,10 +101,12 @@ object TestAuthenticationService extends AuthenticationService:
                 _ <- ZIO.when(appEnv.toLowerCase == "production") {
                     ZIO.fail(new IllegalStateException(
                         "TestAuthenticationService cannot be used in production. " +
-                        "This is a security violation."
+                            "This is a security violation."
                     ))
                 }
-                _ <- ZIO.logWarning("TestAuthenticationService instantiated - FAKE AUTHENTICATION FOR TESTING ONLY")
+                _ <- ZIO.logWarning(
+                    "TestAuthenticationService instantiated - FAKE AUTHENTICATION FOR TESTING ONLY"
+                )
                 _ <- ZIO.logError("SECURITY: This service should never be used in production")
             yield TestAuthenticationService
         }

@@ -8,9 +8,10 @@ import zio.json.*
 final case class ConsulToken(token: Option[String])
 
 object ConsulToken:
-  def fromEnv: ZLayer[Any, SecurityException, ConsulToken] = ZLayer {
-    System.env("CONSUL_TOKEN").map(ConsulToken(_))
-  }
+    def fromEnv: ZLayer[Any, SecurityException, ConsulToken] = ZLayer {
+        System.env("CONSUL_TOKEN").map(ConsulToken(_))
+    }
+end ConsulToken
 
 @jsonMemberNames(PascalCase)
 final case class ConsulMetadata(
@@ -71,12 +72,12 @@ final case class PutQuery(
     dc: Option[String] = None,
     @query
     @description(
-      "Specifies an unsigned value between 0 and (2^64)-1 to store with the key. API consumers can use this field any way they choose for their application."
+        "Specifies an unsigned value between 0 and (2^64)-1 to store with the key. API consumers can use this field any way they choose for their application."
     )
     flags: Option[Long] = None,
     @query
     @description(
-      "Specifies to use a Check-And-Set operation. This is very useful as a building block for more complex synchronization primitives. If the index is 0, Consul will only put the key if it does not already exist. If the index is non-zero, the key is only set if the index matches the ModifyIndex of that key."
+        "Specifies to use a Check-And-Set operation. This is very useful as a building block for more complex synchronization primitives. If the index is 0, Consul will only put the key if it does not already exist. If the index is non-zero, the key is only set if the index matches the ModifyIndex of that key."
     )
     cas: Option[Long] = None,
     @query
@@ -100,12 +101,12 @@ final case class DeleteQuery(
     dc: Option[String] = None,
     @query
     @description(
-      "Specifies if the lookup should be recursive and treat key as a prefix instead of a literal match."
+        "Specifies if the lookup should be recursive and treat key as a prefix instead of a literal match."
     )
     recurse: Option[Boolean] = None,
     @query
     @description(
-      "Specifies to use a Check-And-Set operation. This is very useful as a building block for more complex synchronization primitives. If the index is 0, Consul will only put the key if it does not already exist. If the index is non-zero, the key is only set if the index matches the ModifyIndex of that key."
+        "Specifies to use a Check-And-Set operation. This is very useful as a building block for more complex synchronization primitives. If the index is 0, Consul will only put the key if it does not already exist. If the index is non-zero, the key is only set if the index matches the ModifyIndex of that key."
     )
     cas: Option[Long] = None,
     @query
@@ -147,4 +148,4 @@ trait ConsulKVEndpoints extends CustomTapir:
   val deleteKV: Endpoint[ConsulToken, DeleteQuery, Unit, Boolean, Any] =
     kvBase.delete.in(EndpointInput.derived[DeleteQuery]).out(jsonBody[Boolean])
 
-*/
+ */

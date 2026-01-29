@@ -7,7 +7,11 @@ import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import javax.sql.DataSource
 import com.augustnagro.magnum.magzio.*
 import works.iterative.sqldb.{FlywayConfig, FlywayMigrationService}
-import works.iterative.sqldb.postgresql.{PostgreSQLDataSource, PostgreSQLTransactor, PostgreSQLFlywayMigrationService}
+import works.iterative.sqldb.postgresql.{
+    PostgreSQLDataSource,
+    PostgreSQLTransactor,
+    PostgreSQLFlywayMigrationService
+}
 
 object PostgreSQLTestingLayers:
 
@@ -70,6 +74,8 @@ object PostgreSQLTestingLayers:
         Throwable,
         PostgreSQLDataSource & PostgreSQLTransactor & FlywayMigrationService
     ] =
-        postgreSQLTransactorLayer >+> PostgreSQLFlywayMigrationService.layerWithConfig(testFlywayConfig)
+        postgreSQLTransactorLayer >+> PostgreSQLFlywayMigrationService.layerWithConfig(
+            testFlywayConfig
+        )
 
 end PostgreSQLTestingLayers

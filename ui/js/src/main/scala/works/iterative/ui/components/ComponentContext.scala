@@ -15,25 +15,28 @@ import com.raquo.airstream.core.Signal
 // as it needs Env
 // So for now, it is everything in one place
 trait ComponentContext[+Env]:
-  def currentUser: Signal[Option[UserProfile]]
-  def messages: MessageCatalogue
-  def modal: Modal
-  def dispatcher: ZIODispatcher[Env]
-  def runtime: Runtime[Env]
+    def currentUser: Signal[Option[UserProfile]]
+    def messages: MessageCatalogue
+    def modal: Modal
+    def dispatcher: ZIODispatcher[Env]
+    def runtime: Runtime[Env]
 
-  def nested(prefixes: String*): ComponentContext[Env] =
-    ComponentContext.Nested[Env](this, prefixes)
+    def nested(prefixes: String*): ComponentContext[Env] =
+        ComponentContext.Nested[Env](this, prefixes)
 
-  def withPrefixes(prefixes: String*): ComponentContext[Env] =
-    ComponentContext.Nested[Env](this, prefixes)
+    def withPrefixes(prefixes: String*): ComponentContext[Env] =
+        ComponentContext.Nested[Env](this, prefixes)
+end ComponentContext
 
 object ComponentContext:
-  case class Nested[Env](parent: ComponentContext[Env], prefixes: Seq[String])
-      extends ComponentContext[Env]:
-    export parent.{messages => _, *}
+    case class Nested[Env](parent: ComponentContext[Env], prefixes: Seq[String])
+        extends ComponentContext[Env]:
+        export parent.{messages as _, *}
 
-    override lazy val messages: MessageCatalogue =
-      parent.messages.nested(prefixes*)
+        override lazy val messages: MessageCatalogue =
+            parent.messages.nested(prefixes*)
 
-    override def withPrefixes(prefixes: String*): ComponentContext[Env] =
-      parent.withPrefixes(prefixes*)
+        override def withPrefixes(prefixes: String*): ComponentContext[Env] =
+            parent.withPrefixes(prefixes*)
+    end Nested
+end ComponentContext

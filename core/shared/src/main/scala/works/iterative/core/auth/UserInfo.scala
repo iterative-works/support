@@ -5,4 +5,5 @@ package works.iterative.core.auth
   * This is meant to be subclassed by app-specific implementations.
   */
 trait UserInfo:
-  def subjectId: UserId
+    def subjectId: UserId
+end UserInfo
