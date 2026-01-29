@@ -86,6 +86,7 @@ object Dependencies {
 /** Base trait for all IW Support modules */
 trait BaseModule extends IWScalaModule with IWPublishModule { outer =>
   override def publishVersion = CommonVersion.publishVersion
+  override def gitHubPackagesUri = "https://maven.pkg.github.com/iterative-works/support"
 
   override def scalacOptions = Task {
     super.scalacOptions() ++ Seq("-source:3.7")
