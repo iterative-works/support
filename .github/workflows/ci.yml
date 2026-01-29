@@ -41,10 +41,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mill-
 
-      - name: Configure GitHub Packages credentials
-        run: |
-          mkdir -p ~/.config/coursier
-          echo "maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" > ~/.config/coursier/credentials.properties
-
       - name: Compile all modules
+        env:
+          COURSIER_CREDENTIALS: maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
         run: ./mill __.compile
