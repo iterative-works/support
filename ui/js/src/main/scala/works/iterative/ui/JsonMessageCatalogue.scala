@@ -8,6 +8,8 @@ import scala.util.Try
 import works.iterative.core.Language
 
 // TODO: support hierarchical json structure
+// scalafix:off DisableSyntax.null
+// JS interop: defensive check for js.Dictionary which can be null from JS side
 trait JsonMessageCatalogue extends MessageCatalogue:
     def messages: js.Dictionary[String]
 
@@ -25,6 +27,7 @@ trait JsonMessageCatalogue extends MessageCatalogue:
         )
     end get
 end JsonMessageCatalogue
+// scalafix:on DisableSyntax.null
 
 object JsonMessageCatalogue:
     def apply(lang: Language, msgs: js.Dictionary[String]): JsonMessageCatalogue =

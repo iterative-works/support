@@ -69,10 +69,13 @@ object Pac4jAuthenticationAdapter extends AuthenticationService:
       * // BasicProfile(UserId("user-123"), Some(UserName("John Doe")), Some(Email("john@example.com")), None, Set(UserRole("admin"), UserRole("user")))
       * }}}
       */
+    // scalafix:off DisableSyntax.throw
+    // Java interop: Pac4J CommonProfile may have null ID, which is invalid state
     def mapProfile(profile: CommonProfile): BasicProfile =
         val id = Option(profile.getId)
             .filter(_.trim.nonEmpty)
             .getOrElse(throw new IllegalArgumentException("Profile ID cannot be null or empty"))
+    // scalafix:on DisableSyntax.throw
 
         val name = Option(profile.getAttribute("name"))
             .map(_.toString)

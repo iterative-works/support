@@ -48,10 +48,13 @@ end ResourcesStylesheetProvider
 object ResourcesStylesheetProvider:
     val fallbackId = "form"
 
+    // scalafix:off DisableSyntax.null
+    // Java interop: getResourceAsStream returns null for missing resources
     val layer: TaskLayer[ApacheFopStylesheetProvider] =
         ZLayer {
             ZIO.whenZIO(ZIO.attempt(getClass().getResourceAsStream("/form.xsl") != null))(
                 ZIO.succeed(new ResourcesStylesheetProvider)
             ).someOrFail(new IllegalStateException("Fallback stylesheet not found"))
         }
+    // scalafix:on DisableSyntax.null
 end ResourcesStylesheetProvider

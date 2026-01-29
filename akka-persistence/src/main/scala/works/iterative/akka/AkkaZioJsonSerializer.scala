@@ -4,6 +4,8 @@ import akka.serialization.*
 import zio.json.*
 import scala.reflect.ClassTag
 
+// scalafix:off DisableSyntax.throw
+// Akka serialization API requires exceptions for serialization failures
 // Use manifest to ensure the possibility of schema evolution
 class AkkaZioJsonSerializer[T <: AnyRef](
     override val identifier: Int,
@@ -40,3 +42,4 @@ class AkkaZioJsonSerializer[T <: AnyRef](
         end match
     end fromBinary
 end AkkaZioJsonSerializer
+// scalafix:on DisableSyntax.throw

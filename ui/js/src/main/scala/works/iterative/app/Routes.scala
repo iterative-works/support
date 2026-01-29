@@ -5,6 +5,8 @@ import com.raquo.laminar.api.L.*
 import com.raquo.waypoint.*
 import zio.json.*
 
+// scalafix:off DisableSyntax.throw
+// Waypoint Router API requires throwing for deserialization errors
 class Routes[P: JsonCodec](
     base: String,
     connectors: List[Connector[?, P]],
@@ -24,3 +26,4 @@ class Routes[P: JsonCodec](
         owner = unsafeWindowOwner
     )
 end Routes
+// scalafix:on DisableSyntax.throw
