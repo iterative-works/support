@@ -50,7 +50,8 @@ object PostgreSQLDatabaseSupport:
         // Create the underlying layers
         val dataSourceLayer = PostgreSQLDataSource.managedLayer
         val transactorLayer = dataSourceLayer >+> PostgreSQLTransactor.managedLayer
-        val flywayLayer = dataSourceLayer >>> PostgreSQLFlywayMigrationService.layerWithConfig(flywayConfig)
+        val flywayLayer =
+            dataSourceLayer >>> PostgreSQLFlywayMigrationService.layerWithConfig(flywayConfig)
 
         // Combine layers to create the final ZLayer with both infrastructure and migration service
         val combinedLayer = transactorLayer ++ flywayLayer
@@ -79,7 +80,8 @@ object PostgreSQLDatabaseSupport:
         // Create flyway config using the helper method
         val flywayConfig = createFlywayConfig(additionalLocations)
 
-        val flywayLayer = dataSourceLayer >>> PostgreSQLFlywayMigrationService.layerWithConfig(flywayConfig)
+        val flywayLayer =
+            dataSourceLayer >>> PostgreSQLFlywayMigrationService.layerWithConfig(flywayConfig)
 
         ZIO.scoped {
             for

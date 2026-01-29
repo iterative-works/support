@@ -9,14 +9,18 @@ import scala.annotation.tailrec
 
 /** Message catalogue for accessing localized messages by key.
   *
-  * This trait provides the core interface for retrieving messages in a specific language.
-  * Messages can be simple strings or templates with placeholders for formatting.
+  * This trait provides the core interface for retrieving messages in a specific language. Messages
+  * can be simple strings or templates with placeholders for formatting.
   *
   * Implementations:
-  * - [[works.iterative.ui.JsonMessageCatalogue]] - Frontend implementation using JSON dictionaries (ScalaJS)
-  * - [[works.iterative.core.service.impl.InMemoryMessageCatalogue]] - Backend implementation with pre-loaded in-memory cache (JVM)
+  *   - [[works.iterative.ui.JsonMessageCatalogue]] - Frontend implementation using JSON
+  *     dictionaries (ScalaJS)
+  *   - [[works.iterative.core.service.impl.InMemoryMessageCatalogue]] - Backend implementation with
+  *     pre-loaded in-memory cache (JVM)
   *
-  * @see [[works.iterative.core.service.MessageCatalogueService]] for service-level access to message catalogues
+  * @see
+  *   [[works.iterative.core.service.MessageCatalogueService]] for service-level access to message
+  *   catalogues
   */
 trait MessageCatalogue:
     // Language of this message catalogue

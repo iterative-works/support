@@ -7,8 +7,7 @@ import zio.Config
 
 /** Authentication provider type.
   *
-  * Configuration key: `auth_provider`
-  * Valid values: "oidc", "test" (case-insensitive)
+  * Configuration key: `auth_provider` Valid values: "oidc", "test" (case-insensitive)
   *
   * Example:
   * {{{
@@ -23,21 +22,24 @@ import zio.Config
   * }}}
   */
 enum AuthProvider:
-  case Oidc
-  case Test
+    case Oidc
+    case Test
+end AuthProvider
 
 object AuthProvider:
-  val configDescriptor: Config[AuthProvider] =
-    Config.string.mapOrFail {
-      case s if s.equalsIgnoreCase("oidc") => Right(AuthProvider.Oidc)
-      case s if s.equalsIgnoreCase("test") => Right(AuthProvider.Test)
-      case other => Left(Config.Error.InvalidData(message = s"Invalid auth provider '$other' (valid values: oidc, test)"))
-    }
+    val configDescriptor: Config[AuthProvider] =
+        Config.string.mapOrFail {
+            case s if s.equalsIgnoreCase("oidc") => Right(AuthProvider.Oidc)
+            case s if s.equalsIgnoreCase("test") => Right(AuthProvider.Test)
+            case other => Left(Config.Error.InvalidData(message =
+                    s"Invalid auth provider '$other' (valid values: oidc, test)"
+                ))
+        }
+end AuthProvider
 
 /** Permission service implementation type.
   *
-  * Configuration key: `permission_service`
-  * Valid values: "memory", "database" (case-insensitive)
+  * Configuration key: `permission_service` Valid values: "memory", "database" (case-insensitive)
   *
   * Example:
   * {{{
@@ -52,21 +54,24 @@ object AuthProvider:
   * }}}
   */
 enum PermissionServiceType:
-  case Memory
-  case Database
+    case Memory
+    case Database
+end PermissionServiceType
 
 object PermissionServiceType:
-  val configDescriptor: Config[PermissionServiceType] =
-    Config.string.mapOrFail {
-      case s if s.equalsIgnoreCase("memory")   => Right(PermissionServiceType.Memory)
-      case s if s.equalsIgnoreCase("database") => Right(PermissionServiceType.Database)
-      case other => Left(Config.Error.InvalidData(message = s"Invalid permission service '$other' (valid values: memory, database)"))
-    }
+    val configDescriptor: Config[PermissionServiceType] =
+        Config.string.mapOrFail {
+            case s if s.equalsIgnoreCase("memory")   => Right(PermissionServiceType.Memory)
+            case s if s.equalsIgnoreCase("database") => Right(PermissionServiceType.Database)
+            case other => Left(Config.Error.InvalidData(message =
+                    s"Invalid permission service '$other' (valid values: memory, database)"
+                ))
+        }
+end PermissionServiceType
 
 /** Environment type for deployment context.
   *
-  * Configuration key: `env`
-  * Valid values: "development", "production" (case-insensitive)
+  * Configuration key: `env` Valid values: "development", "production" (case-insensitive)
   *
   * Example:
   * {{{
@@ -81,13 +86,17 @@ object PermissionServiceType:
   * }}}
   */
 enum Environment:
-  case Development
-  case Production
+    case Development
+    case Production
+end Environment
 
 object Environment:
-  val configDescriptor: Config[Environment] =
-    Config.string.mapOrFail {
-      case s if s.equalsIgnoreCase("development") => Right(Environment.Development)
-      case s if s.equalsIgnoreCase("production")  => Right(Environment.Production)
-      case other => Left(Config.Error.InvalidData(message = s"Invalid environment '$other' (valid values: development, production)"))
-    }
+    val configDescriptor: Config[Environment] =
+        Config.string.mapOrFail {
+            case s if s.equalsIgnoreCase("development") => Right(Environment.Development)
+            case s if s.equalsIgnoreCase("production")  => Right(Environment.Production)
+            case other => Left(Config.Error.InvalidData(message =
+                    s"Invalid environment '$other' (valid values: development, production)"
+                ))
+        }
+end Environment

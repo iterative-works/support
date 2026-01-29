@@ -14,12 +14,16 @@ final case class KontaktniOsoba(
 )
 
 final case class Adresa(
-  ulice: PlainOneLine,
-  mesto: PlainOneLine,
-  psc: String,
-  country: String
+    ulice: PlainOneLine,
+    mesto: PlainOneLine,
+    psc: String,
+    country: String
 )
 
 final case class Zadatel(nazev: PlainOneLine, ic: String, adresa: Adresa)
 
-final case class ZadostORegistraci(zadatel: Zadatel, administrator: KontaktniOsoba, pccr: KontaktniOsoba)
+final case class ZadostORegistraci(
+    zadatel: Zadatel,
+    administrator: KontaktniOsoba,
+    pccr: KontaktniOsoba
+)

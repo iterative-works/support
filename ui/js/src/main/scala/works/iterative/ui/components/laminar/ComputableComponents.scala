@@ -9,13 +9,14 @@ import org.scalajs.dom
 import model.Computable
 
 trait ComputableComponents:
-  def renderComputable[Ref <: dom.html.Element](
-      as: HtmlTag[Ref],
-      mods: HtmlMod*
-  )(
-      c: Signal[Computable[HtmlElement]]
-  ): ReactiveHtmlElement[Ref]
-  def renderComputable(c: Signal[Computable[HtmlElement]]): Div =
-    renderComputable(div)(c)
-  def renderComputable(mods: HtmlMod)(c: Signal[Computable[HtmlElement]]): Div =
-    renderComputable(div, mods)(c)
+    def renderComputable[Ref <: dom.html.Element](
+        as: HtmlTag[Ref],
+        mods: HtmlMod*
+    )(
+        c: Signal[Computable[HtmlElement]]
+    ): ReactiveHtmlElement[Ref]
+    def renderComputable(c: Signal[Computable[HtmlElement]]): Div =
+        renderComputable(div)(c)
+    def renderComputable(mods: HtmlMod)(c: Signal[Computable[HtmlElement]]): Div =
+        renderComputable(div, mods)(c)
+end ComputableComponents

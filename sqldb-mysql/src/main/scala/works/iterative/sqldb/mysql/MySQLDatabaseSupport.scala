@@ -50,7 +50,8 @@ object MySQLDatabaseSupport:
         // Create the underlying layers
         val dataSourceLayer = MySQLDataSource.managedLayer
         val transactorLayer = dataSourceLayer >+> MySQLTransactor.managedLayer
-        val flywayLayer = dataSourceLayer >>> MySQLFlywayMigrationService.layerWithConfig(flywayConfig)
+        val flywayLayer =
+            dataSourceLayer >>> MySQLFlywayMigrationService.layerWithConfig(flywayConfig)
 
         // Combine layers to create the final ZLayer with both infrastructure and migration service
         val combinedLayer = transactorLayer ++ flywayLayer
@@ -79,7 +80,8 @@ object MySQLDatabaseSupport:
         // Create flyway config using the helper method
         val flywayConfig = createFlywayConfig(additionalLocations)
 
-        val flywayLayer = dataSourceLayer >>> MySQLFlywayMigrationService.layerWithConfig(flywayConfig)
+        val flywayLayer =
+            dataSourceLayer >>> MySQLFlywayMigrationService.layerWithConfig(flywayConfig)
 
         ZIO.scoped {
             for

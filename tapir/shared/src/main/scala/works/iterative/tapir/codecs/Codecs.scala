@@ -111,6 +111,7 @@ trait TapirCodecs:
     ): Schema[A] =
         val _ = factory // suppress unused warning - factory needed for type inference
         Schema.string
+    end fromValidatedStringSchema
 
     given fromValidatedStringTapirCodec[A](using
         factory: ValidatedStringFactory[A]

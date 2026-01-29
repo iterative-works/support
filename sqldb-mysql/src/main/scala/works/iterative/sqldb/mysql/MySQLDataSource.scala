@@ -44,8 +44,7 @@ object MySQLDataSource:
     val managedLayer: ZLayer[Scope, Throwable, MySQLDataSource] =
         layer >>> ZLayer.fromFunction(MySQLDataSource.apply)
 
-    def managedLayerWithConfig(config: MySQLConfig)
-        : ZLayer[Scope, Throwable, MySQLDataSource] =
+    def managedLayerWithConfig(config: MySQLConfig): ZLayer[Scope, Throwable, MySQLDataSource] =
         layerWithConfig(config) >>> ZLayer.fromFunction(MySQLDataSource.apply)
 
     val layerFromDataSource: ZLayer[DataSource, Nothing, MySQLDataSource] = ZLayer {

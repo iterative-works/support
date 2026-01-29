@@ -10,14 +10,13 @@ import works.iterative.core.auth.service.*
 import works.iterative.core.*
 import scala.jdk.CollectionConverters.*
 
-/**
-  * Adapter that bridges Pac4J authentication to ZIO AuthenticationService.
+/** Adapter that bridges Pac4J authentication to ZIO AuthenticationService.
   *
   * This adapter:
-  * - Maps Pac4J CommonProfile (Java) to BasicProfile (Scala/ZIO)
-  * - Handles null values defensively with Option
-  * - Stores user context in FiberRef for request-scoped authentication
-  * - Extracts roles from Pac4J profile attributes
+  *   - Maps Pac4J CommonProfile (Java) to BasicProfile (Scala/ZIO)
+  *   - Handles null values defensively with Option
+  *   - Stores user context in FiberRef for request-scoped authentication
+  *   - Extracts roles from Pac4J profile attributes
   *
   * Example usage:
   * {{{
@@ -40,19 +39,23 @@ object Pac4jAuthenticationAdapter extends AuthenticationService:
     override val currentUserInfo: UIO[Option[AuthedUserInfo]] = currentUser.get
 
     override def loggedIn(token: AccessToken, profile: BasicProfile): UIO[Unit] =
-        ZIO.logDebug(s"Mapped Pac4J profile: id=${profile.subjectId.value}, name=${profile.userName}, email=${profile.email}, roles=${profile.roles.size}") *>
-        ZIO.logDebug(s"User logged in: ${profile.subjectId.value}") *>
-        currentUser.set(Some(AuthedUserInfo(token, profile)))
+        ZIO.logDebug(
+            s"Mapped Pac4J profile: id=${profile.subjectId.value}, name=${profile.userName}, email=${profile.email}, roles=${profile.roles.size}"
+        ) *>
+            ZIO.logDebug(s"User logged in: ${profile.subjectId.value}") *>
+            currentUser.set(Some(AuthedUserInfo(token, profile)))
 
-    /**
-      * Maps a Pac4J CommonProfile to our BasicProfile.
+    /** Maps a Pac4J CommonProfile to our BasicProfile.
       *
-      * Handles null values from Java interop defensively. This is a pure function
-      * that can be tested independently of ZIO effects.
+      * Handles null values from Java interop defensively. This is a pure function that can be
+      * tested independently of ZIO effects.
       *
-      * @param profile Pac4J CommonProfile (Java object, may have null values)
-      * @return BasicProfile with optional fields for missing data
-      * @throws IllegalArgumentException if profile ID is null or empty
+      * @param profile
+      *   Pac4J CommonProfile (Java object, may have null values)
+      * @return
+      *   BasicProfile with optional fields for missing data
+      * @throws IllegalArgumentException
+      *   if profile ID is null or empty
       *
       * Example:
       * {{{
@@ -90,13 +93,12 @@ object Pac4jAuthenticationAdapter extends AuthenticationService:
         )
     end mapProfile
 
-    /**
-      * Extracts roles from Pac4J profile attributes.
+    /** Extracts roles from Pac4J profile attributes.
       *
       * Looks for a "roles" attribute which may be:
-      * - A Java List of strings
-      * - A single string
-      * - null/missing
+      *   - A Java List of strings
+      *   - A single string
+      *   - null/missing
       */
     private def extractRoles(profile: CommonProfile): Set[UserRole] =
         Option(profile.getAttribute("roles")) match
