@@ -18,6 +18,8 @@ case class E2ETestConfig(
 case class ViewportConfig(width: Int, height: Int)
 case class ScreenshotConfig(path: String, fullPage: Boolean = false)
 
+// scalafix:off DisableSyntax.var DisableSyntax.null
+// Playwright Java interop: mutable state required for lifecycle management of browser resources
 object PlaywrightTestContext:
     import scala.compiletime.uninitialized
     private var playwright: Playwright = uninitialized
@@ -99,6 +101,7 @@ object PlaywrightTestContext:
         if (browser != null) browser.close()
         if (playwright != null) playwright.close()
         testData.clear()
+// scalafix:on DisableSyntax.var DisableSyntax.null
 
 class TestDataStore:
     private val data = new ConcurrentHashMap[String, Any]()

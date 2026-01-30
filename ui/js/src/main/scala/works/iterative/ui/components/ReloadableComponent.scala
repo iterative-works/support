@@ -44,6 +44,8 @@ case class ReloadableComponent[A, I](
             memo.now().foreach(reloadUntilChanged(_, original))
     }
 
+    // scalafix:off DisableSyntax.var
+    // Laminar EventStream lifecycle requires mutable fiber tracking
     private def eventStreamFromZioStream[A](
         eff: UStream[A]
     ): EventStream[A] =
@@ -65,6 +67,7 @@ case class ReloadableComponent[A, I](
                     }
             )
     end eventStreamFromZioStream
+    // scalafix:on DisableSyntax.var
 
     private def updateFromZioStream(
         upd: UStream[Reload[A]]

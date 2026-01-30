@@ -8,48 +8,48 @@ import zio.*
 /** Permission service that unconditionally grants all permissions.
   *
   * WARNING: This implementation bypasses all security controls and should ONLY be used:
-  * 1. In automated tests that don't care about authorization
-  * 2. In emergency/maintenance scenarios with explicit approval
+  *   1. In automated tests that don't care about authorization 2. In emergency/maintenance
+  *      scenarios with explicit approval
   *
-  * NEVER use this in production without understanding the security implications.
-  * Anyone who can authenticate will have unrestricted access to all resources.
+  * NEVER use this in production without understanding the security implications. Anyone who can
+  * authenticate will have unrestricted access to all resources.
   *
   * This service:
-  * - Returns true for all isAllowed checks regardless of user/action/resource
-  * - Returns empty set for listAllowed (cannot enumerate all possible resources)
+  *   - Returns true for all isAllowed checks regardless of user/action/resource
+  *   - Returns empty set for listAllowed (cannot enumerate all possible resources)
   */
 class AlwaysAllowPermissionService extends PermissionService:
 
-  override def isAllowed(
-      subj: Option[UserInfo],
-      action: PermissionOp,
-      obj: PermissionTarget
-  ): UIO[Boolean] =
-    ZIO.succeed(true)
+    override def isAllowed(
+        subj: Option[UserInfo],
+        action: PermissionOp,
+        obj: PermissionTarget
+    ): UIO[Boolean] =
+        ZIO.succeed(true)
 
-  override def listAllowed(
-      subj: UserInfo,
-      action: PermissionOp,
-      namespace: String
-  ): UIO[Set[String]] =
-    ZIO.succeed(Set.empty)
+    override def listAllowed(
+        subj: UserInfo,
+        action: PermissionOp,
+        namespace: String
+    ): UIO[Set[String]] =
+        ZIO.succeed(Set.empty)
 
-  override def grantPermission(
-      userId: UserId,
-      relation: String,
-      target: PermissionTarget
-  ): UIO[Boolean] =
-    ZIO.succeed(true)
+    override def grantPermission(
+        userId: UserId,
+        relation: String,
+        target: PermissionTarget
+    ): UIO[Boolean] =
+        ZIO.succeed(true)
 
-  override def revokePermission(
-      userId: UserId,
-      relation: String,
-      target: PermissionTarget
-  ): UIO[Boolean] =
-    ZIO.succeed(true)
+    override def revokePermission(
+        userId: UserId,
+        relation: String,
+        target: PermissionTarget
+    ): UIO[Boolean] =
+        ZIO.succeed(true)
 end AlwaysAllowPermissionService
 
 object AlwaysAllowPermissionService:
-  val layer: ZLayer[Any, Nothing, PermissionService] =
-    ZLayer.succeed(AlwaysAllowPermissionService())
+    val layer: ZLayer[Any, Nothing, PermissionService] =
+        ZLayer.succeed(AlwaysAllowPermissionService())
 end AlwaysAllowPermissionService

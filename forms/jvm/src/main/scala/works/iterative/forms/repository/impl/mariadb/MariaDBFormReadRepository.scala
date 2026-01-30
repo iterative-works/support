@@ -9,7 +9,8 @@ import io.getquill.jdbczio.Quill
 import io.getquill.*
 import java.sql.Timestamp
 
-class MariaDBFormReadRepository(quill: Quill.Mysql[io.getquill.SnakeCase]) extends FormReadRepository:
+class MariaDBFormReadRepository(quill: Quill.Mysql[io.getquill.SnakeCase])
+    extends FormReadRepository:
     import quill.*
     import MariaDBFormReadRepository.{*, given}
 
@@ -41,9 +42,12 @@ end MariaDBFormReadRepository
 
 object MariaDBFormReadRepository:
     import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
+    // scalafix:off DisableSyntax.throw
+    // Quill MappedEncoding API requires exceptions for decode failures
     given MappedEncoding[String, Form] = MappedEncoding(_.fromJson[Form].left.map(msg =>
         new RuntimeException(s"Error decoding form: $msg")
     ).fold(throw _, identity))
+    // scalafix:on DisableSyntax.throw
     given MappedEncoding[Form, String] = MappedEncoding(_.toJson)
 
     final case class FormDescriptors(

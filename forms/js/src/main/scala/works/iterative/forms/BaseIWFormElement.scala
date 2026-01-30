@@ -7,8 +7,11 @@ import com.raquo.laminar.nodes.DetachedRoot
 import portaly.forms.impl.LiveHtmlInterpreter
 import portaly.forms.FormIdent
 
+// scalafix:off DisableSyntax.var
+// Web component lifecycle requires mutable state for Laminar root management
 abstract class BaseIWFormElement extends HTMLElement:
     private var rootElem: Option[DetachedRoot[HtmlElement]] = None
+// scalafix:on DisableSyntax.var
 
     def interpreter: LiveHtmlInterpreter
 

@@ -25,7 +25,9 @@ trait AuthenticationService:
             case Some(info) =>
                 effect.provideSome[R](ZLayer.succeed(CurrentUser(info.profile)))
             case None =>
-                ZIO.fail(AuthenticationError.Unauthenticated(UserMessage("error.auth.unauthenticated")))
+                ZIO.fail(
+                    AuthenticationError.Unauthenticated(UserMessage("error.auth.unauthenticated"))
+                )
         }
 end AuthenticationService
 

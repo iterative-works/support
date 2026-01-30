@@ -9,7 +9,8 @@ import works.iterative.server.http.impl.pac4j.Pac4jAuthenticationAdapter
 
 /** Factory that creates the appropriate AuthenticationService based on configuration.
   *
-  * Reads auth_provider and env from ZIO Config to determine which authentication implementation to use:
+  * Reads auth_provider and env from ZIO Config to determine which authentication implementation to
+  * use:
   *   - "test": TestAuthenticationService (for testing only, forbidden in production)
   *   - "oidc": Pac4jAuthenticationAdapter (for production OIDC authentication)
   *
@@ -42,16 +43,18 @@ object AuthenticationServiceFactory:
                     ))
                 }
 
-                _ <- ZIO.logInfo(s"Selected authentication provider: ${authProvider.toString.toLowerCase}")
+                _ <- ZIO.logInfo(
+                    s"Selected authentication provider: ${authProvider.toString.toLowerCase}"
+                )
 
                 service <- authProvider match
                     case AuthProvider.Test =>
                         ZIO.logInfo("Using TestAuthenticationService (FAKE AUTHENTICATION)") *>
-                        ZIO.succeed(TestAuthenticationService.layer)
+                            ZIO.succeed(TestAuthenticationService.layer)
 
                     case AuthProvider.Oidc =>
                         ZIO.logInfo("Using Pac4jAuthenticationAdapter (OIDC)") *>
-                        ZIO.succeed(Pac4jAuthenticationAdapter.layer)
+                            ZIO.succeed(Pac4jAuthenticationAdapter.layer)
 
                 result <- ZIO.service[AuthenticationService].provide(service)
             yield result

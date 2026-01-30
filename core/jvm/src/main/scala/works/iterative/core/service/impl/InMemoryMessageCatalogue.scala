@@ -13,8 +13,8 @@ import works.iterative.core.Language
 
 /** MessageCatalogue implementation backed by pre-loaded in-memory Map.
   *
-  * This implementation provides synchronous access to messages stored in an immutable Map.
-  * Messages are typically loaded once (at startup or from resources) and stored for fast O(1) lookups.
+  * This implementation provides synchronous access to messages stored in an immutable Map. Messages
+  * are typically loaded once (at startup or from resources) and stored for fast O(1) lookups.
   *
   * Key characteristics:
   *   - Pure synchronous access (no effects during message retrieval)
@@ -24,13 +24,18 @@ import works.iterative.core.Language
   *
   * Usage:
   *   - With JSON resources: Use companion object's `fromJsonResources` method
-  *   - With SQL database: Used by [[SqlMessageCatalogueService]] which manages pre-load and reload lifecycle
+  *   - With SQL database: Used by [[SqlMessageCatalogueService]] which manages pre-load and reload
+  *     lifecycle
   *
-  * @param language The language for this message catalogue
-  * @param messages Pre-loaded map of message keys to message text
+  * @param language
+  *   The language for this message catalogue
+  * @param messages
+  *   Pre-loaded map of message keys to message text
   *
-  * @see [[SqlMessageCatalogueService]] for database-backed message catalogue service
-  * @see [[InMemoryMessageCatalogueService]] for JSON resource-backed service
+  * @see
+  *   [[SqlMessageCatalogueService]] for database-backed message catalogue service
+  * @see
+  *   [[InMemoryMessageCatalogueService]] for JSON resource-backed service
   */
 class InMemoryMessageCatalogue(override val language: Language, messages: Map[String, String])
     extends MessageCatalogue:

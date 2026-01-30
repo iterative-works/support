@@ -58,8 +58,7 @@ object MySQLTestingLayers:
     val transactorLayer: ZLayer[Scope, Throwable, Transactor] =
         dataSourceLayer.flatMap(env => Transactor.layer(env.get[DataSource]))
 
-    val mySQLTransactorLayer
-        : ZLayer[Scope, Throwable, MySQLDataSource & MySQLTransactor] =
+    val mySQLTransactorLayer: ZLayer[Scope, Throwable, MySQLDataSource & MySQLTransactor] =
         mySQLDataSourceLayer >+> MySQLTransactor.managedLayer
 
     // Create a custom Flyway config that allows cleaning the database

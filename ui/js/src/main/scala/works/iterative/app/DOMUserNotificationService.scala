@@ -28,21 +28,21 @@ class DOMUserNotificationService(
                         .opt(
                             m,
                             (l match
-                            case Level.Success => List(UserMessage("success"))
-                            case Level.Info    => Nil
-                            case Level.Error   => List(UserMessage("error"))
-                            case Level.Warning => Nil
-                            case Level.Debug   => Nil
+                                case Level.Success => List(UserMessage("success"))
+                                case Level.Info    => Nil
+                                case Level.Error   => List(UserMessage("error"))
+                                case Level.Warning => Nil
+                                case Level.Debug   => Nil
                             )*
                         )
                         .map(txt => span(dataAttr("msgId")(m.id.toString), txt))
 
                     val alertLevel: AlertViews.Level = l match
-                    case Level.Success => AlertViews.Level.Success
-                    case Level.Info    => AlertViews.Level.Info
-                    case Level.Error   => AlertViews.Level.Error
-                    case Level.Warning => AlertViews.Level.Warning
-                    case Level.Debug   => AlertViews.Level.Debug
+                        case Level.Success => AlertViews.Level.Success
+                        case Level.Info    => AlertViews.Level.Info
+                        case Level.Error   => AlertViews.Level.Error
+                        case Level.Warning => AlertViews.Level.Warning
+                        case Level.Debug   => AlertViews.Level.Debug
 
                     msg.map(views.alert(alertLevel, _, () => displayedNotification.set(None)))
                 ).map(m =>
@@ -61,11 +61,11 @@ class DOMUserNotificationService(
         val display = ZIO.succeed(displayedNotification.set(Some(level -> msg)))
         val hide = ZIO.succeed(displayedNotification.set(None))
         level match
-        case Level.Debug =>
-            ZIO.succeed(messages.get(msg).foreach(org.scalajs.dom.console.debug(_)))
-        case Level.Success =>
-            display *> hide.delay(5.seconds)
-        case _ => display
+            case Level.Debug =>
+                ZIO.succeed(messages.get(msg).foreach(org.scalajs.dom.console.debug(_)))
+            case Level.Success =>
+                display *> hide.delay(5.seconds)
+            case _ => display
         end match
     end notify
 

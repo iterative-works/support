@@ -26,23 +26,23 @@ case class Permissions(
     objectId: String,
     createdAt: OffsetDateTime
 ) derives DbCodec:
-  /** Converts this database row to domain model */
-  def toDomain: RelationTuple =
-    RelationTuple(
-      user = UserId.unsafe(userId),
-      relation = relation,
-      target = PermissionTarget.unsafe(namespace, objectId)
-    )
+    /** Converts this database row to domain model */
+    def toDomain: RelationTuple =
+        RelationTuple(
+            user = UserId.unsafe(userId),
+            relation = relation,
+            target = PermissionTarget.unsafe(namespace, objectId)
+        )
 end Permissions
 
 object Permissions:
-  /** Converts domain model to database row for insertion */
-  def fromDomain(tuple: RelationTuple): PermissionCreator =
-    PermissionCreator(
-      userId = tuple.user.value,
-      relation = tuple.relation,
-      namespace = tuple.target.namespace,
-      objectId = tuple.target.value,
-      createdAt = OffsetDateTime.now()
-    )
+    /** Converts domain model to database row for insertion */
+    def fromDomain(tuple: RelationTuple): PermissionCreator =
+        PermissionCreator(
+            userId = tuple.user.value,
+            relation = tuple.relation,
+            namespace = tuple.target.namespace,
+            objectId = tuple.target.value,
+            createdAt = OffsetDateTime.now()
+        )
 end Permissions

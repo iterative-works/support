@@ -15,16 +15,18 @@ import io.cucumber.scala.*
  *     // Your custom step definitions...
  * ```
  */
+// scalafix:off DisableSyntax.throw
+// Cucumber step definitions: exceptions are the idiomatic error reporting mechanism
 trait CommonStepDefinitions:
     self: PlaywrightCucumberRunner =>
-    
+
     // Navigation steps
     Given("^I navigate to \"([^\"]*)\"$") { (path: String) =>
         val url = s"$baseUrl$path"
         page.navigate(url)
         page.waitForLoadState(LoadState.NETWORKIDLE)
     }
-    
+
     Given("^I am on the \"([^\"]*)\" page$") { (pageName: String) =>
         val path = testData.get[String](s"${pageName}Path")
             .getOrElse(throw new Exception(s"Unknown page: $pageName"))
@@ -124,3 +126,4 @@ trait CommonStepDefinitions:
         val path = java.nio.file.Paths.get(screenshotPath, s"$filename.png")
         page.screenshot(new Page.ScreenshotOptions().setPath(path))
     }
+// scalafix:on DisableSyntax.throw

@@ -114,8 +114,8 @@ end PermissionTarget
 
 /** Permission service interface for checking user permissions on resources.
   *
-  * NOTE: This interface is application-layer (uses ZIO effects), not domain.
-  * Pure domain logic lives in PermissionLogic.
+  * NOTE: This interface is application-layer (uses ZIO effects), not domain. Pure domain logic
+  * lives in PermissionLogic.
   */
 trait PermissionService:
     def isAllowed(
@@ -132,9 +132,9 @@ trait PermissionService:
 
     /** List all resource IDs in a namespace that the user is allowed to access.
       *
-      * This is a reverse lookup operation useful for efficient authorization-aware queries.
-      * Instead of checking permission on each resource individually, this method returns
-      * all resources the user can access in one call.
+      * This is a reverse lookup operation useful for efficient authorization-aware queries. Instead
+      * of checking permission on each resource individually, this method returns all resources the
+      * user can access in one call.
       *
       * Usage example:
       * {{{
@@ -146,10 +146,14 @@ trait PermissionService:
       *     }
       * }}}
       *
-      * @param subj The user information
-      * @param action The permission operation to check
-      * @param namespace The resource namespace to search
-      * @return UIO[Set[String]] - Set of resource IDs the user can access
+      * @param subj
+      *   The user information
+      * @param action
+      *   The permission operation to check
+      * @param namespace
+      *   The resource namespace to search
+      * @return
+      *   UIO[Set[String]] - Set of resource IDs the user can access
       */
     def listAllowed(
         subj: UserInfo,
@@ -159,10 +163,14 @@ trait PermissionService:
 
     /** Grant a permission relation to a user.
       *
-      * @param userId The user to grant the permission to
-      * @param relation The permission relation (e.g., "owner", "editor", "viewer")
-      * @param target The permission target
-      * @return UIO[Boolean] - true if successful, false if failed
+      * @param userId
+      *   The user to grant the permission to
+      * @param relation
+      *   The permission relation (e.g., "owner", "editor", "viewer")
+      * @param target
+      *   The permission target
+      * @return
+      *   UIO[Boolean] - true if successful, false if failed
       */
     def grantPermission(
         userId: UserId,
@@ -172,10 +180,14 @@ trait PermissionService:
 
     /** Revoke a permission relation from a user.
       *
-      * @param userId The user to revoke the permission from
-      * @param relation The permission relation to revoke
-      * @param target The permission target
-      * @return UIO[Boolean] - true if successful, false if failed
+      * @param userId
+      *   The user to revoke the permission from
+      * @param relation
+      *   The permission relation to revoke
+      * @param target
+      *   The permission target
+      * @return
+      *   UIO[Boolean] - true if successful, false if failed
       */
     def revokePermission(
         userId: UserId,

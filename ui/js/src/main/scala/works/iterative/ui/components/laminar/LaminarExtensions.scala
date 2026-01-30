@@ -65,6 +65,8 @@ trait ActionExtensions:
     end ActionLink
 end ActionExtensions
 
+// scalafix:off DisableSyntax.null, DisableSyntax.var
+// Laminar requires mutable fiber tracking for EventStream lifecycle management
 trait ZIOInteropExtensions:
     import zio.{Fiber, Runtime, Unsafe, ZIO}
 
@@ -159,3 +161,4 @@ trait ZIOInteropExtensions:
         end toEventStreamWith
     end extension
 end ZIOInteropExtensions
+// scalafix:on DisableSyntax.null, DisableSyntax.var
