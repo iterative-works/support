@@ -51,6 +51,8 @@ trait ClientErrorConstructor[-E]:
 
 object ClientErrorConstructor
     extends LowPriorityClientErrorConstructorImplicits:
+    // scalafix:off DisableSyntax.throw
+    // ZIO Cause.die requires throwable - this is a programming error that should never occur
     given noErrorConstructor: ClientErrorConstructor[Unit] with
         type Error = Nothing
         def mapErrorCause[A](effect: IO[Unit, A]): IO[Nothing, A] =
@@ -60,6 +62,7 @@ object ClientErrorConstructor
                 )
             )
     end noErrorConstructor
+    // scalafix:on DisableSyntax.throw
 end ClientErrorConstructor
 
 trait LowPriorityClientErrorConstructorImplicits:

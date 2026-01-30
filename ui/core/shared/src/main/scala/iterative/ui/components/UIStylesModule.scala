@@ -18,9 +18,12 @@ trait UIStylesModule[+T]:
     def createStyleOverride(): StyleOverride = new StyleOverride()
 
     // Style override manager
+    // scalafix:off DisableSyntax.var
+    // Mutable builder pattern for fluent override configuration
     class StyleOverride:
         private var styleOverrides: Map[(String, String, String), Map[String, String]] = Map.empty
         private var classOverrides: Map[(String, String, String), Seq[String]] = Map.empty
+    // scalafix:on DisableSyntax.var
 
         // Override styles for a specific component
         def overrideStyle(

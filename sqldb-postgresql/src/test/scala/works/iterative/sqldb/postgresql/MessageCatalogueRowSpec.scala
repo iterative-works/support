@@ -61,6 +61,8 @@ object MessageCatalogueRowSpec extends ZIOSpecDefault:
       )
     },
 
+    // scalafix:off DisableSyntax.null
+    // Test assertion: verifying compile-time derivation succeeds at runtime
     test("Magnum can derive DbCodec for the entity") {
       // This test verifies that Magnum can properly encode/decode the entity
       // If DbCodec derivation fails, this test won't compile
@@ -76,6 +78,7 @@ object MessageCatalogueRowSpec extends ZIOSpecDefault:
       // Verify TableInfo is not null (implicitly tests @Table annotation and derives)
       assertTrue(tableInfo != null)
     },
+    // scalafix:on DisableSyntax.null
 
     test("Language type converts to/from String") {
       val entity = MessageCatalogue(

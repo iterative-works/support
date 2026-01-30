@@ -2,6 +2,7 @@
 //| - https://maven.pkg.github.com/iterative-works/iw-project-support
 //| mvnDeps:
 //| - works.iterative::mill-iw-support::0.1.1-SNAPSHOT
+//| - com.goyeau::mill-scalafix::0.6.0
 import mill._
 import mill.scalalib._
 import mill.scalajslib._
@@ -11,6 +12,9 @@ import mill.scalalib.scalafmt._
 
 // Import IW Mill Support library
 import works.iterative.mill._
+
+// Import Scalafix plugin
+import com.goyeau.mill.scalafix.ScalafixModule
 
 // ============================================================================
 // Common Configuration
@@ -84,7 +88,7 @@ object Dependencies {
 // ============================================================================
 
 /** Base trait for all IW Support modules */
-trait BaseModule extends IWScalaModule with IWPublishModule { outer =>
+trait BaseModule extends IWScalaModule with IWPublishModule with ScalafixModule { outer =>
   override def publishVersion = CommonVersion.publishVersion
   override def gitHubPackagesUri = "https://maven.pkg.github.com/iterative-works/support"
 
@@ -1161,6 +1165,18 @@ def runAllTests() = Task.Command {
   println("All tests completed!")
 }
 
+// Scalafix linting command
+def scalafix(args: String*) = Task.Command {
+  val checkMode = args.contains("--check")
+  val scalafixArgs = if (checkMode) Seq("--check") else Seq()
+
+  // Run scalafix via coursier launcher (uses app descriptor)
+  val cmd = Seq("cs", "launch", "scalafix:0.11.1", "--") ++
+    scalafixArgs ++ Seq("--scala-version", "3.7.2", ".")
+
+  os.proc(cmd).call(cwd = os.pwd, stdout = os.Inherit, stderr = os.Inherit)
+}
+
 // Verify module for comprehensive checks
 object verify extends Module {
   // Compile all modules via root aggregate
@@ -1176,6 +1192,12 @@ object verify extends Module {
     tapir.jvm.test.testForked()
     tapir.js.test.testForked()
     println("✅ All tests passed!")
+  }
+
+  // Scalafix lint check
+  def lint() = Task.Command {
+    scalafix("--check")()
+    println("✅ Scalafix checks passed!")
   }
 
   // Format check

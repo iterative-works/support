@@ -64,6 +64,9 @@ object MySQLMessageCatalogueMigration:
       * @return
       *   Task containing JSON content as string
       */
+    // scalafix:off DisableSyntax.null
+    // scalafix:off DisableSyntax.throw
+    // Java interop: getResourceAsStream returns null for missing resources
     private def loadJsonResource(resourcePath: String): Task[String] =
         ZIO.acquireReleaseWith(
             acquire = ZIO.attempt {
@@ -77,5 +80,7 @@ object MySQLMessageCatalogueMigration:
         )(
             use = source => ZIO.attempt(source.mkString)
         )
+    // scalafix:on DisableSyntax.throw
+    // scalafix:on DisableSyntax.null
 
 end MySQLMessageCatalogueMigration

@@ -27,6 +27,8 @@ case class TestWithOffsetDateTimeCreator(
 object MySQLMinimalSpec extends ZIOSpecDefault:
 
   def spec = suite("MySQLMinimalSpec")(
+    // scalafix:off DisableSyntax.null
+    // Test assertion: verifying repo instantiation succeeds
     test("can create Repo with OffsetDateTime (using centralized MySQLDbCodecs)") {
       for
         _ <- ZIO.logInfo("Test: about to get MySQLTransactor")
@@ -39,6 +41,7 @@ object MySQLMinimalSpec extends ZIOSpecDefault:
         _ <- ZIO.logInfo(s"Got OffsetDateTime repo: $repo")
       yield assertTrue(repo != null)
     }
+    // scalafix:on DisableSyntax.null
   ).provideSomeShared[Scope](mySQLTransactorLayer) @@ timeout(60.seconds)
 
 end MySQLMinimalSpec

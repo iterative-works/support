@@ -65,3 +65,68 @@ M .github/workflows/ci.yml
 ```
 
 ---
+
+## Phase 3: Scalafix enforces FP principles (2026-01-29)
+
+**What was built:**
+- Config: `.scalafix.conf` - Scalafix configuration with DisableSyntax rules
+- Job: `lint` in `.github/workflows/ci.yml` - Scalafix linting via Mill
+- Build: Added `ScalafixModule` mixin to `BaseModule` in `build.mill`
+- Suppressions: Added `scalafix:off` comments to 52 existing violations across 20 files
+
+**Decisions made:**
+- Use DisableSyntax rule with noNulls, noVars, noThrows, noReturns
+- Suppress existing violations with documented justifications rather than rewriting code
+- Categories of suppressions:
+  - Java/JS interop (Playwright, DOM, Java APIs returning null): 27 violations
+  - Framework requirements (Akka, Quill, Pac4j requiring exceptions): 13 violations
+  - Mutable state for performance (Laminar fiber tracking, builders): 12 violations
+
+**Patterns applied:**
+- Scalafix suppression with explanatory comments
+- Comma-separated rule syntax for multi-rule suppressions
+- Consistent suppression block structure: off comment → reason comment → code → on comment
+
+**Testing:**
+- Verified Scalafix catches `null` usage (error: "null should be avoided")
+- Verified Scalafix catches `var` usage (error: "mutable state should be avoided")
+- All modules pass `./mill __.fix --check` after suppressions
+
+**Code review:**
+- Iterations: 1
+- No critical issues found
+- Suggestions: Minor ordering consistency in suppression comments
+
+**For next phases:**
+- Lint job runs in parallel with compile/format
+- New code must pass Scalafix or have documented suppressions
+- Consider adding ExplicitResultTypes rule in future
+
+**Files changed:**
+```
+A .scalafix.conf
+M .github/workflows/ci.yml
+M build.mill
+M akka-persistence/src/main/scala/works/iterative/akka/AkkaZioJsonSerializer.scala
+M core/shared/src/main/scala/works/iterative/core/Validated.scala
+M e2e-testing/src/main/scala/works/iterative/testing/e2e/CommonStepDefinitions.scala
+M e2e-testing/src/main/scala/works/iterative/testing/e2e/PlaywrightTestContext.scala
+M forms/js/src/main/scala/works/iterative/forms/BaseIWFormElement.scala
+M forms/jvm/src/main/scala/works/iterative/forms/repository/impl/mariadb/MariaDBFormReadRepository.scala
+M forms/jvm/src/main/scala/works/iterative/forms/service/impl/fop/ResourcesStylesheetProvider.scala
+M server/http/src/main/scala/works/iterative/server/http/impl/pac4j/Pac4jAuthenticationAdapter.scala
+M sqldb-mysql/src/main/scala/works/iterative/sqldb/mysql/migration/MySQLMessageCatalogueMigration.scala
+M sqldb-mysql/src/test/scala/works/iterative/sqldb/mysql/MessageCatalogueRowSpec.scala
+M sqldb-mysql/src/test/scala/works/iterative/sqldb/mysql/MySQLMinimalSpec.scala
+M sqldb-postgresql/src/main/scala/works/iterative/sqldb/postgresql/migration/PostgreSQLMessageCatalogueMigration.scala
+M sqldb-postgresql/src/test/scala/works/iterative/sqldb/postgresql/MessageCatalogueRowSpec.scala
+M tapir/shared/src/main/scala/works/iterative/tapir/ClientEndpointFactory.scala
+M ui/core/shared/src/main/scala/iterative/ui/components/UIStylesModule.scala
+M ui/js/src/main/scala/works/iterative/app/Routes.scala
+M ui/js/src/main/scala/works/iterative/ui/JsonMessageCatalogue.scala
+M ui/js/src/main/scala/works/iterative/ui/components/ReloadableComponent.scala
+M ui/js/src/main/scala/works/iterative/ui/components/laminar/I18NExtensions.scala
+M ui/js/src/main/scala/works/iterative/ui/components/laminar/LaminarExtensions.scala
+```
+
+---

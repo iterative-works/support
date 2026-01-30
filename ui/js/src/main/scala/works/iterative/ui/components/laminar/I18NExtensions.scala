@@ -52,6 +52,8 @@ object I18NExtensions:
     // And when looking for a message, it traverses the parents
     // to find the catalogue and translate
     // Also it is possible to nest the prefixes in this way
+    // scalafix:off DisableSyntax.var, DisableSyntax.null
+    // JS interop: DOM element storage and traversal requires mutable state and null checks
     @js.native
     private trait ElementWithMessages extends js.Any:
         var ____messages: js.UndefOr[MessageCatalogue]
@@ -74,6 +76,7 @@ object I18NExtensions:
         else Some(m.____messages.get)
         end if
     end closestMessages
+    // scalafix:on DisableSyntax.var, DisableSyntax.null
 
     def withMessages(messages: MessageCatalogue)(mods: HtmlMod*): Div =
         div(
