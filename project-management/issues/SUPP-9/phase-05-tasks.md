@@ -13,22 +13,22 @@ The existing workflow already has good parallelization:
 
 ### Documentation & Clarity
 
-- [ ] [impl] Add section comments to workflow explaining parallel vs sequential jobs
-- [ ] [impl] Add concurrency settings to cancel superseded workflow runs
+- [x] [impl] Add section comments to workflow explaining parallel vs sequential jobs
+- [x] [impl] Add concurrency settings to cancel superseded workflow runs
 
 ### Verification
 
-- [ ] [test] Verify format and lint jobs start immediately (no wait for compile)
-- [ ] [test] Verify test job waits for compile to complete
-- [ ] [test] Verify all 4 jobs appear as separate PR status checks
+- [x] [test] Verify format and lint jobs start immediately (no wait for compile)
+- [x] [test] Verify test job waits for compile to complete
+- [x] [test] Verify all 4 jobs appear as separate PR status checks
 
 ### Acceptance Criteria Verification
 
-- [ ] [verify] CI workflow has 4 jobs: compile, format, lint, test
-- [ ] [verify] format and lint run in parallel with compile
-- [ ] [verify] test runs after compile
-- [ ] [verify] Each job shows as separate PR status check
-- [ ] [verify] Workflow has inline comments explaining structure
+- [x] [verify] CI workflow has 4 jobs: compile, format, lint, test
+- [x] [verify] format and lint run in parallel with compile
+- [x] [verify] test runs after compile
+- [x] [verify] Each job shows as separate PR status check
+- [x] [verify] Workflow has inline comments explaining structure
 
 ## Notes
 
