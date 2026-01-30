@@ -244,3 +244,41 @@ A .git-hooks/pre-commit
 ```
 
 ---
+
+## Phase 7: Pre-push hook validates tests pass (2026-01-30)
+
+**What was built:**
+- Hook: `.git-hooks/pre-push` - Shell script that runs tests before allowing push
+
+**Decisions made:**
+- Follow same pattern as pre-commit hook
+- Run all unit tests (`./mill __.test`) - simpler than detecting affected modules
+- Show progress message ("This may take a few minutes")
+- Show clear error box with fix instructions on failure
+- Document `--no-verify` bypass for emergencies
+
+**Patterns applied:**
+- Same strict error handling as pre-commit (`set -euo pipefail`)
+- Same portable shebang (`#!/usr/bin/env bash`)
+- Same colored error box pattern for consistency
+
+**Testing:**
+- Script syntax validated with `bash -n`
+- Hook is executable (755 permissions)
+- Follows established pattern from Phase 6
+
+**Code review:**
+- Iterations: 1
+- Review file: review-phase-07-20260130-134500.md
+- No critical issues
+
+**For next phases:**
+- Both hooks now complete (pre-commit for formatting, pre-push for tests)
+- Phase 8 will document hook installation
+
+**Files changed:**
+```
+A .git-hooks/pre-push
+```
+
+---
