@@ -130,3 +130,42 @@ M ui/js/src/main/scala/works/iterative/ui/components/laminar/LaminarExtensions.s
 ```
 
 ---
+
+## Phase 4: CI runs test suite on PR (2026-01-30)
+
+**What was built:**
+- Job: `test` in `.github/workflows/ci.yml` - Runs test suite via Mill
+
+**Decisions made:**
+- Test job depends on compile job (`needs: compile`) to avoid wasted resources if compilation fails
+- Use same caching strategy as other jobs (Coursier + Mill)
+- Run `./mill __.test` for all modules
+- MongoDB tests auto-skip without MONGO_URI env var
+- SQL tests (Testcontainers) should work in CI
+
+**Patterns applied:**
+- Job dependency for sequential execution (`needs: compile`)
+- Consistent infrastructure setup across all jobs (Java 21, same caching keys)
+
+**Testing:**
+- All tests verified passing locally with `./mill __.test`
+- YAML syntax validated
+- SQL tests (Testcontainers) work locally
+- MongoDB tests skip gracefully without MONGO_URI
+
+**Code review:**
+- Iterations: 1
+- Review file: review-phase-04-20260130-121500.md
+- No critical issues
+
+**For next phases:**
+- All 4 jobs now available: compile, format, lint, test
+- Test runs after compile; format and lint run in parallel
+- Phase 5 will optimize with parallel job execution
+
+**Files changed:**
+```
+M .github/workflows/ci.yml
+```
+
+---
