@@ -282,3 +282,42 @@ A .git-hooks/pre-push
 ```
 
 ---
+
+## Phase 8: Documentation for contributors (2026-01-30)
+
+**What was built:**
+- Docs: `CONTRIBUTING.md` - Contributor documentation for CI and git hooks
+
+**Sections included:**
+- CI Workflow overview (table of 4 jobs)
+- Git Hooks installation (symlink commands)
+- Running Checks Locally (Mill commands)
+- Troubleshooting (common issues and fixes)
+- Code Style (Scalafmt and Scalafix information)
+
+**Decisions made:**
+- Create new CONTRIBUTING.md rather than updating minimal README.md
+- Include worktree note for advanced users
+- Document bypass procedure (discouraged but needed for emergencies)
+
+**Testing:**
+- All documented commands verified as valid Mill commands
+- Hook symlink syntax verified
+
+**Code review:**
+- Iterations: 1
+- Review file: review-phase-08-20260130-140500.md
+- No critical issues
+
+**Feature complete:**
+- All 8 phases implemented
+- CI workflow: compile, format, lint, test
+- Git hooks: pre-commit (formatting), pre-push (tests)
+- Documentation: CONTRIBUTING.md
+
+**Files changed:**
+```
+A CONTRIBUTING.md
+```
+
+---
