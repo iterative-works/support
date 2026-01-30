@@ -7,7 +7,23 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel in-progress runs when a new commit is pushed to the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Job Structure:
+# - compile, format, lint: Run in PARALLEL (no dependencies between them)
+# - test: Runs AFTER compile succeeds (needs: compile)
+#
+# This maximizes feedback speed: format/lint failures are caught immediately,
+# while tests wait for compilation to avoid wasted CI minutes.
+
 jobs:
+  # ============================================================================
+  # PARALLEL JOBS: These three jobs run simultaneously when a PR is opened
+  # ============================================================================
+
   compile:
     name: Compile
     runs-on: ubuntu-latest
@@ -121,6 +137,10 @@ jobs:
         env:
           COURSIER_CREDENTIALS: maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
         run: ./mill __.fix --check
+
+  # ============================================================================
+  # SEQUENTIAL JOB: Runs after compile succeeds to avoid wasted CI minutes
+  # ============================================================================
 
   test:
     name: Run Tests
