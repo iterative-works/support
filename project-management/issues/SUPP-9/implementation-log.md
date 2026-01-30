@@ -203,3 +203,44 @@ M .github/workflows/ci.yml
 ```
 
 ---
+
+## Phase 6: Pre-commit hook validates formatting locally (2026-01-30)
+
+**What was built:**
+- Hook: `.git-hooks/pre-commit` - Shell script that validates Scala formatting before commits
+
+**Decisions made:**
+- Use simple shell script (no external framework like lefthook or husky)
+- Run `./mill __.checkFormat` to check all modules (simpler than parsing staged files)
+- Exit early (success) if no Scala files are staged
+- Show clear error box with fix instructions (`./mill __.reformat`)
+- Document `--no-verify` bypass for emergencies
+
+**Patterns applied:**
+- Strict error handling with `set -euo pipefail`
+- Portable shebang with `#!/usr/bin/env bash`
+- Colored terminal output for visibility
+- Early exit pattern for efficiency
+
+**Testing:**
+- Script syntax validated with `bash -n`
+- Hook passes when no Scala files staged
+- Hook passes when only non-Scala files staged
+- Hook is executable (755 permissions)
+
+**Code review:**
+- Iterations: 1
+- Review file: review-phase-06-20260130-133000.md
+- No critical issues
+
+**For next phases:**
+- Pre-commit hook ready for contributor use
+- Phase 7 will add pre-push hook for tests
+- Phase 8 will document hook installation
+
+**Files changed:**
+```
+A .git-hooks/pre-commit
+```
+
+---
