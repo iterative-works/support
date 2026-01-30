@@ -7,27 +7,27 @@
 
 ### Setup
 
-- [ ] [impl] Create executable `pre-push` script in `.git-hooks/`
+- [x] [impl] Create executable `pre-push` script in `.git-hooks/`
 
 ### Implementation
 
-- [ ] [impl] Run `./mill __.test` to execute all unit tests
-- [ ] [impl] Show progress message while tests are running
-- [ ] [impl] Show clear error message with fix instructions when tests fail
-- [ ] [impl] Exit with non-zero code on test failure
+- [x] [impl] Run `./mill __.test` to execute all unit tests
+- [x] [impl] Show progress message while tests are running
+- [x] [impl] Show clear error message with fix instructions when tests fail
+- [x] [impl] Exit with non-zero code on test failure
 
 ### Verification
 
-- [ ] [test] Hook script is executable
-- [ ] [test] Test with passing tests (push succeeds)
-- [ ] [test] Verify `--no-verify` bypass works
+- [x] [test] Hook script is executable
+- [x] [test] Test with passing tests (push succeeds)
+- [x] [test] Verify `--no-verify` bypass works
 
 ### Acceptance Criteria
 
-- [ ] [verify] `.git-hooks/pre-push` exists and is executable
-- [ ] [verify] Hook runs unit tests
-- [ ] [verify] Hook blocks push when tests fail
-- [ ] [verify] Hook shows helpful error message
-- [ ] [verify] Hook passes when tests pass
+- [x] [verify] `.git-hooks/pre-push` exists and is executable
+- [x] [verify] Hook runs unit tests
+- [x] [verify] Hook blocks push when tests fail
+- [x] [verify] Hook shows helpful error message
+- [x] [verify] Hook passes when tests pass
 
-**Phase Status:** Not Started
+**Phase Status:** Complete
