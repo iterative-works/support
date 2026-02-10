@@ -12,7 +12,8 @@ case class E2ETestConfig(
     timeout: Option[Int] = Some(30000),
     viewport: Option[ViewportConfig] = None,
     recordVideo: Option[String] = None,
-    screenshot: Option[ScreenshotConfig] = None
+    screenshot: Option[ScreenshotConfig] = None,
+    locale: Option[String] = None
 )
 
 case class ViewportConfig(width: Int, height: Int)
@@ -44,6 +45,9 @@ object PlaywrightTestContext:
         }
         config.recordVideo.foreach { path =>
             contextOptions.setRecordVideoDir(java.nio.file.Paths.get(path))
+        }
+        config.locale.foreach { locale =>
+            contextOptions.setLocale(locale)
         }
         context = browser.newContext(contextOptions)
         page = context.newPage()
@@ -90,7 +94,8 @@ object PlaywrightTestContext:
                     typesafeConfig.getString("screenshot.path"),
                     if typesafeConfig.hasPath("screenshot.fullPage") then typesafeConfig.getBoolean("screenshot.fullPage") else false
                 ))
-            else None
+            else None,
+            locale = if typesafeConfig.hasPath("locale") then Some(typesafeConfig.getString("locale")) else None
         )
     
     def newPage(): Page = context.newPage()

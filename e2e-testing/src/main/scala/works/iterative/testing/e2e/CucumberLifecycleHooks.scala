@@ -9,12 +9,12 @@ import com.typesafe.config.ConfigFactory
  * to be defined in a static context.
  */
 object CucumberLifecycleHooks extends ScalaDsl with EN with CS:
-    BeforeAll { () =>
+    BeforeAll {
         val config = loadConfig()
         PlaywrightTestContext.initialize(config)
     }
 
-    AfterAll { () =>
+    AfterAll {
         PlaywrightTestContext.cleanup()
     }
     
@@ -41,5 +41,6 @@ object CucumberLifecycleHooks extends ScalaDsl with EN with CS:
                     typesafeConfig.getString("screenshot.path"),
                     if typesafeConfig.hasPath("screenshot.fullPage") then typesafeConfig.getBoolean("screenshot.fullPage") else false
                 ))
-            else None
+            else None,
+            locale = if typesafeConfig.hasPath("locale") then Some(typesafeConfig.getString("locale")) else None
         )
