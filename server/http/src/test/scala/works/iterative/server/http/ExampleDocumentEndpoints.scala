@@ -83,7 +83,7 @@ object ExampleDocumentEndpoints:
     * Request: { "title": "Document Title" }
     * Response: Document object with generated ID
     */
-  val create: ZServerEndpoint[AuthenticationService & ExampleDocumentService & PermissionService, ZioStreams] =
+  val create: ZServerEndpoint[AuthenticationService & ExampleDocumentService & MutablePermissionService & EnumerablePermissionService, ZioStreams] =
     baseEndpoint
       .post
       .in(jsonBody[CreateDocumentRequest].description("Document to create"))
@@ -105,7 +105,7 @@ object ExampleDocumentEndpoints:
     * Request: { "title": "New Title" }
     * Response: Updated document
     */
-  val update: ZServerEndpoint[AuthenticationService & ExampleDocumentService & PermissionService, ZioStreams] =
+  val update: ZServerEndpoint[AuthenticationService & ExampleDocumentService & MutablePermissionService & EnumerablePermissionService, ZioStreams] =
     baseEndpoint
       .put
       .in(path[String]("id").description("Document ID"))
@@ -127,7 +127,7 @@ object ExampleDocumentEndpoints:
     * Path param: document ID
     * Response: 204 No Content on success
     */
-  val delete: ZServerEndpoint[AuthenticationService & ExampleDocumentService & PermissionService, ZioStreams] =
+  val delete: ZServerEndpoint[AuthenticationService & ExampleDocumentService & MutablePermissionService & EnumerablePermissionService, ZioStreams] =
     baseEndpoint
       .delete
       .in(path[String]("id").description("Document ID"))
@@ -148,7 +148,7 @@ object ExampleDocumentEndpoints:
     *
     * Response: Array of Document objects
     */
-  val list: ZServerEndpoint[AuthenticationService & ExampleDocumentService & PermissionService, ZioStreams] =
+  val list: ZServerEndpoint[AuthenticationService & ExampleDocumentService & MutablePermissionService & EnumerablePermissionService, ZioStreams] =
     baseEndpoint
       .get
       .out(jsonBody[Seq[Document]].description("List of viewable documents"))
@@ -161,7 +161,7 @@ object ExampleDocumentEndpoints:
       }
 
   /** All endpoints as a list for easy registration. */
-  val all: List[ZServerEndpoint[AuthenticationService & ExampleDocumentService & PermissionService, ZioStreams]] =
+  val all: List[ZServerEndpoint[AuthenticationService & ExampleDocumentService & MutablePermissionService & EnumerablePermissionService, ZioStreams]] =
     List(create, update, delete, list)
 
 end ExampleDocumentEndpoints

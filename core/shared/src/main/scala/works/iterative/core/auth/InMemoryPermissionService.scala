@@ -26,7 +26,7 @@ import zio.*
 class InMemoryPermissionService(
     storage: Ref[Set[RelationTuple]],
     config: PermissionConfig
-) extends PermissionService:
+) extends PermissionService, EnumerablePermissionService, MutablePermissionService:
 
     /** Check if a user is allowed to perform an action on a target resource.
       *
@@ -170,7 +170,7 @@ object InMemoryPermissionService:
       * Uses lazy initialization pattern with ZLayer.fromZIO. Requires PermissionConfig in the
       * environment.
       */
-    val layer: ZLayer[PermissionConfig, Nothing, PermissionService] =
+    val layer: ZLayer[PermissionConfig, Nothing, InMemoryPermissionService] =
         ZLayer.fromZIO {
             for
                 config <- ZIO.service[PermissionConfig]

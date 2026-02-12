@@ -13,7 +13,7 @@ object AlwaysAllowPermissionServiceSpec extends ZIOSpecDefault:
   def spec = suite("AlwaysAllowPermissionService")(
     test("isAllowed always returns true for any user and resource"):
       for
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[AlwaysAllowPermissionService]
         user1 = TestUser(UserId.unsafe("user1"))
         user2 = TestUser(UserId.unsafe("user2"))
         target1 = PermissionTarget.unsafe("document", "123")
@@ -26,7 +26,7 @@ object AlwaysAllowPermissionServiceSpec extends ZIOSpecDefault:
     ,
     test("listAllowed returns empty set since we can't enumerate all possible resources"):
       for
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[AlwaysAllowPermissionService]
         user = TestUser(UserId.unsafe("user1"))
         result <- service.listAllowed(user, PermissionOp.unsafe("read"), "document")
       yield assertTrue(result.isEmpty)

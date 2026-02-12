@@ -26,7 +26,7 @@ import works.iterative.core.auth.*
 case class DatabasePermissionService(
     repository: PermissionRepository,
     config: PermissionConfig
-) extends PermissionService:
+) extends PermissionService, EnumerablePermissionService, MutablePermissionService:
 
     /** Check if a user is allowed to perform an action on a target resource.
       *
@@ -169,7 +169,7 @@ object DatabasePermissionService:
       *
       * Requires PermissionRepository and PermissionConfig in the environment.
       */
-    val layer: URLayer[PermissionRepository & PermissionConfig, PermissionService] =
+    val layer: URLayer[PermissionRepository & PermissionConfig, DatabasePermissionService] =
         ZLayer.fromFunction((repo: PermissionRepository, config: PermissionConfig) =>
             DatabasePermissionService(repo, config)
         )

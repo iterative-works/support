@@ -18,7 +18,7 @@ import zio.*
   *   - Returns true for all isAllowed checks regardless of user/action/resource
   *   - Returns empty set for listAllowed (cannot enumerate all possible resources)
   */
-class AlwaysAllowPermissionService extends PermissionService:
+class AlwaysAllowPermissionService extends PermissionService, EnumerablePermissionService, MutablePermissionService:
 
     override def isAllowed(
         subj: Option[UserInfo],
@@ -50,6 +50,6 @@ class AlwaysAllowPermissionService extends PermissionService:
 end AlwaysAllowPermissionService
 
 object AlwaysAllowPermissionService:
-    val layer: ZLayer[Any, Nothing, PermissionService] =
+    val layer: ZLayer[Any, Nothing, AlwaysAllowPermissionService] =
         ZLayer.succeed(AlwaysAllowPermissionService())
 end AlwaysAllowPermissionService

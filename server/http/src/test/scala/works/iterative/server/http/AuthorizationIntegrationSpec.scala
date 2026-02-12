@@ -56,7 +56,7 @@ object AuthorizationIntegrationSpec extends ZIOSpecDefault:
   /** Helper to create permission service and grant initial permissions. */
   def makePermissionServiceWith(
     grants: (UserId, String, PermissionTarget)*
-  ): ZLayer[Any, Nothing, PermissionService] =
+  ): ZLayer[Any, Nothing, InMemoryPermissionService] =
     ZLayer.fromZIO {
       for {
         permService <- InMemoryPermissionService.make(PermissionConfig.default)

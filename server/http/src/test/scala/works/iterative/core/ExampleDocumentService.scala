@@ -80,7 +80,7 @@ class ExampleDocumentService():
     * @param title Document title
     * @return ZIO effect producing created Document
     */
-  def createDocument(title: String): ZIO[CurrentUser & PermissionService, AuthenticationError, Document] =
+  def createDocument(title: String): ZIO[CurrentUser & MutablePermissionService, AuthenticationError, Document] =
     for {
       currentUser <- ZIO.service[CurrentUser]
 
@@ -93,7 +93,7 @@ class ExampleDocumentService():
       )
 
       // Grant owner permission to the creator
-      permService <- ZIO.service[PermissionService]
+      permService <- ZIO.service[MutablePermissionService]
       _ <- permService.grantPermission(
         currentUser.subjectId,
         "owner",
@@ -150,7 +150,7 @@ class ExampleDocumentService():
     *
     * @return ZIO effect producing list of viewable documents
     */
-  def listDocuments(): ZIO[CurrentUser & PermissionService, Nothing, Seq[Document]] =
+  def listDocuments(): ZIO[CurrentUser & EnumerablePermissionService, Nothing, Seq[Document]] =
     // Simulated document data (in real app, would come from database)
     val allDocuments = Seq(
       Document("1", "Document 1", "user-1"),

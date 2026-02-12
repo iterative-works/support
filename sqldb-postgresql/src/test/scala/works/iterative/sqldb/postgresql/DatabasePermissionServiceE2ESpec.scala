@@ -45,7 +45,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         userId = UserId.unsafe("alice")
         userInfo = TestUser(userId)
@@ -78,7 +78,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         userId = UserId.unsafe("bob")
         userInfo = TestUser(userId)
@@ -105,7 +105,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         userId = UserId.unsafe("charlie")
         userInfo = TestUser(userId)
@@ -134,7 +134,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         userId = UserId.unsafe("diana")
         userInfo = TestUser(userId)
@@ -160,7 +160,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         userId = UserId.unsafe("eve")
         userInfo = TestUser(userId)
@@ -187,7 +187,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         target = PermissionTarget.unsafe("document", "doc1")
         viewOp = PermissionOp.unsafe("view")
@@ -205,7 +205,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
         repository <- ZIO.service[PermissionRepository]
 
         userId = UserId.unsafe("frank")
@@ -235,7 +235,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         alice = TestUser(UserId.unsafe("alice"))
         bob = TestUser(UserId.unsafe("bob"))
@@ -267,7 +267,7 @@ object DatabasePermissionServiceE2ESpec extends ZIOSpecDefault:
         migrationService <- ZIO.service[FlywayMigrationService]
         _ <- migrationService.clean()
         _ <- migrationService.migrate()
-        permissionService <- ZIO.service[PermissionService]
+        permissionService <- ZIO.service[DatabasePermissionService]
 
         userId = UserId.unsafe("george")
         userInfo = TestUser(userId)

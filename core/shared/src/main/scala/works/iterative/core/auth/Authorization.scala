@@ -133,10 +133,10 @@ object Authorization:
     def filterAllowed[A](
         op: PermissionOp,
         items: Seq[A]
-    )(extractTarget: A => PermissionTarget): ZIO[CurrentUser & PermissionService, Nothing, Seq[A]] =
+    )(extractTarget: A => PermissionTarget): ZIO[CurrentUser & EnumerablePermissionService, Nothing, Seq[A]] =
         for
             currentUser <- ZIO.service[CurrentUser]
-            permService <- ZIO.service[PermissionService]
+            permService <- ZIO.service[EnumerablePermissionService]
 
             // Group items by namespace for efficient batching
             itemsByNamespace = items.groupBy(item => extractTarget(item).namespace)

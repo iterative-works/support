@@ -116,6 +116,11 @@ end PermissionTarget
   *
   * NOTE: This interface is application-layer (uses ZIO effects), not domain. Pure domain logic
   * lives in PermissionLogic.
+  *
+  * This is the base trait providing only permission checking (isAllowed). Implementations that
+  * support additional capabilities should mix in:
+  *   - EnumerablePermissionService for reverse-lookup of allowed resource IDs
+  *   - MutablePermissionService for granting/revoking permissions
   */
 trait PermissionService:
     def isAllowed(
@@ -129,22 +134,34 @@ trait PermissionService:
         action: PermissionOp,
         obj: PermissionTarget
     ): UIO[Boolean] = isAllowed(Some(subj), action, obj)
+end PermissionService
 
+object PermissionService:
+    def isAllowed(
+        subj: Option[UserInfo],
+        action: PermissionOp,
+        obj: PermissionTarget
+    ): URIO[PermissionService, Boolean] =
+        ZIO.serviceWithZIO(_.isAllowed(subj, action, obj))
+
+    def isAllowed(
+        subj: UserInfo,
+        action: PermissionOp,
+        obj: PermissionTarget
+    ): URIO[PermissionService, Boolean] =
+        ZIO.serviceWithZIO(_.isAllowed(subj, action, obj))
+end PermissionService
+
+/** Extension for permission services that support reverse-lookup of allowed resource IDs.
+  *
+  * This capability is needed for efficient authorization-aware queries. Instead of checking
+  * permission on each resource individually, callers can get all allowed resource IDs in one call.
+  *
+  * Not all implementations can support this (e.g., role-based services that don't track
+  * per-resource tuples). Callers that need this capability should declare it in their R type.
+  */
+trait EnumerablePermissionService extends PermissionService:
     /** List all resource IDs in a namespace that the user is allowed to access.
-      *
-      * This is a reverse lookup operation useful for efficient authorization-aware queries. Instead
-      * of checking permission on each resource individually, this method returns all resources the
-      * user can access in one call.
-      *
-      * Usage example:
-      * {{{
-      *   // List all documents this user can edit
-      *   permissionService.listAllowed(user, PermissionOp("edit"), "document")
-      *     .map { documentIds =>
-      *       // Query database for only these document IDs
-      *       documentRepository.findByIds(documentIds)
-      *     }
-      * }}}
       *
       * @param subj
       *   The user information
@@ -160,7 +177,15 @@ trait PermissionService:
         action: PermissionOp,
         namespace: String
     ): UIO[Set[String]]
+end EnumerablePermissionService
 
+/** Extension for permission services that support granting and revoking permissions.
+  *
+  * Not all implementations can support mutation (e.g., role-based services where permissions
+  * are derived from roles, not stored as tuples). Callers that need to mutate permissions
+  * should declare this in their R type.
+  */
+trait MutablePermissionService extends PermissionService:
     /** Grant a permission relation to a user.
       *
       * @param userId
@@ -194,20 +219,4 @@ trait PermissionService:
         relation: String,
         target: PermissionTarget
     ): UIO[Boolean]
-end PermissionService
-
-object PermissionService:
-    def isAllowed(
-        subj: Option[UserInfo],
-        action: PermissionOp,
-        obj: PermissionTarget
-    ): URIO[PermissionService, Boolean] =
-        ZIO.serviceWithZIO(_.isAllowed(subj, action, obj))
-
-    def isAllowed(
-        subj: UserInfo,
-        action: PermissionOp,
-        obj: PermissionTarget
-    ): URIO[PermissionService, Boolean] =
-        ZIO.serviceWithZIO(_.isAllowed(subj, action, obj))
-end PermissionService
+end MutablePermissionService

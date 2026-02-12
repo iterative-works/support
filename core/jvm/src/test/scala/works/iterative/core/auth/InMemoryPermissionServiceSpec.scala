@@ -12,7 +12,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
   def spec = suite("InMemoryPermissionServiceSpec")(
     test("direct permission: user has 'owner' relation, check 'owner' permission returns true") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId = UserId.unsafe("user1")
         target = PermissionTarget.unsafe("document", "123")
         _ <- service match
@@ -26,7 +26,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 
     test("computed permission: user has 'owner' relation, check 'view' permission returns true via inheritance") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId = UserId.unsafe("user1")
         target = PermissionTarget.unsafe("document", "123")
         _ <- service match
@@ -41,7 +41,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 
     test("denied permission: user lacks any relation returns false") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId = UserId.unsafe("user1")
         target = PermissionTarget.unsafe("document", "123")
         user = TestUser(userId)
@@ -51,7 +51,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 
     test("addRelation and removeRelation operations") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId = UserId.unsafe("user1")
         target = PermissionTarget.unsafe("document", "123")
         impl <- ZIO.succeed(service.asInstanceOf[InMemoryPermissionService])
@@ -64,7 +64,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 
     test("listAllowed returns all resources user can access") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId = UserId.unsafe("user1")
         target1 = PermissionTarget.unsafe("document", "123")
         target2 = PermissionTarget.unsafe("document", "456")
@@ -79,7 +79,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 
     test("listAllowed interface method explicitly tested") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId = UserId.unsafe("user1")
         target1 = PermissionTarget.unsafe("document", "doc1")
         target2 = PermissionTarget.unsafe("document", "doc2")
@@ -99,7 +99,7 @@ object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 
     test("property-based: listAllowed returns correct subset with 100 random relation tuples") {
       for {
-        service <- ZIO.service[PermissionService]
+        service <- ZIO.service[InMemoryPermissionService]
         userId1 = UserId.unsafe("user1")
         userId2 = UserId.unsafe("user2")
         impl <- ZIO.succeed(service.asInstanceOf[InMemoryPermissionService])

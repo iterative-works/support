@@ -789,7 +789,7 @@ object uiScalatags extends CrossModule {
 
 // HTTP server support module - JVM only (located at server/http)
 object http extends JvmOnlyModule {
-  def moduleName = "http"
+  def moduleName = "server-http"
   def description = "IW Support HTTP Server Library"
 
   override def moduleDir = super.moduleDir / os.up / "server" / "http"
