@@ -29,16 +29,16 @@ object PlaywrightTestContext:
     private var page: Page = uninitialized
     private val testData = new TestDataStore()
     private var configInstance: E2ETestConfig = uninitialized
-    
+
     def initialize(config: E2ETestConfig): Unit =
         configInstance = config
         playwright = Playwright.create()
-        
+
         val launchOptions = new BrowserType.LaunchOptions()
             .setHeadless(config.headless)
         config.slowMo.foreach(launchOptions.setSlowMo(_))
         browser = playwright.chromium().launch(launchOptions)
-        
+
         val contextOptions = new Browser.NewContextOptions()
         config.viewport.foreach { vp =>
             contextOptions.setViewportSize(new ViewportSize(vp.width, vp.height))
@@ -51,77 +51,98 @@ object PlaywrightTestContext:
         }
         context = browser.newContext(contextOptions)
         page = context.newPage()
-    
-    def getPage(): Page = 
-        if (configInstance == null) {
+    end initialize
+
+    def getPage(): Page =
+        if configInstance == null then
             // Lazy initialization if not initialized yet
             val config = loadDefaultConfig()
             initialize(config)
-        }
         page
-    
+    end getPage
+
     def getContext(): BrowserContext = context
-    
+
     def getBrowser(): Browser = browser
-    
+
     def getTestData(): TestDataStore = testData
-    
-    def getConfig(): E2ETestConfig = 
-        if (configInstance == null) {
+
+    def getConfig(): E2ETestConfig =
+        if configInstance == null then
             // Lazy initialization if not initialized yet
             val config = loadDefaultConfig()
             initialize(config)
-        }
         configInstance
-    
+    end getConfig
+
     private def loadDefaultConfig(): E2ETestConfig =
         import com.typesafe.config.ConfigFactory
         val typesafeConfig = ConfigFactory.load()
         E2ETestConfig(
             baseUrl = typesafeConfig.getString("baseUrl"),
-            headless = if typesafeConfig.hasPath("headless") then typesafeConfig.getBoolean("headless") else true,
-            slowMo = if typesafeConfig.hasPath("slowMo") then Some(typesafeConfig.getDouble("slowMo")) else None,
-            timeout = if typesafeConfig.hasPath("timeout") then Some(typesafeConfig.getInt("timeout")) else Some(30000),
-            viewport = if typesafeConfig.hasPath("viewport.width") && typesafeConfig.hasPath("viewport.height") then
-                Some(ViewportConfig(
-                    typesafeConfig.getInt("viewport.width"),
-                    typesafeConfig.getInt("viewport.height")
-                ))
+            headless = if typesafeConfig.hasPath("headless") then
+                typesafeConfig.getBoolean("headless")
+            else true,
+            slowMo = if typesafeConfig.hasPath("slowMo") then
+                Some(typesafeConfig.getDouble("slowMo"))
             else None,
-            recordVideo = if typesafeConfig.hasPath("recordVideo") then Some(typesafeConfig.getString("recordVideo")) else None,
+            timeout = if typesafeConfig.hasPath("timeout") then
+                Some(typesafeConfig.getInt("timeout"))
+            else Some(30000),
+            viewport =
+                if typesafeConfig.hasPath("viewport.width") && typesafeConfig.hasPath(
+                        "viewport.height"
+                    )
+                then
+                    Some(ViewportConfig(
+                        typesafeConfig.getInt("viewport.width"),
+                        typesafeConfig.getInt("viewport.height")
+                    ))
+                else None,
+            recordVideo = if typesafeConfig.hasPath("recordVideo") then
+                Some(typesafeConfig.getString("recordVideo"))
+            else None,
             screenshot = if typesafeConfig.hasPath("screenshot.path") then
                 Some(ScreenshotConfig(
                     typesafeConfig.getString("screenshot.path"),
-                    if typesafeConfig.hasPath("screenshot.fullPage") then typesafeConfig.getBoolean("screenshot.fullPage") else false
+                    if typesafeConfig.hasPath("screenshot.fullPage") then
+                        typesafeConfig.getBoolean("screenshot.fullPage")
+                    else false
                 ))
             else None,
-            locale = if typesafeConfig.hasPath("locale") then Some(typesafeConfig.getString("locale")) else None
+            locale = if typesafeConfig.hasPath("locale") then
+                Some(typesafeConfig.getString("locale"))
+            else None
         )
-    
+    end loadDefaultConfig
+
     def newPage(): Page = context.newPage()
-    
+
     def cleanup(): Unit =
-        if (page != null) page.close()
-        if (context != null) context.close()
-        if (browser != null) browser.close()
-        if (playwright != null) playwright.close()
+        if page != null then page.close()
+        if context != null then context.close()
+        if browser != null then browser.close()
+        if playwright != null then playwright.close()
         testData.clear()
+    end cleanup
+end PlaywrightTestContext
 // scalafix:on DisableSyntax.var DisableSyntax.null
 
 class TestDataStore:
     private val data = new ConcurrentHashMap[String, Any]()
-    
-    def put[A](key: String, value: A): Unit = 
+
+    def put[A](key: String, value: A): Unit =
         data.put(key, value): Unit
-    
-    def get[A](key: String): Option[A] = 
+
+    def get[A](key: String): Option[A] =
         Option(data.get(key)).map(_.asInstanceOf[A])
-    
-    def remove(key: String): Unit = 
+
+    def remove(key: String): Unit =
         data.remove(key): Unit
-    
-    def clear(): Unit = 
+
+    def clear(): Unit =
         data.clear()
-    
-    def getAll: Map[String, Any] = 
+
+    def getAll: Map[String, Any] =
         data.asScala.toMap
+end TestDataStore

@@ -5,7 +5,7 @@ package works.iterative.core.audit
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import works.iterative.core.auth.{UserId, PermissionTarget, PermissionOp}
 import java.time.Instant
 

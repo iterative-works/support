@@ -5,7 +5,7 @@ package works.iterative.core.auth
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 
 object AlwaysAllowPermissionServiceSpec extends ZIOSpecDefault:
   case class TestUser(subjectId: UserId) extends UserInfo

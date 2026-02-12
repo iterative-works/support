@@ -18,7 +18,8 @@ import zio.*
   *   - Returns true for all isAllowed checks regardless of user/action/resource
   *   - Returns empty set for listAllowed (cannot enumerate all possible resources)
   */
-class AlwaysAllowPermissionService extends PermissionService, EnumerablePermissionService, MutablePermissionService:
+class AlwaysAllowPermissionService extends PermissionService, EnumerablePermissionService,
+      MutablePermissionService:
 
     override def isAllowed(
         subj: Option[UserInfo],

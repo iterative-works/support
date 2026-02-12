@@ -181,9 +181,9 @@ end EnumerablePermissionService
 
 /** Extension for permission services that support granting and revoking permissions.
   *
-  * Not all implementations can support mutation (e.g., role-based services where permissions
-  * are derived from roles, not stored as tuples). Callers that need to mutate permissions
-  * should declare this in their R type.
+  * Not all implementations can support mutation (e.g., role-based services where permissions are
+  * derived from roles, not stored as tuples). Callers that need to mutate permissions should
+  * declare this in their R type.
   */
 trait MutablePermissionService extends PermissionService:
     /** Grant a permission relation to a user.

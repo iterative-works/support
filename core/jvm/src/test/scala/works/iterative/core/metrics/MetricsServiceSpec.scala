@@ -5,7 +5,7 @@ package works.iterative.core.metrics
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 
 object MetricsServiceSpec extends ZIOSpecDefault:
   def spec = suite("MetricsService")(

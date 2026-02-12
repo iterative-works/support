@@ -23,7 +23,7 @@ trait UIStylesModule[+T]:
     class StyleOverride:
         private var styleOverrides: Map[(String, String, String), Map[String, String]] = Map.empty
         private var classOverrides: Map[(String, String, String), Seq[String]] = Map.empty
-    // scalafix:on DisableSyntax.var
+        // scalafix:on DisableSyntax.var
 
         // Override styles for a specific component
         def overrideStyle(

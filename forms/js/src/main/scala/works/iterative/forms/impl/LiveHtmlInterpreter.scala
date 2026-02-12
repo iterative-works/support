@@ -10,7 +10,7 @@ import com.raquo.laminar.api.L
 import portaly.forms.Components.RadioOption
 import works.iterative.core.UserMessage
 import zio.prelude.*
-import org.scalajs.dom
+
 import zio.NonEmptyChunk
 import works.iterative.ui.model.forms.{RelativePath, AbsolutePath}
 import works.iterative.core.MessageId
@@ -191,7 +191,7 @@ class LiveHtmlInterpreter(
                 } --> items.writer
 
             val innerOutputs =
-                items.signal.map(_.zipWithIndex).split(_._1._1)((key, init, updates) =>
+                items.signal.map(_.zipWithIndex).split(_._1._1)((key, init, _) =>
                     val ((_, elemId), idx) = init
                     inner(elemId, idx)(fi.mapId(_ / id / key).composeRawInput(
                         // Init the segment with the data from the snapshot, after emit the input data
@@ -277,7 +277,7 @@ class LiveHtmlInterpreter(
                         ),
                         value <-- items.signal.map(_.map((a, b) => s"$a:$b").mkString(",")),
                         inContext { el =>
-                            items.signal.changes --> (items =>
+                            items.signal.changes --> (_ =>
                                 val _ = el.ref.dispatchEvent(new Event(
                                     "itemsChanged",
                                     new EventInit:

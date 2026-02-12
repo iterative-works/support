@@ -5,7 +5,7 @@ package works.iterative.server.http
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import works.iterative.core.auth.*
 import works.iterative.core.UserMessage
 import org.http4s.*

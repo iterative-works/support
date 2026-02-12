@@ -2,7 +2,7 @@ package works.iterative.core.auth
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 
 object InMemoryPermissionServiceSpec extends ZIOSpecDefault:
 

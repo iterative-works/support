@@ -4,7 +4,7 @@
 package works.iterative.server.http
 
 import org.http4s.*
-import org.http4s.dsl.io.*
+
 import cats.effect.IO
 import works.iterative.core.auth.AuthenticationError
 import works.iterative.core.UserMessage

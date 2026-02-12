@@ -76,7 +76,7 @@ trait ZIOInteropExtensions:
         var fiberRuntime: Fiber.Runtime[E, A] = null
         EventStream.fromCustomSource(
             shouldStart = _ == 1,
-            start = (fireValue, fireError, getStartIndex, getIsStarted) =>
+            start = (fireValue, fireError, _, _) =>
                 Unsafe.unsafe { implicit unsafe =>
                     fiberRuntime = runtime.unsafe.fork(effect)
                     fiberRuntime.unsafe.addObserver(exit =>
@@ -139,7 +139,7 @@ trait ZIOInteropExtensions:
             var fiberRuntime: Fiber.Runtime[E, O] = null
             EventStream.fromCustomSource(
                 shouldStart = _ == 1,
-                start = (fireValue, fireError, getStartIndex, getIsStarted) =>
+                start = (fireValue, fireError, _, _) =>
                     Unsafe.unsafe { implicit unsafe =>
                         fiberRuntime = runtime.unsafe.fork(effect)
                         fiberRuntime.unsafe.addObserver(exit =>

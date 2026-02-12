@@ -3,7 +3,7 @@ package impl.pac4j
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import org.pac4j.core.profile.CommonProfile
 import works.iterative.core.auth.*
 import works.iterative.core.*

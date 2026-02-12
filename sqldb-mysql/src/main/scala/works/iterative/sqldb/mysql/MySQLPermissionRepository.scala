@@ -42,11 +42,10 @@ case class MySQLPermissionRepositoryImpl(ts: MySQLTransactor) extends Permission
         target: PermissionTarget
     ): Task[Unit] =
         ts.transactor.transact:
-            sql"""
+            val _ = sql"""
         INSERT IGNORE INTO permissions (user_id, relation, namespace, object_id, created_at)
         VALUES (${userId.value}, $relation, ${target.namespace}, ${target.value}, NOW())
       """.update.run()
-            ()
 
     override def removeRelation(
         userId: UserId,

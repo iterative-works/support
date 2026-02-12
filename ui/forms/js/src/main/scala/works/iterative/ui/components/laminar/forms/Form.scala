@@ -76,17 +76,20 @@ object Form:
     end Empty
 
     extension [A <: Tuple](tail: Form[A])
+        @scala.annotation.nowarn("msg=unused implicit parameter")
         def prepend[B](head: Form[B])(using
-            fctx: FormBuilderContext
+            FormBuilderContext
         ): Form[B *: A] =
             Zip[B, A](head, tail)
 
     extension [A](f: Form[A])
+        @scala.annotation.nowarn("msg=unused implicit parameter")
         def +:[B <: Tuple](other: Form[B])(using
-            fctx: FormBuilderContext
+            FormBuilderContext
         ): Form[A *: B] =
             Zip(f, other)
 
+        @scala.annotation.nowarn("msg=unused implicit parameter")
         def zip[B <: Tuple](other: Form[B])(using
             FormBuilderContext
         ): Form[A *: B] =

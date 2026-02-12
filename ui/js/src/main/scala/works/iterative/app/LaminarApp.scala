@@ -18,6 +18,7 @@ object LaminarApp:
         ZIO.serviceWithZIO[LaminarApp](_.renderApp)
 
 object LaminarAppLive:
+    @scala.annotation.nowarn("msg=unused implicit parameter")
     def layer[Env, P: Tag: JsonCodec](
         appShellFactory: AppShellFactory,
         connectors: Connectors[Env, P],

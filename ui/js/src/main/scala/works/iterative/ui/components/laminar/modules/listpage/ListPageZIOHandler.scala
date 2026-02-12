@@ -4,6 +4,7 @@ import zio.*
 import works.iterative.ui.ZIOEffectHandler
 import zio.stream.ZStream
 
+@scala.annotation.nowarn("msg=unused implicit parameter")
 trait ListPageZIOHandler[T: Tag, Q: Tag]:
     self: ListPageModel[T, Q] =>
 

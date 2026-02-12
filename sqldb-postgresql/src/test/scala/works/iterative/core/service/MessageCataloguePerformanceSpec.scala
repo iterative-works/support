@@ -168,7 +168,7 @@ object MessageCataloguePerformanceSpec extends ZIOSpecDefault:
 
         // Measure concurrent access from 10 threads, each doing 10,000 lookups
         startTime <- Clock.nanoTime
-        results <- ZIO.foreachPar(1 to 10) { threadId =>
+        results <- ZIO.foreachPar(1 to 10) { _ =>
           for
             catalogue <- service.forLanguage(Language.EN)
             messages = (1 to 10000).map(i =>

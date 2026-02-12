@@ -27,8 +27,10 @@ class ReadOnlyHtmlInterpreter(
     end interpret
 
     extension (id: AbsolutePath)
+        @scala.annotation.nowarn("msg=unused implicit parameter")
         def msg(key: String)(using ctx: Ctx): String =
             id.toMessage(key)
+        @scala.annotation.nowarn("msg=unused implicit parameter")
         def get(using ctx: Ctx, data: Data): String =
             data.get(id).flatMap(_.headOption.map(_.toString)).getOrElse("")
     end extension

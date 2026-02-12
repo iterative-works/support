@@ -75,7 +75,7 @@ object Pac4jAuthenticationAdapter extends AuthenticationService:
         val id = Option(profile.getId)
             .filter(_.trim.nonEmpty)
             .getOrElse(throw new IllegalArgumentException("Profile ID cannot be null or empty"))
-    // scalafix:on DisableSyntax.throw
+        // scalafix:on DisableSyntax.throw
 
         val name = Option(profile.getAttribute("name"))
             .map(_.toString)

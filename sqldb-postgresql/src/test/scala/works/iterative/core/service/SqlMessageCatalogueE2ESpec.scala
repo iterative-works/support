@@ -143,7 +143,7 @@ object SqlMessageCatalogueE2ESpec extends ZIOSpecDefault:
         _ <- repository.bulkInsert(entities)
         service <- SqlMessageCatalogueService.make(repository, Seq(Language.EN), Language.EN)
         // Access messages concurrently from 10 threads
-        results <- ZIO.foreachPar((1 to 10).toList) { threadId =>
+        results <- ZIO.foreachPar((1 to 10).toList) { _ =>
           for
             catalogue <- service.forLanguage(Language.EN)
             messages = (1 to 100).map(i => catalogue.get(MessageId(s"concurrent.message.$i")))

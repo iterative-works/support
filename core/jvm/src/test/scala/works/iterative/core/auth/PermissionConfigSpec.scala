@@ -4,7 +4,7 @@
 package works.iterative.core.auth
 
 import zio.test.*
-import zio.test.Assertion.*
+
 
 object PermissionConfigSpec extends ZIOSpecDefault:
 

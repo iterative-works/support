@@ -116,7 +116,7 @@ case class ReloadableComponent[A, I](
                                     computable.update:
                                         _.fail(msg)
                             ,
-                            t =>
+                            _ =>
                                 for
                                     id <- Random.nextUUID.map(_.toString())
                                     _ <- ZIO.when(c.isDie)(ZIO.logErrorCause(c))

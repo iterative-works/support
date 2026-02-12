@@ -5,7 +5,7 @@ package works.iterative.sqldb.postgresql
 
 import com.augustnagro.magnum.*
 import works.iterative.core.auth.{RelationTuple, UserId, PermissionTarget}
-import java.time.{Instant, OffsetDateTime}
+import java.time.OffsetDateTime
 
 /** Creator entity for inserting new permission tuples (without ID) */
 case class PermissionCreator(

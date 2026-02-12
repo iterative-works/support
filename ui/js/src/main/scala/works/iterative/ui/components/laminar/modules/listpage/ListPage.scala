@@ -7,6 +7,7 @@ package listpage
 import zio.Tag
 import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 
+@scala.annotation.nowarn("msg=unused implicit parameter")
 trait ListPage[T: Tag: HtmlTabular, Q: Tag]
     extends ListPageModel[T, Q]
     with ListPageZIOHandler[T, Q]

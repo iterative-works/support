@@ -10,6 +10,7 @@ import works.iterative.ui.components.laminar.tables.HtmlTableBuilderModule
 trait ListPageView[T: HtmlTabular]:
     self: ListPageModel[T, ?] & HtmlTableBuilderModule & ComputableComponents =>
 
+    @scala.annotation.nowarn("msg=unused implicit parameter")
     class View(model: Signal[Model], actions: Observer[Action])(using
         ComponentContext[?]
     ):

@@ -7,7 +7,7 @@ import scala.util.Try
 trait InputSchema[A]:
     def encode(a: A): String
     def decode(s: String): Validated[A]
-    def decodeOptional(label: String)(s: Option[String]): Validated[A] =
+    def decodeOptional(label: String)(@scala.annotation.unused s: Option[String]): Validated[A] =
         Validation.fail(UserMessage("error.value.required", label))
     def required: Boolean = true
     def inputType: InputSchema.InputType = InputSchema.InputType.Input("text")
@@ -46,7 +46,7 @@ object InputSchema:
     given integer: InputSchema[Int] with
         override def encode(a: Int): String = a.toString
         override def decode(s: String): Validated[Int] =
-            Validation.fromTry(Try(s.toInt)).mapError(e =>
+            Validation.fromTry(Try(s.toInt)).mapError(_ =>
                 UserMessage("error.invalid.integer.format", s)
             )
         override def inputType: InputType = InputType.Input("number")

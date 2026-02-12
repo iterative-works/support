@@ -134,12 +134,12 @@ class BaseValidationResolver(
             case "number:real_non_negative" => ValidationRule.fromZValidation(id)((v: String) =>
                     zio.prelude.Validation.fromPredicateWith(
                         UserMessage("error.number.real_non_negative.format")
-                    )(v)(a => scala.util.Try(v.replace(',', '.').toDouble).toOption.exists(_ >= 0))
+                    )(v)(_ => scala.util.Try(v.replace(',', '.').toDouble).toOption.exists(_ >= 0))
                 )
             case "number:natural" => ValidationRule.fromZValidation(id)((v: String) =>
                     zio.prelude.Validation.fromPredicateWith(
                         UserMessage("error.number.natural.format")
-                    )(v)(a => scala.util.Try(v.toInt).toOption.exists(_ >= 0))
+                    )(v)(_ => scala.util.Try(v.toInt).toOption.exists(_ >= 0))
                 )
             case _ => ValidationRule.valid
 

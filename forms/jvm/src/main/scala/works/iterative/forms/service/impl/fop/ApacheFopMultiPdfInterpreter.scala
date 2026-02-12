@@ -9,7 +9,7 @@ import org.apache.fop.apps.FopFactory
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import org.apache.xmlgraphics.util.MimeConstants
-import javax.xml.transform.stream.StreamSource
+
 import scala.xml.*
 import works.iterative.autocomplete.service.AutocompleteService
 import works.iterative.core.Language

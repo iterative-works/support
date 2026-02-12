@@ -1,7 +1,7 @@
 package works.iterative.server.http
 package impl.pac4j
 
-import org.http4s.{HttpRoutes, Request, Response, ResponseCookie}
+import org.http4s.{HttpRoutes, Request, ResponseCookie}
 import org.http4s.server.AuthMiddleware
 import org.pac4j.core.config.Config
 import org.pac4j.core.profile.CommonProfile

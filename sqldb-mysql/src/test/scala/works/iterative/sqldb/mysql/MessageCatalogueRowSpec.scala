@@ -5,7 +5,7 @@ package works.iterative.sqldb.mysql
 
 import zio.*
 import zio.test.*
-import zio.test.TestAspect.*
+
 import works.iterative.core.{Language, MessageId}
 import com.augustnagro.magnum.*
 import java.time.Instant

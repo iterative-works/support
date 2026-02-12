@@ -5,7 +5,7 @@ package works.iterative.core
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import works.iterative.core.auth.*
 
 object ExampleDocumentServiceSpec extends ZIOSpecDefault:

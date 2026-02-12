@@ -5,7 +5,7 @@ package works.iterative.core.auth
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import works.iterative.core.{UserName, Email}
 
 object AuthorizationSpec extends ZIOSpecDefault:

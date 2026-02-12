@@ -8,27 +8,29 @@ import akka.cluster.typed.Join
 import akka.NotUsed
 
 case class AkkaActorSystem(system: ActorSystem[?]):
-  val joinSelf: Task[Unit] = ZIO.attempt {
-    val cluster = Cluster(system)
-    cluster.manager ! Join(cluster.selfMember.address)
-  }
+    val joinSelf: Task[Unit] = ZIO.attempt {
+        val cluster = Cluster(system)
+        cluster.manager ! Join(cluster.selfMember.address)
+    }
 
-  val terminate: UIO[Unit] = ZIO.attempt(system.terminate()).orDie
+    val terminate: UIO[Unit] = ZIO.attempt(system.terminate()).orDie
 
-  given ActorSystem[?] = system
+    given ActorSystem[?] = system
+end AkkaActorSystem
 
 object AkkaActorSystem:
-  private def makeEmpty(name: String): ZIO[Scope, Throwable, AkkaActorSystem] =
-    ZIO.acquireRelease(
-      ZIO
-        .attempt(ActorSystem(Behaviors.empty[NotUsed], name))
-        .map(AkkaActorSystem(_))
-    )(_.terminate)
+    private def makeEmpty(name: String): ZIO[Scope, Throwable, AkkaActorSystem] =
+        ZIO.acquireRelease(
+            ZIO
+                .attempt(ActorSystem(Behaviors.empty[NotUsed], name))
+                .map(AkkaActorSystem(_))
+        )(_.terminate)
 
-  def empty(name: String): ZLayer[Scope, Throwable, AkkaActorSystem] =
-    ZLayer(makeEmpty(name))
+    def empty(name: String): ZLayer[Scope, Throwable, AkkaActorSystem] =
+        ZLayer(makeEmpty(name))
 
-  def emptySingleNodeCluster(
-      name: String
-  ): ZLayer[Scope, Throwable, AkkaActorSystem] =
-    ZLayer(makeEmpty(name).tap(_.joinSelf))
+    def emptySingleNodeCluster(
+        name: String
+    ): ZLayer[Scope, Throwable, AkkaActorSystem] =
+        ZLayer(makeEmpty(name).tap(_.joinSelf))
+end AkkaActorSystem

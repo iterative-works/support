@@ -133,7 +133,8 @@ object Authorization:
     def filterAllowed[A](
         op: PermissionOp,
         items: Seq[A]
-    )(extractTarget: A => PermissionTarget): ZIO[CurrentUser & EnumerablePermissionService, Nothing, Seq[A]] =
+    )(extractTarget: A => PermissionTarget)
+        : ZIO[CurrentUser & EnumerablePermissionService, Nothing, Seq[A]] =
         for
             currentUser <- ZIO.service[CurrentUser]
             permService <- ZIO.service[EnumerablePermissionService]

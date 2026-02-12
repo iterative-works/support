@@ -39,7 +39,7 @@ class ResourcesStylesheetProvider extends ApacheFopStylesheetProvider:
 
     override def newTransformerFactory: Task[TransformerFactory] = ZIO.attempt:
         val transformerFactory = TransformerFactory.newInstance()
-        transformerFactory.setURIResolver((href, base) =>
+        transformerFactory.setURIResolver((href, _) =>
             Option(getClass().getResourceAsStream(href)).map(StreamSource(_)).orNull
         )
         transformerFactory

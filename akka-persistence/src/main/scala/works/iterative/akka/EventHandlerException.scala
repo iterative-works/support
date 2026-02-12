@@ -7,5 +7,5 @@ sealed abstract class EventHandlerException(
 
 case class UnhandledEvent[Event, State](event: Event, state: State)
     extends EventHandlerException(
-      s"Událost $event nastala ve stavu $state bez možnosti zpracování"
+        s"Událost $event nastala ve stavu $state bez možnosti zpracování"
     )

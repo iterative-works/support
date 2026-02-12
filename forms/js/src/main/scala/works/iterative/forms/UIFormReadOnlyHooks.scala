@@ -6,14 +6,14 @@ import works.iterative.ui.model.forms.*
 trait UIFormReadOnlyHooks:
     self =>
     def adviceAroundSection(
-        element: UIFormSection,
-        data: FormState,
+        @scala.annotation.unused element: UIFormSection,
+        @scala.annotation.unused data: FormState,
         render: (UIFormSection, FormState) => HtmlElement
     ): (UIFormSection, FormState) => HtmlElement = render
 
     def adviceAroundLabeledField(
-        field: UILabeledField,
-        data: FormState,
+        @scala.annotation.unused field: UILabeledField,
+        @scala.annotation.unused data: FormState,
         render: (UILabeledField, FormState) => HtmlElement
     ): (UILabeledField, FormState) => HtmlElement = render
 

@@ -4,7 +4,7 @@
 package works.iterative.core.auth
 
 import zio.test.*
-import zio.test.Assertion.*
+
 
 object PermissionTargetSpec extends ZIOSpecDefault:
 
@@ -116,7 +116,7 @@ object PermissionTargetSpec extends ZIOSpecDefault:
 
     test("unsafe(target) with missing colon throws") {
       val result = try {
-        PermissionTarget.unsafe("document123")
+        val _ = PermissionTarget.unsafe("document123")
         false
       } catch {
         case _: IllegalArgumentException => true
@@ -131,7 +131,7 @@ object PermissionTargetSpec extends ZIOSpecDefault:
 
     test("unsafe(namespace, id) with empty namespace throws") {
       val result = try {
-        PermissionTarget.unsafe("", "123")
+        val _ = PermissionTarget.unsafe("", "123")
         false
       } catch {
         case _: IllegalArgumentException => true
@@ -141,7 +141,7 @@ object PermissionTargetSpec extends ZIOSpecDefault:
 
     test("unsafe(namespace, id) with empty id throws") {
       val result = try {
-        PermissionTarget.unsafe("document", "")
+        val _ = PermissionTarget.unsafe("document", "")
         false
       } catch {
         case _: IllegalArgumentException => true
@@ -151,7 +151,7 @@ object PermissionTargetSpec extends ZIOSpecDefault:
 
     test("unsafe(namespace, id) with namespace containing colon throws") {
       val result = try {
-        PermissionTarget.unsafe("doc:ument", "123")
+        val _ = PermissionTarget.unsafe("doc:ument", "123")
         false
       } catch {
         case _: IllegalArgumentException => true

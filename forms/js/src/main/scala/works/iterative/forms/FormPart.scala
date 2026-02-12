@@ -193,7 +193,7 @@ object FormPart:
     type StringInput = FormPart[Any, String, Boolean, String, Nothing, String]
 
     def fromVar[A](
-        id: IdPath,
+        @scala.annotation.unused id: IdPath,
         value: Var[A],
         validation: A => ValidationState[A] = (a: A) => ValidationState.Valid(a)
     )(render: Var[A] => FormPartInputs[Any, A, Nothing] => HtmlElement)

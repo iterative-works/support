@@ -44,12 +44,11 @@ case class PostgreSQLPermissionRepositoryImpl(ts: PostgreSQLTransactor)
         target: PermissionTarget
     ): Task[Unit] =
         ts.transactor.transact:
-            sql"""
+            val _ = sql"""
         INSERT INTO permissions (user_id, relation, namespace, object_id, created_at)
         VALUES (${userId.value}, $relation, ${target.namespace}, ${target.value}, NOW())
         ON CONFLICT (user_id, relation, namespace, object_id) DO NOTHING
       """.update.run()
-            ()
 
     override def removeRelation(
         userId: UserId,

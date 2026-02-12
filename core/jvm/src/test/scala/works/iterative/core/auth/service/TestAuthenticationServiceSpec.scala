@@ -5,7 +5,7 @@ package service
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import works.iterative.core.*
 
 object TestAuthenticationServiceSpec extends ZIOSpecDefault:

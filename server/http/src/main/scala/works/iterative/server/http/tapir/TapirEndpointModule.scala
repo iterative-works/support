@@ -1,6 +1,5 @@
 package works.iterative.server.http.tapir
 
-import sttp.tapir.*
 import sttp.tapir.ztapir.*
 import works.iterative.tapir.CustomTapir
 

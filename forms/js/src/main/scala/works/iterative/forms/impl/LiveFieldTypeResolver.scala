@@ -51,7 +51,7 @@ class LiveFieldTypeResolver(
                 case FieldType(id, context, disabled) if id.startsWith("cmi:erp_cenik_kategorie") =>
                     FieldFactory.Select(
                         fieldValidation,
-                        ctx => _ => q.find("").map(_.sortBy(_.label)),
+                        _ => _ => q.find("").map(_.sortBy(_.label)),
                         None,
                         disabled
                     )

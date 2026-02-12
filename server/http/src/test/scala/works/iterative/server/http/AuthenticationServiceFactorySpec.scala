@@ -4,7 +4,7 @@ package works.iterative.server.http
 
 import zio.*
 import zio.test.*
-import zio.test.Assertion.*
+
 import works.iterative.core.auth.service.*
 import works.iterative.server.http.impl.pac4j.Pac4jAuthenticationAdapter
 
