@@ -88,7 +88,7 @@ object ValidationRule:
             else ValidationState.Valid(ForEach[G].reduceIdentity(v)).succeed
 
     /*
-    given covariantValidationRule[F[_]: Covariant, R, A]: Covariant[ValidationRule[F, R, *]] with
+    given covariantValidationRule[F[_]: Covariant, R, A]: Covariant[[A] =>> ValidationRule[F, R, A]] with
         override def map[B](f: A => B): ValidationRule[F, R, A] => ValidationRule[F, R, B] = rule =>
             ValidationRule(v => CovariantOps[F, ValidationState[A]](rule(v)).map(_.map(f)))
     end covariantValidationRule

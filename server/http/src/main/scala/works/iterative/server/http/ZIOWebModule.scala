@@ -10,7 +10,7 @@ trait WebModuleTypes:
     type Env
     type WebTask[A] = RIO[Env, A]
 
-trait ZIOWebModule[R] extends WebFeatureModule[RIO[R, *]] with WebModuleTypes:
+trait ZIOWebModule[R] extends WebFeatureModule[[A] =>> RIO[R, A]] with WebModuleTypes:
     type Env = R
     type WebTask[A] = RIO[R, A]
 
@@ -22,7 +22,7 @@ trait ZIOWebModule[R] extends WebFeatureModule[RIO[R, *]] with WebModuleTypes:
 end ZIOWebModule
 
 object ZIOWebModule:
-    def combineRoutes[RR](modules: ZIOWebModule[? >: RR]*): HttpRoutes[RIO[RR, *]] =
+    def combineRoutes[RR](modules: ZIOWebModule[? >: RR]*): HttpRoutes[[A] =>> RIO[RR, A]] =
         val widened = modules.map(_.widen[RR])
         WebFeatureModule.combineRoutes(widened*)
 end ZIOWebModule

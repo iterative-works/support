@@ -25,7 +25,7 @@ object Main extends ZIOAppDefault:
 
     val interpreter = new Http4sCustomTapir[Env] {}
 
-    val routes: HttpRoutes[RIO[Env, *]] = interpreter.from(List(api.file.storeStream)).toRoutes
+    val routes: HttpRoutes[[A] =>> RIO[Env, A]] = interpreter.from(List(api.file.storeStream)).toRoutes
 
     val program =
         for

@@ -81,7 +81,8 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
   def spec = suite("DatabasePermissionServiceSpec")(
     test("isAllowed uses stored permissions from repository") {
       for
-        (repo, _) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
         service = DatabasePermissionService(repo, testConfig)
         userId = UserId.unsafe("user1")
         target = PermissionTarget.unsafe("document", "doc1")
@@ -100,7 +101,8 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
 
     test("isAllowed with permission inheritance (owner implies editor)") {
       for
-        (repo, _) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
         service = DatabasePermissionService(repo, testConfig)
         userId = UserId.unsafe("user2")
         target = PermissionTarget.unsafe("document", "doc2")
@@ -118,7 +120,8 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
 
     test("listAllowed returns correct resources") {
       for
-        (repo, _) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
         service = DatabasePermissionService(repo, testConfig)
         userId = UserId.unsafe("user3")
         doc1 = PermissionTarget.unsafe("document", "doc1")
@@ -144,7 +147,8 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
 
     test("grantPermission persists to repository") {
       for
-        (repo, _) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
         service = DatabasePermissionService(repo, testConfig)
         userId = UserId.unsafe("user4")
         target = PermissionTarget.unsafe("document", "doc4")
@@ -158,7 +162,8 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
 
     test("revokePermission removes from repository") {
       for
-        (repo, _) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
         service = DatabasePermissionService(repo, testConfig)
         userId = UserId.unsafe("user5")
         target = PermissionTarget.unsafe("document", "doc5")
@@ -173,7 +178,9 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
 
     test("isAllowed returns false on database error (fail-closed)") {
       for
-        (repo, shouldFail) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
+        shouldFail = result._2
         service = DatabasePermissionService(repo, testConfig)
         userId = UserId.unsafe("user6")
         target = PermissionTarget.unsafe("document", "doc6")
@@ -195,7 +202,8 @@ object DatabasePermissionServiceSpec extends ZIOSpecDefault:
 
     test("isAllowed returns false for None user") {
       for
-        (repo, _) <- makeTestRepository
+        result <- makeTestRepository
+        repo = result._1
         service = DatabasePermissionService(repo, testConfig)
         target = PermissionTarget.unsafe("document", "doc7")
 

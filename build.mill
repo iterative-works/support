@@ -89,11 +89,12 @@ object Dependencies {
 
 /** Base trait for all IW Support modules */
 trait BaseModule extends IWScalaModule with IWPublishModule with ScalafixModule { outer =>
+  override def scalaVersion = scala3LTSVersion
   override def publishVersion = CommonVersion.publishVersion
   override def gitHubPackagesUri = "https://maven.pkg.github.com/iterative-works/support"
 
   override def scalacOptions = Task {
-    super.scalacOptions() ++ Seq("-source:3.7")
+    super.scalacOptions().filterNot(_ == "-Xkind-projector")
   }
 
   override def sources = Task.Sources("src/main/scala")
@@ -112,10 +113,10 @@ trait BaseModule extends IWScalaModule with IWPublishModule with ScalafixModule 
 
 /** Base trait for ScalaJS modules */
 trait BaseScalaJSModule extends BaseModule with ScalaJSModule { outer =>
-  override def scalaJSVersion = "1.19.0"
+  override def scalaJSVersion = "1.20.2"
   
   trait BaseScalaJSTests extends ScalaJSTests with TestModule.ZioTest {
-    override def scalaJSVersion = "1.19.0"
+    override def scalaJSVersion = "1.20.2"
     override def moduleDir = outer.moduleDir
 
     override def sources = Task.Sources("src/test/scala")
@@ -1172,7 +1173,7 @@ def scalafix(args: String*) = Task.Command {
 
   // Run scalafix via coursier launcher (uses app descriptor)
   val cmd = Seq("cs", "launch", "scalafix:0.11.1", "--") ++
-    scalafixArgs ++ Seq("--scala-version", "3.7.2", ".")
+    scalafixArgs ++ Seq("--scala-version", "3.3.7", ".")
 
   os.proc(cmd).call(cwd = os.pwd, stdout = os.Inherit, stderr = os.Inherit)
 }

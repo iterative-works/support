@@ -17,14 +17,14 @@ trait FileStoreEndpointsModulePlatformSpecific(base: BaseEndpoint):
      */
     val storeStreamFS2: Endpoint[
         Unit,
-        (QueryParams, String, fs2.Stream[zio.RIO[Any, *], Byte]),
+        (QueryParams, String, fs2.Stream[[A] =>> zio.RIO[Any, A], Byte]),
         Unit,
         FileRef,
-        Fs2Streams[zio.RIO[Any, *]]
+        Fs2Streams[[A] =>> zio.RIO[Any, A]]
     ] =
         base.post.in("file" / "upload").in(queryParams.description("File metadata")).in(
             header[String]("Content-Type")
         ).in(streamBinaryBody(
-            Fs2Streams[zio.RIO[Any, *]]
+            Fs2Streams[[A] =>> zio.RIO[Any, A]]
         )(CodecFormat.OctetStream())).out(jsonBody[FileRef])
 end FileStoreEndpointsModulePlatformSpecific

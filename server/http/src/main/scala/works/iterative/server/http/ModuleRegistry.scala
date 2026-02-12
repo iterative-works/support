@@ -8,7 +8,7 @@ trait ModuleRegistry[R]:
 
     def modules: List[ZIOWebModule[R]]
 
-    def routes: HttpRoutes[RIO[R, *]] =
+    def routes: HttpRoutes[[A] =>> RIO[R, A]] =
         ZIOWebModule.combineRoutes(modules*)
 
     def ++(other: ModuleRegistry[R]): ModuleRegistry[R] = new ModuleRegistry[R]:

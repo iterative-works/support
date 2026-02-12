@@ -10,7 +10,7 @@ import works.iterative.scalatags.components.ScalatagsErrorPageComponents
 
 class ErrorHandlingMiddleware(helper: RoutesHelper, builder: ScalatagsErrorPageComponents)
     extends ScalatagsSupport:
-    def apply[Env](routes: HttpRoutes[RIO[Env, *]]): HttpRoutes[RIO[Env, *]] =
+    def apply[Env](routes: HttpRoutes[[A] =>> RIO[Env, A]]): HttpRoutes[[A] =>> RIO[Env, A]] =
         routes.mapF: zroute =>
             zroute
                 .mapK:

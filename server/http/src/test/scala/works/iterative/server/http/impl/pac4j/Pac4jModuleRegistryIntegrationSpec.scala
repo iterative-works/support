@@ -15,7 +15,7 @@ object Pac4jModuleRegistryIntegrationSpec extends ZIOSpecDefault:
 
     // Test implementation of Pac4jModuleRegistry
     class TestPac4jModuleRegistry(
-        val pac4jSecurity: Pac4jHttpSecurity[RIO[AuthenticationService, *]],
+        val pac4jSecurity: Pac4jHttpSecurity[[A] =>> RIO[AuthenticationService, A]],
         val profileMapper: List[CommonProfile] => Option[BasicProfile]
     ) extends Pac4jModuleRegistry[AuthenticationService, BasicProfile]:
         override def profileToUser(profile: List[CommonProfile]): Option[BasicProfile] =

@@ -10,14 +10,10 @@ import CustomTapir.{*, given}
 
 type BaseEndpoint = Endpoint[Unit, Unit, Unit, Unit, Any]
 
-trait RepositoryEndpointsModule[K: Codec[
-    String,
-    *,
-    TextPlain
-], V: JsonCodec: Schema, F: JsonCodec: Schema](
+trait RepositoryEndpointsModule[K, V: JsonCodec: Schema, F: JsonCodec: Schema](
     name: String,
     base: BaseEndpoint
-) extends CustomTapir:
+)(using Codec[String, K, TextPlain]) extends CustomTapir:
     val load: ApiEndpoint[Unit, K, Option[V]] = base.get
         .in("view" / name / path[K]("id"))
         .out(jsonBody[Option[V]])

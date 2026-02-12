@@ -61,7 +61,7 @@ trait FileApi[T <: FileStoreEndpointsModule](endpoints: T):
             )
         end storeStream
 
-        val storeStreamFS2: ZServerEndpoint[FileStoreWriter, Fs2Streams[RIO[Any, *]]] =
+        val storeStreamFS2: ZServerEndpoint[FileStoreWriter, Fs2Streams[[A] =>> RIO[Any, A]]] =
             import zio.stream.interop.fs2z.*
             endpoints.storeStreamFS2.zServerLogic((params, contentType, content) =>
                 FileStore.store(
