@@ -25,27 +25,18 @@ The project provides optional git hooks to catch issues before they reach CI.
 ### Installation
 
 ```bash
-# Install pre-commit hook (validates formatting)
-ln -s ../../.git-hooks/pre-commit .git/hooks/pre-commit
-
-# Install pre-push hook (runs tests)
-ln -s ../../.git-hooks/pre-push .git/hooks/pre-push
+git config core.hooksPath .git-hooks
 ```
 
-**Note for git worktrees:** If you're using a git worktree, the hooks directory
-is in the main repository's `.git/` directory. Adjust paths accordingly:
-
-```bash
-# For worktrees, you may need to find the actual .git/hooks directory
-# Example: ln -s /path/to/main-repo/.git-hooks/pre-commit /path/to/main-repo/.git/hooks/pre-commit
-```
+This points git at the `.git-hooks/` directory in the repository root.
+It works with worktrees and doesn't require symlinks.
 
 ### What the Hooks Do
 
 | Hook | Trigger | What it checks | Time |
 |------|---------|----------------|------|
 | **pre-commit** | Before each commit | Scala formatting | ~10 seconds |
-| **pre-push** | Before each push | All unit tests | ~2 minutes |
+| **pre-push** | Before each push | Compilation warnings, then all unit tests | ~3 minutes |
 
 ## Running Checks Locally
 
@@ -81,6 +72,20 @@ Your code doesn't match the project's Scalafmt configuration.
 ```bash
 ./mill __.reformat
 git add -u
+```
+
+### "Compilation warnings found"
+
+The pre-push hook enforces warning-free compilation. All warnings must be
+resolved before pushing.
+
+**Fix:**
+```bash
+# See all warnings
+./mill clean __.compile && ./mill __.compile
+
+# Common causes: unused imports, unused parameters, unused values
+# Remove the unused code or suppress with @nowarn if justified
 ```
 
 ### "Tests are failing"

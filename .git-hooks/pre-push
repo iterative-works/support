@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# PURPOSE: Pre-push hook that validates tests pass before allowing push to remote.
-# PURPOSE: Blocks push if any unit tests fail, ensuring broken code doesn't reach the remote.
+# PURPOSE: Pre-push hook that validates code quality before allowing push to remote.
+# PURPOSE: Blocks push if compilation has warnings or any unit tests fail.
 
 set -euo pipefail
 
@@ -10,15 +10,63 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+# --- Step 1: Check for compilation warnings ---
+
+echo -e "${YELLOW}Checking for compilation warnings...${NC}"
+
+# Clean compile outputs to force fresh compilation with warning output
+./mill clean __.compile 2>/dev/null
+
+# Compile and capture output
+compile_output=$(./mill __.compile 2>&1)
+compile_exit=$?
+
+if [ $compile_exit -ne 0 ]; then
+    echo ""
+    echo -e "${RED}╔════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║  PUSH BLOCKED: Compilation failed                             ║${NC}"
+    echo -e "${RED}╠════════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${RED}║                                                                ║${NC}"
+    echo -e "${RED}║  Fix compilation errors before pushing.                        ║${NC}"
+    echo -e "${RED}║                                                                ║${NC}"
+    echo -e "${RED}║  To bypass this check (not recommended):                       ║${NC}"
+    echo -e "${RED}║    git push --no-verify                                        ║${NC}"
+    echo -e "${RED}║                                                                ║${NC}"
+    echo -e "${RED}╚════════════════════════════════════════════════════════════════╝${NC}"
+    echo "$compile_output"
+    exit 1
+fi
+
+if echo "$compile_output" | grep -q '\[warn\]'; then
+    echo ""
+    echo -e "${RED}╔════════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║  PUSH BLOCKED: Compilation warnings found                     ║${NC}"
+    echo -e "${RED}╠════════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${RED}║                                                                ║${NC}"
+    echo -e "${RED}║  Fix all warnings before pushing.                              ║${NC}"
+    echo -e "${RED}║                                                                ║${NC}"
+    echo -e "${RED}║  To bypass this check (not recommended):                       ║${NC}"
+    echo -e "${RED}║    git push --no-verify                                        ║${NC}"
+    echo -e "${RED}║                                                                ║${NC}"
+    echo -e "${RED}╚════════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "$compile_output" | grep '\[warn\]'
+    exit 1
+fi
+
+echo -e "${GREEN}✓ No compilation warnings${NC}"
+echo ""
+
+# --- Step 2: Run tests ---
+
 echo -e "${YELLOW}Running tests before push...${NC}"
 echo "This may take a few minutes."
 echo ""
 
-# Run all unit tests
 if ! ./mill __.test 2>&1; then
     echo ""
     echo -e "${RED}╔════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${RED}║  PUSH BLOCKED: Tests are failing                               ║${NC}"
+    echo -e "${RED}║  PUSH BLOCKED: Tests are failing                              ║${NC}"
     echo -e "${RED}╠════════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${RED}║                                                                ║${NC}"
     echo -e "${RED}║  Fix the failing tests before pushing.                         ║${NC}"
