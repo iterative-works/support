@@ -464,9 +464,9 @@ object codecs extends CrossModule {
   def description = "IW Support Codecs Library"
   
   trait CodecsModule extends SharedModule {
-    // Pure cross-compilation - only shared sources
-    override def sources = Task.Sources("src/main/scala")
-    override def resources = Task.Sources("src/main/resources")
+    // Sources are in codecs/src/, not codecs/shared/src/ or codecs/jvm/src/
+    override def sharedSources = Task.Sources(moduleDir / os.up / "src" / "main" / "scala")
+    override def sharedResources = Task.Sources(moduleDir / os.up / "src" / "main" / "resources")
   }
   
   object jvm extends JvmModule with CodecsModule {
@@ -509,6 +509,7 @@ object ui extends CrossModule {
 
 // E2E Testing support - JVM only
 object e2eTesting extends JvmOnlyModule {
+  override def moduleDir = super.moduleDir / os.up / "e2e-testing"
   def moduleName = "e2e-testing"
   def description = "IW Support E2E Testing Library"
   def moduleDeps = Seq(core.jvm)
@@ -686,6 +687,7 @@ object filesRest extends CrossModule {
 
 // Akka Persistence support module - JVM only
 object akkaPersistence extends JvmOnlyModule {
+  override def moduleDir = super.moduleDir / os.up / "akka-persistence"
   def moduleName = "akka-persistence"
   def description = "IW Support Akka Persistence Library"
   def moduleDeps = Seq(core.jvm, entity.jvm)
