@@ -2,7 +2,7 @@
 //| - https://nexus.e-bs.cz/repository/maven-releases/
 //| - https://nexus.e-bs.cz/repository/maven-snapshots/
 //| mvnDeps:
-//| - works.iterative::mill-iw-support::0.1.2-SNAPSHOT
+//| - works.iterative::mill-iw-support::0.1.2
 //| - com.goyeau::mill-scalafix::0.6.0
 import mill._
 import mill.scalalib._
