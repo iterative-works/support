@@ -116,6 +116,19 @@ object PlaywrightTestContext:
         )
     end loadDefaultConfig
 
+    def isVideoRecordingEnabled: Boolean =
+        configInstance != null && configInstance.recordVideo.isDefined
+
+    def recyclePageAndGetVideoPath(): Option[java.nio.file.Path] =
+        val videoPath =
+            if page != null && isVideoRecordingEnabled then
+                Option(page.video()).map(_.path())
+            else None
+        if page != null then page.close()
+        page = context.newPage()
+        videoPath
+    end recyclePageAndGetVideoPath
+
     def newPage(): Page = context.newPage()
 
     def cleanup(): Unit =

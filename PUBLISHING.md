@@ -10,7 +10,17 @@ export EBS_NEXUS_USERNAME=your-username
 export EBS_NEXUS_PASSWORD=your-password
 ```
 
-Mill will automatically use these environment variables when publishing.
+The publish script translates these into the `MILL_SONATYPE_USERNAME` / `MILL_SONATYPE_PASSWORD`
+variables that Mill expects.
+
+## Repository URLs
+
+`IWPublishModule` defaults to:
+- **Releases:** `https://nexus.e-bs.cz/repository/maven-releases/`
+- **Snapshots:** `https://nexus.e-bs.cz/repository/maven-snapshots/`
+
+These can be overridden per-project by setting `IW_PUBLISH_RELEASE_URI` / `IW_PUBLISH_SNAPSHOT_URI`
+environment variables, or by overriding `publishReleaseUri` / `publishSnapshotUri` in code.
 
 ## Publishing Commands
 
@@ -50,28 +60,22 @@ export MILL_SONATYPE_PASSWORD=$EBS_NEXUS_PASSWORD
 
 ## Version Management
 
-The current version is set in the `BaseModule` trait as:
-```scala
-override def publishVersion = "0.1.10-SNAPSHOT"
-```
+The current version is set in `CommonVersion.publishVersion` in `build.mill`.
 
 To change the version:
-1. Edit the `publishVersion` in `build.sc`
+1. Edit `publishVersion` in `build.mill`
 2. Commit the change
 3. Tag the release if it's not a SNAPSHOT
 
 ## Publishing Configuration
 
-The IWPublishModule trait in mill-iw-support is configured with:
+The `IWPublishModule` trait in `mill-iw-support` is configured with:
 - **GPG signing disabled by default** (suitable for private repositories)
 - **Staging disabled by default** (direct publishing to repository)
-- **Repository URLs**: 
-  - Release: https://nexus.e-bs.cz/repository/maven-releases/
-  - Snapshot: https://nexus.e-bs.cz/repository/maven-snapshots/
 
 ## Troubleshooting
 
-1. **Authentication Failed**: Make sure your environment variables are set correctly
+1. **Authentication Failed**: Make sure `EBS_NEXUS_USERNAME` and `EBS_NEXUS_PASSWORD` are set correctly
 2. **Module Not Found**: Use `./mill resolve __.publish` to see all publishable modules
 3. **Version Conflicts**: Snapshot versions always publish to the snapshot repository
 4. **Publishing Hangs**: If publishing seems to hang, it may be uploading large artifacts. Check network connectivity and repository status

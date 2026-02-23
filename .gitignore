@@ -101,3 +101,9 @@ sbt-launch.jar
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# MCP configuration (local)
+.mcp.json
+
+# direnv secrets
+.envrc.local

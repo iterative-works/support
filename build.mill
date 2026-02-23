@@ -1,7 +1,8 @@
 //| repositories:
-//| - https://maven.pkg.github.com/iterative-works/iw-project-support
+//| - https://nexus.e-bs.cz/repository/maven-releases/
+//| - https://nexus.e-bs.cz/repository/maven-snapshots/
 //| mvnDeps:
-//| - works.iterative::mill-iw-support::0.1.1-SNAPSHOT
+//| - works.iterative::mill-iw-support::0.1.2-SNAPSHOT
 //| - com.goyeau::mill-scalafix::0.6.0
 import mill._
 import mill.scalalib._
@@ -91,7 +92,6 @@ object Dependencies {
 trait BaseModule extends IWScalaModule with IWPublishModule with ScalafixModule { outer =>
   override def scalaVersion = scala3LTSVersion
   override def publishVersion = CommonVersion.publishVersion
-  override def gitHubPackagesUri = "https://maven.pkg.github.com/iterative-works/support"
 
   override def scalacOptions = Task {
     super.scalacOptions().filterNot(_ == "-Xkind-projector")
