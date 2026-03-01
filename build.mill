@@ -37,7 +37,7 @@ object CommonPomSettings {
 
 /** Common version for all published modules */
 object CommonVersion {
-  val publishVersion = "0.1.11-SNAPSHOT"
+  val publishVersion = "0.1.11"
 }
 
 /** Common dependency groups */
