@@ -17,8 +17,7 @@ end PostgreSQLPermissionRepository
 
 case class PostgreSQLPermissionRepositoryImpl(ts: PostgreSQLTransactor)
     extends PermissionRepository:
-    import com.augustnagro.magnum.Repo
-    import com.augustnagro.magnum.magzio.sql
+    import com.augustnagro.magnum.{Repo, sql}
 
     private val repo = Repo[PermissionCreator, Permissions, Long]
 

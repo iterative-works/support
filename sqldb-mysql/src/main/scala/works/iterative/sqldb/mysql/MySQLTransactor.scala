@@ -9,14 +9,12 @@ import com.augustnagro.magnum.magzio.*
   *
   * Classification: Infrastructure Configuration
   */
-class MySQLTransactor(val transactor: Transactor)
+class MySQLTransactor(val transactor: TransactorZIO)
 
 object MySQLTransactor:
-    val layer: ZLayer[MySQLDataSource & Scope, Throwable, Transactor] =
-        ZLayer.service[MySQLDataSource].flatMap { env =>
-            Transactor.layer(env.get[MySQLDataSource].dataSource)
-        }
+    val layer: URLayer[MySQLDataSource, TransactorZIO] =
+        ZLayer.fromZIO(ZIO.serviceWith[MySQLDataSource](_.dataSource)) >>> TransactorZIO.layer
 
-    val managedLayer: ZLayer[MySQLDataSource & Scope, Throwable, MySQLTransactor] =
+    val managedLayer: URLayer[MySQLDataSource, MySQLTransactor] =
         layer >>> ZLayer.fromFunction(MySQLTransactor.apply)
 end MySQLTransactor

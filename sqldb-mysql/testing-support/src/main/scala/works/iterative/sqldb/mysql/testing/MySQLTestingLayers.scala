@@ -55,8 +55,8 @@ object MySQLTestingLayers:
         dataSourceLayer >>> MySQLDataSource.layerFromDataSource
 
     // Create a Transactor from the DataSource
-    val transactorLayer: ZLayer[Scope, Throwable, Transactor] =
-        dataSourceLayer.flatMap(env => Transactor.layer(env.get[DataSource]))
+    val transactorLayer: ZLayer[Scope, Throwable, TransactorZIO] =
+        dataSourceLayer >>> TransactorZIO.layer
 
     val mySQLTransactorLayer: ZLayer[Scope, Throwable, MySQLDataSource & MySQLTransactor] =
         mySQLDataSourceLayer >+> MySQLTransactor.managedLayer

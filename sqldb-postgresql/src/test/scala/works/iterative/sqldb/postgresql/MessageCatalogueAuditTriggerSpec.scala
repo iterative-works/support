@@ -8,7 +8,7 @@ import zio.*
 import zio.test.*
 import zio.test.TestAspect.*
 import works.iterative.sqldb.postgresql.testing.PostgreSQLTestingLayers.*
-import com.augustnagro.magnum.magzio.*
+import com.augustnagro.magnum.sql
 
 object MessageCatalogueAuditTriggerSpec extends ZIOSpecDefault:
 

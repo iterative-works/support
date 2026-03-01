@@ -54,8 +54,8 @@ object PostgreSQLTestingLayers:
         dataSourceLayer >>> PostgreSQLDataSource.layerFromDataSource
 
     // Create a Transactor from the DataSource
-    val transactorLayer: ZLayer[Scope, Throwable, Transactor] =
-        dataSourceLayer.flatMap(env => Transactor.layer(env.get[DataSource]))
+    val transactorLayer: ZLayer[Scope, Throwable, TransactorZIO] =
+        dataSourceLayer >>> TransactorZIO.layer
 
     val postgreSQLTransactorLayer
         : ZLayer[Scope, Throwable, PostgreSQLDataSource & PostgreSQLTransactor] =

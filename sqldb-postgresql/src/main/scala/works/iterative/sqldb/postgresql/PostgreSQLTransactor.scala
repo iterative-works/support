@@ -9,14 +9,12 @@ import com.augustnagro.magnum.magzio.*
   *
   * Classification: Infrastructure Configuration
   */
-class PostgreSQLTransactor(val transactor: Transactor)
+class PostgreSQLTransactor(val transactor: TransactorZIO)
 
 object PostgreSQLTransactor:
-    val layer: ZLayer[PostgreSQLDataSource & Scope, Throwable, Transactor] =
-        ZLayer.service[PostgreSQLDataSource].flatMap { env =>
-            Transactor.layer(env.get[PostgreSQLDataSource].dataSource)
-        }
+    val layer: URLayer[PostgreSQLDataSource, TransactorZIO] =
+        ZLayer.fromZIO(ZIO.serviceWith[PostgreSQLDataSource](_.dataSource)) >>> TransactorZIO.layer
 
-    val managedLayer: ZLayer[PostgreSQLDataSource & Scope, Throwable, PostgreSQLTransactor] =
+    val managedLayer: URLayer[PostgreSQLDataSource, PostgreSQLTransactor] =
         layer >>> ZLayer.fromFunction(PostgreSQLTransactor.apply)
 end PostgreSQLTransactor

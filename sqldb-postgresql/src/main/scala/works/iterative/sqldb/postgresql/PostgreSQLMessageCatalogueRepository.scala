@@ -17,8 +17,7 @@ end PostgreSQLMessageCatalogueRepository
 
 case class MessageCatalogueRepositoryImpl(ts: PostgreSQLTransactor)
     extends MessageCatalogueRepository:
-    import com.augustnagro.magnum.Repo
-    import com.augustnagro.magnum.magzio.sql
+    import com.augustnagro.magnum.{Repo, sql}
 
     private val repo = Repo[MessageCatalogueCreator, MessageCatalogue, Long]
 
