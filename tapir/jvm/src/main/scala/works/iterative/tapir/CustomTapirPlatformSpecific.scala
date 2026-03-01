@@ -3,7 +3,6 @@ package works.iterative.tapir
 import zio.*
 import sttp.tapir.ztapir.ZTapir
 
-import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.client3.httpclient.zio.HttpClientZioBackend

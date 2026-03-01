@@ -2,7 +2,6 @@ package works.iterative.tapir
 
 import zio.*
 import sttp.tapir.client.sttp.SttpClientInterpreter
-import sttp.tapir.PublicEndpoint
 import sttp.tapir.client.sttp.WebSocketToPipe
 import sttp.client3.FetchOptions
 import org.scalajs.dom
