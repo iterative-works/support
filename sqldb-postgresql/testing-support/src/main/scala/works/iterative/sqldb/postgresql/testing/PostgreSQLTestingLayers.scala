@@ -62,9 +62,9 @@ object PostgreSQLTestingLayers:
         postgreSQLDataSourceLayer >+> PostgreSQLTransactor.managedLayer
 
     // Create a custom Flyway config that allows cleaning the database
-    // PostgreSQL-specific migration location
+    // Points at the iw-support postgresql migration location
     val testFlywayConfig = FlywayConfig(
-        locations = "classpath:db/migration/postgresql" :: Nil,
+        locations = "classpath:iw-support/sqldb-postgresql/migration" :: Nil,
         cleanDisabled = false
     )
 

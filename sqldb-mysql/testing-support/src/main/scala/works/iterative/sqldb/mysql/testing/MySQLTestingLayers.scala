@@ -62,9 +62,9 @@ object MySQLTestingLayers:
         mySQLDataSourceLayer >+> MySQLTransactor.managedLayer
 
     // Create a custom Flyway config that allows cleaning the database
-    // MySQL-specific migration location
+    // Points at the iw-support mysql migration location
     val testFlywayConfig = FlywayConfig(
-        locations = "classpath:db/migration/mysql" :: Nil,
+        locations = "classpath:iw-support/sqldb-mysql/migration" :: Nil,
         cleanDisabled = false
     )
 
