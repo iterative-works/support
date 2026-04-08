@@ -2,7 +2,7 @@
 //| - https://nexus.e-bs.cz/repository/maven-releases/
 //| - https://nexus.e-bs.cz/repository/maven-snapshots/
 //| mvnDeps:
-//| - works.iterative::mill-iw-support::0.1.3
+//| - works.iterative::mill-iw-support::0.1.4
 //| - com.goyeau::mill-scalafix::0.6.0
 import mill._
 import mill.scalalib._
@@ -37,7 +37,7 @@ object CommonPomSettings {
 
 /** Common version for all published modules */
 object CommonVersion {
-  val publishVersion = "0.1.12"
+  val publishVersion = "0.1.13"
 }
 
 /** Common dependency groups */
