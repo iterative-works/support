@@ -54,6 +54,28 @@ download_release() {
     echo "Downloaded and extracted to $version_dir" >&2
 }
 
+# Re-download and re-bootstrap the current version
+update_release() {
+    local version=$(read_version)
+    local version_dir="$CACHE_DIR/$version"
+
+    echo "Updating iw-cli (version: $version)..." >&2
+
+    # Remove cached version to force re-download
+    if [ -d "$version_dir" ]; then
+        rm -rf "$version_dir"
+    fi
+
+    download_release "$version"
+
+    # Re-bootstrap
+    local iw_run="$version_dir/iw-run"
+    IW_PROJECT_DIR="$SCRIPT_DIR" "$iw_run" --bootstrap
+
+    # Show new version
+    IW_PROJECT_DIR="$SCRIPT_DIR" "$iw_run" version
+}
+
 # Main execution
 main() {
     # IW_HOME override for local development
@@ -63,16 +85,13 @@ main() {
             echo "Error: IW_HOME set but $iw_run not found" >&2
             exit 1
         fi
-        # Detect directory structure: dev (.iw/commands/) vs release (commands/)
-        local commands_dir core_dir
-        if [ -d "$IW_HOME/.iw/commands" ]; then
-            commands_dir="$IW_HOME/.iw/commands"
-            core_dir="$IW_HOME/.iw/core"
-        else
-            commands_dir="$IW_HOME/commands"
-            core_dir="$IW_HOME/core"
-        fi
-        IW_PROJECT_DIR="$SCRIPT_DIR" IW_COMMANDS_DIR="$commands_dir" IW_CORE_DIR="$core_dir" exec "$iw_run" "$@"
+        IW_PROJECT_DIR="$SCRIPT_DIR" exec "$iw_run" "$@"
+    fi
+
+    # Handle update command before delegation
+    if [ "${1:-}" = "update" ]; then
+        update_release
+        exit 0
     fi
 
     local version=$(read_version)
