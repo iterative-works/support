@@ -1,0 +1,45 @@
+{
+  "version": 2,
+  "issue_id": "SUPP-24",
+  "artifacts": [
+    {
+      "label": "Analysis",
+      "path": "project-management/issues/SUPP-24/analysis.md",
+      "category": "input"
+    },
+    {
+      "label": "Tasks",
+      "path": "project-management/issues/SUPP-24/tasks.md",
+      "category": "output"
+    }
+  ],
+  "last_updated": "2026-04-29T08:19:39.373104655Z",
+  "status": "tasks_ready",
+  "display": {
+    "text": "Tasks Ready",
+    "type": "success",
+    "subtext": "2 phases identified"
+  },
+  "message": "Task breakdown complete. Ready to begin implementation.",
+  "activity": "waiting",
+  "workflow_type": "waterfall",
+  "available_actions": [
+    {
+      "id": "create-tasks",
+      "label": "Generate Tasks",
+      "skill": "wf-create-tasks"
+    },
+    {
+      "id": "implement",
+      "label": "Start Implementation",
+      "skill": "wf-implement"
+    },
+    {
+      "id": "implement",
+      "label": "Start Implementation",
+      "skill": "wf-implement"
+    }
+  ],
+  "git_sha": "fe186aca",
+  "needs_attention": true
+}
