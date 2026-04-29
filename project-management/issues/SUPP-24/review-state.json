@@ -21,11 +21,11 @@
       "path": "project-management/issues/SUPP-24/phase-01-tasks.md"
     }
   ],
-  "last_updated": "2026-04-29T18:52:07.144871044Z",
-  "status": "awaiting_review",
+  "last_updated": "2026-04-29T20:32:46.459162527Z",
+  "status": "phase_merged",
   "display": {
-    "text": "Phase 01: Awaiting Review",
-    "type": "warning",
+    "text": "Phase 01: Merged",
+    "type": "success",
     "subtext": "Build refactor + dual-publish workflow"
   },
   "message": "Phase 01 implementation started",
@@ -73,6 +73,10 @@
     {
       "label": "Review Needed",
       "type": "warning"
+    },
+    {
+      "label": "Complete",
+      "type": "success"
     }
   ],
   "pr_url": "https://github.com/iterative-works/support/pull/25"
