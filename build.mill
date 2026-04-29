@@ -1,9 +1,8 @@
-//| repositories:
-//| - https://nexus.e-bs.cz/repository/maven-releases/
-//| - https://nexus.e-bs.cz/repository/maven-snapshots/
 //| mvnDeps:
 //| - works.iterative::mill-iw-support::0.1.4
 //| - com.goyeau::mill-scalafix::0.6.0
+// PURPOSE: Mill build definition for the iw-support multi-module library.
+// PURPOSE: Declares module hierarchy, dependencies, cross-builds, and publishing.
 import mill._
 import mill.scalalib._
 import mill.scalajslib._
@@ -37,7 +36,7 @@ object CommonPomSettings {
 
 /** Common version for all published modules */
 object CommonVersion {
-  val publishVersion = "0.1.13"
+  val publishVersion = "0.1.14-SNAPSHOT"
 }
 
 /** Common dependency groups */
@@ -88,10 +87,9 @@ object Dependencies {
 // Base Module Traits
 // ============================================================================
 
-/** Base trait for all IW Support modules */
-trait BaseModule extends IWScalaModule with IWPublishModule with ScalafixModule { outer =>
+/** Shared Scala compile configuration inherited by every IW Support module. */
+trait BaseModuleCommon extends IWScalaModule { outer =>
   override def scalaVersion = scala3LTSVersion
-  override def publishVersion = CommonVersion.publishVersion
 
   override def scalacOptions = Task {
     super.scalacOptions().filterNot(_ == "-Xkind-projector")
@@ -99,29 +97,52 @@ trait BaseModule extends IWScalaModule with IWPublishModule with ScalafixModule 
 
   override def sources = Task.Sources("src/main/scala")
   override def resources = Task.Sources("src/main/resources")
-  
+
   // Inner test trait (matching original structure)
   trait BaseTests extends ScalaTests with TestModule.ZioTest {
     override def moduleDir = outer.moduleDir
 
     override def sources = Task.Sources("src/test/scala")
     override def resources = Task.Sources("src/test/resources")
-    
+
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioTest
   }
 }
 
-/** Base trait for ScalaJS modules */
+/** Base trait for all published IW Support modules. */
+trait BaseModule extends BaseModuleCommon with IWPublishModule with ScalafixModule {
+  override def publishVersion = CommonVersion.publishVersion
+}
+
+/** Base trait for internal (non-published) IW Support modules. */
+trait BaseModuleNoPublish extends BaseModuleCommon with ScalafixModule
+
+/** Base trait for published ScalaJS modules */
 trait BaseScalaJSModule extends BaseModule with ScalaJSModule { outer =>
   override def scalaJSVersion = "1.20.2"
-  
+
   trait BaseScalaJSTests extends ScalaJSTests with TestModule.ZioTest {
     override def scalaJSVersion = "1.20.2"
     override def moduleDir = outer.moduleDir
 
     override def sources = Task.Sources("src/test/scala")
     override def resources = Task.Sources("src/test/resources")
-    
+
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioTest
+  }
+}
+
+/** Base trait for internal (non-published) ScalaJS modules. */
+trait BaseScalaJSModuleNoPublish extends BaseModuleNoPublish with ScalaJSModule { outer =>
+  override def scalaJSVersion = "1.20.2"
+
+  trait BaseScalaJSTests extends ScalaJSTests with TestModule.ZioTest {
+    override def scalaJSVersion = "1.20.2"
+    override def moduleDir = outer.moduleDir
+
+    override def sources = Task.Sources("src/test/scala")
+    override def resources = Task.Sources("src/test/resources")
+
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioTest
   }
 }
@@ -178,9 +199,19 @@ trait NestedCrossModule extends CrossModule {
     // Note: sources and resources are NOT overridden here because SharedModule already
     // extends FullCrossScalaModule which adds sharedSources/sharedResources automatically
   }
-  
+
   trait NestedJvmModule extends NestedSharedModule
   trait NestedJsModule extends NestedSharedModule with BaseScalaJSModule
+}
+
+/** Helper for creating non-publishing cross-compiled module pairs. */
+trait NoPublishCrossModule extends Module {
+  def moduleName: String
+
+  trait SharedModule extends BaseModuleNoPublish with FullCrossScalaModule
+
+  trait JvmModule extends SharedModule
+  trait JsModule extends SharedModule with BaseScalaJSModuleNoPublish
 }
 
 // ============================================================================
@@ -601,10 +632,9 @@ object filesCore extends CrossModule {
   }
 }
 
-// Scenarios module - cross-compiled
-object scenarios extends CrossModule {
+// Scenarios module - cross-compiled, internal use only
+object scenarios extends NoPublishCrossModule {
   def moduleName = "scenarios"
-  def description = "IW Support Scenarios Library"
 
   object jvm extends JvmModule {
     def moduleDeps = Seq(core.jvm)
@@ -917,19 +947,15 @@ object forms extends CrossModule {
   }
 }
 
-// Forms scenarios module - cross-compiled (located at forms/scenarios)
-object formsScenarios extends CrossModule {
+// Forms scenarios module - cross-compiled (located at forms/scenarios), internal use only
+object formsScenarios extends NoPublishCrossModule {
   def moduleName = "forms-scenarios"
-  def description = "IW Support Forms Scenarios"
 
   trait FormsScenariosModule extends SharedModule {
     override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "scenarios"
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    // Skip publishing for test scenarios
-    override def publishVersion = "0.0.0"
   }
 
   object jvm extends JvmModule with FormsScenariosModule {
@@ -941,19 +967,15 @@ object formsScenarios extends CrossModule {
   }
 }
 
-// Files UI scenarios module - cross-compiled (located at files/adapters/ui/scenarios)
-object filesUIScenarios extends CrossModule {
+// Files UI scenarios module - cross-compiled (located at files/adapters/ui/scenarios), internal use only
+object filesUIScenarios extends NoPublishCrossModule {
   def moduleName = "files-ui-scenarios"
-  def description = "IW Support Files UI Scenarios"
 
   trait FilesUIScenariosModule extends SharedModule {
     override def moduleDir = super.moduleDir / os.up / os.up / "files" / "adapters" / "ui" / "scenarios"
 
     override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
     override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-
-    // Skip publishing for test scenarios
-    override def publishVersion = "0.0.0"
   }
 
   object jvm extends JvmModule with FilesUIScenariosModule {
@@ -968,16 +990,9 @@ object filesUIScenarios extends CrossModule {
   }
 }
 
-// Scenarios UI module - JS only with Vite support (located at ui/scenarios)
-object scenariosUI extends BaseScalaJSModule {
-  def artifactName = "iw-support-scenarios-ui"
-
+// Scenarios UI module - JS only with Vite support (located at ui/scenarios), internal use only
+object scenariosUI extends BaseScalaJSModuleNoPublish {
   override def moduleDir = super.moduleDir / os.up / "ui" / "scenarios"
-
-  // Skip publishing for internal scenarios
-  override def publishVersion = "0.0.0"
-
-  def pomSettings = CommonPomSettings("IW Support Scenarios UI")
 
   def moduleDeps = Seq(ui.js, uiForms.js)
 
@@ -1135,12 +1150,6 @@ object root extends BaseModule {
     formsCore.jvm, formsCore.js,
     forms.jvm, forms.js,
     formsHttp,
-
-    // Scenarios and testing
-    scenarios.jvm, scenarios.js,
-    formsScenarios.jvm, formsScenarios.js,
-    filesUIScenarios.jvm, filesUIScenarios.js,
-    scenariosUI,
 
     // E2E Testing
     e2eTesting

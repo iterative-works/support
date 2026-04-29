@@ -21,14 +21,14 @@
       "path": "project-management/issues/SUPP-24/phase-01-tasks.md"
     }
   ],
-  "last_updated": "2026-04-29T10:47:57.575637613Z",
-  "status": "tasks_ready",
+  "last_updated": "2026-04-29T18:52:07.144871044Z",
+  "status": "awaiting_review",
   "display": {
-    "text": "Phase 1: Tasks Ready",
-    "type": "success",
+    "text": "Phase 01: Awaiting Review",
+    "type": "warning",
     "subtext": "Build refactor + dual-publish workflow"
   },
-  "message": "Phase 1 tasks ready",
+  "message": "Phase 01 implementation started",
   "activity": "waiting",
   "workflow_type": "waterfall",
   "available_actions": [
@@ -51,6 +51,11 @@
       "id": "implement",
       "label": "Continue",
       "skill": "wf-implement"
+    },
+    {
+      "id": "view-pr",
+      "label": "View Pull Request",
+      "skill": "external-link"
     }
   ],
   "git_sha": "fe186aca",
@@ -59,5 +64,16 @@
     "1": {
       "context_sha": "context_sha=23044e2ea6463615636994b3ba6dbc85d85e1336"
     }
-  }
+  },
+  "badges": [
+    {
+      "label": "In Progress",
+      "type": "info"
+    },
+    {
+      "label": "Review Needed",
+      "type": "warning"
+    }
+  ],
+  "pr_url": "https://github.com/iterative-works/support/pull/25"
 }
