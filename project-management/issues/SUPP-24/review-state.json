@@ -15,17 +15,21 @@
     {
       "label": "Phase 1 Context",
       "path": "project-management/issues/SUPP-24/phase-01-context.md"
+    },
+    {
+      "label": "Phase 1 Tasks",
+      "path": "project-management/issues/SUPP-24/phase-01-tasks.md"
     }
   ],
-  "last_updated": "2026-04-29T10:14:56.258632780Z",
-  "status": "context_ready",
+  "last_updated": "2026-04-29T10:47:57.575637613Z",
+  "status": "tasks_ready",
   "display": {
-    "text": "Phase 1: Context Ready",
-    "type": "info",
+    "text": "Phase 1: Tasks Ready",
+    "type": "success",
     "subtext": "Build refactor + dual-publish workflow"
   },
-  "message": "Phase 1 context ready for review",
-  "activity": "working",
+  "message": "Phase 1 tasks ready",
+  "activity": "waiting",
   "workflow_type": "waterfall",
   "available_actions": [
     {
@@ -41,6 +45,11 @@
     {
       "id": "implement",
       "label": "Start Implementation",
+      "skill": "wf-implement"
+    },
+    {
+      "id": "implement",
+      "label": "Continue",
       "skill": "wf-implement"
     }
   ],
