@@ -29,14 +29,14 @@
       "path": "project-management/issues/SUPP-24/phase-02-tasks.md"
     }
   ],
-  "last_updated": "2026-04-30T06:48:01.377692858Z",
-  "status": "tasks_ready",
+  "last_updated": "2026-04-30T06:50:07.355927856Z",
+  "status": "implementing",
   "display": {
-    "text": "Phase 2: Tasks Ready",
-    "type": "success",
+    "text": "Phase 02: Implementing",
+    "type": "progress",
     "subtext": "Documentation + release execution"
   },
-  "message": "Phase 2 tasks ready",
+  "message": "Phase 02 implementation started",
   "activity": "waiting",
   "workflow_type": "waterfall",
   "available_actions": [
@@ -90,6 +90,10 @@
     {
       "label": "Complete",
       "type": "success"
+    },
+    {
+      "label": "In Progress",
+      "type": "info"
     }
   ],
   "pr_url": "https://github.com/iterative-works/support/pull/25"
