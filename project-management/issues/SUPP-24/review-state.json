@@ -23,17 +23,21 @@
     {
       "label": "Phase 2 Context",
       "path": "project-management/issues/SUPP-24/phase-02-context.md"
+    },
+    {
+      "label": "Phase 2 Tasks",
+      "path": "project-management/issues/SUPP-24/phase-02-tasks.md"
     }
   ],
-  "last_updated": "2026-04-29T20:40:08.271549450Z",
-  "status": "context_ready",
+  "last_updated": "2026-04-30T06:48:01.377692858Z",
+  "status": "tasks_ready",
   "display": {
-    "text": "Phase 2: Context Ready",
-    "type": "info",
+    "text": "Phase 2: Tasks Ready",
+    "type": "success",
     "subtext": "Documentation + release execution"
   },
-  "message": "Phase 2 context ready for review",
-  "activity": "working",
+  "message": "Phase 2 tasks ready",
+  "activity": "waiting",
   "workflow_type": "waterfall",
   "available_actions": [
     {
@@ -60,6 +64,11 @@
       "id": "view-pr",
       "label": "View Pull Request",
       "skill": "external-link"
+    },
+    {
+      "id": "implement",
+      "label": "Continue",
+      "skill": "wf-implement"
     }
   ],
   "git_sha": "fe186aca",
