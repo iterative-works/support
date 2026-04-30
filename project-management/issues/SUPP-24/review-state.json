@@ -29,11 +29,11 @@
       "path": "project-management/issues/SUPP-24/phase-02-tasks.md"
     }
   ],
-  "last_updated": "2026-04-30T06:50:07.355927856Z",
-  "status": "implementing",
+  "last_updated": "2026-04-30T06:58:12.811085857Z",
+  "status": "awaiting_review",
   "display": {
-    "text": "Phase 02: Implementing",
-    "type": "progress",
+    "text": "Phase 02: Awaiting Review",
+    "type": "warning",
     "subtext": "Documentation + release execution"
   },
   "message": "Phase 02 implementation started",
@@ -69,6 +69,11 @@
       "id": "implement",
       "label": "Continue",
       "skill": "wf-implement"
+    },
+    {
+      "id": "view-pr",
+      "label": "View Pull Request",
+      "skill": "external-link"
     }
   ],
   "git_sha": "fe186aca",
@@ -94,7 +99,11 @@
     {
       "label": "In Progress",
       "type": "info"
+    },
+    {
+      "label": "Review Needed",
+      "type": "warning"
     }
   ],
-  "pr_url": "https://github.com/iterative-works/support/pull/25"
+  "pr_url": "https://github.com/iterative-works/support/pull/26"
 }
