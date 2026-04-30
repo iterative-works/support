@@ -29,11 +29,11 @@
       "path": "project-management/issues/SUPP-24/phase-02-tasks.md"
     }
   ],
-  "last_updated": "2026-04-30T06:58:12.811085857Z",
-  "status": "awaiting_review",
+  "last_updated": "2026-04-30T07:41:34.756813697Z",
+  "status": "phase_merged",
   "display": {
-    "text": "Phase 02: Awaiting Review",
-    "type": "warning",
+    "text": "Phase 02: Merged",
+    "type": "success",
     "subtext": "Documentation + release execution"
   },
   "message": "Phase 02 implementation started",
@@ -103,6 +103,10 @@
     {
       "label": "Review Needed",
       "type": "warning"
+    },
+    {
+      "label": "Complete",
+      "type": "success"
     }
   ],
   "pr_url": "https://github.com/iterative-works/support/pull/26"
