@@ -106,10 +106,14 @@ object MessageCataloguePerformanceSpec extends ZIOSpecDefault:
         service <- SqlMessageCatalogueService.make(repository, Seq(Language.EN), Language.EN)
         catalogue <- service.forLanguage(Language.EN)
 
-        // Perform 100,000 lookups
+        // Perform 100,000 lookups directly against the in-memory catalogue.
+        // Wrapping each lookup in ZIO.succeed and threading through ZIO.foreach
+        // makes this a measurement of effect-runtime overhead instead of lookup cost.
         startTime <- Clock.nanoTime
-        _ <- ZIO.foreach(1 to 100000) { i =>
-          ZIO.succeed(catalogue.get(MessageId(s"perf.message.${(i % 1000) + 1}")))
+        _ <- ZIO.succeed {
+          (0 until 100000).foreach { i =>
+            catalogue.get(MessageId(s"perf.message.${(i % 1000) + 1}"))
+          }
         }
         endTime <- Clock.nanoTime
         durationMs = (endTime - startTime) / 1_000_000
