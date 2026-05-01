@@ -194,6 +194,6 @@ object MessageCataloguePerformanceSpec extends ZIOSpecDefault:
   ).provideSomeShared[Scope](
     flywayMigrationServiceLayer,
     PostgreSQLMessageCatalogueRepository.layer
-  ) @@ sequential @@ withLiveClock
+  ) @@ sequential @@ withLiveClock @@ ifEnvSet("RUN_PERF_TESTS")
 
 end MessageCataloguePerformanceSpec
