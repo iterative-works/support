@@ -1,0 +1,130 @@
+{
+  "version": 2,
+  "issue_id": "SUPP-24",
+  "artifacts": [
+    {
+      "label": "Analysis",
+      "path": "project-management/issues/SUPP-24/analysis.md",
+      "category": "input"
+    },
+    {
+      "label": "Tasks",
+      "path": "project-management/issues/SUPP-24/tasks.md",
+      "category": "output"
+    },
+    {
+      "label": "Phase 1 Context",
+      "path": "project-management/issues/SUPP-24/phase-01-context.md"
+    },
+    {
+      "label": "Phase 1 Tasks",
+      "path": "project-management/issues/SUPP-24/phase-01-tasks.md"
+    },
+    {
+      "label": "Phase 2 Context",
+      "path": "project-management/issues/SUPP-24/phase-02-context.md"
+    },
+    {
+      "label": "Phase 2 Tasks",
+      "path": "project-management/issues/SUPP-24/phase-02-tasks.md"
+    },
+    {
+      "label": "Review Packet",
+      "path": "project-management/issues/SUPP-24/review-packet.md"
+    },
+    {
+      "label": "Implementation Log",
+      "path": "project-management/issues/SUPP-24/implementation-log.md"
+    },
+    {
+      "label": "Release Notes",
+      "path": "project-management/issues/SUPP-24/release-notes.md"
+    }
+  ],
+  "last_updated": "2026-04-30T07:47:23.274541324Z",
+  "status": "all_complete",
+  "display": {
+    "text": "Ready for Final Review",
+    "type": "success",
+    "subtext": "Documentation + release execution"
+  },
+  "message": "All phases complete - final PR created",
+  "activity": "waiting",
+  "workflow_type": "waterfall",
+  "available_actions": [
+    {
+      "id": "create-tasks",
+      "label": "Generate Tasks",
+      "skill": "wf-create-tasks"
+    },
+    {
+      "id": "implement",
+      "label": "Start Implementation",
+      "skill": "wf-implement"
+    },
+    {
+      "id": "implement",
+      "label": "Start Implementation",
+      "skill": "wf-implement"
+    },
+    {
+      "id": "implement",
+      "label": "Continue",
+      "skill": "wf-implement"
+    },
+    {
+      "id": "view-pr",
+      "label": "View Pull Request",
+      "skill": "external-link"
+    },
+    {
+      "id": "implement",
+      "label": "Continue",
+      "skill": "wf-implement"
+    },
+    {
+      "id": "view-pr",
+      "label": "View Pull Request",
+      "skill": "external-link"
+    },
+    {
+      "id": "view-pr",
+      "label": "View Pull Request",
+      "skill": "external-link"
+    }
+  ],
+  "git_sha": "fe186aca",
+  "needs_attention": true,
+  "phase_checkpoints": {
+    "2": {
+      "context_sha": "context_sha=5270dbf9f9aaef5ef26c974d6e5105f056162d4b"
+    }
+  },
+  "badges": [
+    {
+      "label": "In Progress",
+      "type": "info"
+    },
+    {
+      "label": "Review Needed",
+      "type": "warning"
+    },
+    {
+      "label": "Complete",
+      "type": "success"
+    },
+    {
+      "label": "In Progress",
+      "type": "info"
+    },
+    {
+      "label": "Review Needed",
+      "type": "warning"
+    },
+    {
+      "label": "Complete",
+      "type": "success"
+    }
+  ],
+  "pr_url": "https://github.com/iterative-works/support/pull/27"
+}
