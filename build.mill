@@ -25,9 +25,9 @@ object CommonPomSettings {
   def apply(description: String) = PomSettings(
     description = description,
     organization = "works.iterative.support",
-    url = "https://github.com/iterative-works/iw-support",
+    url = "https://github.com/iterative-works/support",
     licenses = Seq(License.MIT),
-    versionControl = VersionControl.github("iterative-works", "iw-support"),
+    versionControl = VersionControl.github("iterative-works", "support"),
     developers = Seq(
       Developer("mprihoda", "Michal Příhoda", "https://github.com/mprihoda")
     )
