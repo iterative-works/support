@@ -51,15 +51,27 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "actor: ${{ github.actor }}"
-          echo "token length: ${#GH_TOKEN}"
-          echo "token prefix: ${GH_TOKEN:0:4}"
-          curl -sS -o /tmp/diag-resp -w "HTTP %{http_code}\n" \
+          set +e
+          echo "=== probe 1: default content-type (urlencoded, what curl uses with --data) ==="
+          curl -sS -o /tmp/r1 -w "HTTP %{http_code}\n" \
             -u "${{ github.actor }}:$GH_TOKEN" \
             -X PUT --data "test" \
-            "https://maven.pkg.github.com/iterative-works/support/probe/diag/0.0.0/diag-0.0.0.txt"
-          echo "--- response body ---"
-          cat /tmp/diag-resp; echo
+            "https://maven.pkg.github.com/iterative-works/support/probe/ct1/0.0.0/ct1-0.0.0.txt"
+          cat /tmp/r1; echo
+
+          echo "=== probe 2: Content-Type: application/binary (what mill sends) ==="
+          curl -sS -o /tmp/r2 -w "HTTP %{http_code}\n" \
+            -u "${{ github.actor }}:$GH_TOKEN" \
+            -X PUT -H "Content-Type: application/binary" --data "test" \
+            "https://maven.pkg.github.com/iterative-works/support/probe/ct2/0.0.0/ct2-0.0.0.txt"
+          cat /tmp/r2; echo
+
+          echo "=== probe 3: Content-Type: application/octet-stream (standard) ==="
+          curl -sS -o /tmp/r3 -w "HTTP %{http_code}\n" \
+            -u "${{ github.actor }}:$GH_TOKEN" \
+            -X PUT -H "Content-Type: application/octet-stream" --data "test" \
+            "https://maven.pkg.github.com/iterative-works/support/probe/ct3/0.0.0/ct3-0.0.0.txt"
+          cat /tmp/r3; echo
 
       - name: Publish to GitHub Packages
         env:
