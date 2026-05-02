@@ -59,7 +59,7 @@ jobs:
             --snapshotUri https://maven.pkg.github.com/iterative-works/support
 
       - name: Publish to e-BS Nexus
-        if: github.ref_type == 'tag'
+        if: always() && github.ref_type == 'tag'
         env:
           IW_PUBLISH_RELEASE_URI: https://nexus.e-bs.cz/repository/maven-releases/
           IW_PUBLISH_SNAPSHOT_URI: https://nexus.e-bs.cz/repository/maven-snapshots/
