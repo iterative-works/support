@@ -47,60 +47,16 @@ jobs:
           COURSIER_CREDENTIALS: maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
         run: ./mill __.test
 
-      - name: Probe GitHub Packages auth
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set +e
-          echo "=== probe 1: default content-type (urlencoded, what curl uses with --data) ==="
-          curl -sS -o /tmp/r1 -w "HTTP %{http_code}\n" \
-            -u "${{ github.actor }}:$GH_TOKEN" \
-            -X PUT --data "test" \
-            "https://maven.pkg.github.com/iterative-works/support/probe/ct1/0.0.0/ct1-0.0.0.txt"
-          cat /tmp/r1; echo
-
-          echo "=== probe 2: Content-Type: application/binary (what mill sends) ==="
-          curl -sS -o /tmp/r2 -w "HTTP %{http_code}\n" \
-            -u "${{ github.actor }}:$GH_TOKEN" \
-            -X PUT -H "Content-Type: application/binary" --data "test" \
-            "https://maven.pkg.github.com/iterative-works/support/probe/ct2/0.0.0/ct2-0.0.0.txt"
-          cat /tmp/r2; echo
-
-          echo "=== probe 3: Content-Type: application/octet-stream (standard) ==="
-          curl -sS -o /tmp/r3 -w "HTTP %{http_code}\n" \
-            -u "${{ github.actor }}:$GH_TOKEN" \
-            -X PUT -H "Content-Type: application/octet-stream" --data "test" \
-            "https://maven.pkg.github.com/iterative-works/support/probe/ct3/0.0.0/ct3-0.0.0.txt"
-          cat /tmp/r3; echo
-
-          echo "=== probe 4: mill's exact path shape (underscored artifactId) ==="
-          curl -sS -o /tmp/r4 -w "HTTP %{http_code}\n" \
-            -u "${{ github.actor }}:$GH_TOKEN" \
-            -X PUT -H "Content-Type: application/binary" --data "test" \
-            "https://maven.pkg.github.com/iterative-works/support/works/iterative/support/iw-support-core_3/0.1.14/iw-support-core_3-0.1.14.pom"
-          cat /tmp/r4; echo
-
-          echo "=== probe 5: mill's path with .jar suffix ==="
-          curl -sS -o /tmp/r5 -w "HTTP %{http_code}\n" \
-            -u "${{ github.actor }}:$GH_TOKEN" \
-            -X PUT -H "Content-Type: application/binary" --data "test" \
-            "https://maven.pkg.github.com/iterative-works/support/works/iterative/support/iw-support-core_3/0.1.14/iw-support-core_3-0.1.14.jar"
-          cat /tmp/r5; echo
-
-          echo "=== probe 6: same URL, GET (existence check) ==="
-          curl -sS -o /tmp/r6 -w "HTTP %{http_code}\n" \
-            -u "${{ github.actor }}:$GH_TOKEN" \
-            "https://maven.pkg.github.com/iterative-works/support/works/iterative/support/iw-support-core_3/0.1.14/iw-support-core_3-0.1.14.pom"
-          head -c 500 /tmp/r6; echo
-
       - name: Publish to GitHub Packages
         env:
-          IW_PUBLISH_RELEASE_URI: https://maven.pkg.github.com/iterative-works/support
-          IW_PUBLISH_SNAPSHOT_URI: https://maven.pkg.github.com/iterative-works/support
-          MILL_SONATYPE_USERNAME: ${{ github.actor }}
-          MILL_SONATYPE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          MILL_MAVEN_USERNAME: ${{ github.actor }}
+          MILL_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           COURSIER_CREDENTIALS: maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
-        run: ./mill __.publish
+        run: |
+          ./mill mill.javalib.MavenPublishModule/publishAll \
+            --publishArtifacts __:PublishModule.publishArtifacts \
+            --releaseUri https://maven.pkg.github.com/iterative-works/support \
+            --snapshotUri https://maven.pkg.github.com/iterative-works/support
 
       - name: Publish to e-BS Nexus
         if: github.ref_type == 'tag'
