@@ -73,6 +73,26 @@ jobs:
             "https://maven.pkg.github.com/iterative-works/support/probe/ct3/0.0.0/ct3-0.0.0.txt"
           cat /tmp/r3; echo
 
+          echo "=== probe 4: mill's exact path shape (underscored artifactId) ==="
+          curl -sS -o /tmp/r4 -w "HTTP %{http_code}\n" \
+            -u "${{ github.actor }}:$GH_TOKEN" \
+            -X PUT -H "Content-Type: application/binary" --data "test" \
+            "https://maven.pkg.github.com/iterative-works/support/works/iterative/support/iw-support-core_3/0.1.14/iw-support-core_3-0.1.14.pom"
+          cat /tmp/r4; echo
+
+          echo "=== probe 5: mill's path with .jar suffix ==="
+          curl -sS -o /tmp/r5 -w "HTTP %{http_code}\n" \
+            -u "${{ github.actor }}:$GH_TOKEN" \
+            -X PUT -H "Content-Type: application/binary" --data "test" \
+            "https://maven.pkg.github.com/iterative-works/support/works/iterative/support/iw-support-core_3/0.1.14/iw-support-core_3-0.1.14.jar"
+          cat /tmp/r5; echo
+
+          echo "=== probe 6: same URL, GET (existence check) ==="
+          curl -sS -o /tmp/r6 -w "HTTP %{http_code}\n" \
+            -u "${{ github.actor }}:$GH_TOKEN" \
+            "https://maven.pkg.github.com/iterative-works/support/works/iterative/support/iw-support-core_3/0.1.14/iw-support-core_3-0.1.14.pom"
+          head -c 500 /tmp/r6; echo
+
       - name: Publish to GitHub Packages
         env:
           IW_PUBLISH_RELEASE_URI: https://maven.pkg.github.com/iterative-works/support
