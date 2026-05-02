@@ -47,6 +47,20 @@ jobs:
           COURSIER_CREDENTIALS: maven.pkg.github.com ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
         run: ./mill __.test
 
+      - name: Probe GitHub Packages auth
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "actor: ${{ github.actor }}"
+          echo "token length: ${#GH_TOKEN}"
+          echo "token prefix: ${GH_TOKEN:0:4}"
+          curl -sS -o /tmp/diag-resp -w "HTTP %{http_code}\n" \
+            -u "${{ github.actor }}:$GH_TOKEN" \
+            -X PUT --data "test" \
+            "https://maven.pkg.github.com/iterative-works/support/probe/diag/0.0.0/diag-0.0.0.txt"
+          echo "--- response body ---"
+          cat /tmp/diag-resp; echo
+
       - name: Publish to GitHub Packages
         env:
           IW_PUBLISH_RELEASE_URI: https://maven.pkg.github.com/iterative-works/support
