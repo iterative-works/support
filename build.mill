@@ -401,7 +401,7 @@ object sqldb extends JvmOnlyModule {
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioTest,
       IWMillDeps.logbackClassic,
-      mvn"org.testcontainers:testcontainers:1.20.4"
+      mvn"org.testcontainers:testcontainers:1.21.4"
     )
   }
 
@@ -434,7 +434,7 @@ object `sqldb-postgresql` extends JvmOnlyModule {
     def moduleDeps = Seq(`sqldb-postgresql`, sqldb.testing)
 
     def mvnDeps = super.mvnDeps() ++ Seq(
-      mvn"org.testcontainers:postgresql:1.20.4",
+      mvn"org.testcontainers:postgresql:1.21.4",
       mvn"com.dimafeng::testcontainers-scala-postgresql::0.41.5"
     )
   }
@@ -468,7 +468,7 @@ object `sqldb-mysql` extends JvmOnlyModule {
     def moduleDeps = Seq(`sqldb-mysql`, sqldb.testing)
 
     def mvnDeps = super.mvnDeps() ++ Seq(
-      mvn"org.testcontainers:mysql:1.20.4",
+      mvn"org.testcontainers:mysql:1.21.4",
       mvn"com.dimafeng::testcontainers-scala-mysql::0.41.5"
     )
   }
