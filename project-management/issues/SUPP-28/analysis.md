@@ -2,7 +2,27 @@
 
 **Issue:** SUPP-28
 **Created:** 2026-05-14
-**Status:** Draft
+**Status:** Superseded — see Resolution below
+
+## Resolution (2026-05-15)
+
+Fixed in commit `ec69743f` by bumping `org.testcontainers:{testcontainers,postgresql,mysql}` from `1.20.4` to `1.21.4` in `build.mill:404`, `:437`, `:471`.
+
+testcontainers-java `1.21.4` (released 2025-12-15) is an upstream backport described as "makes version 1.21.x works with recent Docker Engine changes" — it removes the hard-coded `VERSION_1_32` fallback that caused silent test-skips on Docker 25+. The fix ships transparently to every downstream consumer of `iw-support-sqldb-postgresql-testing` / `iw-support-sqldb-mysql-testing` via the regular transitive dependency.
+
+Verified locally against Docker engine 29.1.3 (API 1.52, min 1.44):
+- `sqldb-postgresql.test` → 50 tests passed across 7 specs, 0 ignored
+- `sqldb-mysql.test` → 10 tests passed, 0 ignored
+- Wire traffic confirmed `User-Agent: tc-java/1.21.4` and requests against `/v1.44/containers/...`
+
+The originally proposed workaround (Mill `TestModule` mixin with `-Dapi.version=1.46` in `forkArgs`) is no longer needed and was never implemented. The architectural analysis below is preserved as historical record of the investigation that led to checking for an upstream fix.
+
+Upstream context:
+- [testcontainers/testcontainers-java#11212 — Docker 29 incompatibility](https://github.com/testcontainers/testcontainers-java/issues/11212)
+- [testcontainers/testcontainers-java#11360 — fallback fix](https://github.com/testcontainers/testcontainers-java/issues/11360)
+- [testcontainers-java 1.21.4 release](https://github.com/testcontainers/testcontainers-java/releases/tag/1.21.4)
+
+---
 
 ## Problem Statement
 
