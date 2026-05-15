@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "issue_id": "SUPP-28",
+  "artifacts": [
+    {
+      "label": "Analysis",
+      "path": "project-management/issues/SUPP-28/analysis.md",
+      "category": "input"
+    }
+  ],
+  "last_updated": "2026-05-14T07:26:49.124717730Z",
+  "status": "analysis_ready",
+  "display": {
+    "text": "Analysis Ready",
+    "type": "success",
+    "subtext": "Architecture analysis complete"
+  },
+  "message": "Analysis complete - ready for task generation",
+  "activity": "waiting",
+  "workflow_type": "waterfall",
+  "available_actions": [
+    {
+      "id": "create-tasks",
+      "label": "Generate Tasks",
+      "skill": "wf-create-tasks"
+    },
+    {
+      "id": "implement",
+      "label": "Start Implementation",
+      "skill": "wf-implement"
+    }
+  ],
+  "git_sha": "1a3db66c"
+}
