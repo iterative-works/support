@@ -7,6 +7,7 @@ import works.iterative.core.Email
 case class EmailContent(
     subject: String,
     message: String,
+    htmlMessage: Option[String] = None,
     attachments: Attachment*
 )
 
@@ -34,7 +35,7 @@ trait EmailNotificationService:
         content: String,
         attachments: Attachment*
     )(to: Email*): Op[Unit] =
-        sendEmail(EmailContent(subject, content, attachments*))(to*)
+        sendEmail(EmailContent(subject, content, None, attachments*))(to*)
 
     def sendEmail(content: EmailContent)(to: Email*): Op[Unit]
 end EmailNotificationService

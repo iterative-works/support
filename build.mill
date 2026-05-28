@@ -483,10 +483,12 @@ object email extends JvmOnlyModule {
   def moduleName = "email"
   def description = "IW Support Email Library"
   def moduleDeps = Seq(core.jvm)
-  
+
   def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Dependencies.zioConfig ++ Seq(
     mvn"org.apache.commons:commons-email:1.5"
   ) ++ Dependencies.withSilencer(Seq())(using scalaVersion())
+
+  object test extends BaseTests
 }
 
 // Codecs module - pure shared sources
