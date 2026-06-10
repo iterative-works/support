@@ -420,12 +420,17 @@ HTTP4s middleware for Pac4j-based authentication:
 ```scala
 // Source: server/http/src/main/scala/.../impl/pac4j/Pac4jHttpSecurity.scala
 class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
-    baseUri: BaseUri,
     config: Pac4jSecurityConfig,
     pac4jConfig: Config,        // Pac4j Config object
     dispatcher: Dispatcher[F]
 ) extends HttpSecurity
 ```
+
+> **Breaking change in 0.1.16.** The `baseUri: BaseUri` parameter has been removed from
+> `Pac4jHttpSecurity` and `Pac4jConfigFactory`. Cookie `Path` and the OIDC `redirect_uri` are now
+> derived from `Pac4jSecurityConfig` (see [Pac4jSecurityConfig](#pac4jsecurityconfig) below).
+> In 0.1.15 and earlier, passing the full URL as `baseUri = BaseUri(urlBase)` produced a
+> double-prefixed `redirect_uri` and a malformed cookie `Path` attribute.
 
 Key methods:
 
@@ -499,15 +504,21 @@ class AppModuleRegistry(
 ```scala
 // Source: server/http/src/main/scala/.../impl/pac4j/Pac4jSecurityConfig.scala
 case class Pac4jSecurityConfig(
-    urlBase: String,                        // e.g., "https://example.com"
-    callbackBase: String,                   // e.g., "/security"
+    urlBase: String,                        // absolute origin, e.g. "https://example.com"
+    callbackBase: String,                   // path prefix for auth routes, e.g. "/auth/oidc"
     defaultUrl: Option[String],             // redirect after login
     logoutUrl: Option[String],              // redirect after logout
     logoutUrlPattern: Option[String],
     sessionSecret: String,
+    cookiePath: Option[String],             // session/CSRF cookie Path; default "/"
     client: OidcClientConfig,               // primary OIDC provider
     clients: Map[String, OidcClientConfig]  // additional named providers
-)
+):
+    /** Absolute redirect_uri advertised to the IdP. Must appear verbatim in Auth0's allowed list. */
+    def callbackUrl: String = s"$urlBase$callbackBase/callback"
+
+    /** Resolved Path attribute for session and CSRF cookies. */
+    def resolvedCookiePath: String = cookiePath.getOrElse("/")
 
 case class OidcClientConfig(
     clientId: String,
@@ -515,6 +526,42 @@ case class OidcClientConfig(
     discoveryURI: String
 )
 ```
+
+**Validation contract — enforced at config load time by `Pac4jSecurityConfig.config` via `mapOrFail`.**
+Any value that violates these rules surfaces as `zio.Config.Error.InvalidData` at startup, so the
+server never boots with a configuration that would produce a malformed OIDC URL.
+
+| Field          | Rule                                                                                |
+|----------------|--------------------------------------------------------------------------------------|
+| `urlbase`      | matches `^https?://[^/?#]+$` — scheme + host (+ optional port). No path/query/fragment, no trailing `/`. |
+| `callbackbase` | empty, or matches `^/[^/?#]+(/[^/?#]+)*$` — leading `/`, no trailing `/`, no scheme. |
+| `cookiepath`   | when set, matches `^/[^?#]*$`.                                                       |
+| `callbackUrl`  | the composed `urlBase + callbackBase + "/callback"` must parse as an absolute URI with a host. |
+
+**Composition example (Auth0 BFF mounted at origin root):**
+
+```
+urlBase      = "https://app.example.com"
+callbackBase = "/auth/oidc"
+→ callbackUrl = "https://app.example.com/auth/oidc/callback"
+→ resolvedCookiePath = "/"
+```
+
+Auth0's application "Allowed Callback URLs" must contain `"https://app.example.com/auth/oidc/callback"` exactly. `Pac4jConfigFactory.build()` reads `callbackUrl` directly when constructing the `Clients` registry — no further string surgery is performed.
+
+**Env-var mapping.** The ZIO Config descriptor uses lowercase keys; the default `ConfigProvider.envProvider` uppercases them and joins nested fields with `_`:
+
+| Config key                       | Env var                          |
+|----------------------------------|----------------------------------|
+| `security.urlbase`               | `SECURITY_URLBASE`               |
+| `security.callbackbase`          | `SECURITY_CALLBACKBASE`          |
+| `security.cookiepath`            | `SECURITY_COOKIEPATH` (optional) |
+| `security.sessionsecret`         | `SECURITY_SESSIONSECRET`         |
+| `security.client.id`             | `SECURITY_CLIENT_ID`             |
+| `security.client.secret`         | `SECURITY_CLIENT_SECRET`         |
+| `security.client.discoveryuri`   | `SECURITY_CLIENT_DISCOVERYURI`   |
+
+Note the OIDC client subfields are `id` / `secret` / `discoveryuri` — NOT `clientId` / `clientSecret` / `discoveryURI`. The case-class field names are camelCase but the descriptor keys (and env vars) are flat lowercase.
 
 ### Approach 2: Reverse Proxy Headers
 

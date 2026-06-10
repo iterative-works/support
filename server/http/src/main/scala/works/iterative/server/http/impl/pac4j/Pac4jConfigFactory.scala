@@ -1,3 +1,5 @@
+// PURPOSE: Builds the Pac4j Config (clients + session store) from a validated Pac4jSecurityConfig.
+// PURPOSE: Composes the OIDC redirect_uri via Pac4jSecurityConfig.callbackUrl — no string surgery here.
 package works.iterative.server.http
 package impl.pac4j
 
@@ -7,7 +9,6 @@ import org.pac4j.oidc.config.OidcConfiguration
 import org.pac4j.http4s.DefaultHttpActionAdapter
 import cats.effect.Sync
 import org.pac4j.core.client.Clients
-import works.iterative.tapir.BaseUri
 import org.pac4j.core.authorization.generator.AuthorizationGenerator
 import org.pac4j.core.profile.UserProfile
 import java.util.Optional
@@ -20,8 +21,17 @@ import org.pac4j.http4s.Http4sGenericSessionStore
 import org.pac4j.http4s.CacheSessionRepository
 import cats.effect.std.Dispatcher
 
+/** Builds Pac4j's `Config` (clients + session store) from a validated [[Pac4jSecurityConfig]].
+  *
+  * The OIDC client's callback URL is taken verbatim from [[Pac4jSecurityConfig.callbackUrl]];
+  * the cookie `Path` comes from [[Pac4jSecurityConfig.resolvedCookiePath]]. Both values are
+  * validated at config-load time, so this class performs no further URL surgery.
+  *
+  * **Breaking change vs. iw-support 0.1.15:** the `baseUri: BaseUri` constructor parameter has
+  * been removed. Pass [[Pac4jSecurityConfig]] alone — the callback URL is derived from
+  * `urlBase + callbackBase` and the cookie path from `cookiePath`.
+  */
 class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
-    baseUri: BaseUri,
     pac4jConfig: Pac4jSecurityConfig,
     dispatcher: Dispatcher[F],
     authorizationGenerator: AuthorizationGenerator =
@@ -31,8 +41,8 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         new CacheSessionRepository[F],
         dispatcher
     )(
-        path = Some(baseUri.value.fold("/")(_.toString)),
-        secure = pac4jConfig.callbackBase.startsWith("https://"),
+        path = Some(pac4jConfig.resolvedCookiePath),
+        secure = pac4jConfig.urlBase.startsWith("https://"),
         httpOnly = true,
         sameSite = Some(SameSite.Lax)
     )
@@ -40,13 +50,12 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
     @nowarn("cat=deprecation")
     override def build(parameters: AnyRef*): Config =
         val clients = Clients(
-            s"${pac4jConfig.urlBase}${baseUri.value.fold("/")(_.toString)}${pac4jConfig.callbackBase}/callback",
+            pac4jConfig.callbackUrl,
             (oidcClient(pac4jConfig.client) :: (pac4jConfig.clients.map: (name, conf) =>
                 val client = oidcClient(conf)
                 client.setName(name)
                 client
             ).toList).asJava
-            // new AnonymousClient
         )
         val config = new Config(clients)
         config.setHttpActionAdapter(DefaultHttpActionAdapter[F]())
@@ -64,7 +73,6 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         oidcConfiguration.setClientAuthenticationMethod(
             ClientAuthenticationMethod.CLIENT_SECRET_BASIC
         )
-        // oidcConfiguration.addCustomParam("prompt", "consent")
         val oidcClient = new OidcClient(oidcConfiguration)
         oidcClient.setAuthorizationGenerator(authorizationGenerator)
         oidcClient

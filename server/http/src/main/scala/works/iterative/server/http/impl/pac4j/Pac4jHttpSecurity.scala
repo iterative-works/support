@@ -1,3 +1,5 @@
+// PURPOSE: http4s middleware mounting Pac4j callback/logout routes and securing authenticated routes.
+// PURPOSE: Cookie Path comes from Pac4jSecurityConfig.resolvedCookiePath; no BaseUri parameter.
 package works.iterative.server.http
 package impl.pac4j
 
@@ -11,7 +13,6 @@ import org.pac4j.core.engine.DefaultSecurityLogic
 import scala.concurrent.duration.given
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
-import works.iterative.tapir.BaseUri
 import org.pac4j.core.engine.SecurityGrantedAccessAdapter
 import org.http4s.AuthedRoutes
 import cats.effect.std.Dispatcher
@@ -19,8 +20,13 @@ import cats.effect.Sync
 
 trait HttpSecurity
 
+/** http4s middleware wrapping Pac4j's callback / logout routes and the security filter.
+  *
+  * **Breaking change vs. iw-support 0.1.15:** the `baseUri: BaseUri` constructor parameter has
+  * been removed. The cookie `Path` attribute now comes from
+  * [[Pac4jSecurityConfig.resolvedCookiePath]] (defaulting to `"/"`).
+  */
 class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
-    baseUri: BaseUri,
     config: Pac4jSecurityConfig,
     pac4jConfig: Config,
     dispatcher: Dispatcher[F]
@@ -34,7 +40,7 @@ class Pac4jHttpSecurity[F[_] <: AnyRef: Sync](
 
     private val sessionConfig = SessionConfig(
         cookieName = "session",
-        mkCookie = ResponseCookie(_, _, path = Some(baseUri.value.fold("/")(_.toString))),
+        mkCookie = ResponseCookie(_, _, path = Some(config.resolvedCookiePath)),
         secret = config.sessionSecret.getBytes.to(List),
         maxAge = 5.minutes
     )
