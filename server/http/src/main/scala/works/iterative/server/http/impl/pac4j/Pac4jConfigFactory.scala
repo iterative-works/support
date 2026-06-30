@@ -64,6 +64,7 @@ class Pac4jConfigFactory[F[_] <: AnyRef: Sync](
         oidcConfiguration.setClientAuthenticationMethod(
             ClientAuthenticationMethod.CLIENT_SECRET_BASIC
         )
+        c.audience.foreach(a => oidcConfiguration.getCustomParams.put("audience", a))
         // oidcConfiguration.addCustomParam("prompt", "consent")
         val oidcClient = new OidcClient(oidcConfiguration)
         oidcClient.setAuthorizationGenerator(authorizationGenerator)

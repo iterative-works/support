@@ -6,7 +6,8 @@ import zio.*
 case class OidcClientConfig(
     clientId: String,
     clientSecret: String,
-    discoveryURI: String
+    discoveryURI: String,
+    audience: Option[String] = None
 )
 
 case class Pac4jSecurityConfig(
@@ -25,7 +26,7 @@ object Pac4jSecurityConfig:
     val oidcConfig: Config[OidcClientConfig] =
         (string("id") ++ string("secret") ++ string(
             "discoveryuri"
-        )).map(OidcClientConfig.apply)
+        ) ++ string("audience").optional).map(OidcClientConfig.apply)
     end oidcConfig
 
     given config: Config[Pac4jSecurityConfig] =
