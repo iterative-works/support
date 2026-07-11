@@ -1,0 +1,65 @@
+# PURPOSE: Common UI patterns and wait strategies for the scenarios server.
+# PURPOSE: HTMX fragment-swap waits and the selector conventions the SSR renderer emits.
+
+# Wait strategies for dynamic content
+wait_strategies:
+  page_load:
+    description: Wait for full page load (initial GET, full-page POST fallbacks)
+    steps:
+      - wait_for_load_state: networkidle
+
+  htmx_form_swap:
+    description: >
+      Wait after a committed-choice control (select/checkbox/radio/date)
+      changes: htmx POSTs the form and outerHTML-swaps the <form>. Wait for a
+      server-rendered outcome of the change (revealed section heading text,
+      updated summary text), never for timing.
+    steps:
+      - wait_for_network_idle: true
+      - wait_for_text: the content the change is expected to reveal/update
+
+  full_page_submit:
+    description: >
+      Named submit buttons (__submit, add/remove row) POST the whole page to
+      /ssrForm/form and navigate. Ordinary navigation waits suffice.
+    steps:
+      - wait_for_load_state: networkidle
+
+# Selector conventions used in this application
+selector_conventions:
+  description: >
+    The SSR renderer derives everything from IdPath: name attributes are
+    dot-joined paths (inquiry.customer.name), id attributes are dash-joined
+    (inquiry-customer-name). Labels are associated via for/id, so
+    getByLabel works. No data-testid attributes — names are stable because
+    they come from the form declaration.
+  patterns:
+    - pattern: "[name='dot.joined.idpath']"
+      description: Form fields — stable, derived from the declaration
+      priority: 1
+
+    - pattern: "getByLabel('Label text')"
+      description: Accessible label association (renderer emits label[for])
+      priority: 2
+
+    - pattern: "button[name='...']"
+      description: >
+        Named submit buttons: __submit for real submission, declaration
+        button paths (e.g. inquiry.controls.addItem) for server actions
+      priority: 3
+
+    - pattern: "#dash-joined-idpath"
+      description: Element ids — same information as name, dash-joined
+      priority: 4
+
+# Common elements found across pages
+common_elements:
+  field_errors:
+    selector: ".field-errors .field-error"
+    wait_for: visible
+    note: >
+      Assert class="field-errors" (attribute), not the bare string — the
+      inline stylesheet also contains ".field-errors".
+  repeat_state:
+    selector: "input[name$='.__items']"
+    note: Hidden inputs carrying repeated-row state as "key:type" values
