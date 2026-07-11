@@ -941,6 +941,7 @@ object forms extends CrossModule {
       mvn"org.apache.xmlgraphics:fop:2.9",
       mvn"io.github.arainko::ducktape::0.1.11"
     )
+    object test extends BaseTests
   }
 
   object js extends JsModule {
