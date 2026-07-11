@@ -1,0 +1,133 @@
+// PURPOSE: Tests for the SSR HTML renderer that turns UIForm into a scalatags form page
+// PURPOSE: Drives the ssr-html-interpreter slice (FC-D4): plain POST form with HTMX enrichment
+
+package portaly.forms
+
+import zio.test.*
+import scalatags.Text.all.{Frag, span, stringFrag}
+import works.iterative.core.{Language, MessageCatalogue}
+import works.iterative.ui.model.forms.*
+import portaly.forms.impl.FormR
+
+object UIFormHtmlRendererSpec extends ZIOSpecDefault:
+
+    given MessageCatalogue = MessageCatalogue.debug
+
+    val noDisplay: DisplayResolver[FormState, Frag] = new DisplayResolver[FormState, Frag]:
+        def resolve(id: IdPath, state: FormState)(using MessageCatalogue, Language): Frag =
+            span("display:" + id.toHtmlName)
+
+    val renderer = UIFormHtmlRenderer(noDisplay)
+
+    def html(
+        form: Form,
+        state: FormState = FormR.empty,
+        validation: FormValidationState = FormValidationState.valid
+    ): String =
+        val ui = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
+            .buildForm(form, state, validation, None)
+        renderer.render(ui, "/submit").render
+
+    def spec = suite("UIFormHtmlRenderer")(
+        test("renders a post form with htmx wiring and a submit button") {
+            val out = html(Form("demo", "1")(Section("s")(Field("name"))))
+            assertTrue(
+                out.contains("""<form id="demo""""),
+                out.contains("""method="post""""),
+                out.contains("""action="/submit""""),
+                out.contains("""hx-post="/submit""""),
+                out.contains("""hx-trigger="change""""),
+                out.contains("""hx-swap="outerHTML""""),
+                out.contains("""type="submit""")
+            )
+        },
+        test("text field renders label and named input with value and required attribute") {
+            val form = Form("demo", "1")(
+                Section("contact")(Field("name"), Field("email", FieldType("email"), optional = true))
+            )
+            val out = html(form, FormR.strings("demo.contact.name" -> "John"))
+            assertTrue(
+                out.contains("""<label for="demo-contact-name""""),
+                out.contains("""name="demo.contact.name""""),
+                out.contains("""id="demo-contact-name""""),
+                out.contains("""value="John""""),
+                out.contains("""type="email""""),
+                out.matches("(?s).*<input[^>]*name=\"demo.contact.name\"[^>]*required.*")
+            )
+        },
+        test("validation errors render next to the field") {
+            val form = Form("demo", "1")(Section("contact")(Field("name")))
+            val validation = MapFormValidationState(Map(
+                IdPath.full("demo.contact.name") ->
+                    List(works.iterative.core.UserMessage("error.required"))
+            ))
+            val out = html(form, validation = validation)
+            assertTrue(
+                out.contains("field-errors"),
+                out.contains("error.required")
+            )
+        },
+        test("hidden field renders a hidden input") {
+            val form = Form("demo", "1")(
+                Section("meta")(Field("token", FieldType("hidden"), default = Some("s3cret")))
+            )
+            val out = html(form)
+            assertTrue(
+                out.matches("(?s).*<input[^>]*type=\"hidden\"[^>]*name=\"demo.meta.token\".*"),
+                out.contains("""value="s3cret"""")
+            )
+        },
+        test("enum renders a select with options and selected value") {
+            val form = Form("demo", "1")(
+                Section("prefs")(Enum("subscribe", default = Some("false"))("true", "false"))
+            )
+            val out = html(form)
+            assertTrue(
+                out.contains("""<select"""),
+                out.contains("""name="demo.prefs.subscribe""""),
+                out.contains("""value="true""""),
+                out.matches("(?s).*<option[^>]*value=\"false\"[^>]*selected.*")
+            )
+        },
+        test("date renders an input of type date") {
+            val out = html(Form("demo", "1")(Section("s")(Date("birth"))))
+            assertTrue(out.contains("""type="date""""))
+        },
+        test("prose renders a textarea") {
+            val out = html(Form("demo", "1")(Section("s")(Field("story", FieldType("prose")))))
+            assertTrue(out.matches("(?s).*<textarea[^>]*name=\"demo.s.story\".*"))
+        },
+        test("unknown field types degrade to text inputs") {
+            val out = html(Form("demo", "1")(Section("s")(Field("ico", FieldType("czech:ico")))))
+            assertTrue(out.matches("(?s).*<input[^>]*type=\"text\"[^>]*name=\"demo.s.ico\".*"))
+        },
+        test("file field renders a file input honoring multiple") {
+            val form = Form("demo", "1")(
+                Section("docs")(File("attachments", multiple = true, optional = true))
+            )
+            val out = html(form)
+            assertTrue(
+                out.matches("(?s).*<input[^>]*type=\"file\"[^>]*name=\"demo.docs.attachments\".*"),
+                out.contains("multiple")
+            )
+        },
+        test("button renders as a named submit button for server-side handling") {
+            val out = html(Form("demo", "1")(Section("s")(Button("lookup"))))
+            assertTrue(
+                out.matches("(?s).*<button[^>]*name=\"demo.s.lookup\"[^>]*type=\"submit\".*") ||
+                    out.matches("(?s).*<button[^>]*type=\"submit\"[^>]*name=\"demo.s.lookup\".*")
+            )
+        },
+        test("display block renders resolved content") {
+            val out = html(Form("demo", "1")(Section("s")(Display("info"))))
+            assertTrue(out.contains("display:demo.s.info"))
+        },
+        test("section renders a heading from its message key") {
+            val out = html(Form("demo", "1")(Section("contact")(Field("name"))))
+            assertTrue(
+                out.contains("""<section id="demo-contact""""),
+                out.contains("contact.section")
+            )
+        }
+    )
+end UIFormHtmlRendererSpec

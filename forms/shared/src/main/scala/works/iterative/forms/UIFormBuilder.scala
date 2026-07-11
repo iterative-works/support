@@ -100,6 +100,12 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
     private def optionalDecoration(optional: Boolean) =
         if !optional then List(UIFieldDecoration.Required) else Nil
 
+    private def errorDecorations(path: AbsolutePath)
+        : ZPure[Nothing, Unit, Unit, FormValidationState, Nothing, List[UIFieldDecoration]] =
+        ZPure.serviceWith[FormValidationState](
+            _.errors(path).map(UIFieldDecoration.ErrorMessage.apply)
+        )
+
     private def renderHiddenField(
         path: AbsolutePath,
         default: Option[String]
@@ -115,8 +121,11 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         fieldType: UIFieldType,
         default: Option[String],
         optional: Boolean
-    ) = getString(path).map: value =>
-        UILabeledField(
+    ) =
+        for
+            value <- getString(path)
+            errors <- errorDecorations(path)
+        yield UILabeledField(
             path.toHtmlId,
             path.last,
             UITextField(
@@ -126,15 +135,18 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                 value.orElse(default),
                 Nil
             ),
-            optionalDecoration(optional)
+            optionalDecoration(optional) ++ errors
         )
 
     private def renderFileField(
         path: AbsolutePath,
         multiple: Boolean,
         optional: Boolean
-    ) = getFileList(path).map: files =>
-        UILabeledField(
+    ) =
+        for
+            files <- getFileList(path)
+            errors <- errorDecorations(path)
+        yield UILabeledField(
             path.toHtmlId,
             path.last,
             UIFileField(
@@ -144,7 +156,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                 multiple,
                 Nil
             ),
-            optionalDecoration(optional)
+            optionalDecoration(optional) ++ errors
         )
 
     private def renderDisplay(path: AbsolutePath) = ZPure.succeed[Unit, UIFormElement]:
@@ -158,22 +170,24 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         values: List[String],
         default: Option[String]
     ) =
-        getString(path).map: value =>
-            UILabeledField(
+        for
+            value <- getString(path)
+            errors <- errorDecorations(path)
+        yield UILabeledField(
+            path.toHtmlId,
+            path.last,
+            UIChoiceField(
                 path.toHtmlId,
-                path.last,
-                UIChoiceField(
-                    path.toHtmlId,
-                    path.toHtmlName,
-                    value.orElse(default),
-                    values.map: v =>
-                        val o = path / v
-                        UIChoiceOption(o.toHtmlId, v, v)
-                    ,
-                    Nil
-                ),
+                path.toHtmlName,
+                value.orElse(default),
+                values.map: v =>
+                    val o = path / v
+                    UIChoiceOption(o.toHtmlId, v, v)
+                ,
                 Nil
-            )
+            ),
+            errors
+        )
 
     private def resolveCondition(path: AbsolutePath)(condition: Condition)
         : ZPure[Nothing, Unit, Unit, FormState & FormValidationState, Nothing, Boolean] =

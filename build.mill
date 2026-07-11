@@ -937,6 +937,7 @@ object forms extends CrossModule {
     def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, filesRest.jvm, email, paygate, filesMongo)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioConfigTypesafe,
+      IWMillDeps.scalatags,
       mvn"org.scala-lang.modules::scala-xml::2.2.0",
       mvn"org.apache.xmlgraphics:fop:2.9",
       mvn"io.github.arainko::ducktape::0.1.11"

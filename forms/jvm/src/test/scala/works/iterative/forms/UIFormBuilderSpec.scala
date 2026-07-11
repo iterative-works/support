@@ -171,6 +171,28 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             val ui = build(form)
             assertTrue(fieldsOf(ui).collect { case s: UIFormSection => s }.isEmpty)
         },
+        test("validation errors attach as ErrorMessage decorations on the labeled field") {
+            val form = Form("demo", "1")(
+                Section("contact")(Field("name"), Field("phone"))
+            )
+            val msg = works.iterative.core.UserMessage("error.required")
+            val validation = MapFormValidationState(
+                Map(IdPath.full("demo.contact.name") -> List(msg))
+            )
+            val fields = fieldsOf(build(form, validation = validation))
+                .collect { case f: UILabeledField => f }
+            val byId = fields.map(f => f.id -> f).toMap
+            assertTrue(
+                byId("demo-contact-name").decorations.contains(
+                    UIFieldDecoration.ErrorMessage(msg)
+                ),
+                byId("demo-contact-name").decorations.contains(UIFieldDecoration.Required),
+                !byId("demo-contact-phone").decorations.exists {
+                    case _: UIFieldDecoration.ErrorMessage => true
+                    case _                                 => false
+                }
+            )
+        },
         test("form hook post-processes the built tree") {
             val form = Form("demo", "1")(Section("s")(Field("f")))
             val hooked = UIFormBuilder(defaultLayout, Some(f => f.copy(id = "hooked")))
