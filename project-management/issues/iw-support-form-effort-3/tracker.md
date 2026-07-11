@@ -14,9 +14,10 @@ SSR agree by construction · Fit: proof form behaves identically in SSR and SPA
 scenarios, conformance kit green → full card: ./card.md
 
 ## Run-state
-branch iw-support-form-effort · last sha 1aa15acd · run/see:
+branch iw-support-form-effort · last sha b9cddcc3 · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN 4 (FormData)
+`./mill forms.jvm.test` · next: OPEN 5 (Validation vocabulary, relocation
+folded in — the compiler needs shared rules, so 6 merges into 5)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -38,16 +39,27 @@ branch iw-support-form-effort · last sha 1aa15acd · run/see:
       all drift-prone semantics now shared. Revisit at the SPA-refold step
       if LiveHtmlInterpreter needs more; Michal may push back.
 
+## DONE (continued)
+- [x] `FormData` (`Map[AbsolutePath, List[FieldValue]]`, `Text`/`File`)
+      implements FormState, keeps `parse` + `__items`, `overrideWith`
+      actually overrides (pinned red-green; FormR's was byte-identical to
+      combineWith and has ZERO callers anywhere incl. client repos)
+      (6559d617); SSR loop runs on it — SsrFormScenario ingests/rewrites/
+      dumps via FormData, success page no longer stringifies through a wire
+      codec (b9cddcc3). BOUNDARY: remaining FormR uses are edges only —
+      repository stack (REST+MariaDB), FormRJsonEncoder (medeca), PDF
+      interpreters (slice 3), persistence services; they rebind per FC-D2.
+      SPA internals (LiveHtmlInterpreter, ButtonHandler, form fields) move
+      at the SPA-refold step.
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] `FormData` (`Map[AbsolutePath, List[FieldValue]]`, `Text`/`File`)   <-- NEXT
-      implements FormState, keeps `parse` + `__items`; replaces FormR
-      internally; `overrideWith` bug pinned red-green
-- [ ] Declared `Validation` vocabulary: `Field.validations: List[Validation]
+- [ ] Declared `Validation` vocabulary: `Field.validations: List[Validation]   <-- NEXT
       = Nil` (zio-json default-decode pinned first); pure compiler to
-      validation rules; RequiredValidation folds in; SSR POST uses it
-- [ ] `ValidationRule`/`ValidationState` relocate forms/js → forms/shared
-      (verified no Laminar imports); SPA reactive validation wraps the same
-      pure rules
+      validation rules; RequiredValidation folds in; SSR POST uses it.
+      Folds in the relocation (was its own item): `ValidationRule`/
+      `ValidationState` move forms/js → forms/shared first (verified no
+      Laminar imports) — the compiler can't target JS-only rules from the
+      JVM POST path; SPA reactive validation wraps the same pure rules
 - [ ] `FieldKind` enum + `Custom(id)` + hand-written wire-stable codec
       (FC-D6); interpreters dispatch exhaustively; codec round-trip tests
       over the client-audit id list

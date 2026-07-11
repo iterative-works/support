@@ -12,18 +12,27 @@ companion: intent.md, decisions.md, map.md (same directory)
 
 ## Where we are right now
 
-The **ssr-html-interpreter slice is code-complete** and its output —
-`uiform-gap-inventory.md` — is written. SSR browser HTML now exists:
-`UIFormHtmlRenderer` (UIForm → scalatags, HTMX-enriched POST form),
-`RequiredValidation` (shared, from the `optional` flag), and
-`SsrFormScenario` hosting a rich form in the scenarios server with a full
-GET/POST loop (conditions re-evaluate, repeated rows add/remove
-server-side, errors render, serialized+reloaded declaration renders
-byte-identical HTML). 55 tests across forms + scenarios, all green.
-Next unblocked step: **core-hardening-spa-refold**, gated on Michal
-reading the gap inventory (it proposes ADT-level dispositions).
+The **core-hardening-spa-refold slice is running**
+(`project-management/issues/iw-support-form-effort-3/tracker.md` is the
+step-level state). Landed so far: shared `Condition.eval` +
+`Repeated.instances` with all five walkers refolded, and `FormData` as
+the typed value currency with the SSR loop running on it. Next per the
+tracker: declared `Validation` vocabulary with the ValidationRule/State
+relocation to shared folded in.
 
 ## Log
+
+- **2026-07-12 — FormData lands; SSR loop runs on it.** `FormData`
+  (`Map[AbsolutePath, List[FieldValue]]`, `Text`/`File`) implements
+  FormState, keeps `parse` posted-body ingestion and the `__items`
+  convention; `overrideWith` actually overrides — pinned red-green
+  (FormR's was byte-identical to combineWith; zero callers anywhere,
+  client repos included). SsrFormScenario ingests, rewrites and dumps
+  through FormData; the success page no longer stringifies file values
+  through a wire codec. Remaining FormR uses are edges only (repository
+  stack, FormRJsonEncoder for medeca, PDF interpreters, persistence
+  services) rebinding per FC-D2; SPA internals move at the SPA-refold
+  step. All green incl. browser e2e 5/5.
 
 - **2026-07-11 — core-hardening-spa-refold opened; condition/repeat semantics
   unified.** Slice card + tracker at
