@@ -74,3 +74,46 @@ vocabulary stays byte-stable.
 Propagation:
 - [ ] slice 3 (PDF) scope
 - [x] forms-plan.md updated
+
+## FC-D6 — Field-type vocabulary: closed FieldKind + Custom(id) (2026-07-11)
+
+`FieldType(id: String)` is replaced (slice 2) by a closed `enum FieldKind`
+with a `Custom(id)` escape hatch and a **hand-written wire-stable codec**
+(existing strings decode to their kinds, unknown strings to `Custom`; encode
+round-trips the exact original id — stored definitions and `ui:*` XML are
+unaffected). Interpreters match exhaustively; per-target SPI for `Custom`.
+
+Audit of client repos (cmi-portaly, medeca-modul-poptavky) fixing the closed
+cases: text/string, hidden, date, prose (textarea), select, checkbox,
+number + `number:natural` + `number:real_non_negative` (⇒ parameterized
+`Number(kind)`), `base:email`, `base:phone`, `base:zip`, autocomplete-backed
+`base:country`/`base:ruian`. `czech:ico` goes to czech-support; `cmi:*`
+(~15 ids) and `medeca:*` (~18 ids) stay `Custom`. Observed drift
+(`medeca:mds_mdt` in a test vs `mds`/`mdt` in declarations) confirms the
+typo-invisibility problem the closed enum fixes.
+
+Propagation:
+- [ ] slice 2 scope — FieldKind + codec + conformance kit
+- [x] forms-plan.md updated (core shape + open question 4 resolved)
+
+## FC-D7 — Faithful rebuild: submission-time message snapshot (2026-07-11)
+
+`FormBundle` embeds a server-side snapshot of resolved message texts taken
+at **final submission** — labels (with fallback chains), enum option labels,
+and resolved Display-block content (consent texts are the highest-stakes
+case) — plus session language and `catalogueRef` as provenance. Rebuild
+renders from the snapshot only; the close-gate definition of faithful is
+**byte-equal render using only the bundle**. Drafts do NOT snapshot (still
+editable, meaning not yet frozen). Visual skin (Components theme, XSLT
+styling) is out of scope — meaning is carried by text, not pixels.
+
+Retroactive enrichment: the one-time converter also adds snapshots to
+existing submissions, resolved from the best available historical source
+(git/DB history of catalogues where recoverable, current catalogue as
+fallback), stamped with provenance (`snapshotOrigin: live | retrofit(date,
+source)`) so retrofitted artifacts are never mistaken for fill-time
+evidence. Stated limitation: true fill-time exactness begins at adoption.
+
+Propagation:
+- [ ] slice 3 scope — FormBundle snapshot + retroactive converter
+- [x] forms-plan.md updated (serialize/rebuild row + open question 3 resolved)

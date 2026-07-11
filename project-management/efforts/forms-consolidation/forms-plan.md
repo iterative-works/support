@@ -3,11 +3,9 @@
 
 # Forms Consolidation — Decision & Plan
 
-Status: **accepted 2026-07-11** for the spine, retirement list, wire posture,
-czech-support extraction, scalatags+HTMX SSR substrate, module layout, and
-default `uiform.xsl` (decisions FC-D1…FC-D5). Still in discussion: labels &
-faithful rebuild (open question 3) and the field-type vocabulary shape (open
-question 4).
+Status: **accepted in full 2026-07-11** — decisions FC-D1…FC-D7 in
+`decisions.md`. All nine open questions are resolved; `ssr-html-interpreter`
+is the active slice.
 
 How this was produced: five parallel code mappers over the lineages, three
 independent architecture proposals under opposing stances (portaly-spine,
@@ -250,15 +248,15 @@ the live risks and their mitigations:
 
 1. **Retirement sign-off** — ✅ approved (FC-D2).
 2. **Wire posture** — ✅ one-time offline converters approved (FC-D2).
-3. **Labels & faithful rebuild** — 🔶 in discussion. Requirement stated by
-   Michal: the form display must be reconstructable exactly as the client
-   saw it when filling it out; evolving messages must never change the
-   meaning of already-filled fields (currently unenforced). Leading option:
-   server-side resolved-message snapshot at submission time (including
-   resolved Display-block texts — consent texts are the highest-stakes
-   case), with language + catalogueRef recorded as provenance.
-4. **Field-type vocabulary** — 🔶 in discussion (open-string+index vs closed
-   `FieldKind`+`Custom(id)` with a hand-written wire-stable codec).
+3. **Labels & faithful rebuild** — ✅ submission-time resolved-message
+   snapshot in `FormBundle` (incl. Display-block texts); drafts don't
+   snapshot; skin out of scope; retroactive converter enriches old
+   submissions with provenance-stamped snapshots (FC-D7). Requirement:
+   evolving messages must never change the meaning of already-filled
+   fields; faithful = byte-equal render using only the bundle.
+4. **Field-type vocabulary** — ✅ closed `FieldKind` + `Custom(id)` with a
+   hand-written wire-stable codec, closed cases fixed by the client-repo
+   audit (FC-D6).
 5. **Czech/CMI remnants** — ✅ `czech-support` extras module in-repo first,
    off-repo later (FC-D3).
 6. **SSR substrate** — ✅ scalatags with HTMX support (FC-D4): condition

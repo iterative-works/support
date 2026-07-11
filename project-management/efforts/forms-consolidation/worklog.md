@@ -12,18 +12,33 @@ companion: intent.md, decisions.md, map.md (same directory)
 
 ## Where we are right now
 
-The forms-plan analysis is done and written up in `forms-plan.md` (same
-directory) — **awaiting Michal's sign-off**. The proposed decision: the
-portaly spine wins (`FormSegment` → `UIFormBuilder` → `UIForm` →
-`Interpreter`), renamed `works.iterative.forms`; `FormSchema[A]`'s
-type-safety folds in as `TypedForm[A]` compiling down to the spine;
-`laminar.forms`, `tailwind.form`, and the `formsCore` mini-lineage retire.
-The plan carries a per-item retirement sign-off list and nine open questions.
-Once signed off, decisions land as FC-D1/FC-D2 and `ssr-html-interpreter`
-becomes the active slice (revised to a zero-ADT-change first cut per the
-plan's slice sequence).
+The forms-plan slice is **done and signed off in full** (FC-D1…FC-D7 in
+`decisions.md`; plan in `forms-plan.md`). Portaly spine wins; typed layer
+grafts on as `TypedForm[A]`; retirement list approved; one-time converters;
+czech-support extras module; scalatags+HTMX SSR; closed `FieldKind` +
+`Custom(id)` (audit done); submission-time message snapshots for faithful
+rebuild; default `uiform.xsl` will ship. Next unblocked step:
+**ssr-html-interpreter** slice — zero ADT changes: characterization tests
+(first tests in the lineage; needs test sub-modules added to build.mill),
+UIForm→scalatags renderer templated on `UIFormXMLRenderer`, GET/POST loop
+with HTMX fragment swaps, hosted in the scenarios server (fix the
+formsScenarios moduleDir bug), serialize/reload dynamism proof riding along.
 
 ## Log
+
+- **2026-07-11 — Plan signed off in full (FC-D1…FC-D7).** Michal approved
+  retirement + converters + czech-support + scalatags/HTMX + default xsl in
+  round one; rounds two settled the last two questions: field-type
+  vocabulary = closed `FieldKind`+`Custom(id)` with wire-stable codec
+  (client-repo audit run: generic core + `base:*` + parameterized numbers;
+  `cmi:*`/`medeca:*` stay Custom; found real vocabulary drift `mds_mdt`),
+  and faithful rebuild = submission-time message snapshot (drafts excluded,
+  skin out of scope, retroactive provenance-stamped enrichment of old
+  submissions). Found client `uiform.xsl` reference implementations for the
+  shipped default (cmi-portaly, medeca-modul-poptavky). Also spotted a
+  form-editor prototype in cmi-portaly (`FormEditorScenario`,
+  `forms:fieldType`/`forms:condition`) — relevant to the parked
+  form-editor horizon. Marked forms-plan done in the map.
 
 - **2026-07-11 — forms-plan analysis run (ultracode).** Deliberately ran
   outside the strict slice process to build momentum. Multi-agent workflow:
