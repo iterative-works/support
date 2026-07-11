@@ -88,8 +88,8 @@ object SsrFormScenario extends Scenario:
     private val renderer = UIFormHtmlRenderer(displayResolver)
     private val builder = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
 
-    def renderFormTag(state: FormState, validation: FormValidationState): Tag =
-        renderer.render(builder.buildForm(formDeclaration, state, validation, None), postAction)
+    def renderFormTag(form: Form, state: FormState, validation: FormValidationState): Tag =
+        renderer.render(builder.buildForm(form, state, validation, None), postAction)
 
     private val style = """
         body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
@@ -119,7 +119,7 @@ object SsrFormScenario extends Scenario:
         )
 
     override def page: Html =
-        Html.raw(shell(renderFormTag(initialState, FormValidationState.valid)))
+        Html.raw(shell(renderFormTag(formDeclaration, initialState, FormValidationState.valid)))
 
     def respond(raw: Map[String, Seq[String]], hxRequest: Boolean): Response =
         val data = FormR.parse(raw)
@@ -155,7 +155,7 @@ object SsrFormScenario extends Scenario:
         hxRequest: Boolean,
         validation: FormValidationState = FormValidationState.valid
     ): Response =
-        val formTag = renderFormTag(state, validation)
+        val formTag = renderFormTag(formDeclaration, state, validation)
         if hxRequest then htmlResponse(formTag.render)
         else htmlResponse(shell(formTag))
     end respondForm
@@ -172,7 +172,11 @@ object SsrFormScenario extends Scenario:
 
     override val routes: Routes[Any, Nothing] = Routes(
         Method.GET / Root / id / "page" -> handler(
-            htmlResponse(shell(renderFormTag(initialState, FormValidationState.valid)))
+            htmlResponse(shell(renderFormTag(
+                formDeclaration,
+                initialState,
+                FormValidationState.valid
+            )))
         ),
         Method.POST / Root / id / "form" -> handler { (req: Request) =>
             req.body.asURLEncodedForm.map { form =>
