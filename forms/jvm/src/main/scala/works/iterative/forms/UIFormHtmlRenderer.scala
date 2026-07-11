@@ -18,9 +18,15 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             method := "post",
             action := postAction,
             attr("hx-post") := postAction,
-            attr("hx-trigger") := "change",
+            // Only committed-choice controls trigger a re-render: swapping the form on
+            // text-field change would wipe values typed while the request was in flight
+            attr("hx-trigger") := UIFormHtmlRenderer.rerenderTrigger,
             attr("hx-target") := "this",
-            attr("hx-swap") := "outerHTML"
+            attr("hx-swap") := "outerHTML",
+            // novalidate: htmx validates forms before ANY request unless noValidate is set,
+            // which would block change re-renders while required fields are still blank.
+            // Validation is the server's job; required attributes stay for a11y/styling.
+            attr("novalidate").empty
         )(
             renderMessage(form.messageKey, "title").map(h1(_)),
             form.children.map(renderElement),
@@ -173,4 +179,11 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
     private def fileLabel(file: UIFile): String = file match
         case name: String                      => name
         case ref: works.iterative.core.FileRef => ref.name
+end UIFormHtmlRenderer
+
+object UIFormHtmlRenderer:
+    val rerenderTrigger: String =
+        List("select", "input[type='checkbox']", "input[type='radio']", "input[type='date']")
+            .map(sel => s"change from:$sel")
+            .mkString(", ")
 end UIFormHtmlRenderer

@@ -107,3 +107,6 @@ sbt-launch.jar
 
 # direnv secrets
 .envrc.local
+
+# playwright verification artifacts
+.playwright-mcp/

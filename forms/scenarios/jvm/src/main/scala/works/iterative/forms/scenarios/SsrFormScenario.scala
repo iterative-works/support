@@ -104,6 +104,7 @@ object SsrFormScenario extends Scenario:
     private def shell(inner: Frag): String =
         "<!doctype html>" + html(
             head(
+                meta(charset := "utf-8"),
                 tags2.title("SSR Form"),
                 script(src := "https://unpkg.com/htmx.org@2.0.2"),
                 tag("style")(raw(style))
@@ -111,11 +112,15 @@ object SsrFormScenario extends Scenario:
             body(inner)
         ).render
 
-    // Response.html would prepend its own doctype, breaking fragment swaps
+    // Response.html would prepend its own doctype, breaking fragment swaps.
+    // Explicit utf-8 charset: browsers otherwise submit forms in Latin-1
     private def htmlResponse(content: String): Response =
         Response(
             body = zio.http.Body.fromString(content),
-            headers = zio.http.Headers(zio.http.Header.ContentType(zio.http.MediaType.text.html))
+            headers = zio.http.Headers(zio.http.Header.ContentType(
+                zio.http.MediaType.text.html,
+                charset = Some(java.nio.charset.StandardCharsets.UTF_8)
+            ))
         )
 
     override def page: Html =
@@ -179,13 +184,12 @@ object SsrFormScenario extends Scenario:
             )))
         ),
         Method.POST / Root / id / "form" -> handler { (req: Request) =>
-            req.body.asURLEncodedForm.map { form =>
-                val raw = form.formData
-                    .collect {
-                        case zio.http.FormField.Simple(name, value)     => name -> value
-                        case zio.http.FormField.Text(name, value, _, _) => name -> value
-                    }
-                    .groupMap(_._1)(_._2).view.mapValues(_.toSeq).toMap
+            // Body.asURLEncodedForm merges duplicate field names into one comma-joined
+            // value, corrupting multi-value fields like __items; QueryParams.decode
+            // preserves duplicates and percent-encoded commas
+            req.body.asString.map { bodyString =>
+                val raw = zio.http.QueryParams.decode(bodyString)
+                    .map.view.mapValues(_.toSeq).toMap
                 respond(raw, req.headers.get("HX-Request").contains("true"))
             }.orDie
         }

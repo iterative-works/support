@@ -103,6 +103,21 @@ object RequiredValidationSpec extends ZIOSpecDefault:
                 optional.isValid(IdPath.full("demo.items"))
             )
         },
+        test("error labels resolve through the form-scoped catalogue like the renderers") {
+            // Repeated rows have dynamic path segments (item keys); the label must fall
+            // back through the suffix chain under the form prefix: inquiry.row.qty.label
+            val catalogue = works.iterative.core.service.impl.InMemoryMessageCatalogue(
+                works.iterative.core.Language.EN,
+                Map("inquiry.row.qty.label" -> "Quantity")
+            )
+            val form = Form("inquiry", "1")(
+                Repeated("items", optional = true)(Section("row")(Field("qty")))
+            )
+            val state = FormR(Map(IdPath("inquiry.items.__items") -> List("i1:row")))
+            val result = RequiredValidation.validate(form, state)(using catalogue)
+            val args = result.errors(IdPath.full("inquiry.items.i1.row.qty")).head.args
+            assertTrue(args == Seq("Quantity"))
+        },
         test("required file field without files is invalid") {
             val form = Form("demo", "1")(Section("docs")(File("attachment")))
             val result = RequiredValidation.validate(form, FormR.empty)

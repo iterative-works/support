@@ -8,10 +8,16 @@ import works.iterative.ui.model.forms.{AbsolutePath, FormState, IdPath}
 
 object RequiredValidation:
 
-    def validate(form: Form, state: FormState)(using MessageCatalogue): MapFormValidationState =
+    def validate(form: Form, state: FormState)(using
+        messages: MessageCatalogue
+    ): MapFormValidationState =
+        // Resolve labels under the form prefix exactly like the renderers do, so the
+        // suffix fallback chain finds e.g. inquiry.row.qty.label for dynamic row paths
+        given MessageCatalogue = messages.nested(form.id.serialize)
         MapFormValidationState(
             collect(IdPath.Root / form.id, form.elems, state).groupMap(_._1)(_._2)
         )
+    end validate
 
     private def requiredError(path: AbsolutePath)(using MessageCatalogue) =
         path -> UserMessage("error.field.required", path.toMessage("label"))

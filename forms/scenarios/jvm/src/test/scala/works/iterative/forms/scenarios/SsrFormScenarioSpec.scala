@@ -36,6 +36,10 @@ object SsrFormScenarioSpec extends ZIOSpecDefault:
                 body <- response.body.asString
             yield assertTrue(
                 response.status == Status.Ok,
+                // browsers fall back to Latin-1 form submission without an explicit charset,
+                // mangling any non-ASCII input
+                response.headers.get("Content-Type").exists(_.contains("charset=utf-8")),
+                body.contains("""<meta charset="utf-8""""),
                 body.contains("""name="inquiry.customer.name""""),
                 body.contains("""hx-post="/ssrForm/form""""),
                 body.contains("""name="inquiry.items.__items""""),
@@ -98,6 +102,26 @@ object SsrFormScenarioSpec extends ZIOSpecDefault:
                 !removedBody.contains("""value="i1:row""""),
                 !removedBody.contains("""name="inquiry.items.i1.row.qty""""),
                 !removedBody.contains("Widget")
+            )
+        },
+        test("removing one of two rows keeps the other row and its data") {
+            val twoRows = baseFields ++ Seq(
+                "inquiry.items.__items" -> "i2:row",
+                "inquiry.items.i2.row.qty" -> "5",
+                "inquiry.items.i2.row.desc" -> "Gadget"
+            )
+            for
+                removed <- post(
+                    "/ssrForm/form",
+                    ("inquiry.items.i1.row.remove" -> "go") +: twoRows*
+                )
+                body <- removed.body.asString
+            yield assertTrue(
+                body.contains("""value="i2:row""""),
+                body.contains("""name="inquiry.items.i2.row.qty""""),
+                body.contains("Gadget"),
+                !body.contains("""value="i1:row""""),
+                !body.contains("Widget")
             )
         },
         test("the declaration survives serialize/reload and renders the identical page") {

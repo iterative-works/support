@@ -25,6 +25,22 @@ reading the gap inventory (it proposes ADT-level dispositions).
 
 ## Log
 
+- **2026-07-11 — Real-browser e2e verification (Playwright) found and fixed
+  four bugs the route tests missed.** Full journey now passes in Chromium:
+  render → condition reveal via HTMX → blank-submit errors with resolved
+  labels → fill (Czech diacritics) → add row → remove row keeping the other
+  row's data → submit → success page with faithful data. Fixes: `novalidate`
+  on the form (htmx halts ALL requests on HTML5 invalidity — checked
+  `form.noValidate`, not `hx-validate="false"`); re-render trigger narrowed
+  to committed-choice controls (outerHTML swap on text-field change wiped
+  in-flight input; morph swaps are the slice-2+ path); UTF-8 charset in
+  meta + Content-Type (browsers fell back to Latin-1 submission); POST body
+  decoding via `QueryParams.decode` (zio-http's `asURLEncodedForm` merges
+  duplicate names, corrupting `__items`); validator label resolution scoped
+  to the form prefix like the renderers. Gap inventory gained a "found only
+  by real-browser verification" section — browser e2e must be part of the
+  SSR loop's regression suite.
+
 - **2026-07-11 — ssr-html-interpreter slice done.** Characterization tests
   first (UIFormBuilder fold, wire codecs, FormR algebra — first tests in
   the lineage), then TDD: SSR renderer templated on `UIFormXMLRenderer`

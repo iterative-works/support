@@ -36,8 +36,15 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
                 out.contains("""method="post""""),
                 out.contains("""action="/submit""""),
                 out.contains("""hx-post="/submit""""),
-                out.contains("""hx-trigger="change""""),
+                // only committed-choice controls re-render: outerHTML-swapping on text-field
+                // change wipes values the user typed while the request was in flight
+                out.contains(
+                    """hx-trigger="change from:select, change from:input[type='checkbox'], change from:input[type='radio'], change from:input[type='date']""""
+                ),
                 out.contains("""hx-swap="outerHTML""""),
+                // novalidate: change re-renders must fire while required fields are blank
+                // (htmx validates forms unless noValidate), and the server is the validator
+                out.contains("novalidate"),
                 // named so the server can tell real submissions from change-triggered re-renders
                 out.matches("(?s).*<button[^>]*name=\"__submit\"[^>]*type=\"submit\".*")
             )

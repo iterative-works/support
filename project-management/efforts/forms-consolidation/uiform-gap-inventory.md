@@ -89,6 +89,41 @@ vocabulary — grep of client repos for usage should decide).
   labels, but multipart upload → `FileRef` was out of slice scope. The
   serialize-pdf-roundtrip slice touches files and should close this.
 
+## Found only by real-browser verification (Playwright, 2026-07-11)
+
+Route-level tests and curl all passed while every one of these was broken in
+an actual browser; the SSR loop needs browser e2e in its regression suite.
+
+- **htmx gates every request on HTML5 form validity.** With `required`
+  inputs still blank, change-triggered re-renders died in
+  `htmx:validation:halted` — the dynamism never fired mid-fill, which is
+  exactly when it matters. Fixed: the renderer emits `novalidate`
+  (htmx 2.0.2 checks `form.noValidate`, NOT `hx-validate="false"` — that
+  value only opts non-form elements *in*). Consequence: the server is the
+  single validator, identical behavior with and without JS; `required`
+  attributes remain for a11y/styling.
+- **outerHTML-swapping a form the user is editing loses input.** Any text
+  field's change → POST → swap replaced the whole form with the state as of
+  that POST, wiping values typed while the request was in flight (Playwright
+  hit it deterministically; fast typists would too). Fixed for the slice:
+  only committed-choice controls (`select`, checkbox, radio, date) trigger
+  re-render. **Disposition for slice 2+**: text-field-driven conditions need
+  DOM morphing (idiomorph / `hx-swap="morph"`) instead of outerHTML swaps.
+- **Missing charset declaration → Latin-1 form submission.** Without
+  `<meta charset>` + `Content-Type; charset=utf-8`, browsers submitted
+  Czech input as Latin-1 with HTML-entity escapes (`P&#345;ï¿½hoda`). Any
+  SSR host of the renderer must declare UTF-8 in both places.
+- **zio-http `Body.asURLEncodedForm` merges duplicate field names** into
+  one comma-joined value, corrupting every multi-value field (`__items`
+  became `"i1:row,i2:row"`, so removing one row deleted all rows).
+  `QueryParams.decode` preserves duplicates and percent-encoded commas —
+  the POST loop must use it (or equivalent), never `asURLEncodedForm`.
+- **Error labels resolved differently in validator vs renderers.** The
+  validator resolved label args against the root catalogue while renderers
+  resolve under the form prefix; repeated-row errors showed raw keys
+  (`inquiry.items.i1.row.qty.label`). Fixed: `RequiredValidation` nests the
+  catalogue with the form id, aligning both resolution chains.
+
 ## Fixed during this slice (no longer gaps)
 
 - Validation state now surfaces as `UIFieldDecoration.ErrorMessage` on
