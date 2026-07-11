@@ -22,7 +22,7 @@ discovered by running it.
   FieldKind + wire-stable codec (FC-D6), TypedForm[A] + InputSchema
   relocation, package rename, czech-support extraction (FC-D3);
   LiveHtmlInterpreter refolds onto the shared pieces; conformance test kit.
-  issue: <once active>
+  issue: iw-support-form-effort-3 (local slice, no tracker issue)
 - [x] **ssr-html-interpreter** (type: sl, after: forms-plan) — the missing
   capability: render one rich form as server-side browser HTML off the chosen
   core, alongside the existing SPA render. First point a form is run-and-seen
