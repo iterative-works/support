@@ -14,22 +14,32 @@ SSR agree by construction · Fit: proof form behaves identically in SSR and SPA
 scenarios, conformance kit green → full card: ./card.md
 
 ## Run-state
-branch iw-support-form-effort · last sha c4dd683e · run/see:
+branch iw-support-form-effort · last sha 1aa15acd · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN 1
+`./mill forms.jvm.test` · next: OPEN 4 (FormData)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
+- [x] Shared pure `Condition.eval` + `Condition.references`; UIFormBuilder +
+      RequiredValidation refold; NonEmpty pin flipped, empty-combinator
+      crash gone (650761e8)
+- [x] All walkers evaluate through Condition.eval: LiveHtmlInterpreter
+      (reactive snapshot over referenced paths), ReadOnlyHtmlInterpreter,
+      FormRJsonEncoder (1603d16e). FINDING: FormRJsonEncoder is NOT
+      zero-consumer — medeca-modul-poptavky uses it (SubmissionLikeService,
+      ZmenaZadostiWorkflow); retirement item 5 needs replanning for it —
+      it stays compiling on FormR until medeca rebinds (FC-D2 sequencing)
+- [x] Shared structural semantics: ShowIf gating = Condition.eval (prev
+      step) + `Repeated.instances` (template fallback, total on empty
+      templates) replacing three private expansions (1aa15acd). Fixed:
+      read-only renderer dropped all rows but the first (comma-split of
+      the first __items entry). DELIBERATE NARROWING vs plan letter: no
+      generic visitor fold — remaining per-walker code is leaf rendering;
+      all drift-prone semantics now shared. Revisit at the SPA-refold step
+      if LiveHtmlInterpreter needs more; Michal may push back.
 
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] Shared pure `Condition.eval` (TDD), UIFormBuilder + RequiredValidation
-      refold onto it; pinned NonEmpty test flips; empty-combinator crash goes
-      — needed for fit because one evaluator is the anti-drift mechanism   <-- NEXT
-- [ ] JS walkers (LiveHtmlInterpreter reactive wrap, ReadOnlyHtmlInterpreter)
-      evaluate through `Condition.eval` — kills the ×4 semantics drift
-- [ ] Shared segment fold (dispatch + ShowIf gating + Repeated expansion)
-      extracted; UIFormBuilder and RequiredValidation become instances
-- [ ] `FormData` (`Map[AbsolutePath, List[FieldValue]]`, `Text`/`File`)
+- [ ] `FormData` (`Map[AbsolutePath, List[FieldValue]]`, `Text`/`File`)   <-- NEXT
       implements FormState, keeps `parse` + `__items`; replaces FormR
       internally; `overrideWith` bug pinned red-green
 - [ ] Declared `Validation` vocabulary: `Field.validations: List[Validation]

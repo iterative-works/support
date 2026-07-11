@@ -25,6 +25,24 @@ reading the gap inventory (it proposes ADT-level dispositions).
 
 ## Log
 
+- **2026-07-11 — core-hardening-spa-refold opened; condition/repeat semantics
+  unified.** Slice card + tracker at
+  `project-management/issues/iw-support-form-effort-3/`. Client-repo grep
+  settled the inventory's open semantics: `IsValid` stays (production gates
+  `complete_ares` on it), `NonEmpty` means blank-filtering (production
+  declares `default: ""` behind a NonEmpty gate). Landed: shared pure
+  `Condition.eval` + `Condition.references` with all five walkers evaluating
+  through it (UIFormBuilder, RequiredValidation, LiveHtmlInterpreter via
+  reactive snapshot, ReadOnlyHtmlInterpreter, FormRJsonEncoder), and shared
+  `Repeated.instances` replacing three private __items expansions. Behavior
+  changes for the migration guide: NonEmpty no longer counts blank values,
+  empty AnyOf/AllOf no longer crash, read-only renderer no longer drops
+  repeated rows past the first. Findings for Michal: FormRJsonEncoder is
+  NOT zero-consumer (medeca-modul-poptavky uses it — retirement item 5
+  re-sequenced to downstream); no generic visitor fold extracted (leaf
+  rendering is the only per-walker code left) — deliberate narrowing of the
+  plan letter, revisit at the SPA-refold step.
+
 - **2026-07-11 — Browser verification made repeatable.** Two artifacts:
   `webapp-knowledge/` (server start/stop, page selectors, HTMX wait
   strategies, gotchas — enables autonomous verification runs) and an
