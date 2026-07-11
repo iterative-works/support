@@ -12,19 +12,34 @@ companion: intent.md, decisions.md, map.md (same directory)
 
 ## Where we are right now
 
-The forms-plan slice is **done and signed off in full** (FC-D1…FC-D7 in
-`decisions.md`; plan in `forms-plan.md`). Portaly spine wins; typed layer
-grafts on as `TypedForm[A]`; retirement list approved; one-time converters;
-czech-support extras module; scalatags+HTMX SSR; closed `FieldKind` +
-`Custom(id)` (audit done); submission-time message snapshots for faithful
-rebuild; default `uiform.xsl` will ship. Next unblocked step:
-**ssr-html-interpreter** slice — zero ADT changes: characterization tests
-(first tests in the lineage; needs test sub-modules added to build.mill),
-UIForm→scalatags renderer templated on `UIFormXMLRenderer`, GET/POST loop
-with HTMX fragment swaps, hosted in the scenarios server (fix the
-formsScenarios moduleDir bug), serialize/reload dynamism proof riding along.
+The **ssr-html-interpreter slice is code-complete** and its output —
+`uiform-gap-inventory.md` — is written. SSR browser HTML now exists:
+`UIFormHtmlRenderer` (UIForm → scalatags, HTMX-enriched POST form),
+`RequiredValidation` (shared, from the `optional` flag), and
+`SsrFormScenario` hosting a rich form in the scenarios server with a full
+GET/POST loop (conditions re-evaluate, repeated rows add/remove
+server-side, errors render, serialized+reloaded declaration renders
+byte-identical HTML). 55 tests across forms + scenarios, all green.
+Next unblocked step: **core-hardening-spa-refold**, gated on Michal
+reading the gap inventory (it proposes ADT-level dispositions).
 
 ## Log
+
+- **2026-07-11 — ssr-html-interpreter slice done.** Characterization tests
+  first (UIFormBuilder fold, wire codecs, FormR algebra — first tests in
+  the lineage), then TDD: SSR renderer templated on `UIFormXMLRenderer`
+  (form-level `hx-post`/`hx-trigger=change`/`hx-swap=outerHTML`, degrading
+  to plain POST), `RequiredValidation` in forms/shared, `SsrFormScenario`
+  with route-level integration tests plus a live-server curl check. Fixed
+  the `formsScenarios` moduleDir bug (both platforms compiled zero
+  sources; fixing it exposed a dead sbt-era `BuildInfo` reference).
+  Builder changes along the way (all additive): validation errors now
+  attach as `ErrorMessage` decorations; `Repeated` emits hidden `__items`
+  fields so item state round-trips through HTML forms. Wrote
+  `uiform-gap-inventory.md` — notable: Condition semantics drift across
+  the four walkers (`IsValid` ×3 behaviors, `NonEmpty` blank-vs-presence),
+  Repeated grouping erased by the fold, `Enum`/`Date` can't be required,
+  buttons carry no intent. `ScenariosServer` honors `PORT` now.
 
 - **2026-07-11 — Plan signed off in full (FC-D1…FC-D7).** Michal approved
   retirement + converters + czech-support + scalatags/HTMX + default xsl in

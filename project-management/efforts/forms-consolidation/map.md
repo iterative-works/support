@@ -23,10 +23,13 @@ discovered by running it.
   relocation, package rename, czech-support extraction (FC-D3);
   LiveHtmlInterpreter refolds onto the shared pieces; conformance test kit.
   issue: <once active>
-- [ ] **ssr-html-interpreter** (type: sl, after: forms-plan) — the missing
+- [x] **ssr-html-interpreter** (type: sl, after: forms-plan) — the missing
   capability: render one rich form as server-side browser HTML off the chosen
   core, alongside the existing SPA render. First point a form is run-and-seen
-  both ways off one declaration. issue: <once active>
+  both ways off one declaration. **Done 2026-07-11**: `UIFormHtmlRenderer` +
+  `RequiredValidation` + `SsrFormScenario` (GET/POST loop, HTMX, add/remove,
+  serialize/reload proof); output `uiform-gap-inventory.md` gates the next
+  slice. issue: <run outside process — no issue>
 - [ ] **serialize-pdf-roundtrip** (type: sl, after: core-hardening-spa-refold)
   — gather submitted data, serialize form+data together (FormBundle with
   submission-time message snapshot, FC-D7), rebuild faithfully (byte-equal
