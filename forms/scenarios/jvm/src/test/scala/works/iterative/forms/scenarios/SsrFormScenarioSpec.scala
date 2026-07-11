@@ -60,6 +60,19 @@ object SsrFormScenarioSpec extends ZIOSpecDefault:
                 !body.contains("Inquiry received")
             )
         },
+        test("POST submit with a malformed email re-renders with the email format error") {
+            val fields = baseFields.map {
+                case ("inquiry.customer.email", _) => "inquiry.customer.email" -> "not-an-email"
+                case other                         => other
+            }
+            for
+                response <- post("/ssrForm/form", ("__submit" -> "submit") +: fields*)
+                body <- response.body.asString
+            yield assertTrue(
+                body.contains("not a valid e-mail"),
+                !body.contains("Inquiry received")
+            )
+        },
         test("POST submit with all required data reaches the success page") {
             for
                 response <- post("/ssrForm/form", ("__submit" -> "submit") +: baseFields*)

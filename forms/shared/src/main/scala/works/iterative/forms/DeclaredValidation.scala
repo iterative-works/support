@@ -1,12 +1,12 @@
-// PURPOSE: Computes Required-only validation of form data against the form declaration
-// PURPOSE: Visible, non-optional fields with blank values are invalid; seed of the declared validation vocabulary
+// PURPOSE: Validates form data against the form declaration — required-ness and declared validations
+// PURPOSE: Only visible fields validate; format checks skip blank values; Rule validations bind at the edges
 
 package portaly.forms
 
 import works.iterative.core.{MessageCatalogue, UserMessage}
 import works.iterative.ui.model.forms.{AbsolutePath, FormState, IdPath}
 
-object RequiredValidation:
+object DeclaredValidation:
 
     def validate(form: Form, state: FormState)(using
         messages: MessageCatalogue
@@ -32,11 +32,21 @@ object RequiredValidation:
     ): List[(AbsolutePath, UserMessage)] =
         element match
             case Section(id, elems, _) => collect(path / id, elems, state)
-            case Field(id, fieldType, default, optional, _) =>
-                if fieldType.hidden || optional then Nil
-                else if state.getString(path / id).orElse(default).forall(_.isBlank) then
-                    List(requiredError(path / id))
-                else Nil
+            case Field(id, fieldType, default, optional, validations) =>
+                val fieldPath = path / id
+                val effective = state.getString(fieldPath).orElse(default).filterNot(_.isBlank)
+                val required = !optional || validations.contains(Validation.Required)
+                if fieldType.hidden then Nil
+                else
+                    effective match
+                        case None =>
+                            if required then List(requiredError(fieldPath)) else Nil
+                        case Some(value) =>
+                            validations.flatMap(
+                                Validation.check(_, value, fieldPath.toMessage("label"))
+                                    .map(fieldPath -> _)
+                            )
+                end if
             case File(id, _, optional) =>
                 if !optional && state.getFileList(path / id).forall(_.isEmpty) then
                     List(requiredError(path / id))
@@ -54,4 +64,4 @@ object RequiredValidation:
             // Date and Enum carry no optional flag, Display and Button hold no data
             case _ => Nil
 
-end RequiredValidation
+end DeclaredValidation

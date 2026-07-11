@@ -21,7 +21,7 @@ object SsrFormScenario extends Scenario:
         Field("token", FieldType("hidden"), default = Some("proof")),
         Section("customer")(
             Field("name"),
-            Field("email", FieldType("email")),
+            Field("email", FieldType("email"), validations = List(Validation.Email)),
             Field("note", FieldType("prose"), optional = true)
         ),
         Section("request")(
@@ -65,7 +65,8 @@ object SsrFormScenario extends Scenario:
             "inquiry.row.desc.label" -> "Description",
             "inquiry.row.remove.label" -> "Remove item",
             "inquiry.controls.addItem.label" -> "Add item",
-            "error.field.required" -> "Please fill in %s"
+            "error.field.required" -> "Please fill in %s",
+            "error.field.email" -> "%s is not a valid e-mail address"
         )
     )
 
@@ -144,7 +145,7 @@ object SsrFormScenario extends Scenario:
                         .set(itemsPath / "__items", remaining)
                     respondForm(cleaned, hxRequest)
                 case None if raw.contains("__submit") =>
-                    val validation = RequiredValidation.validate(formDeclaration, data)
+                    val validation = DeclaredValidation.validate(formDeclaration, data)
                     if validation.hasErrors then respondForm(data, hxRequest, validation)
                     else submitted(data)
                 case None =>
