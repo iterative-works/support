@@ -75,6 +75,16 @@ object FormDataSpec extends ZIOSpecDefault:
                 fresh.getStringList(items).contains(List("i1:row"))
             )
         },
+        test("set replaces the values at a path") {
+            val items = IdPath.full("inquiry.items.__items")
+            val data = FormData.parse(Map("inquiry.items.__items" -> Seq("i1:row", "i2:row")))
+                .set(items, List("i2:row"))
+            val fresh = FormData.empty.set(items, List("i1:row"))
+            assertTrue(
+                data.getStringList(items).contains(List("i2:row")),
+                fresh.getStringList(items).contains(List("i1:row"))
+            )
+        },
         test("filterKeys keeps only the matching paths") {
             val data = FormData.parse(Map(
                 "inquiry.items.i1.row.qty" -> Seq("3"),

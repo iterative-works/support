@@ -8,7 +8,6 @@ import zio.http.template.Html
 import scalatags.Text.all.*
 import scalatags.Text.tags2
 import portaly.forms.*
-import portaly.forms.impl.FormR
 import works.iterative.core.{Language, MessageCatalogue}
 import works.iterative.core.service.impl.InMemoryMessageCatalogue
 import works.iterative.scenarios.Scenario
@@ -75,8 +74,8 @@ object SsrFormScenario extends Scenario:
     private val removeItemKey = "inquiry\\.items\\.([^.]+)\\.row\\.remove".r
     private val postAction = s"/$id/form"
 
-    val initialState: FormR =
-        FormR(Map(IdPath("inquiry.items.__items") -> List("i1:row")))
+    val initialState: FormData =
+        FormData.parse(Map("inquiry.items.__items" -> Seq("i1:row")))
 
     private val displayResolver: DisplayResolver[FormState, Frag] =
         new DisplayResolver[FormState, Frag]:
@@ -127,24 +126,22 @@ object SsrFormScenario extends Scenario:
         Html.raw(shell(renderFormTag(formDeclaration, initialState, FormValidationState.valid)))
 
     def respond(raw: Map[String, Seq[String]], hxRequest: Boolean): Response =
-        val data = FormR.parse(raw)
+        val data = FormData.parse(raw)
         val removed = raw.keys.collectFirst { case removeItemKey(key) => key }
         if raw.contains(addItemKey) then
             val nextIndex = data.itemsFor(itemsPath)
                 .flatMap((key, _) => key.stripPrefix("i").toIntOption)
                 .maxOption.getOrElse(0) + 1
-            respondForm(data.add(IdPath("inquiry.items.__items"), s"i$nextIndex:row"), hxRequest)
+            respondForm(data.add(itemsPath / "__items", s"i$nextIndex:row"), hxRequest)
         else
             removed match
                 case Some(key) =>
                     val remaining = data.itemsFor(itemsPath)
                         .filterNot(_._1 == key)
                         .map((k, t) => s"$k:$t")
-                    val cleaned = FormR(
-                        data.filterKeys(!_.serialize.startsWith(s"inquiry.items.$key."))
-                            .data.map((k, v) => IdPath(k.serialize) -> v)
-                            .updated(IdPath("inquiry.items.__items"), remaining)
-                    )
+                    val cleaned = data
+                        .filterKeys(!_.serialize.startsWith(s"inquiry.items.$key."))
+                        .set(itemsPath / "__items", remaining)
                     respondForm(cleaned, hxRequest)
                 case None if raw.contains("__submit") =>
                     val validation = RequiredValidation.validate(formDeclaration, data)
@@ -156,7 +153,7 @@ object SsrFormScenario extends Scenario:
     end respond
 
     private def respondForm(
-        state: FormR,
+        state: FormData,
         hxRequest: Boolean,
         validation: FormValidationState = FormValidationState.valid
     ): Response =
@@ -165,13 +162,18 @@ object SsrFormScenario extends Scenario:
         else htmlResponse(shell(formTag))
     end respondForm
 
-    private def submitted(data: FormR): Response =
+    private def submitted(data: FormData): Response =
         import zio.json.*
-        import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
+        val dump = data.data.map((path, values) =>
+            path.toHtmlName -> values.map {
+                case FieldValue.Text(value) => value
+                case FieldValue.File(ref)   => ref.name
+            }
+        )
         htmlResponse(shell(frag(
             h1("Inquiry received"),
             p("Submitted data:"),
-            pre(code((data: FormR).toJson))
+            pre(code(dump.toJson))
         )))
     end submitted
 

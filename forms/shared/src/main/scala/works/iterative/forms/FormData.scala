@@ -46,6 +46,9 @@ final case class FormData(data: Map[AbsolutePath, List[FieldValue]]) extends For
             )
         )
 
+    def set(path: AbsolutePath, values: List[String]): FormData =
+        copy(data = data.updated(path, values.map(FieldValue.Text.apply)))
+
     def filterKeys(p: AbsolutePath => Boolean): FormData =
         copy(data = data.view.filterKeys(p).toMap)
 
