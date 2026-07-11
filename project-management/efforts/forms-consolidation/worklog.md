@@ -25,6 +25,19 @@ reading the gap inventory (it proposes ADT-level dispositions).
 
 ## Log
 
+- **2026-07-11 — Browser verification made repeatable.** Two artifacts:
+  `webapp-knowledge/` (server start/stop, page selectors, HTMX wait
+  strategies, gotchas — enables autonomous verification runs) and an
+  automated browser suite `./mill formsScenarios.jvm.e2e` — Cucumber +
+  Playwright via our own `e2e-testing` module (first in-repo consumer,
+  dogfooding). Five scenarios, one per browser-only bug from the
+  verification session; the suite starts the scenarios server in-process
+  (port 8392), so no Mill daemon lock and no external server. The
+  `e2e-testing` framework gained an optional `channel` launch config
+  (bundled chromium can't resolve host libs on nix-profile machines;
+  system Chrome via `channel = "chrome"` works). Details in
+  `e2e-generation-summary.md`.
+
 - **2026-07-11 — Real-browser e2e verification (Playwright) found and fixed
   four bugs the route tests missed.** Full journey now passes in Chromium:
   render → condition reveal via HTMX → blank-submit errors with resolved

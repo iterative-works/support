@@ -113,6 +113,14 @@ from:
 to:
   - success page: valid submit (same /ssrForm/form route, no distinct URL)
 
+## automated suite
+
+`./mill formsScenarios.jvm.e2e` runs a Cucumber+Playwright suite mirroring
+this page's journey (feature file:
+`forms/scenarios/jvm/src/e2e/resources/features/ssr-form.feature`). It
+starts the server in-process on port 8392 — prefer extending it over
+re-verifying manually.
+
 ## gotchas (each one was a real bug once)
 
 - Use Czech diacritics in at least one text value — pins the UTF-8
