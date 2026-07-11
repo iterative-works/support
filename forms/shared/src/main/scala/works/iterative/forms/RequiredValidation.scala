@@ -42,7 +42,9 @@ object RequiredValidation:
                     List(requiredError(path / id))
                 else Nil
             case ShowIf(condition, elem) =>
-                if isSatisfied(path, condition, state) then validateSegment(path, state)(elem)
+                // Validation state cannot exist while being computed; visibility treats fields as valid
+                if Condition.eval(condition, path, state.getString, Condition.alwaysValid) then
+                    validateSegment(path, state)(elem)
                 else Nil
             case Repeated(id, _, optional, elems) =>
                 val items = state.itemsFor(path / id)
@@ -61,17 +63,4 @@ object RequiredValidation:
             // Date and Enum carry no optional flag, Display and Button hold no data
             case _ => Nil
 
-    private def isSatisfied(path: AbsolutePath, condition: Condition, state: FormState): Boolean =
-        import Condition.*
-        condition match
-            case Never              => false
-            case Always             => true
-            case AnyOf(conditions*) => conditions.exists(isSatisfied(path, _, state))
-            case AllOf(conditions*) => conditions.forall(isSatisfied(path, _, state))
-            case IsEqual(id, value) => state.getString(IdPath.parse(id, path)).contains(value)
-            // Validation state cannot exist while being computed; visibility treats fields as valid
-            case IsValid(_)   => true
-            case NonEmpty(id) => state.getString(IdPath.parse(id, path)).nonEmpty
-        end match
-    end isSatisfied
 end RequiredValidation

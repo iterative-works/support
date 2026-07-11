@@ -133,13 +133,23 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 sectionIds(withMatch).contains("demo-extra")
             )
         },
-        test("ShowIf NonEmpty currently treats any state entry as non-empty (Option presence)") {
+        test("ShowIf NonEmpty hides the element while the referenced value is blank") {
             def form = Form("demo", "1")(
                 Section("main")(Field("note")),
                 ShowIf(Condition.NonEmpty(".demo.main.note"), Section("extra")(Field("detail")))
             )
-            val emptyString = build(form, FormR.strings("demo.main.note" -> ""))
-            val present = fieldsOf(emptyString).collect { case s: UIFormSection => s.id }
+            def sectionIds(state: FormState) =
+                fieldsOf(build(form, state)).collect { case s: UIFormSection => s.id }
+            assertTrue(
+                !sectionIds(FormR.strings("demo.main.note" -> "")).contains("demo-extra"),
+                sectionIds(FormR.strings("demo.main.note" -> "x")).contains("demo-extra")
+            )
+        },
+        test("ShowIf with an empty combinator renders instead of crashing") {
+            def form = Form("demo", "1")(
+                ShowIf(Condition.AllOf(), Section("extra")(Field("detail")))
+            )
+            val present = fieldsOf(build(form)).collect { case s: UIFormSection => s.id }
             assertTrue(present.contains("demo-extra"))
         },
         test("Repeated expands items from the __items convention with repeat indices") {

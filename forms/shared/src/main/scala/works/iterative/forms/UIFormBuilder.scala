@@ -201,19 +201,8 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
 
     private def resolveCondition(path: AbsolutePath)(condition: Condition)
         : ZPure[Nothing, Unit, Unit, FormState & FormValidationState, Nothing, Boolean] =
-        import Condition.*
-        condition match
-            case Never  => ZPure.succeed(false)
-            case Always => ZPure.succeed(true)
-            case AnyOf(conditions*) =>
-                ZPure.foreach(conditions)(resolveCondition(path)).map(_.reduce(_ || _))
-            case AllOf(conditions*) =>
-                ZPure.foreach(conditions)(resolveCondition(path)).map(_.reduce(_ && _))
-            case IsEqual(id, value) => getString(IdPath.parse(id, path)).map(_.contains(value))
-            case IsValid(id) =>
-                ZPure.serviceWith[FormValidationState](_.isValid(IdPath.parse(id, path)))
-            case NonEmpty(id) =>
-                getString(IdPath.parse(id, path)).map(_.nonEmpty)
-        end match
-    end resolveCondition
+        for
+            state <- ZPure.service[Unit, FormState]
+            validation <- ZPure.service[Unit, FormValidationState]
+        yield Condition.eval(condition, path, state.getString, validation.isValid)
 end UIFormBuilder
