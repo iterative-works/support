@@ -81,28 +81,16 @@ class ReadOnlyHtmlInterpreter(
         if resolveCondition(condition) then renderSegment(elem) else div()
     end renderShowIf
 
+    // Read-only views show submitted data, so IsValid holds by definition
     private def resolveCondition(
         condition: Condition
-    )(using Ctx, Data): Boolean =
-        import Condition.*
-        condition match
-            case Never              => false
-            case Always             => true
-            case AnyOf(conditions*) => conditions.map(resolveCondition).reduce(_ || _)
-            case AllOf(conditions*) => resolveConditions(conditions)
-            case IsEqual(id, value) =>
-                works.iterative.ui.model.forms.IdPath.parse(id, ctx.path).get == value
-            case IsValid(_) => true
-            case NonEmpty(id) =>
-                works.iterative.ui.model.forms.IdPath.parse(id, ctx.path).get.nonEmpty
-        end match
-    end resolveCondition
-
-    private def resolveConditions(conditions: Seq[Condition])(using
-        Ctx,
-        Data
-    ): Boolean =
-        conditions.map(resolveCondition).reduce(_ && _)
+    )(using ctx: Ctx, data: Data): Boolean =
+        Condition.eval(
+            condition,
+            ctx.path,
+            p => data.get(p).flatMap(_.headOption.map(_.toString)),
+            Condition.alwaysValid
+        )
 
     private def renderSection(
         id: RelativePath,

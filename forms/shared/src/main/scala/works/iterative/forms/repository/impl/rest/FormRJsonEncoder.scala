@@ -84,23 +84,10 @@ class FormRJsonEncoder:
     private def renderFileField(path: AbsolutePath) =
         getStringList(path).map(_.map(v => Json.Arr(v.map(Json.Str(_))*)))
 
+    // Encodes captured data, so IsValid holds by definition
     private def resolveCondition(path: AbsolutePath)(condition: Condition)
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Boolean] =
-        import Condition.*
-        condition match
-            case Never  => ZPure.succeed(false)
-            case Always => ZPure.succeed(true)
-            case AnyOf(conditions*) =>
-                ZPure.foreach(conditions)(resolveCondition(path)).map(_.reduce(_ || _))
-            case AllOf(conditions*) =>
-                ZPure.foreach(conditions)(resolveCondition(path)).map(_.reduce(_ && _))
-            case IsEqual(id, value) =>
-                getString(works.iterative.ui.model.forms.IdPath.parse(id, path))
-                    .map(_.contains(value))
-            case IsValid(id) => ZPure.succeed(true)
-            case NonEmpty(id) =>
-                getString(works.iterative.ui.model.forms.IdPath.parse(id, path))
-                    .map(_.nonEmpty)
-        end match
-    end resolveCondition
+        ZPure.serviceWith[FormState](state =>
+            Condition.eval(condition, path, state.getString, Condition.alwaysValid)
+        )
 end FormRJsonEncoder

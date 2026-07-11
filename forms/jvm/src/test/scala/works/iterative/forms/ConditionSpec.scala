@@ -67,6 +67,18 @@ object ConditionSpec extends ZIOSpecDefault:
         test("empty combinators are total: AnyOf() is false, AllOf() is true") {
             assertTrue(!eval(AnyOf()), eval(AllOf()))
         },
+        test("references collects the resolved value and validity paths a condition reads") {
+            val condition = AllOf(
+                IsEqual("stat", "CZ"),
+                AnyOf(NonEmpty(".other.note"), IsValid("ico")),
+                Never
+            )
+            val refs = Condition.references(condition, base)
+            assertTrue(
+                refs.values.map(_.toHtmlName) == Set("demo.main.stat", "other.note"),
+                refs.validity.map(_.toHtmlName) == Set("demo.main.ico")
+            )
+        },
         test("combinators nest") {
             val values = Map("demo.main.stat" -> "CZ")
             val condition = AllOf(IsEqual("stat", "CZ"), IsValid("ico"))

@@ -498,45 +498,35 @@ class LiveHtmlInterpreter(
             )
         }
 
+    // Subscribes to exactly the paths the condition references and maps the
+    // shared Condition.eval over each state snapshot. Non-string state values
+    // participate via toString: non-blank means NonEmpty, IsEqual matches
+    // only their literal rendering.
     private def resolveCondition(condition: Condition)(
         baseId: AbsolutePath,
         state: FormV
     ): Signal[Boolean] =
-        import Condition.*
-        condition match
-            case Never              => Val(false)
-            case Always             => Val(true)
-            case AnyOf(conditions*) => resolveConditionsOr(conditions)(baseId, state)
-            case AllOf(conditions*) => resolveConditions(conditions)(baseId, state)
-            case IsEqual(idp, value) => state.get(works.iterative.ui.model.forms.IdPath.parse(
-                    idp,
-                    baseId
-                )).map(_.contains(value))
-            case IsValid(idp) =>
-                state.validation(works.iterative.ui.model.forms.IdPath.parse(idp, baseId)).map(
-                    _.exists(_.isValid)
-                )
-            case NonEmpty(idp) =>
-                state.get(works.iterative.ui.model.forms.IdPath.parse(idp, baseId)).map(
-                    _.filterNot {
-                        case s: String => s.isBlank
-                        case _         => false
-                    }.nonEmpty
-                )
-        end match
+        val refs = Condition.references(condition, baseId)
+        def snapshot[A](
+            paths: Set[AbsolutePath],
+            read: AbsolutePath => Signal[A]
+        ): Signal[Map[AbsolutePath, A]] =
+            paths.foldLeft(Val(Map.empty[AbsolutePath, A]): Signal[Map[AbsolutePath, A]]):
+                (acc, p) => acc.combineWithFn(read(p))((m, v) => m + (p -> v))
+        val values = snapshot(refs.values, state.get)
+        val validity = snapshot(refs.validity, p => state.validation(p).map(_.exists(_.isValid)))
+        values.combineWithFn(validity): (values, validity) =>
+            Condition.eval(
+                condition,
+                baseId,
+                p =>
+                    values.getOrElse(p, None).map {
+                        case s: String => s
+                        case other     => other.toString
+                    },
+                p => validity.getOrElse(p, false)
+            )
     end resolveCondition
-
-    private def resolveConditionsOr(conditions: Seq[Condition])(
-        baseId: AbsolutePath,
-        state: FormV
-    ): Signal[Boolean] =
-        conditions.map(resolveCondition(_)(baseId, state)).reduce(_ || _)
-
-    private def resolveConditions(conditions: Seq[Condition])(
-        baseId: AbsolutePath,
-        state: FormV
-    ): Signal[Boolean] =
-        conditions.map(resolveCondition(_)(baseId, state)).reduce(_ && _)
 
     private def renderButton(id: RelativePath): RenderPart =
         ctx.liftEmpty(id)(FormPart.domOnly(fi =>

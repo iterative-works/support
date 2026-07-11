@@ -37,4 +37,22 @@ object Condition:
     end eval
 
     val alwaysValid: AbsolutePath => Boolean = _ => true
+
+    /** The state a condition reads, resolved against `base` — reactive wrappers subscribe to
+      * exactly these paths and eval over the snapshot.
+      */
+    case class References(values: Set[AbsolutePath], validity: Set[AbsolutePath])
+
+    def references(condition: Condition, base: AbsolutePath): References =
+        def loop(condition: Condition): References = condition match
+            case Never | Always => References(Set.empty, Set.empty)
+            case AnyOf(conditions*) => conditions.map(loop).foldLeft(
+                    References(Set.empty, Set.empty)
+                )((a, b) => References(a.values ++ b.values, a.validity ++ b.validity))
+            case AllOf(conditions*) => loop(AnyOf(conditions*))
+            case IsEqual(id, _)     => References(Set(IdPath.parse(id, base)), Set.empty)
+            case NonEmpty(id)       => References(Set(IdPath.parse(id, base)), Set.empty)
+            case IsValid(id)        => References(Set.empty, Set(IdPath.parse(id, base)))
+        loop(condition)
+    end references
 end Condition
