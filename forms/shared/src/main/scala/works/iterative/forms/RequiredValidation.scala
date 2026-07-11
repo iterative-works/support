@@ -46,20 +46,11 @@ object RequiredValidation:
                 if Condition.eval(condition, path, state.getString, Condition.alwaysValid) then
                     validateSegment(path, state)(elem)
                 else Nil
-            case Repeated(id, _, optional, elems) =>
-                val items = state.itemsFor(path / id)
-                if items.isEmpty then
+            case repeated @ Repeated(id, _, optional, _) =>
+                val instances = Repeated.instances(path, repeated, state)
+                if instances.isEmpty then
                     if optional then Nil else List(requiredError(path / id))
-                else
-                    val elemList = elems.map(e => e.id.last -> e)
-                    val elemMap = elemList.toMap
-                    val defaultSegment = elemList.head._2
-                    items.flatMap((item, itemType) =>
-                        validateSegment(path / id / item, state)(
-                            elemMap.getOrElse(itemType, defaultSegment)
-                        )
-                    )
-                end if
+                else instances.flatMap(i => validateSegment(i.path, state)(i.segment))
             // Date and Enum carry no optional flag, Display and Button hold no data
             case _ => Nil
 

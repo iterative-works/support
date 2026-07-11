@@ -61,18 +61,9 @@ class ReadOnlyHtmlInterpreter(
                 then renderCheckbox(id, default)
                 else renderEnum(id, values, default, required = true)
             case ShowIf(condition, elem) => renderShowIf(condition, elem)
-            case Repeated(id, default, _, elems) =>
-                val its = (id / "__items").full.get
-                if its.isBlank() then div()
-                else
-                    val items = its.split(",").toList
-                    val elemMap = elems.map(e => e.id.last -> e).toMap
-                    div(items.map(_.split(":", 2)).collect {
-                        case Array(i, t) =>
-                            val elem = elemMap(t)
-                            renderSegment(elem)(using ctx.nested(id / i))
-                    })
-                end if
+            case repeated @ Repeated(id, _, _, _) =>
+                val instances = Repeated.instances(ctx.path, repeated, summon[Data])
+                div(instances.map(i => renderSegment(i.segment)(using ctx.nested(id / i.item))))
 
     private def renderShowIf(
         condition: Condition,

@@ -1,6 +1,6 @@
 package portaly
 package forms
-import works.iterative.ui.model.forms.RelativePath
+import works.iterative.ui.model.forms.{AbsolutePath, FormState, RelativePath}
 
 final case class FieldType(id: String, context: Option[String] = None, disabled: Boolean = false):
     val hidden: Boolean = id == "hidden"
@@ -61,6 +61,36 @@ object Repeated:
         optional: Boolean = true
     )(elems: SectionSegment*): Repeated =
         Repeated(id, default, optional, elems.toList)
+
+    /** One item of a repeated group: the path to render the template under, the raw item key and
+      * type from the __items convention, and the position within the group.
+      */
+    case class Instance(
+        path: AbsolutePath,
+        item: String,
+        itemType: String,
+        segment: SectionSegment,
+        index: Int
+    )
+
+    /** The instances of a repeated group for the current state — the one expansion every walker
+      * shares. Item types without a matching template fall back to the first one; a group without
+      * templates expands to nothing.
+      */
+    def instances(path: AbsolutePath, repeated: Repeated, state: FormState): List[Instance] =
+        repeated.elems match
+            case Nil => Nil
+            case defaultSegment :: _ =>
+                val templates = repeated.elems.map(e => e.id.last -> e).toMap
+                state.itemsFor(path / repeated.id).zipWithIndex.map:
+                    case ((item, itemType), index) =>
+                        Instance(
+                            path / repeated.id / item,
+                            item,
+                            itemType,
+                            templates.getOrElse(itemType, defaultSegment),
+                            index
+                        )
 end Repeated
 
 case class Button(id: RelativePath) extends SectionSegment

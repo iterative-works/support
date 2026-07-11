@@ -49,28 +49,22 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             case ShowIf(condition, elem) =>
                 resolveCondition(path)(condition).flatMap(if _ then renderSegment(path)(elem)
                 else ZPure.succeed(Nil))
-            case Repeated(id, default, _, elems) =>
-                val elemList = elems.map(e => e.id.last -> e)
-                val elemMap = elemList.toMap
-                val defaultSegment = elemList.head._2
+            case repeated @ Repeated(id, _, _, _) =>
                 for
-                    items <- getItemsFor(path / id)
-                    rendered <- ZPure.foreach(items.zipWithIndex):
-                        case ((i, t), idx) =>
-                            renderSegment(path / id / i, Some(idx))(elemMap.getOrElse(
-                                t,
-                                defaultSegment
-                            ))
+                    instances <- ZPure.serviceWith[FormState](
+                        Repeated.instances(path, repeated, _)
+                    )
+                    rendered <- ZPure.foreach(instances): i =>
+                        renderSegment(i.path, Some(i.index))(i.segment)
                 yield
                     // Hidden fields carry the item list so it round-trips through HTML forms
                     val itemsPath = path / id / "__items"
-                    val itemFields = items.zipWithIndex.map:
-                        case ((i, t), idx) =>
-                            UIHiddenField(
-                                s"${itemsPath.toHtmlId}-$idx",
-                                itemsPath.toHtmlName,
-                                Some(s"$i:$t")
-                            )
+                    val itemFields = instances.map: i =>
+                        UIHiddenField(
+                            s"${itemsPath.toHtmlId}-${i.index}",
+                            itemsPath.toHtmlName,
+                            Some(s"${i.item}:${i.itemType}")
+                        )
                     itemFields ++ rendered.flatten
                 end for
 
@@ -81,10 +75,6 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
     private def getFileList(path: AbsolutePath)
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Option[List[UIFile]]] =
         ZPure.serviceWith[FormState](_.getFileList(path))
-
-    private def getItemsFor(path: AbsolutePath)
-        : ZPure[Nothing, Unit, Unit, FormState, Nothing, List[(String, String)]] =
-        ZPure.serviceWith[FormState](_.itemsFor(path))
 
     private def renderSection(
         path: AbsolutePath,
