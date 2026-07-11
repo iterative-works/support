@@ -3,8 +3,11 @@
 
 # Forms Consolidation — Decision & Plan
 
-Status: **proposed — awaiting Michal's sign-off** (trust-boundary invariant: rival
-lineages are migrated or retired only with explicit sign-off, decided up front).
+Status: **accepted 2026-07-11** for the spine, retirement list, wire posture,
+czech-support extraction, scalatags+HTMX SSR substrate, module layout, and
+default `uiform.xsl` (decisions FC-D1…FC-D5). Still in discussion: labels &
+faithful rebuild (open question 3) and the field-type vocabulary shape (open
+question 4).
 
 How this was produced: five parallel code mappers over the lineages, three
 independent architecture proposals under opposing stances (portaly-spine,
@@ -243,37 +246,33 @@ the live risks and their mitigations:
 | Faithful rebuild needs labels the ADT doesn't carry | medium | `FormBundle` carries message snapshot + `catalogueRef`; "faithful" defined operationally at the close gate. |
 | PDF/SSR not demonstrable in-repo (no `.xsl` anywhere; scenarios build bug) | medium | Slice 1 fixes the build bug; PDF slice ships a default `uiform.xsl` or renders the proof form through the example chain (open question 9). |
 
-## Open questions for Michal
+## Open questions — resolution status (2026-07-11)
 
-1. **Retirement sign-off** on the list above — especially `formsCore`/
-   `formsHttp`/`uiCore FormComponents[T]` (frees the package name; any client
-   using it?), `tailwind.form` outright deletion, and sequenced
-   `laminar.forms` deletion.
-2. **Wire posture**: one-time offline converters for drafts/submissions
-   acceptable? (Definitions likely need nothing, per the zio-json default
-   finding.) Any client DB we should rehearse against?
-3. **Labels & faithful rebuild**: message snapshot in `FormBundle` (proposed),
-   catalogue versioning, or labels moved into the ADT (would also serve the
-   future form editor)?
-4. **Field-type vocabulary**: which custom field-type ids do clients actually
-   use (in-repo we only see `cmi:*`)? Decides open-string+index vs closed
-   `FieldKind`+`Custom(id)`.
-5. **Czech/CMI remnants destination**: client repo vs `czech-support` extras
-   module — per item (ARES/VIES, `DsSubmissionService`, payment fields,
-   `cmi:*` rules, `Enum.yesno`).
-6. **SSR substrate**: scalatags (via existing `ui/scalatags`) vs zio-http
-   `Html` vs plain strings — affects which server stacks get first-class
-   helpers in slice 1.
-7. **Module layout final call**: `forms` + `formsPdf` (+ `formsDb`?) as
-   proposed; model move deferred as proposed?
-8. **`TypedForm.derive`** (Mirror-based case-class derivation): out of scope
-   per YAGNI, or wanted before the guide ships (laminar.forms migrants will
-   ask)?
-9. **PDF layout ownership**: ship a default `uiform.xsl` so PDF is
-   demonstrable in-repo, or keep the visual layer app-side?
+1. **Retirement sign-off** — ✅ approved (FC-D2).
+2. **Wire posture** — ✅ one-time offline converters approved (FC-D2).
+3. **Labels & faithful rebuild** — 🔶 in discussion. Requirement stated by
+   Michal: the form display must be reconstructable exactly as the client
+   saw it when filling it out; evolving messages must never change the
+   meaning of already-filled fields (currently unenforced). Leading option:
+   server-side resolved-message snapshot at submission time (including
+   resolved Display-block texts — consent texts are the highest-stakes
+   case), with language + catalogueRef recorded as provenance.
+4. **Field-type vocabulary** — 🔶 in discussion (open-string+index vs closed
+   `FieldKind`+`Custom(id)` with a hand-written wire-stable codec).
+5. **Czech/CMI remnants** — ✅ `czech-support` extras module in-repo first,
+   off-repo later (FC-D3).
+6. **SSR substrate** — ✅ scalatags with HTMX support (FC-D4): condition
+   re-evaluation and repeat add/remove as HTMX fragment swaps, degrading to
+   full-page POST without JS.
+7. **Module layout** — ✅ as proposed (FC-D1).
+8. **`TypedForm.derive`** — ✅ deferred as future possible development (FC-D1).
+9. **PDF layout** — ✅ ship a default `uiform.xsl` genericized from the client
+   implementations (reference: `~/Devel/projects/cmi-portaly/module/forms/jvm/
+   src/main/resources/uiform.xsl` and `~/Devel/projects/medeca-modul-poptavky/
+   .../uiform.xsl`, `uiform2.xsl`); branded wrappers stay app-side (FC-D5).
 
 ---
 
-Once signed off, the spine decision and the retirement list land in
-`decisions.md` as FC-D1 (spine + typed-layer graft) and FC-D2 (retirement
-plan), and `ssr-html-interpreter` becomes the active slice.
+Decisions FC-D1…FC-D5 are recorded in `decisions.md`. `ssr-html-interpreter`
+becomes the active slice once questions 3 and 4 close (neither blocks the
+slice's zero-ADT-change first cut).
