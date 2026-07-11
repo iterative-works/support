@@ -1,9 +1,10 @@
+// PURPOSE: The outcome of validating a value — valid, invalid with messages, or not yet known
+// PURPOSE: Pure and platform-neutral so JVM POST validation and SPA reactive validation share it
+
 package portaly.forms
 
 import zio.NonEmptyChunk
 import works.iterative.core.UserMessage
-import com.raquo.airstream.core.EventStream
-import works.iterative.core.MessageCatalogue
 import zio.prelude.*
 import works.iterative.ui.model.forms.IdPath
 
@@ -57,21 +58,6 @@ object ValidationState:
         case ValidationState.Unknown(info) => ValidationState.Unknown(info).succeed
         case ValidationState.Invalid(err)  => ValidationState.Invalid(err).succeed
     }
-
-    @deprecated
-    def required[OutputValue](id: IdPath, inp: String, required: Boolean)(using
-        MessageCatalogue
-    )(
-        otherValidations: => EventStream[ValidationState[OutputValue]]
-    ): EventStream[ValidationState[OutputValue]] =
-        if inp.isBlank && required then
-            EventStream.fromValue(
-                ValidationState.Invalid(
-                    id,
-                    UserMessage("error.field.required", id.toMessage("label"))
-                )
-            )
-        else otherValidations
 
     given identityValidationState[A: Identity]: Identity[ValidationState[A]] with
         override def combine(
