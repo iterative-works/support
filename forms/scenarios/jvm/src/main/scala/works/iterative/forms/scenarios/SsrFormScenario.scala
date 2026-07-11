@@ -1,5 +1,5 @@
 // PURPOSE: Scenario proving the server-side HTML form loop: GET renders, POST validates and re-renders
-// PURPOSE: Exercises conditions, repeated add/remove and Required validation without any client-side app
+// PURPOSE: Exercises conditions, repeated add/remove and declared validation without any client-side app
 
 package works.iterative.forms.scenarios
 

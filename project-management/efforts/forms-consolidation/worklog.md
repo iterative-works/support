@@ -15,12 +15,26 @@ companion: intent.md, decisions.md, map.md (same directory)
 The **core-hardening-spa-refold slice is running**
 (`project-management/issues/iw-support-form-effort-3/tracker.md` is the
 step-level state). Landed so far: shared `Condition.eval` +
-`Repeated.instances` with all five walkers refolded, and `FormData` as
-the typed value currency with the SSR loop running on it. Next per the
-tracker: declared `Validation` vocabulary with the ValidationRule/State
-relocation to shared folded in.
+`Repeated.instances` with all five walkers refolded, `FormData` as the
+typed value currency with the SSR loop running on it, and the declared
+`Validation` vocabulary evaluating in `DeclaredValidation` on the SSR
+POST path. Next per the tracker: `FieldKind` + wire-stable codec
+(FC-D6).
 
 ## Log
+
+- **2026-07-12 — Declared Validation vocabulary evaluates end to end.**
+  `ValidationRule`/`ValidationState` relocated to forms/shared
+  (correction to the plan: ValidationState carried an airstream import
+  for a deprecated zero-caller helper — preserved verbatim JS-side as
+  `ReactiveValidationState`). `enum Validation` (Required/Email/Pattern/
+  MinLength/MaxLength/Rule) rides on `Field.validations = Nil` —
+  wire-pinned both ways (legacy JSON decodes to Nil, new shape frozen in
+  the characterization spec). RequiredValidation renamed
+  `DeclaredValidation`; pure `Validation.check` runs the format checks
+  (blank values pass — emptiness is Required's concern; Rule binds at
+  the edges later). SSR scenario declares Email and the POST loop
+  re-renders its error; browser e2e stays 5/5.
 
 - **2026-07-12 — FormData lands; SSR loop runs on it.** `FormData`
   (`Map[AbsolutePath, List[FieldValue]]`, `Text`/`File`) implements

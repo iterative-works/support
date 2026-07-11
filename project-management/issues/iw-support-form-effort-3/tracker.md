@@ -14,10 +14,9 @@ SSR agree by construction · Fit: proof form behaves identically in SSR and SPA
 scenarios, conformance kit green → full card: ./card.md
 
 ## Run-state
-branch iw-support-form-effort · last sha b9cddcc3 · run/see:
+branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN 5 (Validation vocabulary, relocation
-folded in — the compiler needs shared rules, so 6 merges into 5)
+`./mill forms.jvm.test` · next: OPEN (FieldKind, FC-D6)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -52,15 +51,23 @@ folded in — the compiler needs shared rules, so 6 merges into 5)
       SPA internals (LiveHtmlInterpreter, ButtonHandler, form fields) move
       at the SPA-refold step.
 
+- [x] Declared `Validation` vocabulary lands end to end: relocation first —
+      `ValidationRule`/`ValidationState` moved to forms/shared; CORRECTION
+      to the plan's "no Laminar imports": ValidationState had an airstream
+      import for a deprecated zero-caller helper, preserved verbatim
+      JS-side as `ReactiveValidationState` (nothing deleted). Then `enum
+      Validation` (Required/Email/Pattern/MinLength/MaxLength/Rule) on
+      `Field.validations = Nil`, wire pins for legacy decode + new shape;
+      RequiredValidation renamed `DeclaredValidation` and evaluates the
+      vocabulary via pure `Validation.check` (format checks skip blank;
+      Rule passes — binds at the edges when the registry lands, likely
+      czech-support step); SSR scenario declares Email, POST re-renders
+      its error. NOTE: `Validation.check` returns Option[UserMessage];
+      the ValidationRule adapter for SPA reactive wiring comes at the
+      SPA-refold step.
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] Declared `Validation` vocabulary: `Field.validations: List[Validation]   <-- NEXT
-      = Nil` (zio-json default-decode pinned first); pure compiler to
-      validation rules; RequiredValidation folds in; SSR POST uses it.
-      Folds in the relocation (was its own item): `ValidationRule`/
-      `ValidationState` move forms/js → forms/shared first (verified no
-      Laminar imports) — the compiler can't target JS-only rules from the
-      JVM POST path; SPA reactive validation wraps the same pure rules
-- [ ] `FieldKind` enum + `Custom(id)` + hand-written wire-stable codec
+- [ ] `FieldKind` enum + `Custom(id)` + hand-written wire-stable codec   <-- NEXT
       (FC-D6); interpreters dispatch exhaustively; codec round-trip tests
       over the client-audit id list
 - [ ] UIForm/ADT hardening from the gap inventory: Enum optional flag, Date
