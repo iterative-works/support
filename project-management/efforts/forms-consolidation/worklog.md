@@ -12,15 +12,33 @@ companion: intent.md, decisions.md, map.md (same directory)
 
 ## Where we are right now
 
-Effort just framed (2026-07-11). The Standing Intent is written: one
-declarative form core with a family of implementations (SSR HTML, SPA HTML,
-data capture, form+data serialize/rebuild, PDF), closing on a rich form driven
-multiple ways plus a client migration guide. Three candidate slices are
-seeded; the spine decision (which of `portaly.forms` vs `FormSchema[A]` wins,
-what gets reconciled/retired) is deliberately deferred to the first slice.
-Next unblocked step: carve the first slice with `sl-define "forms-plan"`.
+The forms-plan analysis is done and written up in `forms-plan.md` (same
+directory) — **awaiting Michal's sign-off**. The proposed decision: the
+portaly spine wins (`FormSegment` → `UIFormBuilder` → `UIForm` →
+`Interpreter`), renamed `works.iterative.forms`; `FormSchema[A]`'s
+type-safety folds in as `TypedForm[A]` compiling down to the spine;
+`laminar.forms`, `tailwind.form`, and the `formsCore` mini-lineage retire.
+The plan carries a per-item retirement sign-off list and nine open questions.
+Once signed off, decisions land as FC-D1/FC-D2 and `ssr-html-interpreter`
+becomes the active slice (revised to a zero-ADT-change first cut per the
+plan's slice sequence).
 
 ## Log
+
+- **2026-07-11 — forms-plan analysis run (ultracode).** Deliberately ran
+  outside the strict slice process to build momentum. Multi-agent workflow:
+  5 lineage mappers → 3 opposing architecture proposals → 3-lens judge panel
+  → 6 adversarial verifiers (17 agents, all claims source-checked). Judges
+  voted 3–0 for the portaly spine; all six verifications of the winner's
+  load-bearing claims returned "holds". Key corrections to the framing: the
+  live SPA path bypasses UIForm entirely (walker duplication with real drift
+  — `IsValid` hardcoded in one walker); there's a *fourth* mini-lineage
+  (`formsCore`/`formsHttp`/`uiCore FormComponents[T]`) squatting on the
+  `works.iterative.forms` package; `formsScenarios` compiles zero sources
+  (build bug); `FormR.overrideWith` is byte-identical to `combineWith`
+  (latent bug); zio-json 0.7.44 applies defaults for missing fields, so the
+  planned `Field.validations` extension is wire-compatible with stored
+  definitions. Wrote `forms-plan.md` for sign-off.
 
 - **2026-07-11 — Effort framed.** Ran sl-frame. Grounded against the codebase:
   found three form lineages — `portaly.forms` (mature, declarative

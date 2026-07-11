@@ -16,7 +16,8 @@ discovered by running it.
   declarative spine, decide the reconcile-vs-retire plan and which consumers
   migrate. Deliverable the team reads and signs off: the consolidation
   decision + plan. *(first usable increment — settles the deferred spine
-  decision the intent leaves open)*. issue: <once active>
+  decision the intent leaves open)*. Deliverable written: `forms-plan.md`
+  (same directory) — awaiting sign-off. issue: <run outside process ­— no issue>
 - [ ] **ssr-html-interpreter** (type: sl, after: forms-plan) — the missing
   capability: render one rich form as server-side browser HTML off the chosen
   core, alongside the existing SPA render. First point a form is run-and-seen
