@@ -48,7 +48,7 @@ class ReadOnlyHtmlInterpreter(
     private def renderSegment(element: SectionSegment): Render =
         element match
             case Section(id, elems, _) => renderSection(id, elems)
-            case Field(id, fieldType, default, optional) =>
+            case Field(id, fieldType, default, optional, _) =>
                 renderFormField(id, !optional)
             case File(id, multiple, optional) => renderFileField(id, !optional)
             case Date(id)                     => renderFormField(id, false)

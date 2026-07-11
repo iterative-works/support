@@ -63,6 +63,36 @@ object FormPersistenceCodecsSpec extends ZIOSpecDefault:
                 (FormValue.StringValue("hello"): FormValue).toJson == tagged
             )
         },
+        test("a field without a validations key decodes with no declared validations") {
+            // Stored declarations predate the vocabulary; zio-json must apply the default
+            val legacy =
+                """{"Field":{"id":"name","fieldType":{"id":"string","disabled":false},"optional":false}}"""
+            val decoded = legacy.fromJson[SectionSegment]
+            assertTrue(decoded == Right(Field("name")), decoded.map {
+                case f: Field => f.validations
+                case _        => List(Validation.Required)
+            } == Right(Nil))
+        },
+        test("declared validations round-trip and pin their wire shape") {
+            val field: SectionSegment = Field(
+                "email",
+                FieldType("email"),
+                validations = List(
+                    Validation.Required,
+                    Validation.Email,
+                    Validation.Pattern(".+@example.com"),
+                    Validation.MinLength(3),
+                    Validation.MaxLength(64),
+                    Validation.Rule("ares", Map("country" -> "CZ"))
+                )
+            )
+            val json = field.toJson
+            assertTrue(
+                json.fromJson[SectionSegment] == Right(field),
+                json.contains("\"Required\""),
+                json.contains("""{"regex":".+@example.com"}""")
+            )
+        },
         test("conditions round-trip including nested combinators") {
             val c: Condition = Condition.AnyOf(
                 Condition.Never,

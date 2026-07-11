@@ -130,7 +130,7 @@ class LiveHtmlInterpreter(
             case Form(id, _, sections) => renderForm(id, sections)
             case Section(id, elems, sectionType) =>
                 renderSection(id, sectionType, elems, repeatIndex)
-            case Field(id, fieldType, default, optional) =>
+            case Field(id, fieldType, default, optional, _) =>
                 renderFormField(id, fieldType, default, optional)
             case File(id, multiple, optional) => renderFileField(id, multiple, optional)
             case Date(id)                     => renderTextField(id, "date", None)

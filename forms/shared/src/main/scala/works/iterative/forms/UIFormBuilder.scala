@@ -35,7 +35,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         : ZPure[Nothing, Unit, Unit, FormState & FormValidationState, Nothing, Seq[UIFormElement]] =
         element match
             case Section(id, elems, _) => renderSection(path / id, repeatIndex)(elems).map(List(_))
-            case Field(id, fieldType, default, optional) =>
+            case Field(id, fieldType, default, optional, _) =>
                 if fieldType.hidden then
                     renderHiddenField(path / id, default).map(List(_))
                 else renderField(path / id, fieldType.id, default, optional).map(List(_))

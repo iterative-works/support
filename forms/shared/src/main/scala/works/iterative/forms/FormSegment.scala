@@ -99,7 +99,8 @@ case class Field(
     id: RelativePath,
     fieldType: FieldType = FieldType("string"),
     default: Option[String] = None,
-    optional: Boolean = false
+    optional: Boolean = false,
+    validations: List[Validation] = Nil
 ) extends SectionSegment
 
 case class File(id: RelativePath, multiple: Boolean = true, optional: Boolean = false)

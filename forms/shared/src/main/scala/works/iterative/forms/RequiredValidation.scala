@@ -32,7 +32,7 @@ object RequiredValidation:
     ): List[(AbsolutePath, UserMessage)] =
         element match
             case Section(id, elems, _) => collect(path / id, elems, state)
-            case Field(id, fieldType, default, optional) =>
+            case Field(id, fieldType, default, optional, _) =>
                 if fieldType.hidden || optional then Nil
                 else if state.getString(path / id).orElse(default).forall(_.isBlank) then
                     List(requiredError(path / id))
