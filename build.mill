@@ -955,10 +955,9 @@ object formsScenarios extends NoPublishCrossModule {
   def moduleName = "forms-scenarios"
 
   trait FormsScenariosModule extends SharedModule {
-    override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "scenarios"
-
-    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
-    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
+    // Keep the platform segment (jvm/js) so sources resolve under forms/scenarios/<platform>
+    override def moduleDir =
+      super.moduleDir / os.up / os.up / "forms" / "scenarios" / super.moduleDir.last
   }
 
   object jvm extends JvmModule with FormsScenariosModule {

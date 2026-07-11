@@ -19,14 +19,9 @@ object FormCustomElementScenario extends Scenario:
         Field("world")
     )
 
+    // Mill fastLinkJS output for formsScenarios.js; served if present, 404 otherwise
     private val assetsDir =
-        Paths.get(
-            "..",
-            "js",
-            "target",
-            s"scala-${works.iterative.forms.scenarios.BuildInfo.scalaVersion}",
-            "forms-scenarios-fastopt"
-        ).toRealPath().toAbsolutePath()
+        Paths.get("out", "formsScenarios", "js", "fastLinkJS.dest").toAbsolutePath()
 
     override val content =
         iframe(srcAttr := s"/${id}/page", widthAttr := "100%", heightAttr := "100%")
