@@ -30,9 +30,11 @@ object RequiredValidationSpec extends ZIOSpecDefault:
             assertTrue(
                 !missing.isValid(path),
                 missing.errors(path).map(_.id) == List(requiredMessage),
+                missing.hasErrors,
                 !blank.isValid(path),
                 filled.isValid(path),
-                filled.errors(path).isEmpty
+                filled.errors(path).isEmpty,
+                !filled.hasErrors
             )
         },
         test("optional and hidden fields are not required") {

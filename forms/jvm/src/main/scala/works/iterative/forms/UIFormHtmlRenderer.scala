@@ -25,7 +25,8 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             renderMessage(form.messageKey, "title").map(h1(_)),
             form.children.map(renderElement),
             div(cls := "form-actions")(
-                button(`type` := "submit")(
+                // Named so the server can tell real submissions from change-triggered re-renders
+                button(name := "__submit", value := "submit", `type` := "submit")(
                     renderMessage(form.messageKey, "submit").getOrElse("Submit"): String
                 )
             )

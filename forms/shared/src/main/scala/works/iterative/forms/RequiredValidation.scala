@@ -8,7 +8,7 @@ import works.iterative.ui.model.forms.{AbsolutePath, FormState, IdPath}
 
 object RequiredValidation:
 
-    def validate(form: Form, state: FormState)(using MessageCatalogue): FormValidationState =
+    def validate(form: Form, state: FormState)(using MessageCatalogue): MapFormValidationState =
         MapFormValidationState(
             collect(IdPath.Root / form.id, form.elems, state).groupMap(_._1)(_._2)
         )

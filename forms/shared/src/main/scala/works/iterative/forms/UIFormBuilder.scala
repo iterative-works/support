@@ -61,7 +61,17 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                                 t,
                                 defaultSegment
                             ))
-                yield rendered.flatten
+                yield
+                    // Hidden fields carry the item list so it round-trips through HTML forms
+                    val itemsPath = path / id / "__items"
+                    val itemFields = items.zipWithIndex.map:
+                        case ((i, t), idx) =>
+                            UIHiddenField(
+                                s"${itemsPath.toHtmlId}-$idx",
+                                itemsPath.toHtmlName,
+                                Some(s"$i:$t")
+                            )
+                    itemFields ++ rendered.flatten
                 end for
 
     private def getString(path: AbsolutePath)

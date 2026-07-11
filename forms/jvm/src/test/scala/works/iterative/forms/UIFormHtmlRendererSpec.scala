@@ -38,7 +38,8 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
                 out.contains("""hx-post="/submit""""),
                 out.contains("""hx-trigger="change""""),
                 out.contains("""hx-swap="outerHTML""""),
-                out.contains("""type="submit""")
+                // named so the server can tell real submissions from change-triggered re-renders
+                out.matches("(?s).*<button[^>]*name=\"__submit\"[^>]*type=\"submit\".*")
             )
         },
         test("text field renders label and named input with value and required attribute") {

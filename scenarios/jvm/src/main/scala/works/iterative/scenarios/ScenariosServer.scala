@@ -20,5 +20,8 @@ class ScenariosServer(scenarios: Scenario*) extends ZIOAppDefault:
         )
     ) ++ scenarios.map(_.routes).reduceLeft(_ ++ _)
 
-    override def run = Server.serve(routes).provide(Server.default)
+    // PORT env var overrides the default so scenarios can run next to other local servers
+    override def run = Server.serve(routes).provide(
+        Server.defaultWithPort(sys.env.get("PORT").flatMap(_.toIntOption).getOrElse(8080))
+    )
 end ScenariosServer

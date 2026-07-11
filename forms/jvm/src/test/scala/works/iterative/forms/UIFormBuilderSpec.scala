@@ -164,6 +164,17 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 values == Seq(Some("1"), Some("2"))
             )
         },
+        test("Repeated emits hidden __items fields so item state round-trips through forms") {
+            val form = Form("demo", "1")(
+                Repeated("items", optional = true)(Section("row")(Field("qty")))
+            )
+            val state = FormR(Map(
+                IdPath("demo.items.__items") -> List("first:row", "second:row")
+            ))
+            val hidden = fieldsOf(build(form, state)).collect { case h: UIHiddenField => h }
+                .filter(_.fieldName == "demo.items.__items")
+            assertTrue(hidden.map(_.value) == Seq(Some("first:row"), Some("second:row")))
+        },
         test("Repeated renders nothing without __items entries") {
             val form = Form("demo", "1")(
                 Repeated("items", optional = true)(Section("row")(Field("qty")))

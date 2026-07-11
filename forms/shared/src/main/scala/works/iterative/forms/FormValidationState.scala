@@ -18,4 +18,5 @@ class MapFormValidationState(
 ) extends FormValidationState:
     override def isValid(id: AbsolutePath): Boolean = state.get(id).forall(_.isEmpty)
     override def errors(id: AbsolutePath): List[UserMessage] = state.getOrElse(id, Nil)
+    def hasErrors: Boolean = state.exists(_._2.nonEmpty)
 end MapFormValidationState

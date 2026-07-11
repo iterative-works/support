@@ -963,6 +963,7 @@ object formsScenarios extends NoPublishCrossModule {
 
   object jvm extends JvmModule with FormsScenariosModule {
     def moduleDeps = Seq(forms.jvm, scenarios.jvm)
+    object test extends BaseTests
   }
 
   object js extends JsModule with FormsScenariosModule {
