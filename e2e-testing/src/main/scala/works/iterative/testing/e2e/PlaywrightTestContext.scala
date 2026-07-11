@@ -13,7 +13,8 @@ case class E2ETestConfig(
     viewport: Option[ViewportConfig] = None,
     recordVideo: Option[String] = None,
     screenshot: Option[ScreenshotConfig] = None,
-    locale: Option[String] = None
+    locale: Option[String] = None,
+    channel: Option[String] = None
 )
 
 case class ViewportConfig(width: Int, height: Int)
@@ -37,6 +38,9 @@ object PlaywrightTestContext:
         val launchOptions = new BrowserType.LaunchOptions()
             .setHeadless(config.headless)
         config.slowMo.foreach(launchOptions.setSlowMo(_))
+        // Browser channel (e.g. "chrome") runs a system-installed browser instead of
+        // the downloaded chromium — needed on hosts where the bundled build cannot run
+        config.channel.foreach(launchOptions.setChannel(_))
         browser = playwright.chromium().launch(launchOptions)
 
         val contextOptions = new Browser.NewContextOptions()
@@ -112,6 +116,9 @@ object PlaywrightTestContext:
             else None,
             locale = if typesafeConfig.hasPath("locale") then
                 Some(typesafeConfig.getString("locale"))
+            else None,
+            channel = if typesafeConfig.hasPath("channel") then
+                Some(typesafeConfig.getString("channel"))
             else None
         )
     end loadDefaultConfig

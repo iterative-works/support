@@ -56,6 +56,9 @@ object CucumberLifecycleHooks extends ScalaDsl with EN with CS:
             else None,
             locale = if typesafeConfig.hasPath("locale") then
                 Some(typesafeConfig.getString("locale"))
+            else None,
+            channel = if typesafeConfig.hasPath("channel") then
+                Some(typesafeConfig.getString("channel"))
             else None
         )
     end loadConfig

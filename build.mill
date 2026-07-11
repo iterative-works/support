@@ -964,6 +964,19 @@ object formsScenarios extends NoPublishCrossModule {
   object jvm extends JvmModule with FormsScenariosModule {
     def moduleDeps = Seq(forms.jvm, scenarios.jvm)
     object test extends BaseTests
+
+    // Browser e2e suite: Cucumber + Playwright driving the scenarios server in-process
+    object e2e extends ScalaTests with TestModule.Junit4 {
+      override def moduleDir = formsScenarios.jvm.moduleDir
+
+      override def sources = Task.Sources("src/e2e/scala")
+      override def resources = Task.Sources("src/e2e/resources")
+
+      override def moduleDeps = super.moduleDeps ++ Seq(e2eTesting)
+      def mvnDeps = super.mvnDeps() ++ Seq(
+        mvn"com.github.sbt:junit-interface:0.13.3"
+      )
+    }
   }
 
   object js extends JsModule with FormsScenariosModule {
