@@ -31,7 +31,7 @@ class FormRJsonEncoder:
         yield Json.Obj(
             "id" -> Json.Str(path.toHtmlId),
             "version" -> Json.Str(version),
-            "data" -> children.flatten.reduceRight(_.merge(_))
+            "data" -> children.flatten.foldLeft(Json.Obj(): Json)(_.merge(_))
         )
     end render
 
