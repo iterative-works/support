@@ -35,11 +35,49 @@ evaluate reactively in LiveHtmlInterpreter through the shared
 nesting all resolve through the same shared core as SSR, and the
 `spaForm` scenario renders the SAME proof form as `ssrForm` with a
 mirrored e2e feature — 14 browser scenarios, one wording, both
-variants. Next per the tracker: the conformance kit (every FieldKind +
-validation rule + condition case through every interpreter; drift =
-red).
+variants — and the **conformance kit**: a shared corpus with one sample
+per FieldKind/Validation/Condition case (Mirror-counted, so a new enum
+case is red until sampled), per-walker agreement suites that killed four
+more drifts (encoder crash on empty forms, encoder template-lookup
+crash, SSR dropping template-less repeated rows = data loss,
+required-with-items failing on template-less groups), the
+`ValidationRuleRegistry` binding for declared `Rule` validations, and a
+browser vocabulary pair (ssrVocab/spaVocab) pinning the per-kind control
+tables and ButtonIntent semantics in Gherkin — 23 browser scenarios
+green. **Every planned step of the slice is DONE**; the tracker's OPEN
+list is empty and the close gate is Michal's fit-test read.
 
 ## Log
+
+- **2026-07-12 — Drift is now a failing test, and the slice has nothing
+  left open.** Six commits (995c7d69, 3deb3b36, 92b384a2, 9f8b7fde,
+  93974f41, 50533edb): the conformance kit. A shared `ConformanceCorpus`
+  enumerates the whole declared vocabulary — Mirror-derived case counts
+  make a NEW FieldKind/Validation/Condition case red until every table
+  covers it — and per-walker suites pin agreement: conditions across
+  builder/validator/encoder (with the always-valid views pinned as
+  deliberate), validation as same-verdict-same-message between the POST
+  loop and the reactive rule, per-kind dispatch as exhaustive-match
+  tables per renderer. The kit earned its keep immediately: the JSON
+  encoder crashed on forms encoding to no data AND on repeated-row
+  template fallback; the SSR builder silently dropped template-less
+  repeated rows out of the POST loop (user data loss — the SPA kept
+  them); `Repeated.instances` is now total (`segment: Option`) so every
+  walker faces the unrenderable-row case explicitly. The parked
+  `Validation.Rule` binding landed as `ValidationRuleRegistry`
+  (defaulted everywhere — no caller migration; unbound ids keep
+  passing), proven to fire identically in both paths and reactively in
+  a real browser. The browser half is a vocabulary form served by BOTH
+  variants (ssrVocab/spaVocab): the per-kind control table is pinned in
+  Gherkin for both — identical except one documented row after
+  `FieldTypeResolver.empty` became kind-aware (checkbox Fields stay
+  text inputs in the SPA; Laminar forbids the value controller on
+  checkbox inputs — found live as an ObserverError silently breaking
+  the whole reactive graph). ButtonIntent decided and pinned: SSR
+  declared Submit owns submission, SPA declared buttons wait for the
+  client's ButtonHandler while the element chrome submits. 23 browser
+  scenarios green; all gates green. The tracker's OPEN list is empty —
+  the slice close is the fit-test read.
 
 - **2026-07-12 — The proof form behaves identically, and the browser says
   so.** Five commits (078af4e0, 4410adc0, f740d263, 8ace893b, 2e089f12):

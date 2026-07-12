@@ -16,8 +16,8 @@ scenarios, conformance kit green → full card: ./card.md
 ## Run-state
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` + `./mill czech-support.jvm.test` · next: OPEN
-(conformance kit)
+`./mill forms.jvm.test` + `./mill czech-support.jvm.test` · next: OPEN list
+is EMPTY — the slice's close gate (fit-test read) is Michal's call
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -278,9 +278,78 @@ branch iw-support-form-effort · run/see:
       * NOT here: the Validation.Rule registry binding — Rule still passes
         everywhere; lands with the conformance kit.
 
+- [x] Conformance kit — every FieldKind, Validation and Condition case through
+      every interpreter, drift = red (995c7d69, 3deb3b36, 92b384a2, 9f8b7fde,
+      93974f41, 50533edb, 6-commit chain ending with the browser pair):
+      * `ConformanceCorpus` (formsScenarios shared): one sample per enum case;
+        Mirror-derived case counts make a NEW enum case red automatically (no
+        hand-maintained coverage list); condition expectations are proven
+        against Condition.eval itself before any walker sees them.
+      * Condition suite: UIFormBuilder (real validity view) agrees with
+        DeclaredValidation and FormRJsonEncoder (always-valid — deliberate,
+        pinned as separate expectations per sample). CAUGHT: the encoder's
+        top-level reduceRight crashed on any form encoding to no data —
+        now a total fold to an empty data object.
+      * Validation suite: DeclaredValidation == Validation.rule per case —
+        same verdict AND the same UserMessage; blank is only ever the
+        required concern; declared Required overrides the optional flag;
+        failures render as field errors through builder + SSR renderer.
+      * FieldKind suite: per-interpreter dispatch pinned as exhaustive-match
+        tables (builder passthrough, SSR HTML control table incl. the
+        Custom tel/password passthrough, XML decimal-comma normalization
+        exactly for number kinds); wire ids round-trip FieldKind.of.
+      * `ValidationRuleRegistry` (the parked Rule binding): Rule(id, params)
+        resolves by id; empty default everywhere = zero caller migration;
+        threaded through Validation.check/rule, DeclaredValidation and
+        LiveHtmlInterpreter (defaulted ctor param, passed at every
+        copy-constructor site); unbound ids keep passing (pinned). The kit
+        proves a registered rule fires identically in the POST loop and
+        the reactive path — and in a real browser reactively (spaVocab).
+      * Repeated degenerate-config drift killed red-green by making
+        `Repeated.instances` TOTAL (Instance.segment: Option): SSR builder
+        dropped template-less rows entirely — their __items entries left
+        the POST loop, user data loss (SPA kept them); FormRJsonEncoder
+        bypassed the shared expansion with an exact-match lookup crashing
+        on both the fallback and the no-template case; a required group
+        with items but no templates failed required validation. Normative:
+        rows are never silently dropped (render nothing, keep __items);
+        required means has-items; the JSON view of an unshapeable row is
+        empty. RepeatedSpec's "expands to nothing" pin deliberately
+        re-meant to "segment-less instances".
+      * Browser pair: `vocabularyForm` (every kind + registry-bound field +
+        a button of each intent) served as ssrVocab + spaVocab; SPA
+        plumbing folded into one parametrized SpaScenario, submit chrome
+        shared by both custom elements; ScenarioHtml extracted for the SSR
+        shells. `FieldTypeResolver.empty` now types inputs by kind,
+        mirroring the SSR control table (was: everything text — a
+        default-vs-default drift). The feature pins the control table for
+        BOTH variants — identical except ONE documented row: a
+        checkbox-typed Field stays a text input in the SPA (Laminar
+        forbids the text value controller on checkbox inputs — found live
+        as an ObserverError that silently broke the entire reactive form
+        graph; bool Enums are the working checkbox story; checkbox-Field
+        value semantics remain an unresolved design corner in BOTH
+        variants). 23 e2e scenarios green (14 proof form + 9 vocabulary).
+      * ButtonIntent DECISION (was open): SSR — a declared Submit owns
+        submission (chrome suppressed, pinned as the page's only submit
+        control), ServerAction posts and re-renders, ClientAction is
+        inert; SPA — declared buttons of every intent wait for the
+        client's ButtonHandler (the intent is not yet exposed to the
+        handler) while submission belongs to the element's chrome. Pinned
+        in Gherkin as deliberately divergent scenarios, not hidden behind
+        shared wording. Intent-aware SPA behavior stays YAGNI until a
+        client needs it.
+      * MIGRATION FLAGS: FieldTypeResolver.empty is now kind-aware (cmi
+        passes it in two internal demo scenarios only — rendering there
+        gains typed inputs); LiveHtmlInterpreter gained a defaulted
+        trailing ruleRegistry ctor param.
+      * Debris noted, NOT fixed (unrelated): LiveHtmlInterpreter's
+        aroundTitle copy-constructor silently resets formMods to None
+        (pre-existing; the registry threading preserves the behavior).
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] Conformance kit: every FieldKind + validation rule + condition case
-      through every interpreter; drift = red  <-- NEXT
+(empty — every planned step of the slice is DONE; close awaits the fit-test
+read: run both proof-form pages + the vocabulary pair, review the kit)
 
 ## PARKED  (-> future slices; capture, do not do)
 - Morph swaps for text-driven conditions (slice 2+ disposition, pinned by e2e)
