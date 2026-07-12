@@ -44,10 +44,55 @@ required-with-items failing on template-less groups), the
 `ValidationRuleRegistry` binding for declared `Rule` validations, and a
 browser vocabulary pair (ssrVocab/spaVocab) pinning the per-kind control
 tables and ButtonIntent semantics in Gherkin — 23 browser scenarios
-green. **Every planned step of the slice is DONE**; the tracker's OPEN
-list is empty and the close gate is Michal's fit-test read.
+green. **Every planned step of the slice is DONE**; the slice merged to
+main as PR #35 (2026-07-12); the fit-test read remains Michal's.
+
+**Follow-up in flight on branch `forms-datastar`**: a third form
+transport. `UIFormHtmlRenderer` grew a `FormTransport` seam (htmx was
+inlined before), and the new published `forms-datastar` module
+(`forms/datastar`, depends on `scalatags-datastar` +
+`scalatags-datastar-sse` 0.1.0-SNAPSHOT from the iterative-works
+Forgejo Maven registry) provides `DatastarFormTransport`. A
+`datastarForm` scenario drives the SAME `InquiryFormLoop` as `ssrForm`
+(the POST-loop state machine got extracted so both share one truth),
+answering Datastar actions with `datastar-patch-elements` SSE morphs;
+`datastar-form.feature` mirrors `ssr-form.feature` step for step — 30
+browser scenarios green (7 new). Awaiting Michal's read; decision
+context for decisions.md below (2026-07-12 entry).
 
 ## Log
+
+- **2026-07-12 — Datastar is a transport, not a rewrite.** Branch
+  `forms-datastar` (from merged main). Michal picked single-endpoint
+  discrimination over per-button Tapir endpoints; reading Datastar
+  v1.0.2's source (`fetch.ts`, `on.ts`) showed even a discrimination
+  header is unnecessary: with `{contentType: 'form'}` Datastar picks
+  the closest form, **respects `novalidate`**, and **appends the
+  submitter's name/value** exactly like a native submission — so the
+  `__submit`/ServerAction named-button protocol rides through
+  unchanged, and the whole variant surface shrank to form-level
+  attributes. Three commits: (1) the `FormTransport` seam —
+  `UIFormHtmlRenderer(displayResolver, transport)`, committed-choice
+  re-render selectors shared as the single truth, `FormTransport.htmx`
+  byte-identical to the old inline attrs; (2) the `forms-datastar`
+  module — `DatastarFormTransport` emits `data-on:submit` (Datastar
+  auto-prevents native submission on forms) and `data-on:change` with
+  an `evt.target.matches(...)` filter mirroring the hx-trigger list,
+  plus the `Datastar-Request: true` header constant; artifacts resolve
+  from `code.iterative.works` (note: SNAPSHOT pin — worth a tagged
+  scalatags-datastar release before this ships); (3) the scenario —
+  `InquiryFormLoop` extracted from `SsrFormScenario` (transition +
+  displayResolver + received dump), `DatastarFormScenario` renders the
+  same form with the datastar transport and answers actions with
+  patch-elements SSE (morph by id; the received dump rides the form's
+  id to replace it), plain-HTML no-JS fallback kept. Parity is pinned
+  three ways: route-level spec (SSE wire format, header branch, shared
+  outcome), the mirrored feature file (same wording as ssr-form, 7
+  scenarios), and the morph actually preserving typed text in a real
+  browser. All 30 e2e scenarios green; `__.compile` clean at zero
+  warnings. Decision candidates for Michal: bless the FormTransport
+  seam shape; whether `forms-datastar` stays a published module; the
+  SNAPSHOT→release sequencing.
 
 - **2026-07-12 — Drift is now a failing test, and the slice has nothing
   left open.** Six commits (995c7d69, 3deb3b36, 92b384a2, 9f8b7fde,
