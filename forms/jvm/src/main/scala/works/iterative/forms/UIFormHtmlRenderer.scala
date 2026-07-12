@@ -30,14 +30,25 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
         )(
             renderMessage(form.messageKey, "title").map(h1(_)),
             form.children.map(renderElement),
-            div(cls := "form-actions")(
-                // Named so the server can tell real submissions from change-triggered re-renders
-                button(name := "__submit", value := "submit", `type` := "submit")(
-                    renderMessage(form.messageKey, "submit").getOrElse("Submit"): String
+            // Chrome submit only when the form declares no submit button of its own
+            Option.unless(hasDeclaredSubmit(form.children))(
+                div(cls := "form-actions")(
+                    // Named so the server can tell real submissions from change-triggered re-renders
+                    button(name := "__submit", value := "submit", `type` := "submit")(
+                        renderMessage(form.messageKey, "submit").getOrElse("Submit"): String
+                    )
                 )
             )
         )
     end render
+
+    private def hasDeclaredSubmit(elements: Seq[UIFormElement]): Boolean =
+        elements.exists:
+            case UIButton(_, _, UIButtonIntent.Submit, _, _) => true
+            case UIFormSection(_, _, _, children, _, _)      => hasDeclaredSubmit(children)
+            case UIGrid(rows)        => hasDeclaredSubmit(rows.flatten.flatMap(_.children))
+            case UIFlexRow(children) => hasDeclaredSubmit(children)
+            case _                   => false
 
     private def renderMessage(key: UIMessageKey, suffix: String, args: List[MessageArg] = Nil)(
         using messages: MessageCatalogue
@@ -87,11 +98,29 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                 )
             case UIFlexRow(children) =>
                 div(cls := "flex-row")(children.map(renderElement))
-            case UIButton(bid, buttonName, _, messageKey, _) =>
-                // SSR degradation: named submit button so the server sees which button fired
-                button(id := bid, name := buttonName, value := buttonName, `type` := "submit")(
-                    renderMessage(messageKey, "label").getOrElse(messageKey.value): String
-                )
+            case UIButton(bid, buttonName, intent, messageKey, _) =>
+                val buttonLabel: String =
+                    renderMessage(messageKey, "label").getOrElse(messageKey.value)
+                intent match
+                    case UIButtonIntent.Submit =>
+                        button(
+                            id := bid,
+                            name := "__submit",
+                            value := "submit",
+                            `type` := "submit"
+                        )(buttonLabel)
+                    case UIButtonIntent.ServerAction =>
+                        // Named submit button so the server sees which button fired
+                        button(
+                            id := bid,
+                            name := buttonName,
+                            value := buttonName,
+                            `type` := "submit"
+                        )(buttonLabel)
+                    case UIButtonIntent.ClientAction =>
+                        // Inert without client-side code; SSR degradation is a no-op button
+                        button(id := bid, `type` := "button")(buttonLabel)
+                end match
             case UIBlock(bid, messageKey) =>
                 given Language = messages.language
                 div(id := bid, cls := "block")(

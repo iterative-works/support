@@ -91,6 +91,20 @@ object FormPersistenceCodecsSpec extends ZIOSpecDefault:
                 requiredDate.toJson.fromJson[SectionSegment] == Right(requiredDate)
             )
         },
+        test("button without an intent key decodes as server action; intents round-trip") {
+            val legacy = """{"Button":{"id":"lookup"}}"""
+            val submit: SectionSegment = Button("send", ButtonIntent.Submit)
+            val client: SectionSegment = Button("ares", ButtonIntent.ClientAction)
+            assertTrue(
+                legacy.fromJson[SectionSegment] == Right(Button("lookup")),
+                legacy.fromJson[SectionSegment].exists {
+                    case b: Button => b.intent == ButtonIntent.ServerAction
+                    case _         => false
+                },
+                submit.toJson.fromJson[SectionSegment] == Right(submit),
+                client.toJson.fromJson[SectionSegment] == Right(client)
+            )
+        },
         test("a field without a validations key decodes with no declared validations") {
             // Stored declarations predate the vocabulary; zio-json must apply the default
             val legacy =

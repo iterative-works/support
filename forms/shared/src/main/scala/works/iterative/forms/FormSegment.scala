@@ -96,7 +96,14 @@ object Repeated:
                         )
 end Repeated
 
-case class Button(id: RelativePath) extends SectionSegment
+/** What pressing a button means: Submit sends the whole form, ServerAction posts so the server
+  * dispatches on the button name, ClientAction is handled by client-side code.
+  */
+enum ButtonIntent:
+    case Submit, ServerAction, ClientAction
+
+case class Button(id: RelativePath, intent: ButtonIntent = ButtonIntent.ServerAction)
+    extends SectionSegment
 
 case class Field(
     id: RelativePath,

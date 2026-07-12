@@ -155,6 +155,24 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
                     out.matches("(?s).*<button[^>]*type=\"submit\"[^>]*name=\"demo.s.lookup\".*")
             )
         },
+        test("declared submit button becomes the form's submit and replaces the chrome") {
+            val out = html(Form("demo", "1")(Section("s")(Button("send", ButtonIntent.Submit))))
+            assertTrue(
+                out.matches("(?s).*<button[^>]*name=\"__submit\"[^>]*type=\"submit\".*") ||
+                    out.matches("(?s).*<button[^>]*type=\"submit\"[^>]*name=\"__submit\".*"),
+                !out.contains("form-actions")
+            )
+        },
+        test("client action button renders inert without a name") {
+            val out = html(Form("demo", "1")(Section("s")(
+                Button("ares", ButtonIntent.ClientAction)
+            )))
+            assertTrue(
+                out.matches("(?s).*<button[^>]*id=\"demo-s-ares\"[^>]*type=\"button\".*") ||
+                    out.matches("(?s).*<button[^>]*type=\"button\"[^>]*id=\"demo-s-ares\".*"),
+                !out.matches("(?s).*<button[^>]*name=\"demo.s.ares\".*")
+            )
+        },
         test("display block renders resolved content") {
             val out = html(Form("demo", "1")(Section("s")(Display("info"))))
             assertTrue(out.contains("display:demo.s.info"))

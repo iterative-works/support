@@ -93,10 +93,14 @@ final case class UIGrid(children: Seq[Seq[UIGridCell]]) extends UIFormElement
 
 final case class UIGridCell(size: Int, children: Seq[UIFormElement])
 
+enum UIButtonIntent:
+    case Submit, ServerAction, ClientAction
+end UIButtonIntent
+
 final case class UIButton(
     id: UIFormId,
     name: UIFieldName,
-    buttonType: String,
+    intent: UIButtonIntent,
     messageKey: UIMessageKey,
     decorations: List[UIFieldDecoration]
 ) extends UIFormElement

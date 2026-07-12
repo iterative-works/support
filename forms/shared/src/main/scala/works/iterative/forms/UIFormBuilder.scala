@@ -43,8 +43,8 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                 renderFileField(path / id, multiple, optional).map(List(_))
             case Date(id, optional) =>
                 renderField(path / id, FieldType("date"), None, optional).map(List(_))
-            case Display(id) => renderDisplay(path / id).map(List(_))
-            case Button(id)  => renderButton(path / id).map(List(_))
+            case Display(id)        => renderDisplay(path / id).map(List(_))
+            case Button(id, intent) => renderButton(path / id, intent).map(List(_))
             case Enum(id, values, default, optional) =>
                 renderChoiceField(path / id, values, default, optional).map(List(_))
             case ShowIf(condition, elem) =>
@@ -167,8 +167,14 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
     private def renderDisplay(path: AbsolutePath) = ZPure.succeed[Unit, UIFormElement]:
         UIBlock(path.toHtmlId, path.last)
 
-    private def renderButton(path: AbsolutePath) = ZPure.succeed[Unit, UIFormElement]:
-        UIButton(path.toHtmlId, path.toHtmlName, "button", path.last, Nil)
+    private def renderButton(path: AbsolutePath, intent: ButtonIntent) =
+        val uiIntent = intent match
+            case ButtonIntent.Submit       => UIButtonIntent.Submit
+            case ButtonIntent.ServerAction => UIButtonIntent.ServerAction
+            case ButtonIntent.ClientAction => UIButtonIntent.ClientAction
+        ZPure.succeed[Unit, UIFormElement]:
+            UIButton(path.toHtmlId, path.toHtmlName, uiIntent, path.last, Nil)
+    end renderButton
 
     private def renderChoiceField(
         path: AbsolutePath,

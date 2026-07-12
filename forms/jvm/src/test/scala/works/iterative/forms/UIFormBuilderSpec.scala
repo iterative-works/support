@@ -141,8 +141,18 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             val block = elems.collectFirst { case b: UIBlock => b }.get
             assertTrue(
                 button.name == "demo.s.lookup",
-                button.buttonType == "button",
+                button.intent == UIButtonIntent.ServerAction,
                 block.id == "demo-s-info"
+            )
+        },
+        test("declared button intents survive to UIButton") {
+            val form = Form("demo", "1")(Section("s")(
+                Button("send", ButtonIntent.Submit),
+                Button("ares", ButtonIntent.ClientAction)
+            ))
+            val buttons = fieldsOf(build(form)).collect { case b: UIButton => b }
+            assertTrue(
+                buttons.map(_.intent) == Seq(UIButtonIntent.Submit, UIButtonIntent.ClientAction)
             )
         },
         test("ShowIf IsEqual renders the element only when state matches") {

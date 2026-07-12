@@ -46,6 +46,7 @@ trait FormPersistenceJsonCodecs:
     given JsonCodec[FieldType] = JsonCodec(fieldTypeEncoder, fieldTypeDecoder)
 
     given JsonCodec[Validation] = DeriveJsonCodec.gen[Validation]
+    given JsonCodec[ButtonIntent] = DeriveJsonCodec.gen[ButtonIntent]
     given JsonCodec[Condition] = DeriveJsonCodec.gen[Condition]
     given JsonCodec[SectionSegment] = DeriveJsonCodec.gen[SectionSegment]
     given JsonCodec[Form] = DeriveJsonCodec.gen[Form]
@@ -60,6 +61,7 @@ trait FormPersistenceTapirCodecs:
     given Schema[(String, String)] = Schema.schemaForArray[String].as[(String, String)]
     given Schema[FieldType] = Schema.derived[FieldType]
     given Schema[Validation] = Schema.derived[Validation]
+    given Schema[ButtonIntent] = Schema.derived[ButtonIntent]
     implicit def conditionSchema: Schema[Condition] = Schema.derived[Condition]
     implicit def sectionSegmentSchema: Schema[SectionSegment] = Schema.derived[SectionSegment]
     given Schema[Form] = Schema.derived[Form]
