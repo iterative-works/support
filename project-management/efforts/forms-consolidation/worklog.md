@@ -18,11 +18,33 @@ step-level state). Landed so far: shared `Condition.eval` +
 `Repeated.instances` with all five walkers refolded, `FormData` as the
 typed value currency with the SSR loop running on it, the declared
 `Validation` vocabulary evaluating in `DeclaredValidation` on the SSR
-POST path, and `FieldKind` as the closed field-type dispatch index
-(FC-D6). Next per the tracker: UIForm/ADT hardening from the gap
-inventory.
+POST path, `FieldKind` as the closed field-type dispatch index (FC-D6),
+and the full UIForm/ADT hardening from the gap inventory (Enum/Date
+optionality, disabled/context decorations, button intent, UIRepeatedGroup,
+form/section error slots, IdPath ids). Next per the tracker:
+`TypedForm[A]` + `InputSchema` relocation.
 
 ## Log
+
+- **2026-07-12 — UIForm/ADT hardening closes the whole gap inventory.**
+  Seven gaps, five green commits, each TDD'd with wire pins. Enum and
+  Date declare required-ness (`optional` defaults TRUE to preserve stored
+  never-required behavior — deliberately unlike Field, like Repeated);
+  disabled/context ride the fold as decorations (SSR renders disabled
+  inputs with a hidden mirror so the POST loop keeps their state);
+  `ButtonIntent` Submit/ServerAction/ClientAction wire-pinned with legacy
+  = ServerAction, UIButton's dead `buttonType` string replaced, declared
+  Submit suppresses the SSR chrome; `UIRepeatedGroup` keeps row
+  boundaries with everything needed to derive add/remove (builder stops
+  emitting sibling `__items` hidden fields — SSR emits per row, XML/PDF
+  drops the chrome, restoring pre-slice output), group errors render;
+  `UIForm.errors` + populated section decorations give form/section
+  errors a place; `UIFormId = IdPath` ends dash-split path
+  reconstruction (pinned red-first by a dashed Display id). Client
+  migration notes recorded in the tracker — biggest: custom UIForm
+  walkers with `case _` fallbacks silently drop repeated content until
+  they learn UIRepeatedGroup. All gates green incl. browser e2e 5/5 and
+  a full-repo compile.
 
 - **2026-07-12 — FieldKind closed vocabulary dispatches the interpreters.**
   `enum FieldKind` + `Custom(id)` with `of`/`wireId` as the hand-written

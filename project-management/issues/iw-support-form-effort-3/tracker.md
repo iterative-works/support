@@ -16,7 +16,7 @@ scenarios, conformance kit green → full card: ./card.md
 ## Run-state
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN (UIForm/ADT hardening)
+`./mill forms.jvm.test` · next: OPEN (TypedForm[A] + InputSchema relocation)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -84,12 +84,43 @@ branch iw-support-form-effort · run/see:
       czech-support (its cmi:* arms leave then). String-apply retirement
       (typo-proof construction) belongs to the package-rename step.
 
+- [x] UIForm/ADT hardening — all seven gap-inventory items landed in five
+      green commits (5d221bfb, 8029341d, f6ea65c0, 4a24a22a, bd546434,
+      bda6510b):
+      * Enum/Date declare required-ness via `optional` — default TRUE (wire
+        preservation: stored declarations are never-required today; matches
+        Repeated's default, deliberately differs from Field's false). Enum
+        companion lost default args to explicit overloads (Scala allows one
+        apply overload with defaults; the case-class default carries the
+        wire decode).
+      * FieldType disabled/context survive the fold as decorations
+        (UIFieldDecoration.Context = resolver's sibling-value scope). SSR
+        renders disabled inputs WITH a hidden mirror — disabled controls
+        never submit, without it the POST loop drops their state.
+      * ButtonIntent (Submit/ServerAction/ClientAction) on the Button
+        segment, wire-pinned (legacy decodes ServerAction = current
+        behavior everywhere). UIButton.buttonType (hardcoded, zero
+        consumers) replaced by UIButtonIntent. SSR: declared Submit
+        suppresses the appended chrome; ClientAction degrades inert.
+      * UIRepeatedGroup keeps row boundaries (fieldName=__items, templates,
+        optional, rows with item/type/index) — add/remove derivable by any
+        interpreter. Builder no longer emits sibling __items hidden fields;
+        SSR emits them per row; XML renderer flattens rows and drops the
+        __items chrome (restores pre-slice PDF output). Group errors
+        (required-but-empty Repeated) attach and render.
+      * Form-level error slot (UIForm.errors) + section decorations now
+        populated; SSR renders both.
+      * UIFormId = IdPath (model TODO closed); dash-split path
+        reconstruction gone, pinned by a dashed-segment Display test that
+        was red before. JS component boundary stays String via toHtmlId.
+      MIGRATION-GUIDE items for clients at upgrade: pattern-match arity on
+      Enum/Date/Button changed; UIButton carries intent; custom UIForm
+      walkers with `case _` fallbacks silently DROP repeated content unless
+      they add a UIRepeatedGroup arm (cmi CmiLiveFormHooks is advice-only,
+      unaffected).
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] UIForm/ADT hardening from the gap inventory: Enum optional flag, Date   <-- NEXT
-      required-able, button intent (submit/server-action/client-action),
-      repeated-group node (add/remove derivable), IdPath ids, form-level
-      error slot, Disabled/context decorations survive the fold
-- [ ] `TypedForm[A]` + `InputSchema` relocation (FormSchema salvage;
+- [ ] `TypedForm[A]` + `InputSchema` relocation (FormSchema salvage;      <-- NEXT
       interpreters see only erased Form)
 - [ ] czech-support extraction (FC-D3): cmi/czech field types, ARES/VIES,
       `complete_ares`, `Enum.yesno`, Submission/DsSubmission/paymentUrl
