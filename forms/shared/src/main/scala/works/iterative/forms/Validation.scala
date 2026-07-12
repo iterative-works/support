@@ -3,7 +3,9 @@
 
 package works.iterative.forms
 
-import works.iterative.core.UserMessage
+import works.iterative.core.{MessageCatalogue, UserMessage}
+import works.iterative.ui.model.forms.IdPath
+import zio.prelude.*
 
 enum Validation:
     case Required
@@ -36,4 +38,17 @@ object Validation:
                 Option.unless(value.length <= max)(
                     UserMessage("error.field.maxlength", label, max)
                 )
+
+    /** The declared validations of one field as a composable rule, accumulating every failing check
+      * at the field's path. Emptiness stays the composing interpreter's concern — a blank value
+      * reaches this rule only when the field is optional and filled.
+      */
+    def rule[F[+_]: IdentityBoth: Covariant](id: IdPath, validations: List[Validation])(using
+        MessageCatalogue
+    ): ValidationRule[F, String, String] =
+        ValidationRule.succeed: value =>
+            validations.flatMap(check(_, value, id.toMessage("label"))) match
+                case Nil => ValidationState.Valid(value)
+                case h :: t =>
+                    ValidationState.Invalid(zio.NonEmptyChunk(id -> h, t.map(id -> _)*))
 end Validation
