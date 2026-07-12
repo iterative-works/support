@@ -67,10 +67,6 @@ class FormRJsonEncoder:
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Option[List[String]]] =
         ZPure.serviceWith[FormState](_.getStringList(path))
 
-    private def getItemsFor(path: AbsolutePath)
-        : ZPure[Nothing, Unit, Unit, FormState, Nothing, List[(String, String)]] =
-        ZPure.serviceWith[FormState](_.itemsFor(path))
-
     private def renderSection(path: AbsolutePath)(elems: List[SectionSegment]) =
         for
             children <-

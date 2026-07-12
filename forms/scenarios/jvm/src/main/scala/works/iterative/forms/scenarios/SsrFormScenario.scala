@@ -6,7 +6,6 @@ package works.iterative.forms.scenarios
 import zio.http.{Response, Routes, Method, Root, Request, handler}
 import zio.http.template.Html
 import scalatags.Text.all.*
-import scalatags.Text.tags2
 import works.iterative.forms.*
 import works.iterative.core.{Language, MessageCatalogue}
 import works.iterative.scenarios.Scenario

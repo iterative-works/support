@@ -4,7 +4,6 @@ package works.iterative.forms
 package impl
 
 import com.raquo.laminar.api.L.*
-import works.iterative.ui.laminar.*
 import works.iterative.ui.model.forms.AbsolutePath
 
 trait ButtonHandler:

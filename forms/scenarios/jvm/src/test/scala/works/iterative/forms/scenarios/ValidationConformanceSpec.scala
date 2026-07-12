@@ -47,6 +47,8 @@ object ValidationConformanceSpec extends ZIOSpecDefault:
         Validation.rule[Option](valuePath, List(sample.validation)).apply(value).get match
             case ValidationState.Valid(_)        => Nil
             case ValidationState.Invalid(errors) => errors.map(_._2).toList
+            // Validation.rule never defers; surfacing the info keeps the helper total
+            case ValidationState.Unknown(info) => info.map(_._2)
 
     def spec = suite("Validation conformance")(
         test("passing values validate in both paths") {
@@ -104,6 +106,7 @@ object ValidationConformanceSpec extends ZIOSpecDefault:
                     .apply(value).get match
                     case ValidationState.Valid(_)        => Nil
                     case ValidationState.Invalid(errors) => errors.map(_._2).toList
+                    case ValidationState.Unknown(info)   => info.map(_._2)
             assertTrue(
                 declaredWith(sample.passing).isEmpty,
                 ruleWith(sample.passing).isEmpty,
