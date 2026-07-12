@@ -63,7 +63,7 @@ object RepeatedConformanceSpec extends ZIOSpecDefault:
             val form = repeatedForm(optional = true)()
             val state = FormData.parse(Map("rep.items.__items" -> Seq("i1:zzz", "i2:zzz")))
             val rows = group(form, state).rows
-            val html = UIFormHtmlRenderer(blankDisplays)
+            val html = UIFormHtmlRenderer(blankDisplays, FormTransport.htmx)
                 .render(
                     builder.buildForm(form, state, FormValidationState.valid, None),
                     "/conformance"

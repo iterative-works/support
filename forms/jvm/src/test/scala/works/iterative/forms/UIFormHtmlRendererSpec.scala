@@ -17,7 +17,7 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
         def resolve(id: IdPath, state: FormState)(using MessageCatalogue, Language): Frag =
             span("display:" + id.toHtmlName)
 
-    val renderer = UIFormHtmlRenderer(noDisplay)
+    val renderer = UIFormHtmlRenderer(noDisplay, FormTransport.htmx)
 
     def html(
         form: Form,
@@ -29,6 +29,20 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
         renderer.render(ui, "/submit").render
 
     def spec = suite("UIFormHtmlRenderer")(
+        test("form-level transport attributes come from the transport") {
+            import scalatags.Text.all.{attr, stringAttr}
+            val sentinel = new FormTransport:
+                def formAttributes(postAction: String): Seq[scalatags.Text.all.Modifier] =
+                    Seq(attr("data-sentinel") := postAction)
+            val ui = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
+                .buildForm(Form("demo", "1")(Section("s")(Field("name"))), FormR.empty,
+                    FormValidationState.valid, None)
+            val out = UIFormHtmlRenderer(noDisplay, sentinel).render(ui, "/submit").render
+            assertTrue(
+                out.contains("""data-sentinel="/submit""""),
+                !out.contains("hx-post")
+            )
+        },
         test("renders a post form with htmx wiring and a submit button") {
             val out = html(Form("demo", "1")(Section("s")(Field("name"))))
             assertTrue(

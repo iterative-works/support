@@ -34,7 +34,7 @@ object SsrFormScenario extends Scenario:
                 val items = state.itemsFor(itemsPath).size
                 p(s"You are requesting a $kind with $items item(s).")
 
-    private val renderer = UIFormHtmlRenderer(displayResolver)
+    private val renderer = UIFormHtmlRenderer(displayResolver, FormTransport.htmx)
     private val builder = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
 
     def renderFormTag(form: Form, state: FormState, validation: FormValidationState): Tag =

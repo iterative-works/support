@@ -24,7 +24,7 @@ object SsrVocabularyScenario extends Scenario:
             def resolve(path: IdPath, state: FormState)(using MessageCatalogue, Language): Frag =
                 frag()
 
-    private val renderer = UIFormHtmlRenderer(displayResolver)
+    private val renderer = UIFormHtmlRenderer(displayResolver, FormTransport.htmx)
     private val builder = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
 
     private def formTag(state: FormState, validation: FormValidationState): Tag =

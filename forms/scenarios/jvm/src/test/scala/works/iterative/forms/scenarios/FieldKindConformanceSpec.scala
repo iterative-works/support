@@ -80,7 +80,7 @@ object FieldKindConformanceSpec extends ZIOSpecDefault:
             }
         },
         test("SSR renderer maps every kind to its pinned HTML control") {
-            val html = UIFormHtmlRenderer(blankDisplays).render(
+            val html = UIFormHtmlRenderer(blankDisplays, FormTransport.htmx).render(
                 builder.buildForm(
                     ConformanceCorpus.vocabularyForm,
                     FormData.parse(Map.empty),
