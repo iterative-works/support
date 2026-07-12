@@ -578,27 +578,6 @@ object hashicorp extends CrossModule {
   }
 }
 
-// Forms core module - cross-compiled (nested at forms/core)
-object formsCore extends CrossModule {
-  def moduleName = "forms-core"
-  def description = "IW Support Forms Core Library"
-
-  trait FormsCoreModule extends SharedModule {
-    override def moduleDir = super.moduleDir / os.up / os.up / "forms" / "core"
-
-    override def sharedSources = Task.Sources(moduleDir / "shared" / "src" / "main" / "scala")
-    override def sharedResources = Task.Sources(moduleDir / "shared" / "src" / "main" / "resources")
-  }
-
-  object jvm extends JvmModule with FormsCoreModule {
-    def moduleDeps = Seq(core.jvm)
-  }
-
-  object js extends JsModule with FormsCoreModule {
-    def moduleDeps = Seq(core.js)
-  }
-}
-
 // Files core module - cross-compiled (nested at files/core)
 object filesCore extends CrossModule {
   def moduleName = "files-core"
@@ -668,7 +647,7 @@ object uiCore extends CrossModule {
   }
 
   object jvm extends JvmModule with UICoreModule {
-    def moduleDeps = Seq(formsCore.jvm)
+    def moduleDeps = Seq(core.jvm)
 
     override def sources = Task.Sources(
       moduleDir / "jvm" / "src" / "main" / "scala",
@@ -677,7 +656,7 @@ object uiCore extends CrossModule {
   }
 
   object js extends JsModule with UICoreModule {
-    def moduleDeps = Seq(formsCore.js)
+    def moduleDeps = Seq(core.js)
 
     override def sources = Task.Sources(
       moduleDir / "js" / "src" / "main" / "scala",
@@ -902,16 +881,6 @@ object autocomplete extends CrossModule {
     def moduleDeps = Seq(core.js, tapir.js, ui.js, uiForms.js, filesUI)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
   }
-}
-
-// Forms HTTP module - JVM only (located at forms/http)
-object formsHttp extends JvmOnlyModule {
-  def moduleName = "forms-http"
-  def description = "IW Support Forms HTTP Library"
-
-  override def moduleDir = super.moduleDir / os.up / "forms" / "http"
-
-  def moduleDeps = Seq(formsCore.jvm, http)
 }
 
 // Files integration tests module - JVM only (located at files/it)
@@ -1184,9 +1153,7 @@ object root extends BaseModule {
     autocomplete.jvm, autocomplete.js,
 
     // Forms modules
-    formsCore.jvm, formsCore.js,
     forms.jvm, forms.js,
-    formsHttp,
 
     // E2E Testing
     e2eTesting
@@ -1265,8 +1232,6 @@ object verify extends Module {
     email.checkFormat()
     codecs.jvm.checkFormat()
     codecs.js.checkFormat()
-    formsCore.jvm.checkFormat()
-    formsCore.js.checkFormat()
     filesCore.jvm.checkFormat()
     filesCore.js.checkFormat()
     uiCore.jvm.checkFormat()
@@ -1293,7 +1258,6 @@ object verify extends Module {
     scenarios.js.checkFormat()
     forms.jvm.checkFormat()
     forms.js.checkFormat()
-    formsHttp.checkFormat()
     formsScenarios.jvm.checkFormat()
     formsScenarios.js.checkFormat()
     filesUIScenarios.jvm.checkFormat()
