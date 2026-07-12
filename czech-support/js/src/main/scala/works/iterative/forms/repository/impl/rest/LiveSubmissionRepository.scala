@@ -5,7 +5,7 @@ package impl.rest
 
 import zio.*
 import works.iterative.tapir.ClientEndpointFactory
-import portaly.forms.service.impl.rest.Endpoints
+import works.iterative.forms.service.impl.rest.Endpoints
 
 class LiveSubmissionRepository(factory: ClientEndpointFactory)
     extends ReadSubmissionRepository:

@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import zio.prelude.*
@@ -40,7 +40,7 @@ object FieldFactory:
     class Text(
         inputType: String,
         initialEnabled: Boolean,
-        validation: IdPath => portaly.forms.impl.Validation,
+        validation: IdPath => works.iterative.forms.impl.Validation,
         prefixed: Option[String],
         extraMods: HtmlMod*
     ) extends FieldFactory[String]:
@@ -67,7 +67,7 @@ object FieldFactory:
 
     class TextArea(
         inputType: String,
-        validation: IdPath => portaly.forms.impl.Validation,
+        validation: IdPath => works.iterative.forms.impl.Validation,
         extraMods: HtmlMod*
     ) extends FieldFactory[String]:
         def render(
@@ -124,7 +124,7 @@ object FieldFactory:
     end Autocomplete
 
     case class Select(
-        validation: IdPath => portaly.forms.impl.Validation,
+        validation: IdPath => works.iterative.forms.impl.Validation,
         getOptions: FormCtx => AbsolutePath => EventStream[List[AutocompleteEntry]],
         selectObserver: Option[FormCtx ?=> Observer[(AbsolutePath, AutocompleteEntry)]] = None,
         disabled: Boolean = false

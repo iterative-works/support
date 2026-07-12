@@ -1,6 +1,6 @@
 // PURPOSE: Validation rules for Czech forms — IČO checksum, VIES VAT lookup, CMI section rules
 // PURPOSE: for consents, measuring instruments and services, and future-date checks
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import zio.*
@@ -8,11 +8,11 @@ import com.raquo.laminar.api.L.*
 import works.iterative.core.*
 import works.iterative.ui.laminar.*
 import works.iterative.tapir.ClientEndpointFactory
-import portaly.forms.service.impl.ViesConfig
+import works.iterative.forms.service.impl.ViesConfig
 import works.iterative.core.czech.ICO
 import java.time.LocalDate
 import works.iterative.ui.model.forms.{RelativePath, AbsolutePath, IdPath}
-import portaly.forms.service.impl.rest.ViesEndpoints
+import works.iterative.forms.service.impl.rest.ViesEndpoints
 
 class BaseValidationResolver(
     factory: ClientEndpointFactory,

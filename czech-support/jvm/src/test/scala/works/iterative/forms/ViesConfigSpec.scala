@@ -4,7 +4,7 @@
 package works.iterative.forms.czech
 
 import zio.test.*
-import portaly.forms.service.impl.ViesConfig
+import works.iterative.forms.service.impl.ViesConfig
 
 object ViesConfigSpec extends ZIOSpecDefault:
     def spec = suite("ViesConfig")(

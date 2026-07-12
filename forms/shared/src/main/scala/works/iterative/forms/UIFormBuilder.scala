@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.ui.model.forms.*
 import zio.prelude.fx.ZPure

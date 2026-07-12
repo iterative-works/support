@@ -1,7 +1,7 @@
 // PURPOSE: Reactive validation helpers bound to the browser event stream
 // PURPOSE: Hosts the deprecated required-gating helper over EventStream validations
 
-package portaly.forms
+package works.iterative.forms
 
 import com.raquo.airstream.core.EventStream
 import works.iterative.core.{MessageCatalogue, UserMessage}

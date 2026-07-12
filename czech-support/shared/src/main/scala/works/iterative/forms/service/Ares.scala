@@ -1,6 +1,6 @@
 // PURPOSE: ARES economic-subject wire model — the registry response with derived accessors
 // PURPOSE: for the address fields Czech forms prefill from
-package portaly.forms
+package works.iterative.forms
 package service
 package impl
 

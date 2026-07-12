@@ -1,6 +1,6 @@
 // PURPOSE: Tapir endpoint for the VIES VAT check —
 // PURPOSE: GET by country and VAT id returning validity when the service answers
-package portaly.forms.service.impl.rest
+package works.iterative.forms.service.impl.rest
 
 import works.iterative.tapir.CustomTapir.*
 import works.iterative.tapir.endpoints.BaseEndpoint

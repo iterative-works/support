@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 import com.raquo.airstream.core.{EventStream, Signal}
 import com.raquo.laminar.api.L

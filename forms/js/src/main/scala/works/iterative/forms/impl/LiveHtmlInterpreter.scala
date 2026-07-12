@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import com.raquo.laminar.api.L.*
@@ -7,7 +7,7 @@ import works.iterative.core.MessageCatalogue
 import works.iterative.ui.components.laminar.LaminarExtensions.*
 import FormCtx.ctx
 import com.raquo.laminar.api.L
-import portaly.forms.Components.RadioOption
+import works.iterative.forms.Components.RadioOption
 import works.iterative.core.UserMessage
 import zio.prelude.*
 

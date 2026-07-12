@@ -1,4 +1,4 @@
-package portaly
+package works.iterative
 package forms
 
 trait Interpreter[I, O]:

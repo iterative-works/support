@@ -1,7 +1,7 @@
 // PURPOSE: Pins the semantics of FormData, the typed value currency replacing FormR's Any-typed maps
 // PURPOSE: Posted-body ingestion, FormState reads, the __items convention and merge/override are decided here
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import works.iterative.core.FileRef

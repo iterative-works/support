@@ -1,7 +1,7 @@
 // PURPOSE: Renders a UIForm as a server-side HTML form using scalatags
 // PURPOSE: Plain POST form enriched with HTMX attributes for change-triggered re-render (FC-D4)
 
-package portaly.forms
+package works.iterative.forms
 
 import scalatags.Text.all.*
 import scalatags.Text.tags2

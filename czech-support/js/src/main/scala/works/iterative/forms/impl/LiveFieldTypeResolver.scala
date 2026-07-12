@@ -1,6 +1,6 @@
 // PURPOSE: Field factories for CMI form field types — measuring-instrument identifiers, price-list
 // PURPOSE: selects with dependent categories, and the preferred-date field bounded to the future
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import zio.*

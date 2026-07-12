@@ -1,12 +1,12 @@
 // PURPOSE: Tests for validation of submitted data against the form declaration
 // PURPOSE: Required-ness from the optional flag plus the declared validation vocabulary; drives the SSR POST loop
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import works.iterative.core.{MessageCatalogue, MessageId}
 import works.iterative.ui.model.forms.IdPath
-import portaly.forms.impl.FormR
+import works.iterative.forms.impl.FormR
 
 object DeclaredValidationSpec extends ZIOSpecDefault:
 

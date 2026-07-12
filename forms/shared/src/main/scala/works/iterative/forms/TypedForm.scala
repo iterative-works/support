@@ -1,7 +1,7 @@
 // PURPOSE: Typed form declarations — an applicative algebra emitting plain FormSegments
 // PURPOSE: plus a FormCodec capturing FormData as a typed value with accumulated errors
 
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.core.Validated
 import works.iterative.ui.components.laminar.forms.InputSchema

@@ -4,7 +4,7 @@
 package works.iterative.forms.czech
 
 import zio.test.*
-import portaly.forms.service.impl.Ares.*
+import works.iterative.forms.service.impl.Ares.*
 
 object AresSpec extends ZIOSpecDefault:
 

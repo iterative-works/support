@@ -6,8 +6,8 @@ package repository
 import java.time.OffsetDateTime
 import works.iterative.core.Email
 import works.iterative.ui.model.forms.IdPath
-import portaly.forms.FormContent
-import portaly.forms.FormKey
+import works.iterative.forms.FormContent
+import works.iterative.forms.FormKey
 
 final case class Submission(
     id: String,

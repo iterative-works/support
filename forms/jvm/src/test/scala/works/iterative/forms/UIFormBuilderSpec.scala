@@ -1,11 +1,11 @@
 // PURPOSE: Characterization tests pinning UIFormBuilder's Form -> UIForm fold semantics
 // PURPOSE: Safety net for the forms consolidation (FC-D1); pins current behavior before any refactor
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import works.iterative.ui.model.forms.*
-import portaly.forms.impl.FormR
+import works.iterative.forms.impl.FormR
 
 object UIFormBuilderSpec extends ZIOSpecDefault:
 

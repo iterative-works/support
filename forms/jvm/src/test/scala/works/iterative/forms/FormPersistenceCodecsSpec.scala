@@ -1,12 +1,12 @@
 // PURPOSE: Characterization tests pinning the JSON wire format of form definitions and submission values
 // PURPOSE: The Form ADT is the wire format (stored in client DBs); these tests guard it through the consolidation
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.json.*
 import zio.test.*
 import works.iterative.ui.model.forms.IdPath
-import portaly.forms.impl.FormR
+import works.iterative.forms.impl.FormR
 
 object FormPersistenceCodecsSpec extends ZIOSpecDefault:
     import service.impl.rest.FormPersistenceCodecs.given

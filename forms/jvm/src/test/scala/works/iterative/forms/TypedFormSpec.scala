@@ -1,7 +1,7 @@
 // PURPOSE: Tests for the typed form layer — the applicative algebra erases to plain segments
 // PURPOSE: and its FormCodec captures FormData as a typed value with accumulated errors
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import zio.prelude.Validation

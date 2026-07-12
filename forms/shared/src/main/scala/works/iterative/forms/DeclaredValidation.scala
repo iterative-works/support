@@ -1,7 +1,7 @@
 // PURPOSE: Validates form data against the form declaration — required-ness and declared validations
 // PURPOSE: Only visible fields validate; format checks skip blank values; Rule validations bind at the edges
 
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.core.{MessageCatalogue, UserMessage}
 import works.iterative.ui.model.forms.{AbsolutePath, FormState, IdPath}

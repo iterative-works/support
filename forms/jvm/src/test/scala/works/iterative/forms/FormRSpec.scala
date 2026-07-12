@@ -1,7 +1,7 @@
 // PURPOSE: Characterization tests pinning FormR's data algebra (parse, typed getters, combine/override, under)
 // PURPOSE: FormR is replaced by FormData in the consolidation; these pins define the semantics the replacement must keep or knowingly change
 
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import zio.test.*

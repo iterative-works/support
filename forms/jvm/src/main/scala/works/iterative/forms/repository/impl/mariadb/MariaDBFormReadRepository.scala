@@ -1,4 +1,4 @@
-package portaly
+package works.iterative
 package forms
 package repository
 package impl
@@ -41,7 +41,7 @@ class MariaDBFormReadRepository(quill: Quill.Mysql[io.getquill.SnakeCase])
 end MariaDBFormReadRepository
 
 object MariaDBFormReadRepository:
-    import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
+    import works.iterative.forms.service.impl.rest.FormPersistenceCodecs.given
     // scalafix:off DisableSyntax.throw
     // Quill MappedEncoding API requires exceptions for decode failures
     given MappedEncoding[String, Form] = MappedEncoding(_.fromJson[Form].left.map(msg =>

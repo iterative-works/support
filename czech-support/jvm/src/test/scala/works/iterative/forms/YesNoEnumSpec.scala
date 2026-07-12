@@ -4,7 +4,7 @@
 package works.iterative.forms.czech
 
 import zio.test.*
-import portaly.forms.*
+import works.iterative.forms.*
 
 object YesNoEnumSpec extends ZIOSpecDefault:
     def spec = suite("Enum.yesno")(

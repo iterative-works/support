@@ -1,6 +1,6 @@
 // PURPOSE: ARES economic-subject lookup — queries the Czech business registry by IČO
 // PURPOSE: and returns the registered subject with its address
-package portaly.forms.service.impl
+package works.iterative.forms.service.impl
 
 import zio.*
 import works.iterative.tapir.CustomTapir.*

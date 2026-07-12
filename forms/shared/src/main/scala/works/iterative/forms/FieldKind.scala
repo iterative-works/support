@@ -1,7 +1,7 @@
 // PURPOSE: Closed field-type vocabulary that interpreters dispatch on exhaustively
 // PURPOSE: Wire-stable codec: known ids decode to their kind, unknown ids stay Custom byte-exactly
 
-package portaly
+package works.iterative
 package forms
 
 enum NumberKind:

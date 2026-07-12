@@ -2,9 +2,9 @@ package works.iterative.forms.scenarios
 
 import zio.http.*
 import zio.http.template.*
-import portaly.forms.*
+import works.iterative.forms.*
 import zio.json.*
-import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
+import works.iterative.forms.service.impl.rest.FormPersistenceCodecs.given
 import java.nio.file.Paths
 import works.iterative.scenarios.Scenario
 
@@ -14,10 +14,11 @@ object FormCustomElementScenario extends Scenario:
 
     override val label = "Form Custom Element"
 
-    private val formDescriptor: portaly.forms.Form = portaly.forms.Form("test", "0.1")(
-        Field("hello"),
-        Field("world")
-    )
+    private val formDescriptor: works.iterative.forms.Form =
+        works.iterative.forms.Form("test", "0.1")(
+            Field("hello"),
+            Field("world")
+        )
 
     // Mill fastLinkJS output for formsScenarios.js; served if present, 404 otherwise
     private val assetsDir =

@@ -1,6 +1,6 @@
 // PURPOSE: VIES VAT-number check — queries the EU VAT information exchange system
 // PURPOSE: and answers whether a country/VAT-id pair is valid
-package portaly.forms.service.impl
+package works.iterative.forms.service.impl
 
 import zio.*
 import works.iterative.tapir.CustomTapir.*

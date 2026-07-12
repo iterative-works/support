@@ -1,7 +1,7 @@
 // PURPOSE: The declared validation vocabulary a field carries in the form declaration
 // PURPOSE: Closed common cases plus the open Rule escape hatch for client and async validations
 
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.core.UserMessage
 

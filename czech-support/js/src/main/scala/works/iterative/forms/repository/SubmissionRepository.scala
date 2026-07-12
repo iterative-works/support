@@ -7,7 +7,7 @@ import zio.*
 import works.iterative.core.service.ReadRepository
 import works.iterative.core.service.Repository
 import java.time.OffsetDateTime
-import portaly.forms.FormContent
+import works.iterative.forms.FormContent
 
 trait ReadSubmissionRepository
     extends ReadRepository[String, Submission, SubmissionRepository.Query]

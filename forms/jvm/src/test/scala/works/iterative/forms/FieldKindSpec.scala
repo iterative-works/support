@@ -1,7 +1,7 @@
 // PURPOSE: Pins the FieldKind wire codec over the client-repo field-type audit (FC-D6)
 // PURPOSE: Closed ids round-trip through of/wireId; unknown ids stay Custom byte-exactly
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 

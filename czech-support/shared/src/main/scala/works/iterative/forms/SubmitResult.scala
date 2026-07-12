@@ -1,6 +1,6 @@
 // PURPOSE: Result of submitting a form — success carries the submission id, confirmation email
 // PURPOSE: and optional payment/redirect targets; failure carries user messages
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.core.Email
 import works.iterative.core.UserMessage

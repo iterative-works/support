@@ -1,6 +1,6 @@
 // PURPOSE: User session model for DS-authenticated form filling — identity, contact fields
 // PURPOSE: and the company details prefilled from the registry
-package portaly.forms.service.impl.rest
+package works.iterative.forms.service.impl.rest
 
 import works.iterative.core.auth.UserId
 import works.iterative.core.UserName

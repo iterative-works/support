@@ -1,13 +1,13 @@
 // PURPOSE: Tests for the SSR HTML renderer that turns UIForm into a scalatags form page
 // PURPOSE: Drives the ssr-html-interpreter slice (FC-D4): plain POST form with HTMX enrichment
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import scalatags.Text.all.{Frag, span, stringFrag}
 import works.iterative.core.{Language, MessageCatalogue}
 import works.iterative.ui.model.forms.*
-import portaly.forms.impl.FormR
+import works.iterative.forms.impl.FormR
 
 object UIFormHtmlRendererSpec extends ZIOSpecDefault:
 

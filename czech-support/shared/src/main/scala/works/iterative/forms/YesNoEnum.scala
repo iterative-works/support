@@ -1,6 +1,6 @@
 // PURPOSE: Czech yes/no enum declaration — extends the Enum companion with a yesno
 // PURPOSE: helper producing the ano/ne value pair Czech forms answer questions with
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.ui.model.forms.RelativePath
 

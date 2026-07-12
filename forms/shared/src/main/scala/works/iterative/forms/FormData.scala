@@ -1,7 +1,7 @@
 // PURPOSE: The typed value currency of form state — text or file values keyed by absolute paths
 // PURPOSE: Ingests posted bodies, serves the FormState reads and carries the __items repeat convention
 
-package portaly.forms
+package works.iterative.forms
 
 import works.iterative.core.FileRef
 import works.iterative.ui.model.forms.{AbsolutePath, FormState, IdPath, UIFile}

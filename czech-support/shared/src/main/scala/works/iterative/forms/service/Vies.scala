@@ -1,6 +1,6 @@
 // PURPOSE: VIES VAT-check wire model and configuration — request/response shapes,
 // PURPOSE: requester identity and the EU member-state country set
-package portaly.forms.service.impl
+package works.iterative.forms.service.impl
 
 import zio.json.*
 import works.iterative.tapir.CustomTapir.*

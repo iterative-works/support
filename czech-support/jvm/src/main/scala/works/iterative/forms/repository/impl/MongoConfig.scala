@@ -1,6 +1,6 @@
 // PURPOSE: Mongo file-store configuration for form attachments —
 // PURPOSE: database name plus the attachment store settings
-package portaly.forms.repository.impl
+package works.iterative.forms.repository.impl
 
 import zio.*
 import works.iterative.core.service.impl.MongoFileConfig

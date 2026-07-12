@@ -1,7 +1,7 @@
 // PURPOSE: The outcome of validating a value — valid, invalid with messages, or not yet known
 // PURPOSE: Pure and platform-neutral so JVM POST validation and SPA reactive validation share it
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.NonEmptyChunk
 import works.iterative.core.UserMessage

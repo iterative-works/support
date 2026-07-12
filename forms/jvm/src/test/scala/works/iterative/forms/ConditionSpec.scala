@@ -1,7 +1,7 @@
 // PURPOSE: Pins the normative semantics of Condition.eval, the one evaluator shared by every walker
 // PURPOSE: Blank-filtering NonEmpty, total AnyOf/AllOf and the validity view are decided here, not per interpreter
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import works.iterative.ui.model.forms.{AbsolutePath, IdPath}

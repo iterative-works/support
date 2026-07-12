@@ -4,8 +4,8 @@ import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L
 import org.scalajs.dom.*
 import com.raquo.laminar.nodes.DetachedRoot
-import portaly.forms.impl.LiveHtmlInterpreter
-import portaly.forms.FormIdent
+import works.iterative.forms.impl.LiveHtmlInterpreter
+import works.iterative.forms.FormIdent
 
 // scalafix:off DisableSyntax.var
 // Web component lifecycle requires mutable state for Laminar root management
@@ -16,7 +16,7 @@ abstract class BaseIWFormElement extends HTMLElement:
     def interpreter: LiveHtmlInterpreter
 
     def connectedCallback(): Unit =
-        def liveForm(entityId: String, id: String, content: portaly.forms.Form) =
+        def liveForm(entityId: String, id: String, content: works.iterative.forms.Form) =
             interpreter.interpret(FormIdent(entityId, id), content, None)
 
         def attrOrDefault(attr: String, default: String) =
@@ -27,8 +27,8 @@ abstract class BaseIWFormElement extends HTMLElement:
             div(
                 child.maybe <-- FetchStream.get(attrOrDefault("src", "/default-form")).map(result =>
                     import zio.json.*
-                    import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
-                    result.fromJson[portaly.forms.Form].toOption.map(
+                    import works.iterative.forms.service.impl.rest.FormPersistenceCodecs.given
+                    result.fromJson[works.iterative.forms.Form].toOption.map(
                         liveForm(attrOrDefault("entity", "_"), attrOrDefault("form-id", "form"), _)
                     ).map(_.element)
                 )

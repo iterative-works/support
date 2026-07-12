@@ -139,8 +139,8 @@ object SsrFormScenarioSpec extends ZIOSpecDefault:
         },
         test("the declaration survives serialize/reload and renders the identical page") {
             import zio.json.*
-            import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
-            import portaly.forms.{Form, FormValidationState}
+            import works.iterative.forms.service.impl.rest.FormPersistenceCodecs.given
+            import works.iterative.forms.{Form, FormValidationState}
             val json = SsrFormScenario.formDeclaration.toJson
             val reloaded = json.fromJson[Form]
             def render(form: Form) = SsrFormScenario

@@ -1,7 +1,7 @@
 // PURPOSE: Composable validation rules from raw input to a ValidationState of the output value
 // PURPOSE: Pure and platform-neutral; effect type F keeps async rules (remote lookups) at the edges
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.prelude.*
 import works.iterative.core.UserMessage

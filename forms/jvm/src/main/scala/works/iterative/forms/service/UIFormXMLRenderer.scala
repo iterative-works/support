@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 import zio.*
 import works.iterative.ui.model.forms.*
@@ -6,7 +6,7 @@ import scala.xml.*
 import works.iterative.core.MessageCatalogue
 import works.iterative.autocomplete.service.AutocompleteService
 import works.iterative.core.Language
-import portaly.forms.service.AutocompleteResolver
+import works.iterative.forms.service.AutocompleteResolver
 import works.iterative.core.MessageArg
 import works.iterative.core.UserMessage
 import scala.annotation.nowarn

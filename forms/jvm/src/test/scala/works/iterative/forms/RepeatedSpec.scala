@@ -1,11 +1,11 @@
 // PURPOSE: Pins Repeated.instances, the shared expansion of a repeated group against form state
 // PURPOSE: The __items convention, template fallback and totality are decided here, not per walker
 
-package portaly.forms
+package works.iterative.forms
 
 import zio.test.*
 import works.iterative.ui.model.forms.IdPath
-import portaly.forms.impl.FormR
+import works.iterative.forms.impl.FormR
 
 object RepeatedSpec extends ZIOSpecDefault:
 

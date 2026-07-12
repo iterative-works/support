@@ -1,10 +1,10 @@
-package portaly.forms
+package works.iterative.forms
 
 import com.raquo.laminar.api.L.*
 import works.iterative.ui.model.forms.*
 import works.iterative.ui.laminar.*
 import works.iterative.autocomplete.ui.AutocompleteComponents
-import portaly.forms.impl.ReadOnlyHtmlDisplayResolver
+import works.iterative.forms.impl.ReadOnlyHtmlDisplayResolver
 import works.iterative.core.FileRef
 import works.iterative.ui.components.FileComponents
 import works.iterative.core.UserMessage

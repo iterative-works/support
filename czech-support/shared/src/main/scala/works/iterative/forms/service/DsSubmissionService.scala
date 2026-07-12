@@ -1,6 +1,6 @@
 // PURPOSE: Service contract for submitting a form through datová schránka —
 // PURPOSE: the Czech government data-box channel
-package portaly.forms
+package works.iterative.forms
 package service
 
 import zio.*

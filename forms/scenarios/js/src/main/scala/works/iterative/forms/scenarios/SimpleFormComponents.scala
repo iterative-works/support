@@ -3,7 +3,7 @@ package works.iterative.forms.scenarios
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L
 import io.laminext.syntax.core.*
-import portaly.forms.Components
+import works.iterative.forms.Components
 import org.scalajs.dom.FileList
 
 class SimpleFormComponents extends Components:

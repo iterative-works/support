@@ -1,6 +1,6 @@
 // PURPOSE: Seam for declared form buttons — an interpreter registers each button through
 // PURPOSE: a handler that either passes the click on or answers it with value mutations
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import com.raquo.laminar.api.L.*
