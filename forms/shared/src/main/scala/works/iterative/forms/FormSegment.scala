@@ -143,7 +143,4 @@ object Enum:
 
     def bool(id: RelativePath, default: Option[Boolean] = None, optional: Boolean = true): Enum =
         Enum(id, List("true", "false"), default = default.map(_.toString), optional = optional)
-
-    def yesno(id: RelativePath, default: Option[Boolean] = None, optional: Boolean = true): Enum =
-        Enum(id, List("ano", "ne"), default = default.map(_.toString), optional = optional)
 end Enum

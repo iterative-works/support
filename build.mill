@@ -934,7 +934,7 @@ object forms extends CrossModule {
   def description = "IW Support Forms Library"
 
   object jvm extends JvmModule {
-    def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, uiForms.jvm, filesRest.jvm, email, paygate, filesMongo)
+    def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, uiForms.jvm, filesRest.jvm)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioConfigTypesafe,
       IWMillDeps.scalatags,
@@ -947,6 +947,26 @@ object forms extends CrossModule {
 
   object js extends JsModule {
     def moduleDeps = Seq(core.js, codecs.js, autocomplete.js, uiForms.js, filesRest.js)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
+  }
+}
+
+// Czech forms extras - cross-compiled: ARES/VIES registries, submission services, CMI resolvers
+object `czech-support` extends CrossModule {
+  def moduleName = "czech-support"
+  def description = "IW Support Czech Forms Extras"
+
+  object jvm extends JvmModule {
+    def moduleDeps = Seq(forms.jvm, filesMongo)
+    def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
+      IWMillDeps.sttpClientZio,
+      mvn"com.softwaremill.sttp.client3::zio-json::${IWMillVersions.sttpClient3}"
+    )
+    object test extends BaseTests
+  }
+
+  object js extends JsModule {
+    def moduleDeps = Seq(forms.js)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
   }
 }
