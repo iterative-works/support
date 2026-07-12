@@ -208,6 +208,21 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
                 out.contains("error.field.required")
             )
         },
+        test("form-level and section-level errors render in the page") {
+            val form = Form("demo", "1")(Section("contact")(Field("name")))
+            val validation = MapFormValidationState(Map(
+                IdPath.full("demo") ->
+                    List(works.iterative.core.UserMessage("error.form.incomplete")),
+                IdPath.full("demo.contact") ->
+                    List(works.iterative.core.UserMessage("error.section.invalid"))
+            ))
+            val out = html(form, validation = validation)
+            assertTrue(
+                out.contains("form-errors"),
+                out.contains("error.form.incomplete"),
+                out.contains("error.section.invalid")
+            )
+        },
         test("display block renders resolved content") {
             val out = html(Form("demo", "1")(Section("s")(Display("info"))))
             assertTrue(out.contains("display:demo.s.info"))

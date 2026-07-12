@@ -11,7 +11,7 @@ import works.iterative.ui.model.forms.*
 class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
 
     def render(form: UIForm, postAction: String)(using messages: MessageCatalogue): Tag =
-        given MessageCatalogue = messages.nested(form.messageKey.value)
+        given formMessages: MessageCatalogue = messages.nested(form.messageKey.value)
         given UIForm = form
         tag("form")(
             id := form.id,
@@ -29,6 +29,11 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             attr("novalidate").empty
         )(
             renderMessage(form.messageKey, "title").map(h1(_)),
+            Option.when(form.errors.nonEmpty)(
+                div(cls := "form-errors")(
+                    form.errors.map(msg => span(cls := "form-error")(formMessages(msg)))
+                )
+            ),
             form.children.map(renderElement),
             // Chrome submit only when the form declares no submit button of its own
             Option.unless(hasDeclaredSubmit(form.children))(
@@ -60,12 +65,13 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
         messages: MessageCatalogue
     ): Frag =
         element match
-            case UIFormSection(sid, level, messageKey, children, _, repeatIndex) =>
+            case UIFormSection(sid, level, messageKey, children, decorations, repeatIndex) =>
                 given MessageCatalogue = messages.nested(messageKey.value)
                 tags2.section(id := sid)(
                     renderMessage(messageKey, "section", repeatIndex.toList.map(_ + 1))
                         .map(heading(level)(_)),
                     renderMessage(messageKey, "section.subtitle").map(p(cls := "subtitle")(_)),
+                    renderErrors(decorations),
                     children.map(renderElement)
                 )
             case UILabeledField(fid, messageKey, field, decorations) =>

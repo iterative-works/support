@@ -278,6 +278,23 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 }
             )
         },
+        test("errors keyed at the form and section paths land in their slots") {
+            val form = Form("demo", "1")(
+                Section("contact")(Field("name"))
+            )
+            val formMsg = works.iterative.core.UserMessage("error.form.incomplete")
+            val sectionMsg = works.iterative.core.UserMessage("error.section.invalid")
+            val validation = MapFormValidationState(Map(
+                IdPath.full("demo") -> List(formMsg),
+                IdPath.full("demo.contact") -> List(sectionMsg)
+            ))
+            val ui = build(form, validation = validation)
+            val section = fieldsOf(ui).collectFirst { case s: UIFormSection => s }.get
+            assertTrue(
+                ui.errors == List(formMsg),
+                section.decorations == List(UIFieldDecoration.ErrorMessage(sectionMsg))
+            )
+        },
         test("form hook post-processes the built tree") {
             val form = Form("demo", "1")(Section("s")(Field("f")))
             val hooked = UIFormBuilder(defaultLayout, Some(f => f.copy(id = "hooked")))

@@ -27,7 +27,8 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         for
             children <- ZPure.foreach(elems)(renderSegment(path))
             state <- ZPure.service[Unit, FormState]
-        yield UIForm(path.toHtmlId, path.last, children.flatten, state, context)
+            errors <- ZPure.serviceWith[FormValidationState](_.errors(path))
+        yield UIForm(path.toHtmlId, path.last, children.flatten, state, context, errors)
         end for
     end render
 
@@ -94,7 +95,8 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                     UIFlexRow(row.flatten)
         for
             children <- content
-        yield UIFormSection(path.toHtmlId, path.size, path.last, Seq(children), Nil, repeatIndex)
+            errors <- errorDecorations(path)
+        yield UIFormSection(path.toHtmlId, path.size, path.last, Seq(children), errors, repeatIndex)
     end renderSection
 
     private def optionalDecoration(optional: Boolean) =

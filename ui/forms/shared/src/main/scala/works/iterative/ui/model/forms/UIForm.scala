@@ -25,7 +25,9 @@ final case class UIForm(
     messageKey: UIMessageKey,
     children: Seq[UIFormElement],
     data: FormState,
-    context: Option[Map[String, String]]
+    context: Option[Map[String, String]],
+    // Errors keyed at the form itself, not at any field or section
+    errors: List[UserMessage] = Nil
 )
 
 sealed trait UIFormElement
