@@ -44,7 +44,7 @@ class UIFormXMLRenderer(
                 given MessageCatalogue = messages.nested(messageKey.value)
                 for
                     nested <- ZIO.foreach(children)(renderSegment)
-                yield <ui:section id={id} title={
+                yield <ui:section id={id.toHtmlId} title={
                     renderMessage(messageKey, "section", repeatIndex.toList.map(_ + 1))
                 } subtitle={
                     renderMessage(messageKey, "section.subtitle")
@@ -60,12 +60,16 @@ class UIFormXMLRenderer(
                                     messages.nested(messageKey.value),
                                     lang
                                 )
-                        yield <ui:choiceField id={id} label={renderMessage(messageKey, "label")}>
+                        yield <ui:choiceField id={id.toHtmlId} label={
+                            renderMessage(messageKey, "label")
+                        }>
                             {rendered}
                         </ui:choiceField>
                     case _ =>
                         for rendered <- renderField(field)
-                        yield <ui:labeledField id={id} label={renderMessage(messageKey, "label")}>
+                        yield <ui:labeledField id={id.toHtmlId} label={
+                            renderMessage(messageKey, "label")
+                        }>
                             {rendered}
                         </ui:labeledField>
             case UIGrid(elems) =>
@@ -82,11 +86,8 @@ class UIFormXMLRenderer(
                 for nested <- ZIO.foreach(children)(renderSegment)
                 yield <ui:flexRow>{nested}</ui:flexRow>
             case UIBlock(id, messageKey) =>
-                for content <- displayResolver.resolve(
-                        works.iterative.ui.model.forms.IdPath.FullPath(id.split("-").toVector),
-                        data
-                    )
-                yield <ui:block id={id} title={renderMessage(messageKey, "title")}>
+                for content <- displayResolver.resolve(id, data)
+                yield <ui:block id={id.toHtmlId} title={renderMessage(messageKey, "title")}>
                     {content}
                 </ui:block>
             case UIRepeatedGroup(_, _, _, _, rows, _) =>
@@ -94,7 +95,7 @@ class UIFormXMLRenderer(
                 for nested <- ZIO.foreach(rows)(row => ZIO.foreach(row.children)(renderSegment))
                 yield nested.flatten.foldLeft(NodeSeq.Empty: NodeSeq)(_ ++ _)
             case UIHiddenField(id, fieldName, value) =>
-                ZIO.succeed(<ui:hiddenField id={id} value={value.getOrElse("")}/>)
+                ZIO.succeed(<ui:hiddenField id={id.toHtmlId} value={value.getOrElse("")}/>)
             case _ => ZIO.succeed(NodeSeq.Empty)
 
     private def renderField(field: UIField)(using

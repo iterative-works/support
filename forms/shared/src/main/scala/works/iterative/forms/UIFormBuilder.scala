@@ -28,7 +28,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             children <- ZPure.foreach(elems)(renderSegment(path))
             state <- ZPure.service[Unit, FormState]
             errors <- ZPure.serviceWith[FormValidationState](_.errors(path))
-        yield UIForm(path.toHtmlId, path.last, children.flatten, state, context, errors)
+        yield UIForm(path, path.last, children.flatten, state, context, errors)
         end for
     end render
 
@@ -61,7 +61,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                             .map(UIRepeatedRow(i.item, i.itemType, i.index, _))
                     errors <- errorDecorations(path / id)
                 yield List(UIRepeatedGroup(
-                    (path / id).toHtmlId,
+                    path / id,
                     (path / id / "__items").toHtmlName,
                     elems.map(_.id.last),
                     optional,
@@ -96,7 +96,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         for
             children <- content
             errors <- errorDecorations(path)
-        yield UIFormSection(path.toHtmlId, path.size, path.last, Seq(children), errors, repeatIndex)
+        yield UIFormSection(path, path.size, path.last, Seq(children), errors, repeatIndex)
     end renderSection
 
     private def optionalDecoration(optional: Boolean) =
@@ -117,7 +117,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         default: Option[String]
     ) = getString(path).map: value =>
         UIHiddenField(
-            path.toHtmlId,
+            path,
             path.toHtmlName,
             value.orElse(default)
         )
@@ -132,10 +132,10 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             value <- getString(path)
             errors <- errorDecorations(path)
         yield UILabeledField(
-            path.toHtmlId,
+            path,
             path.last,
             UITextField(
-                path.toHtmlId,
+                path,
                 path.toHtmlName,
                 fieldType.id,
                 value.orElse(default),
@@ -153,10 +153,10 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             files <- getFileList(path)
             errors <- errorDecorations(path)
         yield UILabeledField(
-            path.toHtmlId,
+            path,
             path.last,
             UIFileField(
-                path.toHtmlId,
+                path,
                 path.toHtmlName,
                 files,
                 multiple,
@@ -166,7 +166,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         )
 
     private def renderDisplay(path: AbsolutePath) = ZPure.succeed[Unit, UIFormElement]:
-        UIBlock(path.toHtmlId, path.last)
+        UIBlock(path, path.last)
 
     private def renderButton(path: AbsolutePath, intent: ButtonIntent) =
         val uiIntent = intent match
@@ -174,7 +174,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             case ButtonIntent.ServerAction => UIButtonIntent.ServerAction
             case ButtonIntent.ClientAction => UIButtonIntent.ClientAction
         ZPure.succeed[Unit, UIFormElement]:
-            UIButton(path.toHtmlId, path.toHtmlName, uiIntent, path.last, Nil)
+            UIButton(path, path.toHtmlName, uiIntent, path.last, Nil)
     end renderButton
 
     private def renderChoiceField(
@@ -187,15 +187,15 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             value <- getString(path)
             errors <- errorDecorations(path)
         yield UILabeledField(
-            path.toHtmlId,
+            path,
             path.last,
             UIChoiceField(
-                path.toHtmlId,
+                path,
                 path.toHtmlName,
                 value.orElse(default),
                 values.map: v =>
                     val o = path / v
-                    UIChoiceOption(o.toHtmlId, v, v)
+                    UIChoiceOption(o, v, v)
                 ,
                 Nil
             ),

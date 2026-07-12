@@ -35,9 +35,9 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             val ui = build(form)
             val sections = fieldsOf(ui).collect { case s: UIFormSection => s }
             assertTrue(
-                ui.id == "demo",
+                ui.id.toHtmlId == "demo",
                 ui.messageKey == works.iterative.core.MessageId("demo"),
-                sections.map(_.id) == Seq("demo-contact"),
+                sections.map(_.id.toHtmlId) == Seq("demo-contact"),
                 sections.head.level == 2
             )
         },
@@ -63,7 +63,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             )
             val state = FormR.strings("demo.contact.name" -> "John")
             val fields = fieldsOf(build(form, state)).collect { case f: UILabeledField => f }
-            val byId = fields.map(f => f.id -> f).toMap
+            val byId = fields.map(f => f.id.toHtmlId -> f).toMap
             val name = byId("demo-contact-name")
             val city = byId("demo-contact-city")
             val email = byId("demo-contact-email")
@@ -82,7 +82,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             )
             val hidden = fieldsOf(build(form)).collectFirst { case h: UIHiddenField => h }.get
             assertTrue(
-                hidden.id == "demo-meta-token",
+                hidden.id.toHtmlId == "demo-meta-token",
                 hidden.fieldName == "demo.meta.token",
                 hidden.value == Some("s3cret")
             )
@@ -114,7 +114,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 )
             )
             val fields = fieldsOf(build(form)).collect { case f: UILabeledField => f }
-            val byId = fields.map(f => f.id -> f).toMap
+            val byId = fields.map(f => f.id.toHtmlId -> f).toMap
             assertTrue(
                 byId("demo-s-choice").decorations == List(UIFieldDecoration.Required),
                 byId("demo-s-birth").decorations == List(UIFieldDecoration.Required)
@@ -128,7 +128,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 )
             )
             val fields = fieldsOf(build(form)).collect { case f: UILabeledField => f }
-            val byId = fields.map(f => f.id -> f).toMap
+            val byId = fields.map(f => f.id.toHtmlId -> f).toMap
             assertTrue(
                 byId("demo-s-locked").decorations.contains(UIFieldDecoration.Disabled),
                 byId("demo-s-scoped").decorations.contains(UIFieldDecoration.Context("^")),
@@ -143,7 +143,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             assertTrue(
                 button.name == "demo.s.lookup",
                 button.intent == UIButtonIntent.ServerAction,
-                block.id == "demo-s-info"
+                block.id.toHtmlId == "demo-s-info"
             )
         },
         test("declared button intents survive to UIButton") {
@@ -167,7 +167,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             val without = build(form)
             val withMatch = build(form, FormR.strings("demo.main.kind" -> "special"))
             def sectionIds(ui: UIForm) =
-                fieldsOf(ui).collect { case s: UIFormSection => s.id }
+                fieldsOf(ui).collect { case s: UIFormSection => s.id.toHtmlId }
             assertTrue(
                 !sectionIds(without).contains("demo-extra"),
                 sectionIds(withMatch).contains("demo-extra")
@@ -179,7 +179,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 ShowIf(Condition.NonEmpty(".demo.main.note"), Section("extra")(Field("detail")))
             )
             def sectionIds(state: FormState) =
-                fieldsOf(build(form, state)).collect { case s: UIFormSection => s.id }
+                fieldsOf(build(form, state)).collect { case s: UIFormSection => s.id.toHtmlId }
             assertTrue(
                 !sectionIds(FormR.strings("demo.main.note" -> "")).contains("demo-extra"),
                 sectionIds(FormR.strings("demo.main.note" -> "x")).contains("demo-extra")
@@ -189,7 +189,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             def form = Form("demo", "1")(
                 ShowIf(Condition.AllOf(), Section("extra")(Field("detail")))
             )
-            val present = fieldsOf(build(form)).collect { case s: UIFormSection => s.id }
+            val present = fieldsOf(build(form)).collect { case s: UIFormSection => s.id.toHtmlId }
             assertTrue(present.contains("demo-extra"))
         },
         test("Repeated expands items from the __items convention with repeat indices") {
@@ -205,7 +205,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             ))
             val ui = build(form, state)
             val rows = fieldsOf(ui).collect {
-                case s: UIFormSection if s.id.endsWith("-row") => s
+                case s: UIFormSection if s.id.toHtmlId.endsWith("-row") => s
             }
             val values = fieldsOf(ui).collect { case f: UILabeledField => f }
                 .map(_.field.asInstanceOf[UITextField].rawValue)
@@ -225,7 +225,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             val group = fieldsOf(ui).collectFirst { case g: UIRepeatedGroup => g }.get
             val siblingHidden = fieldsOf(ui).collect { case h: UIHiddenField => h }
             assertTrue(
-                group.id == "demo-items",
+                group.id.toHtmlId == "demo-items",
                 group.fieldName == "demo.items.__items",
                 group.templates == List("row"),
                 group.optional,
@@ -266,7 +266,7 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
             )
             val fields = fieldsOf(build(form, validation = validation))
                 .collect { case f: UILabeledField => f }
-            val byId = fields.map(f => f.id -> f).toMap
+            val byId = fields.map(f => f.id.toHtmlId -> f).toMap
             assertTrue(
                 byId("demo-contact-name").decorations.contains(
                     UIFieldDecoration.ErrorMessage(msg)
@@ -297,9 +297,9 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
         },
         test("form hook post-processes the built tree") {
             val form = Form("demo", "1")(Section("s")(Field("f")))
-            val hooked = UIFormBuilder(defaultLayout, Some(f => f.copy(id = "hooked")))
+            val hooked = UIFormBuilder(defaultLayout, Some(f => f.copy(id = IdPath("hooked"))))
                 .buildForm(form, FormR.empty, FormValidationState.valid, None)
-            assertTrue(hooked.id == "hooked")
+            assertTrue(hooked.id == IdPath("hooked"))
         }
     )
 end UIFormBuilderSpec

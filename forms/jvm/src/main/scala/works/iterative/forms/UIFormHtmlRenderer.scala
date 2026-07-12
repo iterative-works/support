@@ -14,7 +14,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
         given formMessages: MessageCatalogue = messages.nested(form.messageKey.value)
         given UIForm = form
         tag("form")(
-            id := form.id,
+            id := form.id.toHtmlId,
             method := "post",
             action := postAction,
             attr("hx-post") := postAction,
@@ -67,7 +67,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
         element match
             case UIFormSection(sid, level, messageKey, children, decorations, repeatIndex) =>
                 given MessageCatalogue = messages.nested(messageKey.value)
-                tags2.section(id := sid)(
+                tags2.section(id := sid.toHtmlId)(
                     renderMessage(messageKey, "section", repeatIndex.toList.map(_ + 1))
                         .map(heading(level)(_)),
                     renderMessage(messageKey, "section.subtitle").map(p(cls := "subtitle")(_)),
@@ -80,7 +80,10 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                 val fieldDisabled = decorations.contains(UIFieldDecoration.Disabled)
                 div(cls := "field")(
                     renderMessage(messageKey, "label").map(l =>
-                        label(`for` := fid)(l, Option.when(required)(span(cls := "required")("*")))
+                        label(`for` := fid.toHtmlId)(
+                            l,
+                            Option.when(required)(span(cls := "required")("*"))
+                        )
                     ),
                     renderField(field, required, fieldDisabled),
                     renderErrors(decorations)
@@ -88,7 +91,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             case UIHiddenField(fid, fieldName, fieldValue) =>
                 input(
                     `type` := "hidden",
-                    id := fid,
+                    id := fid.toHtmlId,
                     name := fieldName,
                     value := fieldValue.getOrElse("")
                 )
@@ -105,7 +108,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             case UIFlexRow(children) =>
                 div(cls := "flex-row")(children.map(renderElement))
             case UIRepeatedGroup(gid, fieldName, _, _, rows, decorations) =>
-                div(id := gid, cls := "repeated-group")(
+                div(id := gid.toHtmlId, cls := "repeated-group")(
                     rows.map(row =>
                         div(cls := "repeated-row")(
                             // The item entry rides a hidden input so the list round-trips
@@ -125,7 +128,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                 intent match
                     case UIButtonIntent.Submit =>
                         button(
-                            id := bid,
+                            id := bid.toHtmlId,
                             name := "__submit",
                             value := "submit",
                             `type` := "submit"
@@ -133,23 +136,20 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                     case UIButtonIntent.ServerAction =>
                         // Named submit button so the server sees which button fired
                         button(
-                            id := bid,
+                            id := bid.toHtmlId,
                             name := buttonName,
                             value := buttonName,
                             `type` := "submit"
                         )(buttonLabel)
                     case UIButtonIntent.ClientAction =>
                         // Inert without client-side code; SSR degradation is a no-op button
-                        button(id := bid, `type` := "button")(buttonLabel)
+                        button(id := bid.toHtmlId, `type` := "button")(buttonLabel)
                 end match
             case UIBlock(bid, messageKey) =>
                 given Language = messages.language
-                div(id := bid, cls := "block")(
+                div(id := bid.toHtmlId, cls := "block")(
                     renderMessage(messageKey, "title").map(heading(3)(_)),
-                    displayResolver.resolve(
-                        IdPath.FullPath(bid.split("-").toVector),
-                        form.data
-                    )
+                    displayResolver.resolve(bid, form.data)
                 )
 
     private def renderField(field: UIField, required: Boolean, fieldDisabled: Boolean)(using
@@ -167,7 +167,12 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                 FieldKind.of(fieldType) match
                     case FieldKind.Prose =>
                         frag(
-                            textarea(id := fid, name := fieldName, requiredAttr, disabledAttr)(
+                            textarea(
+                                id := fid.toHtmlId,
+                                name := fieldName,
+                                requiredAttr,
+                                disabledAttr
+                            )(
                                 rawValue.getOrElse(""): String
                             ),
                             disabledMirror(fieldName, rawValue)
@@ -176,7 +181,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                         frag(
                             input(
                                 `type` := htmlInputType(kind),
-                                id := fid,
+                                id := fid.toHtmlId,
                                 name := fieldName,
                                 rawValue.map(value := _),
                                 requiredAttr,
@@ -188,7 +193,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                 frag(
                     input(
                         `type` := "file",
-                        id := fid,
+                        id := fid.toHtmlId,
                         name := fieldName,
                         Option.when(multipleFiles)(multiple),
                         requiredAttr
@@ -198,7 +203,7 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                     )
                 )
             case UIChoiceField(fid, fieldName, rawValue, values, _) =>
-                select(id := fid, name := fieldName, requiredAttr)(
+                select(id := fid.toHtmlId, name := fieldName, requiredAttr)(
                     Option.when(rawValue.isEmpty)(option(value := "")("")),
                     values.map(choice =>
                         option(

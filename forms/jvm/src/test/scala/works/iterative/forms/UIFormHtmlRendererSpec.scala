@@ -227,6 +227,12 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
             val out = html(Form("demo", "1")(Section("s")(Display("info"))))
             assertTrue(out.contains("display:demo.s.info"))
         },
+        test("display blocks with dashed segment ids resolve their real path") {
+            // Ids used to be reconstructed by splitting the html id on "-", which
+            // breaks for any segment that contains a dash itself
+            val out = html(Form("demo", "1")(Section("s")(Display("extra-info"))))
+            assertTrue(out.contains("display:demo.s.extra-info"))
+        },
         test("section renders a heading from its message key") {
             val out = html(Form("demo", "1")(Section("contact")(Field("name"))))
             assertTrue(
