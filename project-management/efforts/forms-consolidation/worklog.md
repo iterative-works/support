@@ -24,12 +24,33 @@ optionality, disabled/context decorations, button intent, UIRepeatedGroup,
 form/section error slots, IdPath ids), and `TypedForm[A]` +
 `InputSchema` relocation (the FormSchema salvage — typed declarations
 erase to the plain Form, FormCodec captures FormData as a typed value),
-and the czech-support extraction (FC-D3) — the Czech/CMI domain now
-lives in its own in-repo CrossModule with packages unchanged, forms no
-longer depends on email/paygate/filesMongo. Next per the tracker:
-formsCore/formsHttp/FormComponents retirement + the package rename.
+the czech-support extraction (FC-D3) — the Czech/CMI domain now
+lives in its own in-repo CrossModule, forms no longer depends on
+email/paygate/filesMongo — and the fourth-mini-lineage retirement +
+package rename: `portaly.forms` is now `works.iterative.forms`
+everywhere, and FieldType construction is typed or explicit (the
+String conversion retired). Next per the tracker: the SPA refold
+(LiveHtmlInterpreter on shared dispatch + validation, SPA
+custom-element scenario).
 
 ## Log
+
+- **2026-07-12 — The forms domain claims its package.** Three commits:
+  the skeletal fourth mini-lineage retired (formsCore's FormContext/
+  FormErrors/FormField, formsHttp's UrlForm bridge, ui/core
+  FormComponents[T], the ScalatagsFormComponents alias — grep both ways
+  showed a closed island in-repo and zero client usage of the artifacts
+  or types; uiCore's dep drops to core); then the mechanical rename
+  `portaly.forms` → `works.iterative.forms` across 116 files, compiling
+  clean on the first pass — wire format untouched (simple case names in
+  JSON, absolute resource paths, the `test_portaly` DB literal left
+  alone). Client impact at upgrade is heavy but compile-time only; one
+  out-of-repo flag for the migration guide: both clients run
+  akka-persistence, so journals may hold serialized portaly.forms FQNs.
+  Finally FieldType lost its String conversion and redundant string
+  apply — construction is `FieldType(FieldKind.X)` or the explicit
+  case-class apply; client bare-string `Field("x", "prose")` sites wrap
+  in FieldType(...) at upgrade. All gates green incl. browser e2e 5/5.
 
 - **2026-07-12 — czech-support extraction (FC-D3).** The Czech/CMI
   domain left `forms` for the new `czech-support` CrossModule: ARES/VIES

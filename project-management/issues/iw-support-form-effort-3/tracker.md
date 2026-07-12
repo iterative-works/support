@@ -17,7 +17,7 @@ scenarios, conformance kit green → full card: ./card.md
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
 `./mill forms.jvm.test` + `./mill czech-support.jvm.test` · next: OPEN
-(formsCore/formsHttp/FormComponents retirement + package rename)
+(SPA refold)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -185,11 +185,46 @@ branch iw-support-form-effort · run/see:
         set). ARES/VIES live-network integration tests deliberately not
         added (cmi's it-suite covers them downstream).
 
+- [x] Fourth mini-lineage retired + package rename (ad88ab8e, d4c9808c,
+      b846d5cc):
+      * formsCore (FormContext/FormErrors/FormField), formsHttp (http4s
+        UrlForm bridge), ui/core FormComponents[T], ScalatagsFormComponents
+        deleted. Grep evidence both directions: in-repo the chain was a
+        closed island (formsHttp zero consumers; formsCore fed only
+        FormComponents[T], implemented only by the ScalatagsFormComponents
+        alias, used by nothing); client repos have NO dependency on the
+        forms-core/forms-http artifacts and zero source references to any
+        of the five types. uiCore's moduleDep drops to core (it used only
+        core.Moment through the chain).
+      * Package rename `portaly.forms` → `works.iterative.forms` across
+        116 files (forms, czech-support, scenarios — uiForms/ui untouched;
+        the render-neutral model stays put per plan). Wire format verified
+        unaffected: zio-json sum types encode simple case names, resources
+        load by absolute path, and the one `portaly` string literal
+        (MongoConfig's `test_portaly` DB default) is deployment truth left
+        alone. Client impact at upgrade is heavy but compile-time only
+        (cmi 572 refs + 202 files declaring portaly.* incl. their OWN
+        files extending package portaly.forms; medeca 205 imports + 4
+        package-decl files); NEITHER repo has string/config/SQL package
+        references, so nothing breaks silently in source. MIGRATION FLAG:
+        both clients use akka-persistence — event journals may hold
+        serialized `portaly.forms.*` FQNs; verify on their side before
+        replay after upgrade.
+      * FieldType string-apply retirement: the `given Conversion[String,
+        FieldType]` and the redundant one-string apply overload are gone —
+        typed `FieldType(FieldKind.X)` or explicit case-class apply (the
+        wire escape hatch) are the only constructions. Zero in-repo users;
+        clients DO use the conversion (`Field("x", "prose", ...)` sites in
+        cmi scenarios + medeca tools) → MIGRATION item: wrap in
+        FieldType(...). Pattern matching with string guards unaffected.
+      * Debris noted, not fixed: forms/js `BaseIWFormElement.scala`
+        declares package works.iterative.forms.scenarios (library file in
+        the scenarios package) — the SPA-refold step touches that seam
+        anyway.
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] formsCore/formsHttp/FormComponents retirement (downstream grep first)  <-- NEXT
-      + package rename `portaly.forms` → `works.iterative.forms`
 - [ ] SPA refold completes: LiveHtmlInterpreter on shared dispatch +
-      validation; SPA custom-element scenario proves the proof form
+      validation; SPA custom-element scenario proves the proof form  <-- NEXT
 - [ ] Conformance kit: every FieldKind + validation rule + condition case
       through every interpreter; drift = red
 
