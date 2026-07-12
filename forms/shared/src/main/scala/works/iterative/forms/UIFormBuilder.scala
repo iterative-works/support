@@ -50,24 +50,23 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             case ShowIf(condition, elem) =>
                 resolveCondition(path)(condition).flatMap(if _ then renderSegment(path)(elem)
                 else ZPure.succeed(Nil))
-            case repeated @ Repeated(id, _, _, _) =>
+            case repeated @ Repeated(id, _, optional, elems) =>
                 for
                     instances <- ZPure.serviceWith[FormState](
                         Repeated.instances(path, repeated, _)
                     )
-                    rendered <- ZPure.foreach(instances): i =>
+                    rows <- ZPure.foreach(instances): i =>
                         renderSegment(i.path, Some(i.index))(i.segment)
-                yield
-                    // Hidden fields carry the item list so it round-trips through HTML forms
-                    val itemsPath = path / id / "__items"
-                    val itemFields = instances.map: i =>
-                        UIHiddenField(
-                            s"${itemsPath.toHtmlId}-${i.index}",
-                            itemsPath.toHtmlName,
-                            Some(s"${i.item}:${i.itemType}")
-                        )
-                    itemFields ++ rendered.flatten
-                end for
+                            .map(UIRepeatedRow(i.item, i.itemType, i.index, _))
+                    errors <- errorDecorations(path / id)
+                yield List(UIRepeatedGroup(
+                    (path / id).toHtmlId,
+                    (path / id / "__items").toHtmlName,
+                    elems.map(_.id.last),
+                    optional,
+                    rows,
+                    errors
+                ))
 
     private def getString(path: AbsolutePath)
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Option[String]] =

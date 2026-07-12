@@ -20,10 +20,11 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
 
     def fieldsOf(ui: UIForm): Seq[UIFormElement] =
         def walk(e: UIFormElement): Seq[UIFormElement] = e match
-            case s: UIFormSection => e +: s.children.flatMap(walk)
-            case g: UIGrid        => e +: g.children.flatten.flatMap(_.children.flatMap(walk))
-            case r: UIFlexRow     => e +: r.children.flatMap(walk)
-            case other            => Seq(other)
+            case s: UIFormSection   => e +: s.children.flatMap(walk)
+            case g: UIGrid          => e +: g.children.flatten.flatMap(_.children.flatMap(walk))
+            case r: UIFlexRow       => e +: r.children.flatMap(walk)
+            case g: UIRepeatedGroup => e +: g.rows.flatMap(_.children.flatMap(walk))
+            case other              => Seq(other)
         ui.children.flatMap(walk)
 
     def spec = suite("UIFormBuilder characterization")(
@@ -213,23 +214,47 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 values == Seq(Some("1"), Some("2"))
             )
         },
-        test("Repeated emits hidden __items fields so item state round-trips through forms") {
+        test("Repeated folds into a group node carrying its round-trip and affordance data") {
             val form = Form("demo", "1")(
                 Repeated("items", optional = true)(Section("row")(Field("qty")))
             )
             val state = FormR(Map(
                 IdPath("demo.items.__items") -> List("first:row", "second:row")
             ))
-            val hidden = fieldsOf(build(form, state)).collect { case h: UIHiddenField => h }
-                .filter(_.fieldName == "demo.items.__items")
-            assertTrue(hidden.map(_.value) == Seq(Some("first:row"), Some("second:row")))
+            val ui = build(form, state)
+            val group = fieldsOf(ui).collectFirst { case g: UIRepeatedGroup => g }.get
+            val siblingHidden = fieldsOf(ui).collect { case h: UIHiddenField => h }
+            assertTrue(
+                group.id == "demo-items",
+                group.fieldName == "demo.items.__items",
+                group.templates == List("row"),
+                group.optional,
+                group.rows.map(r => (r.item, r.itemType, r.index)) ==
+                    Seq(("first", "row", 0), ("second", "row", 1)),
+                // item state rides the group node, not sibling hidden fields
+                siblingHidden.isEmpty
+            )
         },
-        test("Repeated renders nothing without __items entries") {
+        test("Repeated without __items entries folds to an empty group and no sections") {
             val form = Form("demo", "1")(
                 Repeated("items", optional = true)(Section("row")(Field("qty")))
             )
             val ui = build(form)
-            assertTrue(fieldsOf(ui).collect { case s: UIFormSection => s }.isEmpty)
+            val group = fieldsOf(ui).collectFirst { case g: UIRepeatedGroup => g }.get
+            assertTrue(
+                group.rows.isEmpty,
+                fieldsOf(ui).collect { case s: UIFormSection => s }.isEmpty
+            )
+        },
+        test("errors keyed at the repeated path attach to the group") {
+            val form = Form("demo", "1")(
+                Repeated("items", optional = false)(Section("row")(Field("qty")))
+            )
+            val msg = works.iterative.core.UserMessage("error.field.required")
+            val validation = MapFormValidationState(Map(IdPath.full("demo.items") -> List(msg)))
+            val group = fieldsOf(build(form, validation = validation))
+                .collectFirst { case g: UIRepeatedGroup => g }.get
+            assertTrue(group.decorations.contains(UIFieldDecoration.ErrorMessage(msg)))
         },
         test("validation errors attach as ErrorMessage decorations on the labeled field") {
             val form = Form("demo", "1")(

@@ -173,6 +173,41 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
                 !out.matches("(?s).*<button[^>]*name=\"demo.s.ares\".*")
             )
         },
+        test("repeated rows render inside the group with hidden __items inputs per row") {
+            val form = Form("demo", "1")(
+                Repeated("items", optional = true)(Section("row")(Field("qty")))
+            )
+            val state = FormR(Map(
+                IdPath("demo.items.__items") -> List("first:row", "second:row"),
+                IdPath("demo.items.first.row.qty") -> List("1")
+            ))
+            val out = html(form, state)
+            assertTrue(
+                out.contains("""id="demo-items""""),
+                out.contains("repeated-row"),
+                out.matches(
+                    "(?s).*<input[^>]*type=\"hidden\"[^>]*name=\"demo.items.__items\"[^>]*value=\"first:row\".*"
+                ),
+                out.matches(
+                    "(?s).*<input[^>]*type=\"hidden\"[^>]*name=\"demo.items.__items\"[^>]*value=\"second:row\".*"
+                ),
+                out.contains("""value="1"""")
+            )
+        },
+        test("errors on a required empty repeated group render inside the group") {
+            val form = Form("demo", "1")(
+                Repeated("items", optional = false)(Section("row")(Field("qty")))
+            )
+            val validation = MapFormValidationState(Map(
+                IdPath.full("demo.items") ->
+                    List(works.iterative.core.UserMessage("error.field.required"))
+            ))
+            val out = html(form, validation = validation)
+            assertTrue(
+                out.contains("field-errors"),
+                out.contains("error.field.required")
+            )
+        },
         test("display block renders resolved content") {
             val out = html(Form("demo", "1")(Section("s")(Display("info"))))
             assertTrue(out.contains("display:demo.s.info"))

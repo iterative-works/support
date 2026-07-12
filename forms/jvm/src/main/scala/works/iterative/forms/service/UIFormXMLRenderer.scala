@@ -89,6 +89,10 @@ class UIFormXMLRenderer(
                 yield <ui:block id={id} title={renderMessage(messageKey, "title")}>
                     {content}
                 </ui:block>
+            case UIRepeatedGroup(_, _, _, _, rows, _) =>
+                // Rows render flattened; the __items round-trip data is form chrome, not content
+                for nested <- ZIO.foreach(rows)(row => ZIO.foreach(row.children)(renderSegment))
+                yield nested.flatten.foldLeft(NodeSeq.Empty: NodeSeq)(_ ++ _)
             case UIHiddenField(id, fieldName, value) =>
                 ZIO.succeed(<ui:hiddenField id={id} value={value.getOrElse("")}/>)
             case _ => ZIO.succeed(NodeSeq.Empty)

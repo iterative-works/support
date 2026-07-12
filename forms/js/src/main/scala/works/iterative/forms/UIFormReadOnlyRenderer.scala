@@ -82,6 +82,8 @@ class UIFormReadOnlyRenderer(
                             cs.gridCell(gridCell.size, gridCell.children.map(renderSegment(data)))
             case UIFlexRow(children) =>
                 cs.flexRow(children.map(renderSegment(data)))
+            case UIRepeatedGroup(_, _, _, _, rows, _) =>
+                div(rows.map(row => div(row.children.map(renderSegment(data)))))
             case UIBlock(id, messageKey) =>
                 displayResolver.resolve(
                     works.iterative.ui.model.forms.IdPath.FullPath(id.split("-").toVector),

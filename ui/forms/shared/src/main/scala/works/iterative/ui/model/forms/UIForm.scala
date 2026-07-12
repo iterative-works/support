@@ -87,6 +87,26 @@ final case class UIChoiceOption(
     messageKey: UIMessageKey
 )
 
+/** A repeated group with its row boundaries intact: fieldName is the hidden field the item list
+  * round-trips through, templates are the item types that can be added, and optional says whether
+  * the group may be empty — enough for any interpreter to derive add/remove affordances.
+  */
+final case class UIRepeatedGroup(
+    id: UIFormId,
+    fieldName: UIFieldName,
+    templates: List[String],
+    optional: Boolean,
+    rows: Seq[UIRepeatedRow],
+    decorations: List[UIFieldDecoration]
+) extends UIFormElement
+
+final case class UIRepeatedRow(
+    item: String,
+    itemType: String,
+    index: Int,
+    children: Seq[UIFormElement]
+)
+
 final case class UIFlexRow(children: Seq[UIFormElement]) extends UIFormElement
 
 final case class UIGrid(children: Seq[Seq[UIGridCell]]) extends UIFormElement

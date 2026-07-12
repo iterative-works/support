@@ -98,6 +98,21 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                 )
             case UIFlexRow(children) =>
                 div(cls := "flex-row")(children.map(renderElement))
+            case UIRepeatedGroup(gid, fieldName, _, _, rows, decorations) =>
+                div(id := gid, cls := "repeated-group")(
+                    rows.map(row =>
+                        div(cls := "repeated-row")(
+                            // The item entry rides a hidden input so the list round-trips
+                            input(
+                                `type` := "hidden",
+                                name := fieldName,
+                                value := s"${row.item}:${row.itemType}"
+                            ),
+                            row.children.map(renderElement)
+                        )
+                    ),
+                    renderErrors(decorations)
+                )
             case UIButton(bid, buttonName, intent, messageKey, _) =>
                 val buttonLabel: String =
                     renderMessage(messageKey, "label").getOrElse(messageKey.value)

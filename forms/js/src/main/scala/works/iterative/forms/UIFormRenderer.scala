@@ -44,6 +44,8 @@ class UIFormRenderer(cs: Components):
                             cs.gridCell(gridCell.size, gridCell.children.map(renderSegment))
             case UIFlexRow(children) =>
                 cs.flexRow(children.map(renderSegment))
+            case UIRepeatedGroup(id, _, _, _, rows, _) =>
+                div(idAttr := id, rows.map(row => div(row.children.map(renderSegment))))
             case _ => div()
 
     private def renderField(field: UIField): Node =
