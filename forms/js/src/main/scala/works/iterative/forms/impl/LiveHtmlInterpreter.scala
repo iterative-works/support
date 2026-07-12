@@ -29,7 +29,8 @@ class LiveHtmlInterpreter(
     override val cs: Components,
     menuItems: Form => List[AbsolutePath] = _ => Nil,
     private val aroundTitle: HtmlElement => HtmlElement = identity,
-    private val formMods: Option[HtmlMod] = None
+    private val formMods: Option[HtmlMod] = None,
+    ruleRegistry: ValidationRuleRegistry = ValidationRuleRegistry.empty
 )(using messages: MessageCatalogue, lang: Language) extends HtmlInterpreter:
     given Components = cs
 
@@ -44,7 +45,8 @@ class LiveHtmlInterpreter(
             hooks,
             cs,
             menuItems,
-            f
+            f,
+            ruleRegistry = ruleRegistry
         )
 
     override def withFormMods(mods: HtmlMod): HtmlInterpreter =
@@ -59,7 +61,8 @@ class LiveHtmlInterpreter(
             cs,
             menuItems,
             aroundTitle,
-            Some(mods)
+            Some(mods),
+            ruleRegistry
         )
 
     def withComponents(components: Components): HtmlInterpreter =
@@ -74,7 +77,8 @@ class LiveHtmlInterpreter(
             components,
             menuItems,
             aroundTitle,
-            formMods
+            formMods,
+            ruleRegistry
         )
 
     def withAutocompleteContext(context: Map[String, String]): LiveHtmlInterpreter =
@@ -89,7 +93,8 @@ class LiveHtmlInterpreter(
             cs,
             menuItems,
             aroundTitle,
-            formMods
+            formMods,
+            ruleRegistry
         )
 
     override def interpret(
@@ -458,7 +463,12 @@ class LiveHtmlInterpreter(
             .render(
                 id,
                 required,
-                fid => works.iterative.forms.Validation.rule[EventStream](fid, validations),
+                fid =>
+                    works.iterative.forms.Validation.rule[EventStream](
+                        fid,
+                        validations,
+                        ruleRegistry
+                    ),
                 default
             ))
 

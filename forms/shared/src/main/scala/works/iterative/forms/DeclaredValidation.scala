@@ -8,12 +8,17 @@ import works.iterative.ui.model.forms.{AbsolutePath, FormState, IdPath}
 
 object DeclaredValidation:
 
-    def validate(form: Form, state: FormState)(using
+    def validate(
+        form: Form,
+        state: FormState,
+        registry: ValidationRuleRegistry = ValidationRuleRegistry.empty
+    )(using
         messages: MessageCatalogue
     ): MapFormValidationState =
         // Resolve labels under the form prefix exactly like the renderers do, so the
         // suffix fallback chain finds e.g. inquiry.row.qty.label for dynamic row paths
         given MessageCatalogue = messages.nested(form.id.serialize)
+        given ValidationRuleRegistry = registry
         MapFormValidationState(
             collect(IdPath.Root / form.id, form.elems, state).groupMap(_._1)(_._2)
         )
@@ -23,11 +28,15 @@ object DeclaredValidation:
         path -> UserMessage("error.field.required", path.toMessage("label"))
 
     private def collect(path: AbsolutePath, elems: List[SectionSegment], state: FormState)(using
-        MessageCatalogue
+        MessageCatalogue,
+        ValidationRuleRegistry
     ): List[(AbsolutePath, UserMessage)] =
         elems.flatMap(validateSegment(path, state))
 
-    private def validateSegment(path: AbsolutePath, state: FormState)(using MessageCatalogue)(
+    private def validateSegment(path: AbsolutePath, state: FormState)(using
+        MessageCatalogue,
+        ValidationRuleRegistry
+    )(
         element: SectionSegment
     ): List[(AbsolutePath, UserMessage)] =
         element match
@@ -43,8 +52,12 @@ object DeclaredValidation:
                             if required then List(requiredError(fieldPath)) else Nil
                         case Some(value) =>
                             validations.flatMap(
-                                Validation.check(_, value, fieldPath.toMessage("label"))
-                                    .map(fieldPath -> _)
+                                Validation.check(
+                                    _,
+                                    value,
+                                    fieldPath.toMessage("label"),
+                                    summon[ValidationRuleRegistry]
+                                ).map(fieldPath -> _)
                             )
                 end if
             case File(id, _, optional) =>

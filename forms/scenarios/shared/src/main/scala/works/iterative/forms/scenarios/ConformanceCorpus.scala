@@ -66,6 +66,20 @@ object ConformanceCorpus:
             Field("value", optional = optional, validations = List(sample.validation))
         )
 
+    /** The kit's registry: binds the corpus Rule id so both validation paths prove it fires. */
+    val ruleRegistry: ValidationRuleRegistry = new ValidationRuleRegistry:
+        def check(
+            rule: Validation.Rule,
+            value: String,
+            label: => String
+        ): Option[UserMessage] =
+            rule.id match
+                case "conformance:even" =>
+                    Option.unless(value.toIntOption.exists(_ % 2 == 0))(
+                        UserMessage("error.rule.even", label)
+                    )
+                case _ => None
+
     // --- Condition: every case with the state it evaluates against and the expected visibility ---
 
     case class ConditionSample(

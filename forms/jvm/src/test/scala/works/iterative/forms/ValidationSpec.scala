@@ -4,7 +4,7 @@
 package works.iterative.forms
 
 import zio.test.*
-import works.iterative.core.{MessageCatalogue, MessageId}
+import works.iterative.core.{MessageCatalogue, MessageId, UserMessage}
 import works.iterative.ui.model.forms.IdPath
 
 object ValidationSpec extends ZIOSpecDefault:
@@ -54,6 +54,47 @@ object ValidationSpec extends ZIOSpecDefault:
                 run(List(Validation.Required, Validation.Rule("ares")), "") ==
                     ValidationState.Valid("")
             )
+        },
+        test("a registry binds Rule checks by id; unbound ids keep passing") {
+            val registry = new ValidationRuleRegistry:
+                def check(
+                    rule: Validation.Rule,
+                    value: String,
+                    label: => String
+                ): Option[UserMessage] =
+                    Option.when(rule.id == "even" && !value.toIntOption.exists(_ % 2 == 0))(
+                        UserMessage("error.rule.even", label)
+                    )
+            assertTrue(
+                Validation.check(Validation.Rule("even"), "3", "V", registry)
+                    .exists(_.id == MessageId("error.rule.even")),
+                Validation.check(Validation.Rule("even"), "2", "V", registry).isEmpty,
+                Validation.check(Validation.Rule("unbound"), "3", "V", registry).isEmpty,
+                Validation.check(Validation.Rule("even"), "3", "V").isEmpty
+            )
+        },
+        test("Validation.rule consults the registry and accumulates its failures") {
+            val registry = new ValidationRuleRegistry:
+                def check(
+                    rule: Validation.Rule,
+                    value: String,
+                    label: => String
+                ): Option[UserMessage] =
+                    Option.when(rule.id == "even" && !value.toIntOption.exists(_ % 2 == 0))(
+                        UserMessage("error.rule.even", label)
+                    )
+            val result = Validation.rule[Option](
+                path,
+                List(Validation.MinLength(2), Validation.Rule("even")),
+                registry
+            ).apply("3").get
+            result match
+                case ValidationState.Invalid(errors) =>
+                    assertTrue(errors.map(_._2.id).toList == List(
+                        MessageId("error.field.minlength"),
+                        MessageId("error.rule.even")
+                    ))
+                case other => assertTrue(other == null)
         }
     )
 end ValidationSpec

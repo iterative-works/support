@@ -84,6 +84,33 @@ object ValidationConformanceSpec extends ZIOSpecDefault:
                     )
             }
         },
+        test("a registered Rule fires identically in both paths") {
+            val sample = ConformanceCorpus.validationSamples.find(s =>
+                s.validation match
+                    case Validation.Rule(_, _) => true
+                    case _                     => false
+            ).get
+            val registry = ConformanceCorpus.ruleRegistry
+            val form = ConformanceCorpus.validationForm(sample, optional = false)
+            def declaredWith(value: String) =
+                DeclaredValidation.validate(
+                    form,
+                    FormData.parse(Map("validated.value" -> Seq(value))),
+                    registry
+                ).errors(valuePath)
+            def ruleWith(value: String) =
+                given MessageCatalogue = ConformanceCorpus.messages.nested("validated")
+                Validation.rule[Option](valuePath, List(sample.validation), registry)
+                    .apply(value).get match
+                    case ValidationState.Valid(_)        => Nil
+                    case ValidationState.Invalid(errors) => errors.map(_._2).toList
+            assertTrue(
+                declaredWith(sample.passing).isEmpty,
+                ruleWith(sample.passing).isEmpty,
+                declaredWith("3") == ruleWith("3"),
+                declaredWith("3").map(_.id.toString) == List(sample.errorKey)
+            )
+        },
         test("declared failures render as field errors through builder and SSR renderer") {
             val builder = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
             val renderer = UIFormHtmlRenderer(blankDisplays)

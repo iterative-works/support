@@ -20,12 +20,18 @@ object Validation:
     private val emailShape = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$".r
 
     /** The pure format check of one declared validation against a field's raw value. Emptiness is
-      * the Required concern and Rule validations bind at the edges behind a registry, so both pass
-      * here.
+      * the Required concern and passes here; Rule validations resolve through the registry, and
+      * unbound ids pass — they validate at other edges.
       */
-    def check(validation: Validation, value: String, label: => String): Option[UserMessage] =
+    def check(
+        validation: Validation,
+        value: String,
+        label: => String,
+        registry: ValidationRuleRegistry = ValidationRuleRegistry.empty
+    ): Option[UserMessage] =
         validation match
-            case Required | Rule(_, _) => None
+            case Required   => None
+            case rule: Rule => registry.check(rule, value, label)
             case Email =>
                 Option.unless(emailShape.matches(value))(UserMessage("error.field.email", label))
             case Pattern(regex) =>
@@ -43,11 +49,15 @@ object Validation:
       * at the field's path. Emptiness stays the composing interpreter's concern — a blank value
       * reaches this rule only when the field is optional and filled.
       */
-    def rule[F[+_]: IdentityBoth: Covariant](id: IdPath, validations: List[Validation])(using
+    def rule[F[+_]: IdentityBoth: Covariant](
+        id: IdPath,
+        validations: List[Validation],
+        registry: ValidationRuleRegistry = ValidationRuleRegistry.empty
+    )(using
         MessageCatalogue
     ): ValidationRule[F, String, String] =
         ValidationRule.succeed: value =>
-            validations.flatMap(check(_, value, id.toMessage("label"))) match
+            validations.flatMap(check(_, value, id.toMessage("label"), registry)) match
                 case Nil => ValidationState.Valid(value)
                 case h :: t =>
                     ValidationState.Invalid(zio.NonEmptyChunk(id -> h, t.map(id -> _)*))
