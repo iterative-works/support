@@ -1,3 +1,6 @@
+// PURPOSE: Per-type string codecs for form inputs — encode/decode with validation and input type
+// PURPOSE: The typeclass typed form fields and laminar form controls derive their behavior from
+
 package works.iterative.ui.components.laminar.forms
 
 import works.iterative.core.*

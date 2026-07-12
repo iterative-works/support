@@ -934,7 +934,7 @@ object forms extends CrossModule {
   def description = "IW Support Forms Library"
 
   object jvm extends JvmModule {
-    def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, filesRest.jvm, email, paygate, filesMongo)
+    def moduleDeps = Seq(core.jvm, codecs.jvm, autocomplete.jvm, uiForms.jvm, filesRest.jvm, email, paygate, filesMongo)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore ++ Seq(
       IWMillDeps.zioConfigTypesafe,
       IWMillDeps.scalatags,
@@ -946,7 +946,7 @@ object forms extends CrossModule {
   }
 
   object js extends JsModule {
-    def moduleDeps = Seq(core.js, codecs.js, autocomplete.js, filesRest.js)
+    def moduleDeps = Seq(core.js, codecs.js, autocomplete.js, uiForms.js, filesRest.js)
     def mvnDeps = super.mvnDeps() ++ Dependencies.zioCore
   }
 }
