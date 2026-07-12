@@ -23,10 +23,35 @@ the full UIForm/ADT hardening from the gap inventory (Enum/Date
 optionality, disabled/context decorations, button intent, UIRepeatedGroup,
 form/section error slots, IdPath ids), and `TypedForm[A]` +
 `InputSchema` relocation (the FormSchema salvage — typed declarations
-erase to the plain Form, FormCodec captures FormData as a typed value).
-Next per the tracker: czech-support extraction (FC-D3).
+erase to the plain Form, FormCodec captures FormData as a typed value),
+and the czech-support extraction (FC-D3) — the Czech/CMI domain now
+lives in its own in-repo CrossModule with packages unchanged, forms no
+longer depends on email/paygate/filesMongo. Next per the tracker:
+formsCore/formsHttp/FormComponents retirement + the package rename.
 
 ## Log
+
+- **2026-07-12 — czech-support extraction (FC-D3).** The Czech/CMI
+  domain left `forms` for the new `czech-support` CrossModule: ARES/VIES
+  (services, endpoints, wire models), the submission chain
+  (SubmissionService/DsSubmissionService/SubmitResult/Submission/
+  SubmissionRepository + live REST impls and the client Endpoints/
+  Codecs/User surface), the CMI resolvers (BaseValidationResolver,
+  LiveFieldTypeResolver, BaseButtonHandler with `complete_ares`),
+  `Enum.yesno`, and MongoConfig. Grep-first across both client repos
+  settled the shape: every piece is live in at least one client and
+  referenced by package name, so everything moved same-package — clients
+  add one dependency at upgrade and keep compiling. The js Endpoints
+  object moved whole because medeca passes the object itself into
+  `BaseValidationResolver.layer`; ButtonHandler split instead (trait +
+  empty stay as the generic seam). `Enum.yesno` became a top-level
+  extension in package portaly.forms, red-green pinned through the same
+  wildcard import medeca's declarations use. forms.jvm dropped email/
+  paygate/filesMongo (zero in-repo use; both clients declare direct
+  deps); czech-support.jvm now carries the sttp zio-json dependency the
+  registry services previously borrowed from paygate transitively.
+  Characterization tests pin yesno call sites, ARES address accessors,
+  and the VIES EU country set. All gates green incl. browser e2e 5/5.
 
 - **2026-07-12 — TypedForm lands; the FormSchema salvage is done.**
   `InputSchema` moved verbatim to `ui/forms/shared` (same package —

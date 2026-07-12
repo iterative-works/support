@@ -3,7 +3,7 @@ issue: iw-support-form-effort-3
 card: ./card.md
 status: active
 branch: iw-support-form-effort
-updated: 2026-07-11
+updated: 2026-07-12
 ---
 
 # Slice Tracker — core-hardening-spa-refold   (READ FIRST to resume)
@@ -16,7 +16,8 @@ scenarios, conformance kit green → full card: ./card.md
 ## Run-state
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN (czech-support extraction, FC-D3)
+`./mill forms.jvm.test` + `./mill czech-support.jvm.test` · next: OPEN
+(formsCore/formsHttp/FormComponents retirement + package rename)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -144,10 +145,48 @@ branch iw-support-form-effort · run/see:
         runs UIFormBuilder + DeclaredValidation with the same required
         paths FormCodec fails on — the typed layer cannot fork the core.
 
+- [x] czech-support extraction (FC-D3) (b131cfe9): the Czech/CMI domain
+      leaves forms for the in-repo `czech-support` CrossModule, ALL packages
+      unchanged — client-repo audit showed every piece live in at least one
+      client (cmi consumes vendored source + keeps a partial submission-chain
+      fork; medeca consumes the binary artifact), and both reference by
+      package name, so same-package relocation + one new dependency at
+      upgrade keeps them compiling.
+      * Moved shared: SubmitResult, SubmissionService, DsSubmissionService,
+        Ares, Vies(+ViesConfig), AresEndpoints, ViesEndpoints. jvm:
+        AresService, ViesService, MongoConfig (beyond FC-D3's letter — zero
+        client consumers, czech-named, and its move frees forms.jvm of
+        filesMongo). js: Submission, SubmissionRepository, Endpoints,
+        Codecs, User, LiveSubmissionService, LiveSubmissionRepository,
+        BaseValidationResolver, LiveFieldTypeResolver, BaseButtonHandler.
+      * The js Endpoints object moved WHOLE (incl. its generic autocomplete/
+        file/forms groups): medeca passes the object itself into
+        BaseValidationResolver.layer, so splitting it would break the
+        client. ButtonHandler.scala split instead: trait + empty stay as
+        the generic seam, BaseButtonHandler (complete_ares) moved.
+      * Enum.yesno became a top-level `extension (e: Enum.type)` in package
+        portaly.forms (czech-support shared) — resolves through the
+        wildcard import client declarations already use; red-green pinned
+        (companion removal went red, extension went green). Preserved
+        verbatim incl. the oddity that default Some(true) encodes "true",
+        not "ano".
+      * forms.jvm dropped email, paygate, filesMongo: zero in-repo forms
+        usage and both clients declare direct deps on them. czech-support
+        .jvm carries sttp zio-json explicitly (previously rode in via
+        paygate transitively).
+      * FieldKind follow-up settled by relocation: LiveFieldTypeResolver's
+        cmi:* string arms left the repo with the whole resolver — the
+        SPA-refold no longer owes it a FieldKind refold (client-domain now).
+        NOT here: the Validation.Rule registry binding — still SPA-refold/
+        conformance material.
+      * Tests: czech-support.jvm characterization suite (yesno call-site
+        pins via `import portaly.forms.*` from a foreign package, ARES
+        address accessors incl. street fallback chain, VIES EU country
+        set). ARES/VIES live-network integration tests deliberately not
+        added (cmi's it-suite covers them downstream).
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] czech-support extraction (FC-D3): cmi/czech field types, ARES/VIES,  <-- NEXT
-      `complete_ares`, `Enum.yesno`, Submission/DsSubmission/paymentUrl
-- [ ] formsCore/formsHttp/FormComponents retirement (downstream grep first)
+- [ ] formsCore/formsHttp/FormComponents retirement (downstream grep first)  <-- NEXT
       + package rename `portaly.forms` → `works.iterative.forms`
 - [ ] SPA refold completes: LiveHtmlInterpreter on shared dispatch +
       validation; SPA custom-element scenario proves the proof form
