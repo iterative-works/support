@@ -109,22 +109,34 @@ case class Field(
 case class File(id: RelativePath, multiple: Boolean = true, optional: Boolean = false)
     extends SectionSegment
 
-case class Date(id: RelativePath) extends SectionSegment
+case class Date(id: RelativePath, optional: Boolean = true) extends SectionSegment
 
 case class Display(id: RelativePath) extends SectionSegment
 
 case class Enum(
     id: RelativePath,
     values: List[String],
-    default: Option[String]
+    default: Option[String],
+    optional: Boolean = true
 ) extends SectionSegment
 object Enum:
-    def apply(id: RelativePath, default: Option[String] = None)(values: String*): Enum =
+    def apply(id: RelativePath)(values: String*): Enum =
+        Enum(id, values.toList, default = None)
+
+    def apply(id: RelativePath, default: Option[String])(values: String*): Enum =
         Enum(id, values.toList, default = default)
 
-    def bool(id: RelativePath, default: Option[Boolean] = None): Enum =
-        Enum(id, List("true", "false"), default = default.map(_.toString))
+    def apply(id: RelativePath, optional: Boolean)(values: String*): Enum =
+        Enum(id, values.toList, default = None, optional = optional)
 
-    def yesno(id: RelativePath, default: Option[Boolean] = None): Enum =
-        Enum(id, List("ano", "ne"), default = default.map(_.toString))
+    def apply(id: RelativePath, default: Option[String], optional: Boolean)(
+        values: String*
+    ): Enum =
+        Enum(id, values.toList, default = default, optional = optional)
+
+    def bool(id: RelativePath, default: Option[Boolean] = None, optional: Boolean = true): Enum =
+        Enum(id, List("true", "false"), default = default.map(_.toString), optional = optional)
+
+    def yesno(id: RelativePath, default: Option[Boolean] = None, optional: Boolean = true): Enum =
+        Enum(id, List("ano", "ne"), default = default.map(_.toString), optional = optional)
 end Enum

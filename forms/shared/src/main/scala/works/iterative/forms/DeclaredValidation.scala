@@ -61,7 +61,16 @@ object DeclaredValidation:
                 if instances.isEmpty then
                     if optional then Nil else List(requiredError(path / id))
                 else instances.flatMap(i => validateSegment(i.path, state)(i.segment))
-            // Date and Enum carry no optional flag, Display and Button hold no data
+            case Enum(id, _, default, optional) =>
+                val fieldPath = path / id
+                val effective = state.getString(fieldPath).orElse(default).filterNot(_.isBlank)
+                if !optional && effective.isEmpty then List(requiredError(fieldPath)) else Nil
+            case Date(id, optional) =>
+                val fieldPath = path / id
+                if !optional && state.getString(fieldPath).forall(_.isBlank) then
+                    List(requiredError(fieldPath))
+                else Nil
+            // Display and Button hold no data
             case _ => Nil
 
 end DeclaredValidation

@@ -41,8 +41,8 @@ class FormRJsonEncoder:
             case Section(id, elems, _)                      => renderSection(path / id)(elems)
             case Field(id, fieldType, default, optional, _) => renderField(path / id)
             case File(id, multiple, optional)               => renderFileField(path / id)
-            case Date(id)                                   => renderField(path / id)
-            case Enum(id, values, default)                  => renderField(path / id)
+            case Date(id, _)                                => renderField(path / id)
+            case Enum(id, values, default, _)               => renderField(path / id)
             case ShowIf(condition, elem) =>
                 resolveCondition(path)(condition).flatMap(if _ then renderSegment(path)(elem)
                 else ZPure.succeed(None))

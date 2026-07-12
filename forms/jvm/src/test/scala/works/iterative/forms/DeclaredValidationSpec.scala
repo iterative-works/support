@@ -103,6 +103,34 @@ object DeclaredValidationSpec extends ZIOSpecDefault:
                 optional.isValid(IdPath.full("demo.items"))
             )
         },
+        test("required enum and date validate like fields; default ones stay optional") {
+            val form = Form("demo", "1")(Section("s")(
+                Enum("choice", optional = false)("a", "b"),
+                Date("birth", optional = false),
+                Enum("lax")("a", "b"),
+                Date("laxdate")
+            ))
+            val empty = DeclaredValidation.validate(form, FormR.empty)
+            val filled = DeclaredValidation.validate(
+                form,
+                FormR.strings("demo.s.choice" -> "a", "demo.s.birth" -> "2020-01-01")
+            )
+            assertTrue(
+                !empty.isValid(IdPath.full("demo.s.choice")),
+                !empty.isValid(IdPath.full("demo.s.birth")),
+                empty.isValid(IdPath.full("demo.s.lax")),
+                empty.isValid(IdPath.full("demo.s.laxdate")),
+                filled.isValid(IdPath.full("demo.s.choice")),
+                filled.isValid(IdPath.full("demo.s.birth"))
+            )
+        },
+        test("required enum with a declared default is satisfied by it") {
+            val form = Form("demo", "1")(Section("s")(
+                Enum("choice", default = Some("a"), optional = false)("a", "b")
+            ))
+            val result = DeclaredValidation.validate(form, FormR.empty)
+            assertTrue(result.isValid(IdPath.full("demo.s.choice")))
+        },
         test("error labels resolve through the form-scoped catalogue like the renderers") {
             // Repeated rows have dynamic path segments (item keys); the label must fall
             // back through the suffix chain under the form prefix: inquiry.row.qty.label

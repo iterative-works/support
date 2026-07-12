@@ -133,10 +133,10 @@ class LiveHtmlInterpreter(
             case Field(id, fieldType, default, optional, _) =>
                 renderFormField(id, fieldType, default, optional)
             case File(id, multiple, optional) => renderFileField(id, multiple, optional)
-            case Date(id)                     => renderTextField(id, "date", None)
+            case Date(id, _)                  => renderTextField(id, "date", None)
             case Display(id)                  => renderDisplay(id)
             case Button(id)                   => renderButton(id)
-            case Enum(id, values, default) =>
+            case Enum(id, values, default, _) =>
                 if values.size == 2 && values.contains("true") && values.contains(
                         "false"
                     )

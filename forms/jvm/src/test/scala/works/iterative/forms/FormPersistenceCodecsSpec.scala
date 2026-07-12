@@ -63,6 +63,34 @@ object FormPersistenceCodecsSpec extends ZIOSpecDefault:
                 (FormValue.StringValue("hello"): FormValue).toJson == tagged
             )
         },
+        test("enum and date without an optional key decode as optional") {
+            // Stored declarations predate the flag; legacy behavior is never-required
+            val legacyEnum =
+                """{"Enum":{"id":"subscribe","values":["true","false"],"default":"false"}}"""
+            val legacyDate = """{"Date":{"id":"birth"}}"""
+            assertTrue(
+                legacyEnum.fromJson[SectionSegment] ==
+                    Right(Enum("subscribe", default = Some("false"))("true", "false")),
+                legacyDate.fromJson[SectionSegment] == Right(Date("birth")),
+                legacyEnum.fromJson[SectionSegment].exists {
+                    case e: Enum => e.optional
+                    case _       => false
+                },
+                legacyDate.fromJson[SectionSegment].exists {
+                    case d: Date => d.optional
+                    case _       => false
+                }
+            )
+        },
+        test("required enum and date round-trip their optional flag") {
+            val requiredEnum: SectionSegment =
+                Enum("subscribe", optional = false)("true", "false")
+            val requiredDate: SectionSegment = Date("birth", optional = false)
+            assertTrue(
+                requiredEnum.toJson.fromJson[SectionSegment] == Right(requiredEnum),
+                requiredDate.toJson.fromJson[SectionSegment] == Right(requiredDate)
+            )
+        },
         test("a field without a validations key decodes with no declared validations") {
             // Stored declarations predate the vocabulary; zio-json must apply the default
             val legacy =

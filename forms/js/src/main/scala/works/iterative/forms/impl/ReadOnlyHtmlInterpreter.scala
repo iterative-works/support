@@ -51,10 +51,10 @@ class ReadOnlyHtmlInterpreter(
             case Field(id, fieldType, default, optional, _) =>
                 renderFormField(id, !optional)
             case File(id, multiple, optional) => renderFileField(id, !optional)
-            case Date(id)                     => renderFormField(id, false)
+            case Date(id, _)                  => renderFormField(id, false)
             case Display(id)                  => renderDisplay(id)
             case Button(id)                   => renderButton(id)
-            case Enum(id, values, default) =>
+            case Enum(id, values, default, _) =>
                 if values.size == 2 && values.contains("true") && values.contains(
                         "false"
                     )

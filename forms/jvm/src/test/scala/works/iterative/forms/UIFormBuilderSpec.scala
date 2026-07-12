@@ -105,6 +105,20 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 field.decorations == Nil
             )
         },
+        test("required enum and date carry the Required decoration") {
+            val form = Form("demo", "1")(
+                Section("s")(
+                    Enum("choice", optional = false)("a", "b"),
+                    Date("birth", optional = false)
+                )
+            )
+            val fields = fieldsOf(build(form)).collect { case f: UILabeledField => f }
+            val byId = fields.map(f => f.id -> f).toMap
+            assertTrue(
+                byId("demo-s-choice").decorations == List(UIFieldDecoration.Required),
+                byId("demo-s-birth").decorations == List(UIFieldDecoration.Required)
+            )
+        },
         test("button and display render UIButton and UIBlock") {
             val form = Form("demo", "1")(Section("s")(Button("lookup"), Display("info")))
             val elems = fieldsOf(build(form))

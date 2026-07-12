@@ -41,11 +41,11 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                 else renderField(path / id, fieldType.id, default, optional).map(List(_))
             case File(id, multiple, optional) =>
                 renderFileField(path / id, multiple, optional).map(List(_))
-            case Date(id)    => renderField(path / id, "date", None, optional = true).map(List(_))
-            case Display(id) => renderDisplay(path / id).map(List(_))
-            case Button(id)  => renderButton(path / id).map(List(_))
-            case Enum(id, values, default) =>
-                renderChoiceField(path / id, values, default).map(List(_))
+            case Date(id, optional) => renderField(path / id, "date", None, optional).map(List(_))
+            case Display(id)        => renderDisplay(path / id).map(List(_))
+            case Button(id)         => renderButton(path / id).map(List(_))
+            case Enum(id, values, default, optional) =>
+                renderChoiceField(path / id, values, default, optional).map(List(_))
             case ShowIf(condition, elem) =>
                 resolveCondition(path)(condition).flatMap(if _ then renderSegment(path)(elem)
                 else ZPure.succeed(Nil))
@@ -168,7 +168,8 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
     private def renderChoiceField(
         path: AbsolutePath,
         values: List[String],
-        default: Option[String]
+        default: Option[String],
+        optional: Boolean
     ) =
         for
             value <- getString(path)
@@ -186,7 +187,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                 ,
                 Nil
             ),
-            errors
+            optionalDecoration(optional) ++ errors
         )
 
     private def resolveCondition(path: AbsolutePath)(condition: Condition)
