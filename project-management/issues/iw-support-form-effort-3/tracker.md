@@ -17,7 +17,7 @@ scenarios, conformance kit green → full card: ./card.md
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
 `./mill forms.jvm.test` + `./mill czech-support.jvm.test` · next: OPEN
-(SPA refold)
+(conformance kit)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -222,11 +222,65 @@ branch iw-support-form-effort · run/see:
         the scenarios package) — the SPA-refold step touches that seam
         anyway.
 
+- [x] SPA refold: LiveHtmlInterpreter on shared dispatch + validation, and
+      the SPA custom-element scenario proves the proof form in a real
+      browser next to SSR (078af4e0, 4410adc0, f740d263, 8ace893b, 2e089f12):
+      * `Validation.rule` — the declared vocabulary as a composable
+        ValidationRule (accumulates failing checks at the field path; blank
+        stays the composing interpreter's concern). `FieldFactory.render`
+        gains the declared-rule parameter; `fieldRule` composes required →
+        declared → own rule; Hidden ignores it (parity with
+        DeclaredValidation skipping hidden). MIGRATION FLAG: client custom
+        FieldFactory implementations add the parameter; optional Selects no
+        longer run their own rule on blank values (blank-skip unified with
+        Text/TextArea — blank is only ever the required concern).
+      * `Field.required` (=!optional || declared Required) is the one shared
+        derivation — UIFormBuilder previously ignored a declared Required
+        for the star decoration (SSR display drift, fixed red-green), the
+        live interpreter now consumes it too. Enum/Date honor `optional` in
+        SPA (was: enums hardcoded required=true, dates never required).
+      * `Repeated.template` extracted as the shared row-template fallback;
+        the live renderer uses it and a group without templates renders
+        nothing instead of crashing on elems.head. NOTE degenerate-config
+        drift for the conformance kit: SPA keeps unrenderable item DATA in
+        __items while the SSR builder drops the rows entirely.
+      * Live interpreter nests message lookups under the form key
+        (f740d263) — SSR renderer and DeclaredValidation already did;
+        without it dynamic row paths rendered raw message ids in SPA.
+        Client note at upgrade: form-key-prefixed message keys that were
+        unreachable in live forms now resolve (and win over bare suffixes).
+      * BaseIWFormElement debris fixed (now package works.iterative.forms)
+        and it gained the `formContent(form: LiveForm)` seam so elements
+        can wrap the form with chrome.
+      * Scenario proof: `InquiryProofForm` in formsScenarios shared is the
+        one declaration + message catalogue + initial state for BOTH
+        variants; the proof form gained Enum.bool("urgent") (checkbox in
+        SPA, select in SSR — same submitted value). formCustomElement
+        scenario became `spaForm`: serves the declaration, receives the
+        posted FormR, echoes the same dump shape as the SSR success page;
+        assets resolve via SCENARIOS_ASSETS which run+e2e forkEnv point at
+        formsScenarios.js.fastLinkJS (the relative-path serving never
+        worked under mill's sandbox).
+      * e2e: spa-form.feature mirrors ssr-form.feature scenario for
+        scenario — ONE steps class, wording identical, mechanics branch on
+        the open page — and both features extended to the full surface:
+        declared Email format error, and exact-value pins for hidden token,
+        urgent checkbox, deadline date and prose note in the received dump.
+        14 scenarios green. SPA submit chrome decides validity only after
+        the 500ms field-validation throttle settles.
+      * FINDING (evidence for the deferred FormR→FormData SPA-internals
+        move): FormV never forgets unmounted values — after removing a row
+        the SPA summary still counts it (verified in browser; SSR derives
+        counts from __items and is correct). The internals move is
+        behavioral, not hygiene. Also open: ButtonIntent is ignored by the
+        live interpreter (all declared buttons go through ButtonHandler) —
+        conformance kit decides what Submit/ClientAction mean in SPA.
+      * NOT here: the Validation.Rule registry binding — Rule still passes
+        everywhere; lands with the conformance kit.
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] SPA refold completes: LiveHtmlInterpreter on shared dispatch +
-      validation; SPA custom-element scenario proves the proof form  <-- NEXT
 - [ ] Conformance kit: every FieldKind + validation rule + condition case
-      through every interpreter; drift = red
+      through every interpreter; drift = red  <-- NEXT
 
 ## PARKED  (-> future slices; capture, do not do)
 - Morph swaps for text-driven conditions (slice 2+ disposition, pinned by e2e)

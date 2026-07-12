@@ -26,14 +26,41 @@ form/section error slots, IdPath ids), and `TypedForm[A]` +
 erase to the plain Form, FormCodec captures FormData as a typed value),
 the czech-support extraction (FC-D3) — the Czech/CMI domain now
 lives in its own in-repo CrossModule, forms no longer depends on
-email/paygate/filesMongo — and the fourth-mini-lineage retirement +
+email/paygate/filesMongo — the fourth-mini-lineage retirement +
 package rename: `portaly.forms` is now `works.iterative.forms`
 everywhere, and FieldType construction is typed or explicit (the
-String conversion retired). Next per the tracker: the SPA refold
-(LiveHtmlInterpreter on shared dispatch + validation, SPA
-custom-element scenario).
+String conversion retired) — and the SPA refold: declared validations
+evaluate reactively in LiveHtmlInterpreter through the shared
+`Validation.rule`, required-ness/optionality/row-templates/message
+nesting all resolve through the same shared core as SSR, and the
+`spaForm` scenario renders the SAME proof form as `ssrForm` with a
+mirrored e2e feature — 14 browser scenarios, one wording, both
+variants. Next per the tracker: the conformance kit (every FieldKind +
+validation rule + condition case through every interpreter; drift =
+red).
 
 ## Log
+
+- **2026-07-12 — The proof form behaves identically, and the browser says
+  so.** Five commits (078af4e0, 4410adc0, f740d263, 8ace893b, 2e089f12):
+  the SPA refold. Declared validations now reach the reactive fields —
+  `Validation.rule` turns the vocabulary into the ValidationRule shape and
+  `FieldFactory.render` composes it between the required check and the
+  factory's own rule — while `Field.required`, Enum/Date optionality,
+  `Repeated.template` and form-key message nesting became the one shared
+  answer for every walker (each of those was silently different in the
+  live interpreter: enums hardcoded required, dates never required,
+  dynamic row labels rendered raw message ids). The custom-element
+  scenario became `spaForm` and renders the SAME `InquiryProofForm` the
+  SSR scenario serves, submit loop included; spa-form.feature mirrors
+  ssr-form.feature word for word behind one steps class that branches
+  only on mechanics (select vs radio, htmx swap vs reactive update).
+  Both features grew to the full functionality surface: Email format
+  error, hidden token, bool-enum checkbox, date and prose note pinned by
+  exact received values. 14 scenarios green in a real browser. The
+  refold also produced hard evidence for the deferred FormR→FormData
+  internals move: FormV never forgets unmounted row values, so the SPA
+  summary keeps counting removed rows — behavioral drift, not hygiene.
 
 - **2026-07-12 — The forms domain claims its package.** Three commits:
   the skeletal fourth mini-lineage retired (formsCore's FormContext/
