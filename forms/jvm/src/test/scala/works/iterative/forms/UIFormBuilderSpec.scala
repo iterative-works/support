@@ -119,6 +119,21 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 byId("demo-s-birth").decorations == List(UIFieldDecoration.Required)
             )
         },
+        test("field type disabled and context survive the fold as decorations") {
+            val form = Form("demo", "1")(
+                Section("s")(
+                    Field("locked", FieldType("string", None, disabled = true)),
+                    Field("scoped", FieldType("cmi:erp_cenik", Some("^"), disabled = false))
+                )
+            )
+            val fields = fieldsOf(build(form)).collect { case f: UILabeledField => f }
+            val byId = fields.map(f => f.id -> f).toMap
+            assertTrue(
+                byId("demo-s-locked").decorations.contains(UIFieldDecoration.Disabled),
+                byId("demo-s-scoped").decorations.contains(UIFieldDecoration.Context("^")),
+                !byId("demo-s-scoped").decorations.contains(UIFieldDecoration.Disabled)
+            )
+        },
         test("button and display render UIButton and UIBlock") {
             val form = Form("demo", "1")(Section("s")(Button("lookup"), Display("info")))
             val elems = fieldsOf(build(form))

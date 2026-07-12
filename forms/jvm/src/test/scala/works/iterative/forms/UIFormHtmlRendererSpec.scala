@@ -123,6 +123,21 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
                 out.matches("(?s).*<input[^>]*type=\"text\"[^>]*name=\"demo.s.zip\".*")
             )
         },
+        test("disabled field renders a disabled input with a hidden mirror keeping its value") {
+            // disabled inputs never submit, so the value rides a hidden input or the
+            // POST loop would drop disabled-field state on every round-trip
+            val form = Form("demo", "1")(
+                Section("s")(Field("locked", FieldType("string", None, disabled = true)))
+            )
+            val out = html(form, FormR.strings("demo.s.locked" -> "fixed"))
+            assertTrue(
+                out.matches("(?s).*<input[^>]*name=\"demo.s.locked\"[^>]*disabled.*") ||
+                    out.matches("(?s).*<input[^>]*disabled[^>]*name=\"demo.s.locked\".*"),
+                out.matches(
+                    "(?s).*<input[^>]*type=\"hidden\"[^>]*name=\"demo.s.locked\"[^>]*value=\"fixed\".*"
+                )
+            )
+        },
         test("file field renders a file input honoring multiple") {
             val form = Form("demo", "1")(
                 Section("docs")(File("attachments", multiple = true, optional = true))

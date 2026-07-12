@@ -60,11 +60,12 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             case UILabeledField(fid, messageKey, field, decorations) =>
                 given MessageCatalogue = messages.nested(messageKey.value)
                 val required = decorations.contains(UIFieldDecoration.Required)
+                val fieldDisabled = decorations.contains(UIFieldDecoration.Disabled)
                 div(cls := "field")(
                     renderMessage(messageKey, "label").map(l =>
                         label(`for` := fid)(l, Option.when(required)(span(cls := "required")("*")))
                     ),
-                    renderField(field, required),
+                    renderField(field, required, fieldDisabled),
                     renderErrors(decorations)
                 )
             case UIHiddenField(fid, fieldName, fieldValue) =>
@@ -101,24 +102,37 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
                     )
                 )
 
-    private def renderField(field: UIField, required: Boolean)(using
+    private def renderField(field: UIField, required: Boolean, fieldDisabled: Boolean)(using
         messages: MessageCatalogue
     ): Frag =
         val requiredAttr = Option.when(required)(attr("required") := "required")
+        val disabledAttr = Option.when(fieldDisabled)(disabled)
+        // Disabled controls never submit; a hidden mirror keeps their value in the POST loop
+        def disabledMirror(fieldName: UIFieldName, rawValue: Option[String]) =
+            Option.when(fieldDisabled)(
+                input(`type` := "hidden", name := fieldName, value := rawValue.getOrElse(""))
+            )
         field match
             case UITextField(fid, fieldName, fieldType, rawValue, _) =>
                 FieldKind.of(fieldType) match
                     case FieldKind.Prose =>
-                        textarea(id := fid, name := fieldName, requiredAttr)(
-                            rawValue.getOrElse(""): String
+                        frag(
+                            textarea(id := fid, name := fieldName, requiredAttr, disabledAttr)(
+                                rawValue.getOrElse(""): String
+                            ),
+                            disabledMirror(fieldName, rawValue)
                         )
                     case kind =>
-                        input(
-                            `type` := htmlInputType(kind),
-                            id := fid,
-                            name := fieldName,
-                            rawValue.map(value := _),
-                            requiredAttr
+                        frag(
+                            input(
+                                `type` := htmlInputType(kind),
+                                id := fid,
+                                name := fieldName,
+                                rawValue.map(value := _),
+                                requiredAttr,
+                                disabledAttr
+                            ),
+                            disabledMirror(fieldName, rawValue)
                         )
             case UIFileField(fid, fieldName, fileList, multipleFiles, _) =>
                 frag(

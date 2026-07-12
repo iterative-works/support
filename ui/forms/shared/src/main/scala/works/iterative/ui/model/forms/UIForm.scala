@@ -14,6 +14,8 @@ enum UIFieldDecoration:
     case Required
     case InError
     case Disabled
+    // The declared field context: the path scope a field's resolver draws sibling values from
+    case Context(value: String)
     case ErrorMessage(message: UserMessage)
     case IconButton(id: UIFormId, name: String)
 end UIFieldDecoration

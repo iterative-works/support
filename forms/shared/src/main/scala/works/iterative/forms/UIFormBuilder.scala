@@ -38,12 +38,13 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             case Field(id, fieldType, default, optional, _) =>
                 if fieldType.hidden then
                     renderHiddenField(path / id, default).map(List(_))
-                else renderField(path / id, fieldType.id, default, optional).map(List(_))
+                else renderField(path / id, fieldType, default, optional).map(List(_))
             case File(id, multiple, optional) =>
                 renderFileField(path / id, multiple, optional).map(List(_))
-            case Date(id, optional) => renderField(path / id, "date", None, optional).map(List(_))
-            case Display(id)        => renderDisplay(path / id).map(List(_))
-            case Button(id)         => renderButton(path / id).map(List(_))
+            case Date(id, optional) =>
+                renderField(path / id, FieldType("date"), None, optional).map(List(_))
+            case Display(id) => renderDisplay(path / id).map(List(_))
+            case Button(id)  => renderButton(path / id).map(List(_))
             case Enum(id, values, default, optional) =>
                 renderChoiceField(path / id, values, default, optional).map(List(_))
             case ShowIf(condition, elem) =>
@@ -100,6 +101,10 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
     private def optionalDecoration(optional: Boolean) =
         if !optional then List(UIFieldDecoration.Required) else Nil
 
+    private def fieldTypeDecorations(fieldType: FieldType): List[UIFieldDecoration] =
+        (if fieldType.disabled then List(UIFieldDecoration.Disabled) else Nil)
+            ++ fieldType.context.map(UIFieldDecoration.Context(_))
+
     private def errorDecorations(path: AbsolutePath)
         : ZPure[Nothing, Unit, Unit, FormValidationState, Nothing, List[UIFieldDecoration]] =
         ZPure.serviceWith[FormValidationState](
@@ -118,7 +123,7 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
 
     private def renderField(
         path: AbsolutePath,
-        fieldType: UIFieldType,
+        fieldType: FieldType,
         default: Option[String],
         optional: Boolean
     ) =
@@ -131,11 +136,11 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
             UITextField(
                 path.toHtmlId,
                 path.toHtmlName,
-                fieldType,
+                fieldType.id,
                 value.orElse(default),
                 Nil
             ),
-            optionalDecoration(optional) ++ errors
+            optionalDecoration(optional) ++ fieldTypeDecorations(fieldType) ++ errors
         )
 
     private def renderFileField(
