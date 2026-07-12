@@ -952,6 +952,14 @@ object formsScenarios extends NoPublishCrossModule {
 
   object jvm extends JvmModule with FormsScenariosModule {
     def moduleDeps = Seq(forms.jvm, scenarios.jvm)
+
+    // The SPA scenario serves the linked ScalaJS bundle from this directory
+    override def forkEnv = Task {
+      super.forkEnv() ++ Map(
+        "SCENARIOS_ASSETS" -> formsScenarios.js.fastLinkJS().dest.path.toString
+      )
+    }
+
     object test extends BaseTests
 
     // Browser e2e suite: Cucumber + Playwright driving the scenarios server in-process
@@ -960,6 +968,12 @@ object formsScenarios extends NoPublishCrossModule {
 
       override def sources = Task.Sources("src/e2e/scala")
       override def resources = Task.Sources("src/e2e/resources")
+
+      override def forkEnv = Task {
+        super.forkEnv() ++ Map(
+          "SCENARIOS_ASSETS" -> formsScenarios.js.fastLinkJS().dest.path.toString
+        )
+      }
 
       override def moduleDeps = super.moduleDeps ++ Seq(e2eTesting)
       def mvnDeps = super.mvnDeps() ++ Seq(

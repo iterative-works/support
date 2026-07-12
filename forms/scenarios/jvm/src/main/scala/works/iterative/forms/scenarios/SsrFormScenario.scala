@@ -3,13 +3,12 @@
 
 package works.iterative.forms.scenarios
 
-import zio.http.{Response, Routes, Method, Root, Request, handler, string}
+import zio.http.{Response, Routes, Method, Root, Request, handler}
 import zio.http.template.Html
 import scalatags.Text.all.*
 import scalatags.Text.tags2
 import works.iterative.forms.*
 import works.iterative.core.{Language, MessageCatalogue}
-import works.iterative.core.service.impl.InMemoryMessageCatalogue
 import works.iterative.scenarios.Scenario
 import works.iterative.ui.model.forms.{FormState, IdPath}
 
@@ -17,58 +16,9 @@ object SsrFormScenario extends Scenario:
     val id = "ssrForm"
     val label = "SSR Form"
 
-    val formDeclaration: Form = Form("inquiry", "1")(
-        Field("token", FieldType("hidden"), default = Some("proof")),
-        Section("customer")(
-            Field("name"),
-            Field("email", FieldType("email"), validations = List(Validation.Email)),
-            Field("note", FieldType("prose"), optional = true)
-        ),
-        Section("request")(
-            Enum("kind", default = Some("quote"))("quote", "order"),
-            ShowIf(
-                Condition.IsEqual(".inquiry.request.kind", "order"),
-                Section("delivery")(Field("address"))
-            ),
-            Date("deadline"),
-            Display("summary")
-        ),
-        Repeated("items", default = Some("i1" -> "row"), optional = true)(
-            Section("row")(
-                Field("qty", FieldType("number")),
-                Field("desc"),
-                Button("remove")
-            )
-        ),
-        Section("controls")(Button("addItem"))
-    )
+    val formDeclaration: Form = InquiryProofForm.declaration
 
-    given MessageCatalogue = InMemoryMessageCatalogue(
-        Language.EN,
-        Map(
-            "inquiry.title" -> "Inquiry",
-            "inquiry.submit" -> "Send inquiry",
-            "inquiry.customer.section" -> "Customer",
-            "inquiry.customer.name.label" -> "Name",
-            "inquiry.customer.email.label" -> "E-mail",
-            "inquiry.customer.note.label" -> "Note",
-            "inquiry.request.section" -> "Request",
-            "inquiry.request.kind.label" -> "Kind",
-            "inquiry.request.kind.quote.label" -> "Quote",
-            "inquiry.request.kind.order.label" -> "Order",
-            "inquiry.request.delivery.section" -> "Delivery",
-            "inquiry.request.delivery.address.label" -> "Address",
-            "inquiry.request.deadline.label" -> "Deadline",
-            "inquiry.request.summary.title" -> "Summary",
-            "inquiry.row.section" -> "Item %d",
-            "inquiry.row.qty.label" -> "Quantity",
-            "inquiry.row.desc.label" -> "Description",
-            "inquiry.row.remove.label" -> "Remove item",
-            "inquiry.controls.addItem.label" -> "Add item",
-            "error.field.required" -> "Please fill in %s",
-            "error.field.email" -> "%s is not a valid e-mail address"
-        )
-    )
+    given MessageCatalogue = InquiryProofForm.messages
 
     private val itemsPath = IdPath.full("inquiry.items")
     private val addItemKey = "inquiry.controls.addItem"
@@ -76,7 +26,7 @@ object SsrFormScenario extends Scenario:
     private val postAction = s"/$id/form"
 
     val initialState: FormData =
-        FormData.parse(Map("inquiry.items.__items" -> Seq("i1:row")))
+        FormData.parse(InquiryProofForm.initialItems)
 
     private val displayResolver: DisplayResolver[FormState, Frag] =
         new DisplayResolver[FormState, Frag]:

@@ -7,7 +7,7 @@ import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L
 import org.scalajs.dom.*
 import com.raquo.laminar.nodes.DetachedRoot
-import works.iterative.forms.impl.LiveHtmlInterpreter
+import works.iterative.forms.impl.{LiveForm, LiveHtmlInterpreter}
 import works.iterative.forms.FormIdent
 
 // scalafix:off DisableSyntax.var
@@ -17,6 +17,11 @@ abstract class BaseIWFormElement extends HTMLElement:
 // scalafix:on DisableSyntax.var
 
     def interpreter: LiveHtmlInterpreter
+
+    /** What the element shows for an interpreted form; override to add chrome like submit controls
+      * around the bare form element.
+      */
+    def formContent(form: LiveForm): HtmlElement = form.element
 
     def connectedCallback(): Unit =
         def liveForm(entityId: String, id: String, content: works.iterative.forms.Form) =
@@ -33,7 +38,7 @@ abstract class BaseIWFormElement extends HTMLElement:
                     import works.iterative.forms.service.impl.rest.FormPersistenceCodecs.given
                     result.fromJson[works.iterative.forms.Form].toOption.map(
                         liveForm(attrOrDefault("entity", "_"), attrOrDefault("form-id", "form"), _)
-                    ).map(_.element)
+                    ).map(formContent)
                 )
             ),
             activateNow = true
