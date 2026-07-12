@@ -16,7 +16,7 @@ scenarios, conformance kit green → full card: ./card.md
 ## Run-state
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN (FieldKind, FC-D6)
+`./mill forms.jvm.test` · next: OPEN (UIForm/ADT hardening)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -66,11 +66,26 @@ branch iw-support-form-effort · run/see:
       the ValidationRule adapter for SPA reactive wiring comes at the
       SPA-refold step.
 
+- [x] `FieldKind` closed vocabulary as the shared dispatch index (FC-D6)
+      (aa019dba). DELIBERATE DEVIATION from the decision letter ("FieldType
+      is replaced"): FieldType keeps `id: String` as the wire/stored truth —
+      clients pattern-match `FieldType(t, _, disabled)` with string guards
+      (medeca DetailPodaniFieldTypeFactories) and `text`/`string` both live
+      in production, so byte-exact re-encode forbids a kind-first case class;
+      the plan's core-shape text (forms-plan "FieldType stays an open string,
+      interpreters dispatch through a shared index") prescribes exactly this.
+      `FieldKind.of`/`wireId` are the hand-written codec, pinned over the
+      full client-audit id list incl. the `medeca:mds_mdt` drift id;
+      `FieldType.kind` derives, typed `FieldType(FieldKind.Email)` constructs.
+      Exhaustive dispatch landed: SSR renderer (behavior fix: base:email →
+      type=email, base:phone → tel; legacy raw "tel"/"password" preserved via
+      Custom), XML renderer number normalization, JS FieldTypeResolver.empty.
+      LiveFieldTypeResolver still string-matches — refolds at SPA-refold/
+      czech-support (its cmi:* arms leave then). String-apply retirement
+      (typo-proof construction) belongs to the package-rename step.
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] `FieldKind` enum + `Custom(id)` + hand-written wire-stable codec   <-- NEXT
-      (FC-D6); interpreters dispatch exhaustively; codec round-trip tests
-      over the client-audit id list
-- [ ] UIForm/ADT hardening from the gap inventory: Enum optional flag, Date
+- [ ] UIForm/ADT hardening from the gap inventory: Enum optional flag, Date   <-- NEXT
       required-able, button intent (submit/server-action/client-action),
       repeated-group node (add/remove derivable), IdPath ids, form-level
       error slot, Disabled/context decorations survive the fold

@@ -16,12 +16,27 @@ The **core-hardening-spa-refold slice is running**
 (`project-management/issues/iw-support-form-effort-3/tracker.md` is the
 step-level state). Landed so far: shared `Condition.eval` +
 `Repeated.instances` with all five walkers refolded, `FormData` as the
-typed value currency with the SSR loop running on it, and the declared
+typed value currency with the SSR loop running on it, the declared
 `Validation` vocabulary evaluating in `DeclaredValidation` on the SSR
-POST path. Next per the tracker: `FieldKind` + wire-stable codec
-(FC-D6).
+POST path, and `FieldKind` as the closed field-type dispatch index
+(FC-D6). Next per the tracker: UIForm/ADT hardening from the gap
+inventory.
 
 ## Log
+
+- **2026-07-12 — FieldKind closed vocabulary dispatches the interpreters.**
+  `enum FieldKind` + `Custom(id)` with `of`/`wireId` as the hand-written
+  codec, pinned over the full client-audit id list (incl. the
+  `medeca:mds_mdt` drift id staying visibly Custom). DEVIATION from
+  FC-D6's letter, matching the plan's core-shape text: `FieldType.id`
+  stays the wire/stored truth — clients pattern-match the string and
+  `text`/`string` alias in production, so a kind-first case class can't
+  re-encode byte-exactly; `FieldType.kind` derives instead and
+  `FieldType(FieldKind.Email)` constructs typed. Exhaustive dispatch in
+  the SSR renderer (base:email/base:phone now render email/tel inputs),
+  XML-renderer number normalization and JS `FieldTypeResolver.empty`;
+  `LiveFieldTypeResolver` refolds at SPA-refold (cmi:* arms leave at
+  czech-support). All green incl. browser e2e 5/5.
 
 - **2026-07-12 — Declared Validation vocabulary evaluates end to end.**
   `ValidationRule`/`ValidationState` relocated to forms/shared
