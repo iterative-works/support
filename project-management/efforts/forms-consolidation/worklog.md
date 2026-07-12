@@ -19,12 +19,32 @@ step-level state). Landed so far: shared `Condition.eval` +
 typed value currency with the SSR loop running on it, the declared
 `Validation` vocabulary evaluating in `DeclaredValidation` on the SSR
 POST path, `FieldKind` as the closed field-type dispatch index (FC-D6),
-and the full UIForm/ADT hardening from the gap inventory (Enum/Date
+the full UIForm/ADT hardening from the gap inventory (Enum/Date
 optionality, disabled/context decorations, button intent, UIRepeatedGroup,
-form/section error slots, IdPath ids). Next per the tracker:
-`TypedForm[A]` + `InputSchema` relocation.
+form/section error slots, IdPath ids), and `TypedForm[A]` +
+`InputSchema` relocation (the FormSchema salvage — typed declarations
+erase to the plain Form, FormCodec captures FormData as a typed value).
+Next per the tracker: czech-support extraction (FC-D3).
 
 ## Log
+
+- **2026-07-12 — TypedForm lands; the FormSchema salvage is done.**
+  `InputSchema` moved verbatim to `ui/forms/shared` (same package —
+  laminar.forms and medeca client code compile untouched; it was
+  platform-neutral as the plan verified), and `forms` now declares its
+  `uiForms` dependency explicitly instead of riding autocomplete's.
+  `TypedForm[A]` is FormSchema's applicative algebra (field/zip/bimap/
+  section) emitting plain `SectionSegment`s; `form(id, version)` erases
+  to the ordinary `Form` plus a root-bound `FormCodec[A]` — decode
+  accumulates errors across fields, blank counts as missing (matching
+  DeclaredValidation), encode writes renderable FormData. Decode
+  semantics deliberately follow `FieldBuilder.Input`, not
+  `FormSchema.Control`, whose decodeOptional path ignores the posted
+  value and always fails required fields — the salvage takes the proven
+  half. Pinned: the erased form is case-class-equal to a hand-written
+  one and runs the standard builder fold and declared validation, so
+  the typed layer cannot fork the core. All gates green incl. browser
+  e2e 5/5 and full-repo compile.
 
 - **2026-07-12 — UIForm/ADT hardening closes the whole gap inventory.**
   Seven gaps, five green commits, each TDD'd with wire pins. Enum and

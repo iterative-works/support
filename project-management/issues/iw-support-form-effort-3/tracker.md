@@ -16,7 +16,7 @@ scenarios, conformance kit green → full card: ./card.md
 ## Run-state
 branch iw-support-form-effort · run/see:
 `PORT=8391 ./mill formsScenarios.jvm.run` + `./mill formsScenarios.jvm.e2e` +
-`./mill forms.jvm.test` · next: OPEN (TypedForm[A] + InputSchema relocation)
+`./mill forms.jvm.test` · next: OPEN (czech-support extraction, FC-D3)
 
 ## DONE
 - [x] Client-repo grep settling IsValid/NonEmpty (evidence in card scope)
@@ -119,10 +119,33 @@ branch iw-support-form-effort · run/see:
       they add a UIRepeatedGroup arm (cmi CmiLiveFormHooks is advice-only,
       unaffected).
 
+- [x] `TypedForm[A]` + `InputSchema` relocation — the FormSchema salvage
+      (2f377aa0, a930f826):
+      * InputSchema moved VERBATIM ui/forms/js → ui/forms/shared, package
+        unchanged (works.iterative.ui.components.laminar.forms) — so
+        laminar.forms and medeca client code (InputCodecs,
+        SharedRenderables) compile untouched; platform-neutrality proven
+        by uiForms.jvm compiling it. forms declares its uiForms moduleDep
+        explicitly (was transitive via autocomplete, flagged by the plan).
+      * TypedForm[A]: applicative algebra (field/zip/*:/bimap/section/
+        unit) emitting plain SectionSegments; field derives FieldType
+        (FieldKind.of over InputSchema.inputType, Textarea → Prose) and
+        optional = !schema.required. form(id, version) erases to the
+        plain Form plus FormCodec[A] bound to the form root
+        (IdPath.Root / id).
+      * FormCodec decode takes FieldBuilder.Input's proven semantics, NOT
+        FormSchema.Control's: non-blank value → InputSchema.decode,
+        missing/blank → required error or None. (Control's decodeOptional
+        path ignores the posted value in the base trait — always fails
+        required fields — one more proof the lineage was unfinished.)
+        Blank-is-missing matches DeclaredValidation. Errors accumulate
+        across fields (zio.prelude Validation).
+      * Pins: erased form case-class-EQUAL to its hand-written twin and
+        runs UIFormBuilder + DeclaredValidation with the same required
+        paths FormCodec fails on — the typed layer cannot fork the core.
+
 ## OPEN  (ordered; each traces to the fit test; the next step is marked)
-- [ ] `TypedForm[A]` + `InputSchema` relocation (FormSchema salvage;      <-- NEXT
-      interpreters see only erased Form)
-- [ ] czech-support extraction (FC-D3): cmi/czech field types, ARES/VIES,
+- [ ] czech-support extraction (FC-D3): cmi/czech field types, ARES/VIES,  <-- NEXT
       `complete_ares`, `Enum.yesno`, Submission/DsSubmission/paymentUrl
 - [ ] formsCore/formsHttp/FormComponents retirement (downstream grep first)
       + package rename `portaly.forms` → `works.iterative.forms`
