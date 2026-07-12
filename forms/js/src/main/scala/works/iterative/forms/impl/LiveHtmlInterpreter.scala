@@ -46,7 +46,8 @@ class LiveHtmlInterpreter(
             cs,
             menuItems,
             f,
-            ruleRegistry = ruleRegistry
+            formMods,
+            ruleRegistry
         )
 
     override def withFormMods(mods: HtmlMod): HtmlInterpreter =
