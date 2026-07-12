@@ -3,11 +3,14 @@ package forms
 import works.iterative.ui.model.forms.{AbsolutePath, FormState, RelativePath}
 
 final case class FieldType(id: String, context: Option[String] = None, disabled: Boolean = false):
-    val hidden: Boolean = id == "hidden"
+    val kind: FieldKind = FieldKind.of(id)
+    val hidden: Boolean = kind == FieldKind.Hidden
 
 object FieldType:
     def apply(id: String): FieldType = FieldType(id, None)
+    def apply(kind: FieldKind): FieldType = FieldType(kind.wireId, None)
     given Conversion[String, FieldType] = FieldType(_)
+end FieldType
 
 sealed trait FormSegment
 sealed trait SectionSegment extends FormSegment:

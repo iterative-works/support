@@ -7,12 +7,12 @@ trait FieldTypeResolver:
 
 object FieldTypeResolver:
     val empty: FieldTypeResolver = new FieldTypeResolver:
-        override def resolve(fieldType: FieldType): FieldFactory[String] = fieldType match
-            case FieldType("prose", _, _) =>
+        override def resolve(fieldType: FieldType): FieldFactory[String] = fieldType.kind match
+            case FieldKind.Prose =>
                 FieldFactory.TextArea("text", _ => ValidationRule.valid)
-            case FieldType("hidden", _, _) => FieldFactory.Hidden()
-            case FieldType(_, _, disabled) =>
-                FieldFactory.Text("text", !disabled, _ => ValidationRule.valid, None)
+            case FieldKind.Hidden => FieldFactory.Hidden()
+            case _ =>
+                FieldFactory.Text("text", !fieldType.disabled, _ => ValidationRule.valid, None)
         override def withAutocompleteContext(context: Map[String, String]): FieldTypeResolver =
             this
     end empty

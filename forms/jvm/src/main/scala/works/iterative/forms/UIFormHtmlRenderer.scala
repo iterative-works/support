@@ -107,14 +107,14 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
         val requiredAttr = Option.when(required)(attr("required") := "required")
         field match
             case UITextField(fid, fieldName, fieldType, rawValue, _) =>
-                fieldType match
-                    case "prose" =>
+                FieldKind.of(fieldType) match
+                    case FieldKind.Prose =>
                         textarea(id := fid, name := fieldName, requiredAttr)(
                             rawValue.getOrElse(""): String
                         )
-                    case t =>
+                    case kind =>
                         input(
-                            `type` := htmlInputType(t),
+                            `type` := htmlInputType(kind),
                             id := fid,
                             name := fieldName,
                             rawValue.map(value := _),
@@ -171,10 +171,15 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
         case 5 => h5
         case _ => h6
 
-    private def htmlInputType(fieldType: UIFieldType): String = fieldType match
-        case "date" | "email" | "tel" | "password" | "checkbox" => fieldType
-        case t if t.startsWith("number")                        => "number"
-        case _                                                  => "text"
+    private def htmlInputType(kind: FieldKind): String = kind match
+        case FieldKind.Date                              => "date"
+        case FieldKind.Email                             => "email"
+        case FieldKind.Phone                             => "tel"
+        case FieldKind.Checkbox                          => "checkbox"
+        case FieldKind.Number(_)                         => "number"
+        case FieldKind.Custom(id @ ("tel" | "password")) => id
+        case FieldKind.Text | FieldKind.Hidden | FieldKind.Prose | FieldKind.Select |
+            FieldKind.Zip | FieldKind.Country | FieldKind.Ruian | FieldKind.Custom(_) => "text"
 
     private def fileLabel(file: UIFile): String = file match
         case name: String                      => name

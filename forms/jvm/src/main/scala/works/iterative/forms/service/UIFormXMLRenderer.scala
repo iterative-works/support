@@ -117,7 +117,9 @@ class UIFormXMLRenderer(
                 resolved.map: resolvedValue =>
                     resolvedValue match
                         case Some(v) => <ui:inputValue>{
-                                if fieldType.startsWith("number") then v.replace(',', '.') else v
+                                FieldKind.of(fieldType) match
+                                    case FieldKind.Number(_) => v.replace(',', '.')
+                                    case _                   => v
                             }</ui:inputValue>
                         case _ => <ui:inputValue/>
             case UIFileField(id, fieldName, fileList, multiple, decorations) =>

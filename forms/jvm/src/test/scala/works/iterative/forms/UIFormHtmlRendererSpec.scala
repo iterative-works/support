@@ -109,6 +109,20 @@ object UIFormHtmlRendererSpec extends ZIOSpecDefault:
             val out = html(Form("demo", "1")(Section("s")(Field("ico", FieldType("czech:ico")))))
             assertTrue(out.matches("(?s).*<input[^>]*type=\"text\"[^>]*name=\"demo.s.ico\".*"))
         },
+        test("closed field kinds pick their html input type regardless of id spelling") {
+            val out = html(Form("demo", "1")(Section("s")(
+                Field("mail", FieldType("base:email")),
+                Field("phone", FieldType("base:phone")),
+                Field("qty", FieldType("number:natural")),
+                Field("zip", FieldType("base:zip"))
+            )))
+            assertTrue(
+                out.matches("(?s).*<input[^>]*type=\"email\"[^>]*name=\"demo.s.mail\".*"),
+                out.matches("(?s).*<input[^>]*type=\"tel\"[^>]*name=\"demo.s.phone\".*"),
+                out.matches("(?s).*<input[^>]*type=\"number\"[^>]*name=\"demo.s.qty\".*"),
+                out.matches("(?s).*<input[^>]*type=\"text\"[^>]*name=\"demo.s.zip\".*")
+            )
+        },
         test("file field renders a file input honoring multiple") {
             val form = Form("demo", "1")(
                 Section("docs")(File("attachments", multiple = true, optional = true))
