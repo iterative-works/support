@@ -73,7 +73,11 @@ object DeclaredValidation:
                 val instances = Repeated.instances(path, repeated, state)
                 if instances.isEmpty then
                     if optional then Nil else List(requiredError(path / id))
-                else instances.flatMap(i => validateSegment(i.path, state)(i.segment))
+                else
+                    instances.flatMap(i =>
+                        i.segment.toList.flatMap(validateSegment(i.path, state))
+                    )
+                end if
             case Enum(id, _, default, optional) =>
                 val fieldPath = path / id
                 val effective = state.getString(fieldPath).orElse(default).filterNot(_.isBlank)

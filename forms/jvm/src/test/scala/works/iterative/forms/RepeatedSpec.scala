@@ -25,7 +25,7 @@ object RepeatedSpec extends ZIOSpecDefault:
             assertTrue(
                 instances.map(_.path.toHtmlName) ==
                     List("demo.items.first", "demo.items.second"),
-                instances.map(_.segment.id.last) == List("row", "alt"),
+                instances.map(_.segment.map(_.id.last)) == List(Some("row"), Some("alt")),
                 instances.map(_.index) == List(0, 1),
                 instances.map(i => s"${i.item}:${i.itemType}") ==
                     List("first:row", "second:alt")
@@ -34,15 +34,19 @@ object RepeatedSpec extends ZIOSpecDefault:
         test("unknown item types fall back to the first template") {
             val state = FormR(Map(IdPath("demo.items.__items") -> List("x:gone")))
             val instances = Repeated.instances(base, repeated, state)
-            assertTrue(instances.map(_.segment.id.last) == List("row"))
+            assertTrue(instances.map(_.segment.map(_.id.last)) == List(Some("row")))
         },
         test("no __items entries means no instances") {
             assertTrue(Repeated.instances(base, repeated, FormR.empty).isEmpty)
         },
-        test("a repeated group without templates expands to nothing instead of crashing") {
+        test("a group without templates keeps its items as segment-less instances") {
             val empty = Repeated("items", None, optional = true, Nil)
             val state = FormR(Map(IdPath("demo.items.__items") -> List("first:row")))
-            assertTrue(Repeated.instances(base, empty, state).isEmpty)
+            val instances = Repeated.instances(base, empty, state)
+            assertTrue(
+                instances.map(i => (i.item, i.itemType, i.segment)) ==
+                    List(("first", "row", None))
+            )
         },
         test("template picks the matching item type, falls back to the first, none on empty") {
             assertTrue(

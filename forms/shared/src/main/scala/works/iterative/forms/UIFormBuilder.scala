@@ -57,8 +57,15 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
                         Repeated.instances(path, repeated, _)
                     )
                     rows <- ZPure.foreach(instances): i =>
-                        renderSegment(i.path, Some(i.index))(i.segment)
-                            .map(UIRepeatedRow(i.item, i.itemType, i.index, _))
+                        i.segment match
+                            case Some(segment) =>
+                                renderSegment(i.path, Some(i.index))(segment)
+                                    .map(UIRepeatedRow(i.item, i.itemType, i.index, _))
+                            case None =>
+                                // No template to render, but the row must survive the POST loop
+                                ZPure.succeed[Unit, UIRepeatedRow](
+                                    UIRepeatedRow(i.item, i.itemType, i.index, Nil)
+                                )
                     errors <- errorDecorations(path / id)
                 yield List(UIRepeatedGroup(
                     path / id,

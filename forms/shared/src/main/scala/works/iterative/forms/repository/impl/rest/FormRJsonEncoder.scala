@@ -46,12 +46,15 @@ class FormRJsonEncoder:
             case ShowIf(condition, elem) =>
                 resolveCondition(path)(condition).flatMap(if _ then renderSegment(path)(elem)
                 else ZPure.succeed(None))
-            case Repeated(id, default, _, elems) =>
-                val elemMap = elems.map(e => e.id.last -> e).toMap
+            case repeated @ Repeated(id, _, _, _) =>
                 for
-                    items <- getItemsFor(path / id)
-                    rendered <- ZPure.foreach(items): (i, t) =>
-                        renderSegment(path / id / i)(elemMap(t))
+                    instances <- ZPure.serviceWith[FormState](
+                        Repeated.instances(path, repeated, _)
+                    )
+                    rendered <- ZPure.foreach(instances): i =>
+                        i.segment match
+                            case Some(segment) => renderSegment(i.path)(segment)
+                            case None          => ZPure.succeed(None)
                 yield Some(Json.Arr(rendered.flatten*))
                 end for
             case _ => ZPure.succeed(None)

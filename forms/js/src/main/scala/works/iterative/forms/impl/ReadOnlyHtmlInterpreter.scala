@@ -63,7 +63,9 @@ class ReadOnlyHtmlInterpreter(
             case ShowIf(condition, elem) => renderShowIf(condition, elem)
             case repeated @ Repeated(id, _, _, _) =>
                 val instances = Repeated.instances(ctx.path, repeated, summon[Data])
-                div(instances.map(i => renderSegment(i.segment)(using ctx.nested(id / i.item))))
+                div(instances.flatMap(i =>
+                    i.segment.map(renderSegment(_)(using ctx.nested(id / i.item)))
+                ))
 
     private def renderShowIf(
         condition: Condition,

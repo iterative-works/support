@@ -64,13 +64,14 @@ object Repeated:
         Repeated(id, default, optional, elems.toList)
 
     /** One item of a repeated group: the path to render the template under, the raw item key and
-      * type from the __items convention, and the position within the group.
+      * type from the __items convention, and the position within the group. An item of a group
+      * without templates has no segment — it renders nothing but its data is never dropped.
       */
     case class Instance(
         path: AbsolutePath,
         item: String,
         itemType: String,
-        segment: SectionSegment,
+        segment: Option[SectionSegment],
         index: Int
     )
 
@@ -83,13 +84,18 @@ object Repeated:
 
     /** The instances of a repeated group for the current state — the one expansion every walker
       * shares. Item types without a matching template fall back to the first one; a group without
-      * templates expands to nothing.
+      * templates keeps every item as an instance with no segment.
       */
     def instances(path: AbsolutePath, repeated: Repeated, state: FormState): List[Instance] =
-        state.itemsFor(path / repeated.id).zipWithIndex.flatMap:
+        state.itemsFor(path / repeated.id).zipWithIndex.map:
             case ((item, itemType), index) =>
-                template(repeated.elems, itemType).map: segment =>
-                    Instance(path / repeated.id / item, item, itemType, segment, index)
+                Instance(
+                    path / repeated.id / item,
+                    item,
+                    itemType,
+                    template(repeated.elems, itemType),
+                    index
+                )
 end Repeated
 
 /** What pressing a button means: Submit sends the whole form, ServerAction posts so the server
