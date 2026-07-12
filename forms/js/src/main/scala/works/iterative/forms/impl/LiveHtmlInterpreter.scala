@@ -98,6 +98,9 @@ class LiveHtmlInterpreter(
         formData: Option[FormR]
     ): LiveForm =
         given ctx: FormCtx = FormCtx(menuItems(form))
+        // The form's key prefixes every message lookup, same as the SSR renderer and
+        // DeclaredValidation — all walkers resolve inquiry.row.qty.label alike
+        given formMessages: MessageCatalogue = messages.nested(form.id.serialize)
         LiveFormImpl(
             id,
             form,
@@ -404,16 +407,18 @@ class LiveHtmlInterpreter(
             val menuState = FormCtx.ctx.menuState.get(fullId).getOrElse(Var(None))
 
             def sectionTitle =
+                val mc = summon[MessageCatalogue]
                 (fullId.toMessageIds("section") match
                     case Vector[MessageId](h) =>
-                        messages.get(UserMessage(h, repeatIndex.map(_ + 1).toList*))
-                    case h +: hs => messages.opt(
+                        mc.get(UserMessage(h, repeatIndex.map(_ + 1).toList*))
+                    case h +: hs => mc.opt(
                             UserMessage(h, repeatIndex.map(_ + 1).toList*),
                             hs.map(h => UserMessage(h, repeatIndex.map(_ + 1).toList*))*
                         )
                 ).map(i =>
                     span(dataAttr("msgId")(s"${fullId.toHtmlName}.section"), i)
                 )
+            end sectionTitle
 
             FormPartOutputs(
                 out.id,
