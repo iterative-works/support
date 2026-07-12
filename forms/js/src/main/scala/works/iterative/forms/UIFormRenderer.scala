@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 import com.raquo.laminar.api.L.*
 import works.iterative.ui.model.forms.*
@@ -7,7 +7,12 @@ import works.iterative.ui.laminar.*
 class UIFormRenderer(cs: Components):
     def render(form: UIForm): HtmlElement =
         inMessageContext(form.messageKey)(
-            cs.form(form.id, renderMessage("title"), None, form.children.map(renderSegment))
+            cs.form(
+                form.id.toHtmlId,
+                renderMessage("title"),
+                None,
+                form.children.map(renderSegment)
+            )
         )
 
     private def renderMessage(key: UIMessageKey, suffixes: String*): Node =
@@ -18,7 +23,7 @@ class UIFormRenderer(cs: Components):
             case e @ UIFormSection(id, level, messageKey, children, decorations, _) =>
                 inMessageContext(messageKey)(
                     cs.section(
-                        id,
+                        id.toHtmlId,
                         level,
                         Some(renderMessage("section")),
                         Some(renderMessage("section.subtitle")),
@@ -28,7 +33,7 @@ class UIFormRenderer(cs: Components):
                 )
             case UILabeledField(id, messageKey, field, decorations) =>
                 cs.labeledField(
-                    id,
+                    id.toHtmlId,
                     renderMessage(messageKey, "label"),
                     None,
                     Val(decorations.contains(UIFieldDecoration.Required)),
@@ -44,13 +49,15 @@ class UIFormRenderer(cs: Components):
                             cs.gridCell(gridCell.size, gridCell.children.map(renderSegment))
             case UIFlexRow(children) =>
                 cs.flexRow(children.map(renderSegment))
+            case UIRepeatedGroup(id, _, _, _, rows, _) =>
+                div(idAttr := id.toHtmlId, rows.map(row => div(row.children.map(renderSegment))))
             case _ => div()
 
     private def renderField(field: UIField): Node =
         field match
             case UITextField(id, fieldName, fieldType, rawValue, decorations) =>
                 cs.inputField(
-                    id,
+                    id.toHtmlId,
                     fieldName,
                     Val(decorations.contains(UIFieldDecoration.Required))
                 )

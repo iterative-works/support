@@ -8,7 +8,6 @@ object components:
         extends works.iterative.ui.components.StatusDisplayComponents[Frag]
     trait ScalatagsDataDisplayComponents
         extends works.iterative.ui.components.DataDisplayComponents[Frag]
-    trait ScalatagsFormComponents extends works.iterative.ui.components.FormComponents[Frag]
     trait ScalatagsLayoutComponents extends works.iterative.ui.components.LayoutComponents[Frag]
     trait ScalatagsErrorPageComponents
         extends works.iterative.ui.components.ErrorPageComponents[Frag]

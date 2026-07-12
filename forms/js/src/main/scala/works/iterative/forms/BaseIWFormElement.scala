@@ -1,11 +1,14 @@
-package works.iterative.forms.scenarios
+// PURPOSE: Custom-element base rendering a fetched form declaration through LiveHtmlInterpreter
+// PURPOSE: Manages the Laminar root across the web-component lifecycle callbacks
+
+package works.iterative.forms
 
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L
 import org.scalajs.dom.*
 import com.raquo.laminar.nodes.DetachedRoot
-import portaly.forms.impl.LiveHtmlInterpreter
-import portaly.forms.FormIdent
+import works.iterative.forms.impl.{LiveForm, LiveHtmlInterpreter}
+import works.iterative.forms.FormIdent
 
 // scalafix:off DisableSyntax.var
 // Web component lifecycle requires mutable state for Laminar root management
@@ -15,8 +18,13 @@ abstract class BaseIWFormElement extends HTMLElement:
 
     def interpreter: LiveHtmlInterpreter
 
+    /** What the element shows for an interpreted form; override to add chrome like submit controls
+      * around the bare form element.
+      */
+    def formContent(form: LiveForm): HtmlElement = form.element
+
     def connectedCallback(): Unit =
-        def liveForm(entityId: String, id: String, content: portaly.forms.Form) =
+        def liveForm(entityId: String, id: String, content: works.iterative.forms.Form) =
             interpreter.interpret(FormIdent(entityId, id), content, None)
 
         def attrOrDefault(attr: String, default: String) =
@@ -27,10 +35,10 @@ abstract class BaseIWFormElement extends HTMLElement:
             div(
                 child.maybe <-- FetchStream.get(attrOrDefault("src", "/default-form")).map(result =>
                     import zio.json.*
-                    import portaly.forms.service.impl.rest.FormPersistenceCodecs.given
-                    result.fromJson[portaly.forms.Form].toOption.map(
+                    import works.iterative.forms.service.impl.rest.FormPersistenceCodecs.given
+                    result.fromJson[works.iterative.forms.Form].toOption.map(
                         liveForm(attrOrDefault("entity", "_"), attrOrDefault("form-id", "form"), _)
-                    ).map(_.element)
+                    ).map(formContent)
                 )
             ),
             activateNow = true

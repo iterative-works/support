@@ -12,19 +12,30 @@ discovered by running it.
 
 ## Items
 
-- [ ] **forms-plan** (type: sl) — analyze the three lineages, pick the
+- [x] **forms-plan** (type: sl) — analyze the three lineages, pick the
   declarative spine, decide the reconcile-vs-retire plan and which consumers
   migrate. Deliverable the team reads and signs off: the consolidation
-  decision + plan. *(first usable increment — settles the deferred spine
-  decision the intent leaves open)*. issue: <once active>
-- [ ] **ssr-html-interpreter** (type: sl, after: forms-plan) — the missing
+  decision + plan. **Done 2026-07-11**: `forms-plan.md` accepted in full,
+  decisions FC-D1…FC-D7. issue: <run outside process — no issue>
+- [ ] **core-hardening-spa-refold** (type: sl, after: ssr-html-interpreter)
+  — FormData, declared Validation vocabulary, shared fold + Condition.eval,
+  FieldKind + wire-stable codec (FC-D6), TypedForm[A] + InputSchema
+  relocation, package rename, czech-support extraction (FC-D3);
+  LiveHtmlInterpreter refolds onto the shared pieces; conformance test kit.
+  issue: iw-support-form-effort-3 (local slice, no tracker issue)
+- [x] **ssr-html-interpreter** (type: sl, after: forms-plan) — the missing
   capability: render one rich form as server-side browser HTML off the chosen
   core, alongside the existing SPA render. First point a form is run-and-seen
-  both ways off one declaration. issue: <once active>
-- [ ] **serialize-pdf-roundtrip** (type: sl, after: ssr-html-interpreter) —
-  gather submitted data, serialize form+data together, rebuild faithfully, and
-  render the data to PDF; draft the client migration guide. Closes the
-  intent's how-we'll-know gate. issue: <once active>
+  both ways off one declaration. **Done 2026-07-11**: `UIFormHtmlRenderer` +
+  `RequiredValidation` + `SsrFormScenario` (GET/POST loop, HTMX, add/remove,
+  serialize/reload proof); output `uiform-gap-inventory.md` gates the next
+  slice. issue: <run outside process — no issue>
+- [ ] **serialize-pdf-roundtrip** (type: sl, after: core-hardening-spa-refold)
+  — gather submitted data, serialize form+data together (FormBundle with
+  submission-time message snapshot, FC-D7), rebuild faithfully (byte-equal
+  render from bundle only), render the data to PDF (ship default uiform.xsl,
+  FC-D5), retroactive snapshot converter, draft the client migration guide.
+  Closes the intent's how-we'll-know gate. issue: <once active>
 
 ## Parked
 

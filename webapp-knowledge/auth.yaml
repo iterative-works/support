@@ -1,0 +1,21 @@
+# PURPOSE: Authentication configuration for the scenarios server.
+# PURPOSE: There is none — every scenario page is public; verification never logs in.
+
+autonomy:
+  auto_login: false                 # Nothing to log into
+  use_test_credentials: false
+  session_reuse: false
+
+login_flow:
+  method: none                      # All pages are public
+
+test_users: []
+
+roles:
+  anonymous:
+    description: Every visitor; all scenario pages are public
+    accessible_pages: [all]
+    restricted_pages: []
+
+role_mapping:
+  keywords: {}

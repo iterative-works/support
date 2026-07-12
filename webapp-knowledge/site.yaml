@@ -1,0 +1,51 @@
+# PURPOSE: Webapp infrastructure and environment configuration for the scenarios server.
+# PURPOSE: Defines how to start, access, verify, and prepare test data for the application.
+
+# Application identity
+app_name: iw-support scenarios server
+description: >
+  Development showcase server hosting interactive scenarios for iw-support
+  modules (forms SSR loop, form custom elements). No authentication, no
+  database — every scenario is stateless and self-contained.
+
+# Autonomy settings - controls agent behavior during verification
+autonomy:
+  # Server management
+  auto_start_server: true           # Start server automatically if not running
+  auto_stop_server: true            # Stop after verification: a running server holds the
+                                    # Mill daemon lock and blocks every other mill command
+                                    # (compile, test) until stopped
+  health_check_timeout: 120         # Mill compiles before serving; first start is slow
+
+  # Verification behavior
+  require_playwright: true          # Playwright MCP is required (not optional)
+  fail_on_unreachable: true         # Fail immediately if app unreachable (don't ask)
+
+  # Data management
+  auto_prepare_data: true           # Nothing to prepare — scenarios are stateless
+  reset_before_verify: false
+
+# Environments
+environments:
+  dev:
+    # Port 8080 (the server default) is frequently occupied by other dev
+    # servers on this machine — always run scenarios on 8391 via PORT
+    base_url: http://localhost:8391
+    start_command: PORT=8391 ./mill formsScenarios.jvm.run
+    stop_command: pkill -f 'formsScenarios.jvm.run'
+    health_check: /ssrForm/page
+    ready_indicator: ""             # No stable log line; poll the health check instead
+
+# Test data management
+test_data:
+  # No database, no seed/reset — form scenarios start empty on every GET
+  seed_command: ""
+  reset_command: ""
+  fixtures: []
+
+# Applications
+apps:
+  - id: scenarios
+    description: Scenario index and hosted scenario pages
+    path_prefix: /
+    default_role: anonymous

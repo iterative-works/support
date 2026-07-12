@@ -1,4 +1,10 @@
 package works.iterative.forms.scenarios
 
 object ScenariosServer
-    extends works.iterative.scenarios.ScenariosServer(FormCustomElementScenario, UIFormScenario)
+    extends works.iterative.scenarios.ScenariosServer(
+        SpaFormScenario,
+        UIFormScenario,
+        SsrFormScenario,
+        SsrVocabularyScenario,
+        SpaVocabularyScenario
+    )

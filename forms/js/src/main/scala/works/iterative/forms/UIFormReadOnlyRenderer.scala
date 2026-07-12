@@ -1,10 +1,10 @@
-package portaly.forms
+package works.iterative.forms
 
 import com.raquo.laminar.api.L.*
 import works.iterative.ui.model.forms.*
 import works.iterative.ui.laminar.*
 import works.iterative.autocomplete.ui.AutocompleteComponents
-import portaly.forms.impl.ReadOnlyHtmlDisplayResolver
+import works.iterative.forms.impl.ReadOnlyHtmlDisplayResolver
 import works.iterative.core.FileRef
 import works.iterative.ui.components.FileComponents
 import works.iterative.core.UserMessage
@@ -36,7 +36,11 @@ class UIFormReadOnlyRenderer(
 
     def render(form: UIForm): HtmlElement =
         inMessageContext(form.messageKey)(
-            cs.form(form.id, renderMessage("title"), form.children.map(renderSegment(form.data)))
+            cs.form(
+                form.id.toHtmlId,
+                renderMessage("title"),
+                form.children.map(renderSegment(form.data))
+            )
         )
     end render
 
@@ -82,32 +86,31 @@ class UIFormReadOnlyRenderer(
                             cs.gridCell(gridCell.size, gridCell.children.map(renderSegment(data)))
             case UIFlexRow(children) =>
                 cs.flexRow(children.map(renderSegment(data)))
+            case UIRepeatedGroup(_, _, _, _, rows, _) =>
+                div(rows.map(row => div(row.children.map(renderSegment(data)))))
             case UIBlock(id, messageKey) =>
-                displayResolver.resolve(
-                    works.iterative.ui.model.forms.IdPath.FullPath(id.split("-").toVector),
-                    data
-                )
+                displayResolver.resolve(id, data)
             case _ => div()
 
     private def renderSection(section: UIFormSection, data: FormState): HtmlElement =
         val UIFormSection(id, level, messageKey, children, decorations, repeatIndex) = section
         cs.section(
-            id,
+            id.toHtmlId,
             level,
-            Some(renderMessage(s"${id.split("-").last}.section", repeatIndex)),
+            Some(renderMessage(s"${id.last}.section", repeatIndex)),
             Some(renderMessage(
-                s"${id.split("-").last}.section.subtitle",
+                s"${id.last}.section.subtitle",
                 repeatIndex
             )),
             children.map(renderSegment(data)),
-            idAttr(id)
+            idAttr(id.toHtmlId)
         )
     end renderSection
 
     private def renderChoiceField(field: UILabeledField, @unused data: FormState): HtmlElement =
         val UILabeledField(id, messageKey, theField, decorations) = field
         cs.labeledField(
-            id,
+            id.toHtmlId,
             renderMessage(messageKey, "label"),
             false,
             isInline(id),
@@ -118,7 +121,7 @@ class UIFormReadOnlyRenderer(
     private def renderLabeledField(field: UILabeledField, @unused data: FormState): HtmlElement =
         val UILabeledField(id, messageKey, theField, decorations) = field
         cs.labeledField(
-            id,
+            id.toHtmlId,
             renderMessage(messageKey, "label"),
             false,
             isInline(id),
@@ -130,8 +133,8 @@ class UIFormReadOnlyRenderer(
         field match
             case UITextField(id, fieldName, fieldType, rawValue, decorations) =>
                 rawValue match
-                    case Some(v) => cs.inputValue(id, v, acs.labelFor(fieldType, v))
-                    case _       => cs.inputValue(id, "", "")
+                    case Some(v) => cs.inputValue(id.toHtmlId, v, acs.labelFor(fieldType, v))
+                    case _       => cs.inputValue(id.toHtmlId, "", "")
             case UIFileField(id, fieldName, fileList, multiple, decorations) =>
                 def uiFileToNode(file: UIFile): Node = file match
                     case s: String               => s
@@ -139,11 +142,15 @@ class UIFormReadOnlyRenderer(
                     case r: FileRef              => fcs.renderFileLink(r)
 
                 fileList.getOrElse(List.empty).map(uiFileToNode) match
-                    case Nil   => cs.inputValue(id, "", "")
-                    case files => ul(files.map(f => li(cs.fileValue(id, f))))
+                    case Nil   => cs.inputValue(id.toHtmlId, "", "")
+                    case files => ul(files.map(f => li(cs.fileValue(id.toHtmlId, f))))
             case UIChoiceField(id, fieldName, rawValue, values, decorations) =>
                 rawValue.flatMap(v => values.find(_.value == v)).map(_.messageKey) match
                     case Some(key) =>
-                        cs.inputValue(id, rawValue.getOrElse(""), renderMessage(key, "label"))
-                    case _ => cs.inputValue(id, rawValue.getOrElse(""), "")
+                        cs.inputValue(
+                            id.toHtmlId,
+                            rawValue.getOrElse(""),
+                            renderMessage(key, "label")
+                        )
+                    case _ => cs.inputValue(id.toHtmlId, rawValue.getOrElse(""), "")
 end UIFormReadOnlyRenderer

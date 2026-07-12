@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import com.raquo.laminar.api.L.*
@@ -48,31 +48,24 @@ class ReadOnlyHtmlInterpreter(
     private def renderSegment(element: SectionSegment): Render =
         element match
             case Section(id, elems, _) => renderSection(id, elems)
-            case Field(id, fieldType, default, optional) =>
+            case Field(id, fieldType, default, optional, _) =>
                 renderFormField(id, !optional)
             case File(id, multiple, optional) => renderFileField(id, !optional)
-            case Date(id)                     => renderFormField(id, false)
+            case Date(id, _)                  => renderFormField(id, false)
             case Display(id)                  => renderDisplay(id)
-            case Button(id)                   => renderButton(id)
-            case Enum(id, values, default) =>
+            case Button(id, _)                => renderButton(id)
+            case Enum(id, values, default, _) =>
                 if values.size == 2 && values.contains("true") && values.contains(
                         "false"
                     )
                 then renderCheckbox(id, default)
                 else renderEnum(id, values, default, required = true)
             case ShowIf(condition, elem) => renderShowIf(condition, elem)
-            case Repeated(id, default, _, elems) =>
-                val its = (id / "__items").full.get
-                if its.isBlank() then div()
-                else
-                    val items = its.split(",").toList
-                    val elemMap = elems.map(e => e.id.last -> e).toMap
-                    div(items.map(_.split(":", 2)).collect {
-                        case Array(i, t) =>
-                            val elem = elemMap(t)
-                            renderSegment(elem)(using ctx.nested(id / i))
-                    })
-                end if
+            case repeated @ Repeated(id, _, _, _) =>
+                val instances = Repeated.instances(ctx.path, repeated, summon[Data])
+                div(instances.flatMap(i =>
+                    i.segment.map(renderSegment(_)(using ctx.nested(id / i.item)))
+                ))
 
     private def renderShowIf(
         condition: Condition,
@@ -81,28 +74,16 @@ class ReadOnlyHtmlInterpreter(
         if resolveCondition(condition) then renderSegment(elem) else div()
     end renderShowIf
 
+    // Read-only views show submitted data, so IsValid holds by definition
     private def resolveCondition(
         condition: Condition
-    )(using Ctx, Data): Boolean =
-        import Condition.*
-        condition match
-            case Never              => false
-            case Always             => true
-            case AnyOf(conditions*) => conditions.map(resolveCondition).reduce(_ || _)
-            case AllOf(conditions*) => resolveConditions(conditions)
-            case IsEqual(id, value) =>
-                works.iterative.ui.model.forms.IdPath.parse(id, ctx.path).get == value
-            case IsValid(_) => true
-            case NonEmpty(id) =>
-                works.iterative.ui.model.forms.IdPath.parse(id, ctx.path).get.nonEmpty
-        end match
-    end resolveCondition
-
-    private def resolveConditions(conditions: Seq[Condition])(using
-        Ctx,
-        Data
-    ): Boolean =
-        conditions.map(resolveCondition).reduce(_ && _)
+    )(using ctx: Ctx, data: Data): Boolean =
+        Condition.eval(
+            condition,
+            ctx.path,
+            p => data.get(p).flatMap(_.headOption.map(_.toString)),
+            Condition.alwaysValid
+        )
 
     private def renderSection(
         id: RelativePath,

@@ -1,13 +1,14 @@
-package portaly
+package works.iterative
 package forms
-import works.iterative.ui.model.forms.RelativePath
+import works.iterative.ui.model.forms.{AbsolutePath, FormState, RelativePath}
 
 final case class FieldType(id: String, context: Option[String] = None, disabled: Boolean = false):
-    val hidden: Boolean = id == "hidden"
+    val kind: FieldKind = FieldKind.of(id)
+    val hidden: Boolean = kind == FieldKind.Hidden
 
 object FieldType:
-    def apply(id: String): FieldType = FieldType(id, None)
-    given Conversion[String, FieldType] = FieldType(_)
+    def apply(kind: FieldKind): FieldType = FieldType(kind.wireId, None)
+end FieldType
 
 sealed trait FormSegment
 sealed trait SectionSegment extends FormSegment:
@@ -61,36 +62,92 @@ object Repeated:
         optional: Boolean = true
     )(elems: SectionSegment*): Repeated =
         Repeated(id, default, optional, elems.toList)
+
+    /** One item of a repeated group: the path to render the template under, the raw item key and
+      * type from the __items convention, and the position within the group. An item of a group
+      * without templates has no segment — it renders nothing but its data is never dropped.
+      */
+    case class Instance(
+        path: AbsolutePath,
+        item: String,
+        itemType: String,
+        segment: Option[SectionSegment],
+        index: Int
+    )
+
+    /** The template a row of the given item type renders under — matching template by id, first one
+      * as fallback; a group without templates has none.
+      */
+    def template(elems: List[SectionSegment], itemType: String): Option[SectionSegment] =
+        elems.headOption.map: default =>
+            elems.map(e => e.id.last -> e).toMap.getOrElse(itemType, default)
+
+    /** The instances of a repeated group for the current state — the one expansion every walker
+      * shares. Item types without a matching template fall back to the first one; a group without
+      * templates keeps every item as an instance with no segment.
+      */
+    def instances(path: AbsolutePath, repeated: Repeated, state: FormState): List[Instance] =
+        state.itemsFor(path / repeated.id).zipWithIndex.map:
+            case ((item, itemType), index) =>
+                Instance(
+                    path / repeated.id / item,
+                    item,
+                    itemType,
+                    template(repeated.elems, itemType),
+                    index
+                )
 end Repeated
 
-case class Button(id: RelativePath) extends SectionSegment
+/** What pressing a button means: Submit sends the whole form, ServerAction posts so the server
+  * dispatches on the button name, ClientAction is handled by client-side code.
+  */
+enum ButtonIntent:
+    case Submit, ServerAction, ClientAction
+
+case class Button(id: RelativePath, intent: ButtonIntent = ButtonIntent.ServerAction)
+    extends SectionSegment
 
 case class Field(
     id: RelativePath,
     fieldType: FieldType = FieldType("string"),
     default: Option[String] = None,
-    optional: Boolean = false
-) extends SectionSegment
+    optional: Boolean = false,
+    validations: List[Validation] = Nil
+) extends SectionSegment:
+    /** Required-ness has two spellings — the optional flag and a declared Required validation — and
+      * every walker must agree on their combination.
+      */
+    def required: Boolean = !optional || validations.contains(Validation.Required)
+end Field
 
 case class File(id: RelativePath, multiple: Boolean = true, optional: Boolean = false)
     extends SectionSegment
 
-case class Date(id: RelativePath) extends SectionSegment
+case class Date(id: RelativePath, optional: Boolean = true) extends SectionSegment
 
 case class Display(id: RelativePath) extends SectionSegment
 
 case class Enum(
     id: RelativePath,
     values: List[String],
-    default: Option[String]
+    default: Option[String],
+    optional: Boolean = true
 ) extends SectionSegment
 object Enum:
-    def apply(id: RelativePath, default: Option[String] = None)(values: String*): Enum =
+    def apply(id: RelativePath)(values: String*): Enum =
+        Enum(id, values.toList, default = None)
+
+    def apply(id: RelativePath, default: Option[String])(values: String*): Enum =
         Enum(id, values.toList, default = default)
 
-    def bool(id: RelativePath, default: Option[Boolean] = None): Enum =
-        Enum(id, List("true", "false"), default = default.map(_.toString))
+    def apply(id: RelativePath, optional: Boolean)(values: String*): Enum =
+        Enum(id, values.toList, default = None, optional = optional)
 
-    def yesno(id: RelativePath, default: Option[Boolean] = None): Enum =
-        Enum(id, List("ano", "ne"), default = default.map(_.toString))
+    def apply(id: RelativePath, default: Option[String], optional: Boolean)(
+        values: String*
+    ): Enum =
+        Enum(id, values.toList, default = default, optional = optional)
+
+    def bool(id: RelativePath, default: Option[Boolean] = None, optional: Boolean = true): Enum =
+        Enum(id, List("true", "false"), default = default.map(_.toString), optional = optional)
 end Enum

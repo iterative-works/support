@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 import zio.*
 import works.iterative.ui.model.forms.*
@@ -6,7 +6,7 @@ import scala.xml.*
 import works.iterative.core.MessageCatalogue
 import works.iterative.autocomplete.service.AutocompleteService
 import works.iterative.core.Language
-import portaly.forms.service.AutocompleteResolver
+import works.iterative.forms.service.AutocompleteResolver
 import works.iterative.core.MessageArg
 import works.iterative.core.UserMessage
 import scala.annotation.nowarn
@@ -44,7 +44,7 @@ class UIFormXMLRenderer(
                 given MessageCatalogue = messages.nested(messageKey.value)
                 for
                     nested <- ZIO.foreach(children)(renderSegment)
-                yield <ui:section id={id} title={
+                yield <ui:section id={id.toHtmlId} title={
                     renderMessage(messageKey, "section", repeatIndex.toList.map(_ + 1))
                 } subtitle={
                     renderMessage(messageKey, "section.subtitle")
@@ -60,12 +60,16 @@ class UIFormXMLRenderer(
                                     messages.nested(messageKey.value),
                                     lang
                                 )
-                        yield <ui:choiceField id={id} label={renderMessage(messageKey, "label")}>
+                        yield <ui:choiceField id={id.toHtmlId} label={
+                            renderMessage(messageKey, "label")
+                        }>
                             {rendered}
                         </ui:choiceField>
                     case _ =>
                         for rendered <- renderField(field)
-                        yield <ui:labeledField id={id} label={renderMessage(messageKey, "label")}>
+                        yield <ui:labeledField id={id.toHtmlId} label={
+                            renderMessage(messageKey, "label")
+                        }>
                             {rendered}
                         </ui:labeledField>
             case UIGrid(elems) =>
@@ -82,15 +86,16 @@ class UIFormXMLRenderer(
                 for nested <- ZIO.foreach(children)(renderSegment)
                 yield <ui:flexRow>{nested}</ui:flexRow>
             case UIBlock(id, messageKey) =>
-                for content <- displayResolver.resolve(
-                        works.iterative.ui.model.forms.IdPath.FullPath(id.split("-").toVector),
-                        data
-                    )
-                yield <ui:block id={id} title={renderMessage(messageKey, "title")}>
+                for content <- displayResolver.resolve(id, data)
+                yield <ui:block id={id.toHtmlId} title={renderMessage(messageKey, "title")}>
                     {content}
                 </ui:block>
+            case UIRepeatedGroup(_, _, _, _, rows, _) =>
+                // Rows render flattened; the __items round-trip data is form chrome, not content
+                for nested <- ZIO.foreach(rows)(row => ZIO.foreach(row.children)(renderSegment))
+                yield nested.flatten.foldLeft(NodeSeq.Empty: NodeSeq)(_ ++ _)
             case UIHiddenField(id, fieldName, value) =>
-                ZIO.succeed(<ui:hiddenField id={id} value={value.getOrElse("")}/>)
+                ZIO.succeed(<ui:hiddenField id={id.toHtmlId} value={value.getOrElse("")}/>)
             case _ => ZIO.succeed(NodeSeq.Empty)
 
     private def renderField(field: UIField)(using
@@ -117,7 +122,9 @@ class UIFormXMLRenderer(
                 resolved.map: resolvedValue =>
                     resolvedValue match
                         case Some(v) => <ui:inputValue>{
-                                if fieldType.startsWith("number") then v.replace(',', '.') else v
+                                FieldKind.of(fieldType) match
+                                    case FieldKind.Number(_) => v.replace(',', '.')
+                                    case _                   => v
                             }</ui:inputValue>
                         case _ => <ui:inputValue/>
             case UIFileField(id, fieldName, fileList, multiple, decorations) =>

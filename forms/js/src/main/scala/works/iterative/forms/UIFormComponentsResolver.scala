@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 trait UIFormReadOnlyComponentsResolver:
     def resolveReadOnlyComponents(ident: FormIdent): ReadOnlyComponents

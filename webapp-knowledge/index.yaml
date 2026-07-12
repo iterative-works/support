@@ -1,0 +1,22 @@
+# PURPOSE: Page directory for the scenarios server - agent's primary entry point.
+# PURPOSE: Index of all documented pages with descriptions for intelligent lookup.
+
+app_name: iw-support scenarios server
+description: >
+  Development showcase server for iw-support modules. Stateless scenario
+  pages, no authentication.
+last_updated: 2026-07-11
+
+pages:
+  - id: ssr-form
+    path: pages/ssr-form.md
+    url: /ssrForm/page
+    layout: public
+    roles: [anonymous]
+    tags: [forms, ssr, htmx, entry-point]
+    description: >
+      SSR form scenario: the "inquiry" proof form rendered by
+      UIFormHtmlRenderer. Exercises the full GET/POST loop — HTMX
+      change-triggered re-render (conditional Delivery section), server-side
+      Required validation with per-field errors, repeated row add/remove,
+      and successful submission to a success page dumping the FormR data.

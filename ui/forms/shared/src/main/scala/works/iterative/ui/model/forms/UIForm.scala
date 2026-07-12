@@ -3,8 +3,7 @@ package works.iterative.ui.model.forms
 import works.iterative.core.UserMessage
 import works.iterative.core.MessageId
 
-// TODO: use IdPath
-type UIFormId = String
+type UIFormId = IdPath
 type UIMessageKey = MessageId
 type UIFieldName = String
 type UIFieldType = String
@@ -14,6 +13,8 @@ enum UIFieldDecoration:
     case Required
     case InError
     case Disabled
+    // The declared field context: the path scope a field's resolver draws sibling values from
+    case Context(value: String)
     case ErrorMessage(message: UserMessage)
     case IconButton(id: UIFormId, name: String)
 end UIFieldDecoration
@@ -23,7 +24,9 @@ final case class UIForm(
     messageKey: UIMessageKey,
     children: Seq[UIFormElement],
     data: FormState,
-    context: Option[Map[String, String]]
+    context: Option[Map[String, String]],
+    // Errors keyed at the form itself, not at any field or section
+    errors: List[UserMessage] = Nil
 )
 
 sealed trait UIFormElement
@@ -85,16 +88,40 @@ final case class UIChoiceOption(
     messageKey: UIMessageKey
 )
 
+/** A repeated group with its row boundaries intact: fieldName is the hidden field the item list
+  * round-trips through, templates are the item types that can be added, and optional says whether
+  * the group may be empty — enough for any interpreter to derive add/remove affordances.
+  */
+final case class UIRepeatedGroup(
+    id: UIFormId,
+    fieldName: UIFieldName,
+    templates: List[String],
+    optional: Boolean,
+    rows: Seq[UIRepeatedRow],
+    decorations: List[UIFieldDecoration]
+) extends UIFormElement
+
+final case class UIRepeatedRow(
+    item: String,
+    itemType: String,
+    index: Int,
+    children: Seq[UIFormElement]
+)
+
 final case class UIFlexRow(children: Seq[UIFormElement]) extends UIFormElement
 
 final case class UIGrid(children: Seq[Seq[UIGridCell]]) extends UIFormElement
 
 final case class UIGridCell(size: Int, children: Seq[UIFormElement])
 
+enum UIButtonIntent:
+    case Submit, ServerAction, ClientAction
+end UIButtonIntent
+
 final case class UIButton(
     id: UIFormId,
     name: UIFieldName,
-    buttonType: String,
+    intent: UIButtonIntent,
     messageKey: UIMessageKey,
     decorations: List[UIFieldDecoration]
 ) extends UIFormElement

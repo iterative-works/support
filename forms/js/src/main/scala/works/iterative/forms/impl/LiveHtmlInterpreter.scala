@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 package impl
 
 import com.raquo.laminar.api.L.*
@@ -7,7 +7,7 @@ import works.iterative.core.MessageCatalogue
 import works.iterative.ui.components.laminar.LaminarExtensions.*
 import FormCtx.ctx
 import com.raquo.laminar.api.L
-import portaly.forms.Components.RadioOption
+import works.iterative.forms.Components.RadioOption
 import works.iterative.core.UserMessage
 import zio.prelude.*
 
@@ -29,7 +29,8 @@ class LiveHtmlInterpreter(
     override val cs: Components,
     menuItems: Form => List[AbsolutePath] = _ => Nil,
     private val aroundTitle: HtmlElement => HtmlElement = identity,
-    private val formMods: Option[HtmlMod] = None
+    private val formMods: Option[HtmlMod] = None,
+    ruleRegistry: ValidationRuleRegistry = ValidationRuleRegistry.empty
 )(using messages: MessageCatalogue, lang: Language) extends HtmlInterpreter:
     given Components = cs
 
@@ -44,7 +45,9 @@ class LiveHtmlInterpreter(
             hooks,
             cs,
             menuItems,
-            f
+            f,
+            formMods,
+            ruleRegistry
         )
 
     override def withFormMods(mods: HtmlMod): HtmlInterpreter =
@@ -59,7 +62,8 @@ class LiveHtmlInterpreter(
             cs,
             menuItems,
             aroundTitle,
-            Some(mods)
+            Some(mods),
+            ruleRegistry
         )
 
     def withComponents(components: Components): HtmlInterpreter =
@@ -74,7 +78,8 @@ class LiveHtmlInterpreter(
             components,
             menuItems,
             aroundTitle,
-            formMods
+            formMods,
+            ruleRegistry
         )
 
     def withAutocompleteContext(context: Map[String, String]): LiveHtmlInterpreter =
@@ -89,7 +94,8 @@ class LiveHtmlInterpreter(
             cs,
             menuItems,
             aroundTitle,
-            formMods
+            formMods,
+            ruleRegistry
         )
 
     override def interpret(
@@ -98,6 +104,9 @@ class LiveHtmlInterpreter(
         formData: Option[FormR]
     ): LiveForm =
         given ctx: FormCtx = FormCtx(menuItems(form))
+        // The form's key prefixes every message lookup, same as the SSR renderer and
+        // DeclaredValidation — all walkers resolve inquiry.row.qty.label alike
+        given formMessages: MessageCatalogue = messages.nested(form.id.serialize)
         LiveFormImpl(
             id,
             form,
@@ -130,18 +139,18 @@ class LiveHtmlInterpreter(
             case Form(id, _, sections) => renderForm(id, sections)
             case Section(id, elems, sectionType) =>
                 renderSection(id, sectionType, elems, repeatIndex)
-            case Field(id, fieldType, default, optional) =>
-                renderFormField(id, fieldType, default, optional)
+            case field @ Field(id, fieldType, default, _, validations) =>
+                renderFormField(id, fieldType, default, field.required, validations)
             case File(id, multiple, optional) => renderFileField(id, multiple, optional)
-            case Date(id)                     => renderTextField(id, "date", None)
+            case Date(id, optional)           => renderTextField(id, "date", None, !optional)
             case Display(id)                  => renderDisplay(id)
-            case Button(id)                   => renderButton(id)
-            case Enum(id, values, default) =>
+            case Button(id, _)                => renderButton(id)
+            case Enum(id, values, default, optional) =>
                 if values.size == 2 && values.contains("true") && values.contains(
                         "false"
                     )
                 then renderCheckbox(id, default)
-                else renderEnum(id, values, default, required = true)
+                else renderEnum(id, values, default, required = !optional)
             case ShowIf(condition, elem) => renderShowIf(condition, elem)
             case Repeated(id, default, optional, elems) =>
                 renderRepeated(id, default, optional, elems)
@@ -164,11 +173,10 @@ class LiveHtmlInterpreter(
         optional: Boolean,
         elems: List[SectionSegment]
     ): RenderPart =
-        val inner =
-            val elemList = elems.map(e => e.id.last -> e)
-            val elemMap = elemList.toMap
-            (i: String, idx: Int) => renderSegment(elemMap.getOrElse(i, elems.head), Some(idx))
-        end inner
+        // The shared template fallback; items whose group has no templates render nothing,
+        // matching Repeated.instances (their data still flows through __items)
+        val inner = (itemType: String, idx: Int) =>
+            Repeated.template(elems, itemType).map(renderSegment(_, Some(idx)))
         // Create a string from 6 chars from a..z
         def shortRandomId = scala.util.Random.alphanumeric.take(6).mkString
         fi =>
@@ -191,35 +199,37 @@ class LiveHtmlInterpreter(
                 } --> items.writer
 
             val innerOutputs =
-                items.signal.map(_.zipWithIndex).split(_._1._1)((key, init, _) =>
-                    val ((_, elemId), idx) = init
-                    inner(elemId, idx)(fi.mapId(_ / id / key).composeRawInput(
-                        // Init the segment with the data from the snapshot, after emit the input data
-                        ri => EventStream.merge(EventStream.unit().sample(snapshot.signal), ri)
-                    )).mapDom: elem =>
-                        elem.amend(
-                            idAttr((fi.id / id / key / elemId).toHtmlId),
-                            cls("relative"),
-                            span(
-                                cls("text-xs absolute right-0 top-0 flex"),
-                                /*
+                items.signal.map(_.zipWithIndex.flatMap: (item, idx) =>
+                    inner(item._2, idx).map(render => (item._1, item._2, render))).split(_._1)(
+                    (key, init, _) =>
+                        val (_, elemId, render) = init
+                        render(fi.mapId(_ / id / key).composeRawInput(
+                            // Init the segment with the data from the snapshot, after emit the input data
+                            ri => EventStream.merge(EventStream.unit().sample(snapshot.signal), ri)
+                        )).mapDom: elem =>
+                            elem.amend(
+                                idAttr((fi.id / id / key / elemId).toHtmlId),
+                                cls("relative"),
+                                span(
+                                    cls("text-xs absolute right-0 top-0 flex"),
+                                    /*
                                 div(
                                     cls("inline-block mt-1 mr-1"),
                                     child.text <-- updates.map(_._2 + 1)
                                 ),
-                                 */
-                                span(
-                                    cls(
-                                        "bg-red-700 text-red-100 text-sm flex items-center button hover:bg-red-600"
-                                    ),
-                                    span("Odebrat "),
-                                    cs.segmentRemoveIcon(svg.cls("w-4 h-4 cursor-pointer")),
-                                    onClick.mapTo(key) --> items.updater((its, it) =>
-                                        its.filterNot(_._1 == it)
+                                     */
+                                    span(
+                                        cls(
+                                            "bg-red-700 text-red-100 text-sm flex items-center button hover:bg-red-600"
+                                        ),
+                                        span("Odebrat "),
+                                        cs.segmentRemoveIcon(svg.cls("w-4 h-4 cursor-pointer")),
+                                        onClick.mapTo(key) --> items.updater((its, it) =>
+                                            its.filterNot(_._1 == it)
+                                        )
                                     )
                                 )
                             )
-                        )
                 )
 
             val itemList =
@@ -403,16 +413,18 @@ class LiveHtmlInterpreter(
             val menuState = FormCtx.ctx.menuState.get(fullId).getOrElse(Var(None))
 
             def sectionTitle =
+                val mc = summon[MessageCatalogue]
                 (fullId.toMessageIds("section") match
                     case Vector[MessageId](h) =>
-                        messages.get(UserMessage(h, repeatIndex.map(_ + 1).toList*))
-                    case h +: hs => messages.opt(
+                        mc.get(UserMessage(h, repeatIndex.map(_ + 1).toList*))
+                    case h +: hs => mc.opt(
                             UserMessage(h, repeatIndex.map(_ + 1).toList*),
                             hs.map(h => UserMessage(h, repeatIndex.map(_ + 1).toList*))*
                         )
                 ).map(i =>
                     span(dataAttr("msgId")(s"${fullId.toHtmlName}.section"), i)
                 )
+            end sectionTitle
 
             FormPartOutputs(
                 out.id,
@@ -444,11 +456,22 @@ class LiveHtmlInterpreter(
         id: RelativePath,
         fieldType: FieldType,
         default: Option[String],
-        optional: Boolean
+        required: Boolean,
+        validations: List[works.iterative.forms.Validation]
     ): RenderPart =
         ctx.liftStringInput(id)(fieldTypeResolver
             .resolve(fieldType)
-            .render(id, !optional, default))
+            .render(
+                id,
+                required,
+                fid =>
+                    works.iterative.forms.Validation.rule[EventStream](
+                        fid,
+                        validations,
+                        ruleRegistry
+                    ),
+                default
+            ))
 
     private def renderFileField(
         id: RelativePath,
@@ -488,55 +511,43 @@ class LiveHtmlInterpreter(
     private def renderTextField(
         id: RelativePath,
         inputType: String,
-        default: Option[String]
+        default: Option[String],
+        required: Boolean
     ): RenderPart =
-        ctx.liftStringInput(id) {
-            val field = TextFormField(inputType, default, true, None)
-            ValidatingFormField(ValidationRule.valid)(
-                LabeledFormField(field, Val(false)),
-                field.touched
-            )
-        }
+        ctx.liftStringInput(id)(
+            FieldFactory.Text(inputType, true, _ => ValidationRule.valid, None)
+                .render(id, required, _ => ValidationRule.valid, default)
+        )
 
+    // Subscribes to exactly the paths the condition references and maps the
+    // shared Condition.eval over each state snapshot. Non-string state values
+    // participate via toString: non-blank means NonEmpty, IsEqual matches
+    // only their literal rendering.
     private def resolveCondition(condition: Condition)(
         baseId: AbsolutePath,
         state: FormV
     ): Signal[Boolean] =
-        import Condition.*
-        condition match
-            case Never              => Val(false)
-            case Always             => Val(true)
-            case AnyOf(conditions*) => resolveConditionsOr(conditions)(baseId, state)
-            case AllOf(conditions*) => resolveConditions(conditions)(baseId, state)
-            case IsEqual(idp, value) => state.get(works.iterative.ui.model.forms.IdPath.parse(
-                    idp,
-                    baseId
-                )).map(_.contains(value))
-            case IsValid(idp) =>
-                state.validation(works.iterative.ui.model.forms.IdPath.parse(idp, baseId)).map(
-                    _.exists(_.isValid)
-                )
-            case NonEmpty(idp) =>
-                state.get(works.iterative.ui.model.forms.IdPath.parse(idp, baseId)).map(
-                    _.filterNot {
-                        case s: String => s.isBlank
-                        case _         => false
-                    }.nonEmpty
-                )
-        end match
+        val refs = Condition.references(condition, baseId)
+        def snapshot[A](
+            paths: Set[AbsolutePath],
+            read: AbsolutePath => Signal[A]
+        ): Signal[Map[AbsolutePath, A]] =
+            paths.foldLeft(Val(Map.empty[AbsolutePath, A]): Signal[Map[AbsolutePath, A]]):
+                (acc, p) => acc.combineWithFn(read(p))((m, v) => m + (p -> v))
+        val values = snapshot(refs.values, state.get)
+        val validity = snapshot(refs.validity, p => state.validation(p).map(_.exists(_.isValid)))
+        values.combineWithFn(validity): (values, validity) =>
+            Condition.eval(
+                condition,
+                baseId,
+                p =>
+                    values.getOrElse(p, None).map {
+                        case s: String => s
+                        case other     => other.toString
+                    },
+                p => validity.getOrElse(p, false)
+            )
     end resolveCondition
-
-    private def resolveConditionsOr(conditions: Seq[Condition])(
-        baseId: AbsolutePath,
-        state: FormV
-    ): Signal[Boolean] =
-        conditions.map(resolveCondition(_)(baseId, state)).reduce(_ || _)
-
-    private def resolveConditions(conditions: Seq[Condition])(
-        baseId: AbsolutePath,
-        state: FormV
-    ): Signal[Boolean] =
-        conditions.map(resolveCondition(_)(baseId, state)).reduce(_ && _)
 
     private def renderButton(id: RelativePath): RenderPart =
         ctx.liftEmpty(id)(FormPart.domOnly(fi =>

@@ -1,4 +1,4 @@
-package portaly.forms
+package works.iterative.forms
 
 import zio.prelude.fx.ZPure
 import zio.ZEnvironment
@@ -31,27 +31,30 @@ class FormRJsonEncoder:
         yield Json.Obj(
             "id" -> Json.Str(path.toHtmlId),
             "version" -> Json.Str(version),
-            "data" -> children.flatten.reduceRight(_.merge(_))
+            "data" -> children.flatten.foldLeft(Json.Obj(): Json)(_.merge(_))
         )
     end render
 
     private def renderSegment(path: AbsolutePath)(element: SectionSegment)
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Option[Json]] =
         element match
-            case Section(id, elems, _)                   => renderSection(path / id)(elems)
-            case Field(id, fieldType, default, optional) => renderField(path / id)
-            case File(id, multiple, optional)            => renderFileField(path / id)
-            case Date(id)                                => renderField(path / id)
-            case Enum(id, values, default)               => renderField(path / id)
+            case Section(id, elems, _)                      => renderSection(path / id)(elems)
+            case Field(id, fieldType, default, optional, _) => renderField(path / id)
+            case File(id, multiple, optional)               => renderFileField(path / id)
+            case Date(id, _)                                => renderField(path / id)
+            case Enum(id, values, default, _)               => renderField(path / id)
             case ShowIf(condition, elem) =>
                 resolveCondition(path)(condition).flatMap(if _ then renderSegment(path)(elem)
                 else ZPure.succeed(None))
-            case Repeated(id, default, _, elems) =>
-                val elemMap = elems.map(e => e.id.last -> e).toMap
+            case repeated @ Repeated(id, _, _, _) =>
                 for
-                    items <- getItemsFor(path / id)
-                    rendered <- ZPure.foreach(items): (i, t) =>
-                        renderSegment(path / id / i)(elemMap(t))
+                    instances <- ZPure.serviceWith[FormState](
+                        Repeated.instances(path, repeated, _)
+                    )
+                    rendered <- ZPure.foreach(instances): i =>
+                        i.segment match
+                            case Some(segment) => renderSegment(i.path)(segment)
+                            case None          => ZPure.succeed(None)
                 yield Some(Json.Arr(rendered.flatten*))
                 end for
             case _ => ZPure.succeed(None)
@@ -63,10 +66,6 @@ class FormRJsonEncoder:
     private def getStringList(path: AbsolutePath)
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Option[List[String]]] =
         ZPure.serviceWith[FormState](_.getStringList(path))
-
-    private def getItemsFor(path: AbsolutePath)
-        : ZPure[Nothing, Unit, Unit, FormState, Nothing, List[(String, String)]] =
-        ZPure.serviceWith[FormState](_.itemsFor(path))
 
     private def renderSection(path: AbsolutePath)(elems: List[SectionSegment]) =
         for
@@ -84,23 +83,10 @@ class FormRJsonEncoder:
     private def renderFileField(path: AbsolutePath) =
         getStringList(path).map(_.map(v => Json.Arr(v.map(Json.Str(_))*)))
 
+    // Encodes captured data, so IsValid holds by definition
     private def resolveCondition(path: AbsolutePath)(condition: Condition)
         : ZPure[Nothing, Unit, Unit, FormState, Nothing, Boolean] =
-        import Condition.*
-        condition match
-            case Never  => ZPure.succeed(false)
-            case Always => ZPure.succeed(true)
-            case AnyOf(conditions*) =>
-                ZPure.foreach(conditions)(resolveCondition(path)).map(_.reduce(_ || _))
-            case AllOf(conditions*) =>
-                ZPure.foreach(conditions)(resolveCondition(path)).map(_.reduce(_ && _))
-            case IsEqual(id, value) =>
-                getString(works.iterative.ui.model.forms.IdPath.parse(id, path))
-                    .map(_.contains(value))
-            case IsValid(id) => ZPure.succeed(true)
-            case NonEmpty(id) =>
-                getString(works.iterative.ui.model.forms.IdPath.parse(id, path))
-                    .map(_.nonEmpty)
-        end match
-    end resolveCondition
+        ZPure.serviceWith[FormState](state =>
+            Condition.eval(condition, path, state.getString, Condition.alwaysValid)
+        )
 end FormRJsonEncoder
