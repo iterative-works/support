@@ -292,6 +292,46 @@ object entity extends CrossModule {
   }
 }
 
+// Workflow module - cross-compiled with shared tests
+object workflow extends CrossModule {
+  def moduleName = "workflow"
+  def description = "IW Support Workflow Library"
+
+  trait WorkflowModule extends SharedModule {
+    trait WorkflowTests extends BaseTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / "shared" / "src" / "test" / "scala"
+      )
+
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
+  }
+
+  object jvm extends JvmModule with WorkflowModule {
+    def moduleDeps = Seq(core.jvm)
+
+    object test extends WorkflowTests
+  }
+
+  object js extends JsModule with WorkflowModule {
+    def moduleDeps = Seq(core.js)
+
+    trait JsWorkflowTests extends BaseScalaJSTests {
+      def sharedTestSources = Task.Sources(
+        moduleDir / os.up / "shared" / "src" / "test" / "scala"
+      )
+
+      override def sources = Task {
+        super.sources() ++ sharedTestSources()
+      }
+    }
+
+    object test extends JsWorkflowTests
+  }
+}
+
 // Service specs module - cross-compiled
 object serviceSpecs extends CrossModule {
   def moduleName = "service-specs"
@@ -1135,6 +1175,7 @@ object root extends BaseModule {
     // Core modules
     core.jvm, core.js, core.testUtils,
     entity.jvm, entity.js,
+    workflow.jvm, workflow.js,
     serviceSpecs.jvm, serviceSpecs.js,
     tapir.jvm, tapir.js,
 
@@ -1236,6 +1277,8 @@ object verify extends Module {
     core.js.checkFormat()
     entity.jvm.checkFormat()
     entity.js.checkFormat()
+    workflow.jvm.checkFormat()
+    workflow.js.checkFormat()
     serviceSpecs.jvm.checkFormat()
     serviceSpecs.js.checkFormat()
     tapir.jvm.checkFormat()
