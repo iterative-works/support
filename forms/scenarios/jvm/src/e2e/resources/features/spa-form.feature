@@ -1,12 +1,12 @@
-# PURPOSE: Browser-level regression suite for the SSR inquiry form (UIFormHtmlRenderer GET/POST loop)
-# PURPOSE: Each scenario pins a behavior that route-level tests cannot observe (htmx, charset, swap races)
-Feature: SSR inquiry form
-  The server-rendered inquiry form proves the UIForm SSR loop:
-  HTMX change-triggered re-renders, server-side Required validation,
+# PURPOSE: Browser-level regression suite for the SPA inquiry form (LiveHtmlInterpreter custom element)
+# PURPOSE: Mirrors the SSR feature scenario for scenario — the proof form must behave identically
+Feature: SPA inquiry form
+  The client-rendered inquiry form proves the UIForm SPA loop on the same
+  proof form the SSR feature drives: reactive conditions, live validation,
   repeated row add/remove, and faithful submission.
 
   Background:
-    Given the inquiry form is open
+    Given the SPA inquiry form is open
 
   Scenario: Choosing order reveals the delivery section without leaving the page
     When I choose "order" as the request kind

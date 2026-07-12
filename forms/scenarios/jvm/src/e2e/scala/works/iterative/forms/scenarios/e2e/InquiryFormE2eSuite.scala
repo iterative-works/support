@@ -1,4 +1,4 @@
-// PURPOSE: JUnit entry point running the SSR form Cucumber features in a real browser
+// PURPOSE: JUnit entry point running the inquiry form Cucumber features in a real browser
 // PURPOSE: Glue combines the shared e2e framework hooks with the local server and step definitions
 
 package works.iterative.forms.scenarios.e2e
@@ -12,4 +12,4 @@ import org.junit.runner.RunWith
     glue = Array("works.iterative.testing.e2e", "works.iterative.forms.scenarios.e2e"),
     plugin = Array("pretty")
 )
-class SsrFormE2eSuite
+class InquiryFormE2eSuite

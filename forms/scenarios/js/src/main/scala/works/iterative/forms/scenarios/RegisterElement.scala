@@ -51,8 +51,11 @@ class ScenarioIWFormElement extends BaseIWFormElement:
             val items = ctx.state.under(IdPath.full("inquiry.items")).map(
                 _.keys.flatMap(_.toHtmlName.split('.').drop(2).headOption).toSet.size
             )
-            p(child.text <-- kind.combineWithFn(items): (k, n) =>
-                s"You are requesting a $k with $n item(s).")
+            p(
+                idAttr(id.toHtmlId),
+                child.text <-- kind.combineWithFn(items): (k, n) =>
+                    s"You are requesting a $k with $n item(s)."
+            )
         end resolve
 
     override def interpreter = new LiveHtmlInterpreter(
@@ -69,7 +72,11 @@ class ScenarioIWFormElement extends BaseIWFormElement:
     override def formContent(form: LiveForm): HtmlElement =
         val submitted: Var[Option[String]] = Var(None)
         val clicks = new EventBus[Unit]
-        val attempts = clicks.events.sample(form.data)
+        // Field validation throttles at 500ms, so the state sampled right at the click can
+        // trail the latest edits; decide once validation has settled
+        val attempts = clicks.events.flatMapSwitch(_ =>
+            EventStream.unit().delay(700).sample(form.data)
+        )
         div(
             attempts.collect { case state if !state.isValid => true } --> form.showErrors,
             attempts.collect { case ValidationState.Valid(data) => (data: FormR).toJson }

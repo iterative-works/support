@@ -219,7 +219,7 @@ class SimpleFormComponents extends Components:
                 mods,
                 children <-- errors.map(
                     _.map[HtmlElement](
-                        p(cls("mt-2 text-sm text-red-800"), _)
+                        p(cls("field-error mt-2 text-sm text-red-800"), _)
                     )
                 ),
                 helpMod.map(h => p(cls("mt-2 text-sm text-gray-500"), h))
