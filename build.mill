@@ -1014,7 +1014,7 @@ object formsScenarios extends NoPublishCrossModule {
   }
 
   object jvm extends JvmModule with FormsScenariosModule {
-    def moduleDeps = Seq(forms.jvm, scenarios.jvm)
+    def moduleDeps = Seq(forms.jvm, formsDatastar, scenarios.jvm)
 
     // The SPA scenario serves the linked ScalaJS bundle from this directory
     override def forkEnv = Task {

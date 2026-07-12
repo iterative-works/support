@@ -5,6 +5,7 @@ object ScenariosServer
         SpaFormScenario,
         UIFormScenario,
         SsrFormScenario,
+        DatastarFormScenario,
         SsrVocabularyScenario,
         SpaVocabularyScenario
     )

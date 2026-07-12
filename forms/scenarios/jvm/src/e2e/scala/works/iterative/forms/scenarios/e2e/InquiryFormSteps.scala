@@ -26,6 +26,11 @@ class InquiryFormSteps extends PlaywrightCucumberRunner:
         page.waitForLoadState(LoadState.NETWORKIDLE)
     }
 
+    Given("the Datastar inquiry form is open") { () =>
+        page.navigate(s"$baseUrl/datastarForm/page")
+        page.waitForLoadState(LoadState.NETWORKIDLE)
+    }
+
     Given("the SPA inquiry form is open") { () =>
         page.navigate(s"$baseUrl/spaForm/page")
         // The custom element fetches the declaration and renders client-side
@@ -96,7 +101,10 @@ class InquiryFormSteps extends PlaywrightCucumberRunner:
     }
 
     Then("I am still on the form page") { () =>
-        val expected = if spa then "/spaForm/page" else "/ssrForm/page"
+        val expected =
+            if spa then "/spaForm/page"
+            else if page.url().contains("/datastarForm/") then "/datastarForm/page"
+            else "/ssrForm/page"
         assert(
             page.url().endsWith(expected),
             s"Expected to stay on the form page, but URL is ${page.url()}"

@@ -36,6 +36,7 @@ object SsrVocabularyScenario extends Scenario:
     override def page: Html =
         Html.raw(ScenarioHtml.shell(
             label,
+            ScenarioHtml.htmxScript,
             formTag(FormData.parse(Map.empty), FormValidationState.valid)
         ))
 
@@ -46,7 +47,7 @@ object SsrVocabularyScenario extends Scenario:
     ): Response =
         val tag = formTag(state, validation)
         if hxRequest then ScenarioHtml.htmlResponse(tag.render)
-        else ScenarioHtml.htmlResponse(ScenarioHtml.shell(label, tag))
+        else ScenarioHtml.htmlResponse(ScenarioHtml.shell(label, ScenarioHtml.htmxScript, tag))
     end respondForm
 
     private def submitted(data: FormData): Response =
@@ -59,6 +60,7 @@ object SsrVocabularyScenario extends Scenario:
         )
         ScenarioHtml.htmlResponse(ScenarioHtml.shell(
             label,
+            ScenarioHtml.htmxScript,
             frag(h1("Vocabulary received"), p("Submitted data:"), pre(code(dump.toJson)))
         ))
     end submitted
@@ -80,6 +82,7 @@ object SsrVocabularyScenario extends Scenario:
     override val routes: Routes[Any, Nothing] = Routes(
         Method.GET / Root / id / "page" -> handler(ScenarioHtml.htmlResponse(ScenarioHtml.shell(
             label,
+            ScenarioHtml.htmxScript,
             formTag(FormData.parse(Map.empty), FormValidationState.valid)
         ))),
         Method.POST / Root / id / "form" -> handler { (req: Request) =>
