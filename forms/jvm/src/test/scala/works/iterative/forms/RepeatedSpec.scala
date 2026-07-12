@@ -43,6 +43,13 @@ object RepeatedSpec extends ZIOSpecDefault:
             val empty = Repeated("items", None, optional = true, Nil)
             val state = FormR(Map(IdPath("demo.items.__items") -> List("first:row")))
             assertTrue(Repeated.instances(base, empty, state).isEmpty)
+        },
+        test("template picks the matching item type, falls back to the first, none on empty") {
+            assertTrue(
+                Repeated.template(repeated.elems, "alt").map(_.id.last) == Some("alt"),
+                Repeated.template(repeated.elems, "gone").map(_.id.last) == Some("row"),
+                Repeated.template(Nil, "row").isEmpty
+            )
         }
     )
 end RepeatedSpec

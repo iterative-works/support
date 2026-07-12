@@ -74,24 +74,22 @@ object Repeated:
         index: Int
     )
 
+    /** The template a row of the given item type renders under — matching template by id, first one
+      * as fallback; a group without templates has none.
+      */
+    def template(elems: List[SectionSegment], itemType: String): Option[SectionSegment] =
+        elems.headOption.map: default =>
+            elems.map(e => e.id.last -> e).toMap.getOrElse(itemType, default)
+
     /** The instances of a repeated group for the current state — the one expansion every walker
       * shares. Item types without a matching template fall back to the first one; a group without
       * templates expands to nothing.
       */
     def instances(path: AbsolutePath, repeated: Repeated, state: FormState): List[Instance] =
-        repeated.elems match
-            case Nil => Nil
-            case defaultSegment :: _ =>
-                val templates = repeated.elems.map(e => e.id.last -> e).toMap
-                state.itemsFor(path / repeated.id).zipWithIndex.map:
-                    case ((item, itemType), index) =>
-                        Instance(
-                            path / repeated.id / item,
-                            item,
-                            itemType,
-                            templates.getOrElse(itemType, defaultSegment),
-                            index
-                        )
+        state.itemsFor(path / repeated.id).zipWithIndex.flatMap:
+            case ((item, itemType), index) =>
+                template(repeated.elems, itemType).map: segment =>
+                    Instance(path / repeated.id / item, item, itemType, segment, index)
 end Repeated
 
 /** What pressing a button means: Submit sends the whole form, ServerAction posts so the server
@@ -109,7 +107,12 @@ case class Field(
     default: Option[String] = None,
     optional: Boolean = false,
     validations: List[Validation] = Nil
-) extends SectionSegment
+) extends SectionSegment:
+    /** Required-ness has two spellings — the optional flag and a declared Required validation — and
+      * every walker must agree on their combination.
+      */
+    def required: Boolean = !optional || validations.contains(Validation.Required)
+end Field
 
 case class File(id: RelativePath, multiple: Boolean = true, optional: Boolean = false)
     extends SectionSegment

@@ -76,6 +76,15 @@ object UIFormBuilderSpec extends ZIOSpecDefault:
                 email.decorations == Nil
             )
         },
+        test("declared Required makes an optional field required") {
+            val form = Form("demo", "1")(
+                Section("contact")(
+                    Field("phone", optional = true, validations = List(Validation.Required))
+                )
+            )
+            val field = fieldsOf(build(form)).collect { case f: UILabeledField => f }.head
+            assertTrue(field.decorations == List(UIFieldDecoration.Required))
+        },
         test("hidden field type renders UIHiddenField with default fallback") {
             val form = Form("demo", "1")(
                 Section("meta")(Field("token", FieldType("hidden"), default = Some("s3cret")))

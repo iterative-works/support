@@ -36,10 +36,10 @@ class UIFormBuilder(layoutResolver: LayoutResolver, formHook: Option[UIForm => U
         : ZPure[Nothing, Unit, Unit, FormState & FormValidationState, Nothing, Seq[UIFormElement]] =
         element match
             case Section(id, elems, _) => renderSection(path / id, repeatIndex)(elems).map(List(_))
-            case Field(id, fieldType, default, optional, _) =>
+            case field @ Field(id, fieldType, default, _, _) =>
                 if fieldType.hidden then
                     renderHiddenField(path / id, default).map(List(_))
-                else renderField(path / id, fieldType, default, optional).map(List(_))
+                else renderField(path / id, fieldType, default, !field.required).map(List(_))
             case File(id, multiple, optional) =>
                 renderFileField(path / id, multiple, optional).map(List(_))
             case Date(id, optional) =>

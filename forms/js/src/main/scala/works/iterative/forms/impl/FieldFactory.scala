@@ -12,6 +12,7 @@ trait FieldFactory[A]:
     def render(
         id: IdPath,
         required: Boolean,
+        declared: IdPath => SRule[A],
         initialValue: Option[A]
     ): Render[FieldFactory.FieldPart[A]]
 end FieldFactory
@@ -24,12 +25,30 @@ object FieldFactory:
             UserMessage("error.field.required", id.toMessage("label"))
         ).contramap(Option(_).filterNot(_.isBlank))
 
+    /** The complete rule of one string field: required-ness first, then the declared validations,
+      * then the factory's own rule. A blank optional value validates as-is — emptiness is only ever
+      * the required concern.
+      */
+    def fieldRule(
+        id: IdPath,
+        required: Boolean,
+        declared: IdPath => SRule[String],
+        own: IdPath => works.iterative.forms.impl.Validation
+    ): Render[SRule[String]] =
+        if required then requiredString(id).flatMap(declared(id)).flatMap(own(id))
+        else
+            v =>
+                if v.isBlank then ValidationState.Valid(v).succeed
+                else declared(id).flatMap(own(id)).apply(v)
+
+    // Hidden fields carry no validation — parity with DeclaredValidation skipping them
     class Hidden(
         extraMods: HtmlMod*
     ) extends FieldFactory[String]:
         def render(
             id: IdPath,
             required: Boolean,
+            declared: IdPath => SRule[String],
             initialValue: Option[String]
         ): Render[FieldPart[String]] =
             val field = TextFormField("hidden", initialValue, true, None, extraMods)
@@ -47,17 +66,13 @@ object FieldFactory:
         def render(
             id: IdPath,
             required: Boolean,
+            declared: IdPath => SRule[String],
             initialValue: Option[String]
         ): Render[FieldPart[String]] =
             val field = TextFormField(inputType, initialValue, initialEnabled, prefixed, extraMods)
             fi =>
                 ValidatingFormField[Any, String, String, String, String](
-                    if required then
-                        requiredString(fi.id).flatMap(validation(fi.id))
-                    else
-                        v =>
-                            if v.isBlank then ValidationState.Valid(v).succeed
-                            else validation(fi.id)(v)
+                    fieldRule(fi.id, required, declared, validation)
                 )(
                     LabeledFormField(field, Val(required)),
                     field.touched
@@ -73,17 +88,13 @@ object FieldFactory:
         def render(
             id: IdPath,
             required: Boolean,
+            declared: IdPath => SRule[String],
             initialValue: Option[String]
         ): Render[FieldPart[String]] =
             val field = TextAreaFormField(inputType, initialValue, extraMods)
             fi =>
                 ValidatingFormField[Any, String, String, String, String](
-                    if required then
-                        requiredString(fi.id).flatMap(validation(fi.id))
-                    else
-                        v =>
-                            if v.isBlank then ValidationState.Valid(v).succeed
-                            else validation(fi.id)(v)
+                    fieldRule(fi.id, required, declared, validation)
                 )(
                     LabeledFormField(field, Val(required)),
                     field.touched
@@ -99,6 +110,7 @@ object FieldFactory:
         def render(
             id: IdPath,
             required: Boolean,
+            declared: IdPath => SRule[String],
             initialValue: Option[String]
         ): Render[FieldPart[String]] =
             val observe: Observer[(AbsolutePath, Option[AutocompleteEntry])] = selectObserver match
@@ -110,8 +122,12 @@ object FieldFactory:
                     initialValue,
                     query.withContextSignal(contextSignal(FormCtx.ctx)(fi.id))
                 )
-                val req = if required then requiredString(fi.id) else ValidationRule.valid
-                ValidatingFormField(req)(
+                ValidatingFormField(fieldRule(
+                    fi.id,
+                    required,
+                    declared,
+                    _ => ValidationRule.valid
+                ))(
                     LabeledFormField(
                         field.tap(observe.setDisplayName(s"observe:${id.toHtmlId}")).map(
                             _.map(_.value).getOrElse("")
@@ -132,6 +148,7 @@ object FieldFactory:
         def render(
             id: IdPath,
             required: Boolean,
+            declared: IdPath => SRule[String],
             initialValue: Option[String]
         ): Render[FieldFactory.FieldPart[String]] =
             fi =>
@@ -146,8 +163,7 @@ object FieldFactory:
                         getOptions(FormCtx.ctx)(fi.id).startWith(Nil),
                         disabled
                     )
-                val req = if required then requiredString(fi.id) else ValidationRule.valid
-                ValidatingFormField(req.flatMap(validation(fi.id)))(
+                ValidatingFormField(fieldRule(fi.id, required, declared, validation))(
                     LabeledFormField(
                         field.tap(observe.setDisplayName(s"observe:${id.toHtmlId}")).map(
                             _.map(_.value).getOrElse("")

@@ -1,4 +1,7 @@
-package works.iterative.forms.scenarios
+// PURPOSE: Custom-element base rendering a fetched form declaration through LiveHtmlInterpreter
+// PURPOSE: Manages the Laminar root across the web-component lifecycle callbacks
+
+package works.iterative.forms
 
 import com.raquo.laminar.api.L.*
 import com.raquo.laminar.api.L

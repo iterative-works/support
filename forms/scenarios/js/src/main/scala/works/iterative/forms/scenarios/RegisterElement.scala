@@ -1,6 +1,7 @@
 package works.iterative.forms.scenarios
 
 import com.raquo.laminar.api.L.*
+import works.iterative.forms.BaseIWFormElement
 import works.iterative.forms.impl.LiveHtmlInterpreter
 import works.iterative.forms.LayoutResolver
 import works.iterative.forms.impl.FieldTypeResolver

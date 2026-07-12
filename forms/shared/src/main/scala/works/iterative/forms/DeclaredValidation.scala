@@ -32,10 +32,10 @@ object DeclaredValidation:
     ): List[(AbsolutePath, UserMessage)] =
         element match
             case Section(id, elems, _) => collect(path / id, elems, state)
-            case Field(id, fieldType, default, optional, validations) =>
+            case field @ Field(id, fieldType, default, _, validations) =>
                 val fieldPath = path / id
                 val effective = state.getString(fieldPath).orElse(default).filterNot(_.isBlank)
-                val required = !optional || validations.contains(Validation.Required)
+                val required = field.required
                 if fieldType.hidden then Nil
                 else
                     effective match
