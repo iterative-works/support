@@ -57,13 +57,13 @@ object FieldKindConformanceSpec extends ZIOSpecDefault:
         },
         test("UIFormBuilder passes every kind through: hidden fields aside, a labeled text field") {
             val ui = builder.buildForm(
-                ConformanceCorpus.kindsForm,
+                ConformanceCorpus.vocabularyForm,
                 FormData.parse(Map.empty),
                 FormValidationState.valid,
                 None
             )
             check(kinds) { kind =>
-                val path = IdPath.full(s"kinds.${ConformanceCorpus.fieldId(kind)}")
+                val path = IdPath.full(s"vocab.${ConformanceCorpus.fieldId(kind)}")
                 val element = ui.children.collectFirst {
                     case e: UIHiddenField if e.id == path  => e
                     case e: UILabeledField if e.id == path => e
@@ -82,7 +82,7 @@ object FieldKindConformanceSpec extends ZIOSpecDefault:
         test("SSR renderer maps every kind to its pinned HTML control") {
             val html = UIFormHtmlRenderer(blankDisplays).render(
                 builder.buildForm(
-                    ConformanceCorpus.kindsForm,
+                    ConformanceCorpus.vocabularyForm,
                     FormData.parse(Map.empty),
                     FormValidationState.valid,
                     None
@@ -93,11 +93,11 @@ object FieldKindConformanceSpec extends ZIOSpecDefault:
                 val fid = ConformanceCorpus.fieldId(kind)
                 val expected = ssrControl(kind) match
                     case Control.HiddenInput =>
-                        s"""<input type="hidden" id="kinds-$fid" name="kinds.$fid""""
+                        s"""<input type="hidden" id="vocab-$fid" name="vocab.$fid""""
                     case Control.TextArea =>
-                        s"""<textarea id="kinds-$fid" name="kinds.$fid""""
+                        s"""<textarea id="vocab-$fid" name="vocab.$fid""""
                     case Control.Input(tpe) =>
-                        s"""<input type="$tpe" id="kinds-$fid" name="kinds.$fid""""
+                        s"""<input type="$tpe" id="vocab-$fid" name="vocab.$fid""""
                 assertTrue(html.contains(expected))
             }
         },
@@ -105,7 +105,7 @@ object FieldKindConformanceSpec extends ZIOSpecDefault:
             val value = "1,5"
             val state = FormData.parse(
                 ConformanceCorpus.fieldKinds.map(k =>
-                    s"kinds.${ConformanceCorpus.fieldId(k)}" -> Seq(value)
+                    s"vocab.${ConformanceCorpus.fieldId(k)}" -> Seq(value)
                 ).toMap
             )
             val blankXmlDisplays = new DisplayResolver[FormState, UIO[NodeSeq]]:
@@ -122,14 +122,14 @@ object FieldKindConformanceSpec extends ZIOSpecDefault:
             for
                 xml <- renderer.render(
                     builder.buildForm(
-                        ConformanceCorpus.kindsForm,
+                        ConformanceCorpus.vocabularyForm,
                         state,
                         FormValidationState.valid,
                         None
                     )
                 )
                 results <- check(kinds) { kind =>
-                    val htmlId = s"kinds-${ConformanceCorpus.fieldId(kind)}"
+                    val htmlId = s"vocab-${ConformanceCorpus.fieldId(kind)}"
                     kind match
                         case FieldKind.Hidden =>
                             // Hidden values are round-trip chrome and stay verbatim

@@ -35,9 +35,21 @@ object ConformanceCorpus:
 
     def fieldFor(kind: FieldKind): Field = Field(fieldId(kind), FieldType(kind))
 
-    /** One form holding a field of every kind, the per-kind dispatch surface of each interpreter.
+    /** One form over the whole declared vocabulary: a field of every kind, a registry-bound Rule
+      * field and a button of every intent — the page each interpreter must render conformantly.
+      * Every field is optional so kind dispatch can be exercised without filling the page.
       */
-    val kindsForm: Form = Form("kinds", "1")(fieldKinds.map(fieldFor)*)
+    val vocabularyForm: Form = Form("vocab", "1")(
+        (fieldKinds.map(kind => fieldFor(kind).copy(optional = true))
+            :+ Field(
+                "even",
+                optional = true,
+                validations = List(Validation.Rule("conformance:even"))
+            )
+            :+ Button("send", ButtonIntent.Submit)
+            :+ Button("ping", ButtonIntent.ServerAction)
+            :+ Button("local", ButtonIntent.ClientAction))*
+    )
 
     // --- Validation: every case with a passing value and (where the case can fail) a failing one ---
 
@@ -190,6 +202,15 @@ object ConformanceCorpus:
 
     private val messageMap: Map[String, String] = Map(
         "validated.value.label" -> "Value",
+        "vocab.title" -> "Vocabulary",
+        "vocab.even.label" -> "Even number",
+        "vocab.send.label" -> "Send vocabulary",
+        "vocab.send.button" -> "Send vocabulary",
+        "vocab.ping.label" -> "Ping server",
+        "vocab.ping.button" -> "Ping server",
+        "vocab.local.label" -> "Local action",
+        "vocab.local.button" -> "Local action",
+        "vocab.submit" -> "Submit vocabulary",
         "error.field.required" -> "Please fill in %s",
         "error.field.email" -> "%s is not a valid e-mail address",
         "error.field.pattern" -> "%s does not match the expected format",

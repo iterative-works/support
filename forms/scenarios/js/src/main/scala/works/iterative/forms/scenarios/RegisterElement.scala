@@ -1,16 +1,15 @@
-// PURPOSE: Registers the iw-form custom element rendering the proof form through LiveHtmlInterpreter
-// PURPOSE: Scenario submit chrome: invalid data shows errors, valid data posts and shows the received dump
+// PURPOSE: Registers the scenario custom elements rendering forms through LiveHtmlInterpreter
+// PURPOSE: iw-form hosts the proof form, iw-vocab-form the conformance vocabulary form
 
 package works.iterative.forms.scenarios
 
 import com.raquo.laminar.api.L.*
 import works.iterative.core.{Language, MessageCatalogue}
-import works.iterative.forms.{BaseIWFormElement, LayoutResolver, ValidationState}
+import works.iterative.forms.{BaseIWFormElement, LayoutResolver}
 import works.iterative.forms.impl.{
     ButtonHandler,
     FieldTypeResolver,
     FormCtx,
-    FormR,
     LiveForm,
     LiveFormHooks,
     LiveHtmlDisplayResolver,
@@ -19,7 +18,6 @@ import works.iterative.forms.impl.{
     ValidationResolver
 }
 import works.iterative.ui.model.forms.IdPath
-import zio.json.*
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scala.scalajs.js.annotation.JSExport
@@ -32,6 +30,11 @@ object Main:
             "iw-form",
             scala.scalajs.js.constructorOf[ScenarioIWFormElement]
         )
+        org.scalajs.dom.window.customElements.define(
+            "iw-vocab-form",
+            scala.scalajs.js.constructorOf[VocabularyIWFormElement]
+        )
+    end main
 end Main
 
 class ScenarioIWFormElement extends BaseIWFormElement:
@@ -70,41 +73,44 @@ class ScenarioIWFormElement extends BaseIWFormElement:
     )
 
     override def formContent(form: LiveForm): HtmlElement =
-        val submitted: Var[Option[String]] = Var(None)
-        val clicks = new EventBus[Unit]
-        // Field validation throttles at 500ms, so the state sampled right at the click can
-        // trail the latest edits; decide once validation has settled
-        val attempts = clicks.events.flatMapSwitch(_ =>
-            EventStream.unit().delay(700).sample(form.data)
+        ScenarioSubmitChrome.wrap(
+            form,
+            "inquiry-submit",
+            messages("inquiry.submit"),
+            "/spaForm/submit",
+            "Inquiry received"
         )
-        div(
-            attempts.collect { case state if !state.isValid => true } --> form.showErrors,
-            attempts.collect { case ValidationState.Valid(data) => (data: FormR).toJson }
-                .flatMapSwitch(json =>
-                    FetchStream.post(
-                        "/spaForm/submit",
-                        _.body(json),
-                        _.headers("Content-Type" -> "application/json")
-                    )
-                ).map(Some(_)) --> submitted.writer,
-            child <-- submitted.signal.map {
-                case Some(dumpJson) =>
-                    div(
-                        h1("Inquiry received"),
-                        p("Submitted data:"),
-                        pre(code(dumpJson))
-                    )
-                case None =>
-                    div(
-                        form.element,
-                        button(
-                            idAttr("inquiry-submit"),
-                            tpe("button"),
-                            messages("inquiry.submit"),
-                            onClick.mapToUnit --> clicks.writer
-                        )
-                    )
-            }
-        )
-    end formContent
 end ScenarioIWFormElement
+
+class VocabularyIWFormElement extends BaseIWFormElement:
+    private val messages = ConformanceCorpus.messages
+    private given MessageCatalogue = messages
+    private given Language = Language.EN
+
+    private val noDisplays = new LiveHtmlDisplayResolver:
+        override def resolve(id: IdPath, ctx: FormCtx)(using
+            MessageCatalogue,
+            Language
+        ): HtmlElement = div(idAttr(id.toHtmlId))
+
+    override def interpreter = new LiveHtmlInterpreter(
+        LayoutResolver.grid(PartialFunction.empty),
+        FieldTypeResolver.empty,
+        ValidationResolver.empty,
+        noDisplays,
+        ButtonHandler.empty,
+        PersistenceProvider.empty,
+        LiveFormHooks.empty,
+        new SimpleFormComponents,
+        ruleRegistry = ConformanceCorpus.ruleRegistry
+    )
+
+    override def formContent(form: LiveForm): HtmlElement =
+        ScenarioSubmitChrome.wrap(
+            form,
+            "vocab-submit",
+            messages("vocab.submit"),
+            "/spaVocab/submit",
+            "Vocabulary received"
+        )
+end VocabularyIWFormElement

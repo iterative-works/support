@@ -4,5 +4,7 @@ object ScenariosServer
     extends works.iterative.scenarios.ScenariosServer(
         SpaFormScenario,
         UIFormScenario,
-        SsrFormScenario
+        SsrFormScenario,
+        SsrVocabularyScenario,
+        SpaVocabularyScenario
     )

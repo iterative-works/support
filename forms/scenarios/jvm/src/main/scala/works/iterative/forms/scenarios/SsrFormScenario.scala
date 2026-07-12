@@ -41,37 +41,9 @@ object SsrFormScenario extends Scenario:
     def renderFormTag(form: Form, state: FormState, validation: FormValidationState): Tag =
         renderer.render(builder.buildForm(form, state, validation, None), postAction)
 
-    private val style = """
-        body { font-family: sans-serif; max-width: 40rem; margin: 2rem auto; }
-        .field { margin: 0.5rem 0; }
-        .field label { display: block; font-weight: bold; }
-        .field input, .field textarea, .field select { width: 100%; box-sizing: border-box; }
-        .required { color: #b00; margin-left: 0.2rem; }
-        .field-errors { color: #b00; font-size: 0.9rem; }
-        section { border-left: 3px solid #ddd; padding-left: 1rem; margin: 1rem 0; }
-    """
+    private def shell(inner: Frag): String = ScenarioHtml.shell("SSR Form", inner)
 
-    private def shell(inner: Frag): String =
-        "<!doctype html>" + html(
-            head(
-                meta(charset := "utf-8"),
-                tags2.title("SSR Form"),
-                script(src := "https://unpkg.com/htmx.org@2.0.2"),
-                tag("style")(raw(style))
-            ),
-            body(inner)
-        ).render
-
-    // Response.html would prepend its own doctype, breaking fragment swaps.
-    // Explicit utf-8 charset: browsers otherwise submit forms in Latin-1
-    private def htmlResponse(content: String): Response =
-        Response(
-            body = zio.http.Body.fromString(content),
-            headers = zio.http.Headers(zio.http.Header.ContentType(
-                zio.http.MediaType.text.html,
-                charset = Some(java.nio.charset.StandardCharsets.UTF_8)
-            ))
-        )
+    private def htmlResponse(content: String): Response = ScenarioHtml.htmlResponse(content)
 
     override def page: Html =
         Html.raw(shell(renderFormTag(formDeclaration, initialState, FormValidationState.valid)))
