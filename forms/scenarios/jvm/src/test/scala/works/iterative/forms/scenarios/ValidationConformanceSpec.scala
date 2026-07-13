@@ -116,7 +116,7 @@ object ValidationConformanceSpec extends ZIOSpecDefault:
         },
         test("declared failures render as field errors through builder and SSR renderer") {
             val builder = UIFormBuilder(LayoutResolver.grid(PartialFunction.empty))
-            val renderer = UIFormHtmlRenderer(blankDisplays)
+            val renderer = UIFormHtmlRenderer(blankDisplays, FormTransport.htmx)
             // A distinctive literal from each error template, immune to argument formatting
             val fragments = Map(
                 "error.field.email" -> "is not a valid e-mail",

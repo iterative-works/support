@@ -37,6 +37,7 @@ object CommonPomSettings {
 /** Common version for all published modules */
 object CommonVersion {
   val publishVersion = "0.1.19-SNAPSHOT"
+  val scalatagsDatastar = "0.1.0-SNAPSHOT"
 }
 
 /** Common dependency groups */
@@ -980,6 +981,28 @@ object `czech-support` extends CrossModule {
   }
 }
 
+// Datastar transport for SSR forms - JVM only (located at forms/datastar)
+object formsDatastar extends JvmOnlyModule {
+  def moduleName = "forms-datastar"
+  def description = "IW Support Forms Datastar Transport"
+
+  override def moduleDir = super.moduleDir / os.up / "forms" / "datastar"
+
+  def moduleDeps = Seq(forms.jvm)
+
+  // scalatags-datastar publishes to the iterative-works Forgejo Maven registry
+  override def repositories = Task {
+    super.repositories() ++ Seq("https://code.iterative.works/api/packages/iterative-works/maven")
+  }
+
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    mvn"works.iterative::scalatags-datastar:${CommonVersion.scalatagsDatastar}",
+    mvn"works.iterative::scalatags-datastar-sse:${CommonVersion.scalatagsDatastar}"
+  )
+
+  object test extends BaseTests
+}
+
 // Forms scenarios module - cross-compiled (located at forms/scenarios), internal use only
 object formsScenarios extends NoPublishCrossModule {
   def moduleName = "forms-scenarios"
@@ -991,7 +1014,7 @@ object formsScenarios extends NoPublishCrossModule {
   }
 
   object jvm extends JvmModule with FormsScenariosModule {
-    def moduleDeps = Seq(forms.jvm, scenarios.jvm)
+    def moduleDeps = Seq(forms.jvm, formsDatastar, scenarios.jvm)
 
     // The SPA scenario serves the linked ScalaJS bundle from this directory
     override def forkEnv = Task {

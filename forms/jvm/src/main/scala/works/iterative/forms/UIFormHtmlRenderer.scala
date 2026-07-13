@@ -1,5 +1,5 @@
 // PURPOSE: Renders a UIForm as a server-side HTML form using scalatags
-// PURPOSE: Plain POST form enriched with HTMX attributes for change-triggered re-render (FC-D4)
+// PURPOSE: Plain POST form enriched by a FormTransport for change-triggered re-render (FC-D4)
 
 package works.iterative.forms
 
@@ -8,7 +8,10 @@ import scalatags.Text.tags2
 import works.iterative.core.{Language, MessageArg, MessageCatalogue, UserMessage}
 import works.iterative.ui.model.forms.*
 
-class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
+class UIFormHtmlRenderer(
+    displayResolver: DisplayResolver[FormState, Frag],
+    transport: FormTransport
+):
 
     def render(form: UIForm, postAction: String)(using messages: MessageCatalogue): Tag =
         given formMessages: MessageCatalogue = messages.nested(form.messageKey.value)
@@ -17,13 +20,8 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
             id := form.id.toHtmlId,
             method := "post",
             action := postAction,
-            attr("hx-post") := postAction,
-            // Only committed-choice controls trigger a re-render: swapping the form on
-            // text-field change would wipe values typed while the request was in flight
-            attr("hx-trigger") := UIFormHtmlRenderer.rerenderTrigger,
-            attr("hx-target") := "this",
-            attr("hx-swap") := "outerHTML",
-            // novalidate: htmx validates forms before ANY request unless noValidate is set,
+            transport.formAttributes(postAction),
+            // novalidate: transports validate forms before requests unless noValidate is set,
             // which would block change re-renders while required fields are still blank.
             // Validation is the server's job; required attributes stay for a11y/styling.
             attr("novalidate").empty
@@ -253,11 +251,4 @@ class UIFormHtmlRenderer(displayResolver: DisplayResolver[FormState, Frag]):
     private def fileLabel(file: UIFile): String = file match
         case name: String                      => name
         case ref: works.iterative.core.FileRef => ref.name
-end UIFormHtmlRenderer
-
-object UIFormHtmlRenderer:
-    val rerenderTrigger: String =
-        List("select", "input[type='checkbox']", "input[type='radio']", "input[type='date']")
-            .map(sel => s"change from:$sel")
-            .mkString(", ")
 end UIFormHtmlRenderer

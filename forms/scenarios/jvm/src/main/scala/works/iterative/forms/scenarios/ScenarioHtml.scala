@@ -1,5 +1,5 @@
 // PURPOSE: Shared HTML shell and response helpers for the SSR form scenarios
-// PURPOSE: Explicit utf-8 charset and a single doctype so htmx fragment swaps stay intact
+// PURPOSE: Explicit utf-8 charset and a single doctype so fragment swaps and patches stay intact
 
 package works.iterative.forms.scenarios
 
@@ -19,12 +19,20 @@ object ScenarioHtml:
         section { border-left: 3px solid #ddd; padding-left: 1rem; margin: 1rem 0; }
     """
 
-    def shell(pageTitle: String, inner: Frag): String =
+    val htmxScript: Frag = script(src := "https://unpkg.com/htmx.org@2.0.2")
+
+    // The version the transport bindings target; newer tags renamed the patch events
+    val datastarScript: Frag = script(
+        src := "https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.2/bundles/datastar.js",
+        `type` := "module"
+    )
+
+    def shell(pageTitle: String, scripts: Frag, inner: Frag): String =
         "<!doctype html>" + html(
             head(
                 meta(charset := "utf-8"),
                 tags2.title(pageTitle),
-                script(src := "https://unpkg.com/htmx.org@2.0.2"),
+                scripts,
                 tag("style")(raw(style))
             ),
             body(inner)
